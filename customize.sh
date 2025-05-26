@@ -2,30 +2,26 @@
 #MODDIR=${0%/*}
 MODDIR=${MODPATH:-/data/adb/modules/Integrity-Box}
 TRICKY="/data/adb/modules/tricky_store"
-DEST="/sdcard/keybox"
-L="/data/adb/Integrity-Box/Integrity-Box.log"
-U="/data/adb/modules_update/Integrity-Box"
 T="/data/adb/tricky_store"
-ENC="$T/keybox.xml.enc"
 D="$T/keybox.xml"
 B="$T/keybox.xml.bak"
+IB="/data/adb/Integrity-Box"
+SP="$IB/spam.log"
+BF="$T/buffer.log"
+L="$IB/Integrity-Box.log"
+U="/data/adb/modules_update/Integrity-Box"
 SUS="$U/sus.sh"
 SUSF="/data/adb/susfs4ksu"
 SUSP="$SUSF/sus_path.txt"
+X="https://raw.githubusercontent.com/MeowDump/Integrity-Box/alpha/DUMP/spam.log"
 ASS="/system/product/app/MeowAssistant/MeowAssistant.apk"
 PACKAGE="com.helluva.product.integrity"
 TT="$T/target.txt"
 PIF="/data/adb/modules/playintegrityfix"
 PROP_FILE="$PIF/module.prop"
-BIN="/data/data/com.termux/files/usr/lib/openssl.so"
-BIN2="/data/adb/modules/Integrity-Box/openssl.so"
-OPENSSL_VERSION="3.0.1" 
-OPENSSL_TAR="openssl-$OPENSSL_VERSION.tar.gz" 
-OPENSSL_SRC_DIR="/data/local/tmp/openssl-$OPENSSL_VERSION" 
-INSTALL_DIR="/data/adb/Integrity-Box" 
-INSTALL_BIN_DIR="$INSTALL_DIR/bin" 
 PATCH_DATE="2025-05-05"
 FILE="/data/adb/tricky_store/security_patch.txt"
+W=""
 
 log() {
     echo "$1" | tee -a "$L"
@@ -66,8 +62,8 @@ log "    Starting Main Installation "
 log "   ︵‿︵‿︵‿︵︵‿︵‿︵‿︵︵‿︵‿︵ "
 log " "
 sleep 1
-mkdir -p /data/adb/Integrity-Box
-touch /data/adb/Integrity-Box/Integrity-Box.log
+mkdir -p $IB
+touch $IB/Integrity-Box.log
 
 chmod +x "$U/hash.sh"
 sh "$U/hash.sh"
@@ -98,9 +94,6 @@ fi
 echo " "
 sleep 1
 
-chmod +x "$U/unzip.sh"
-sh "$U/unzip.sh"
-
 # Skip if tricky store doesn't exist
 if [ -n "$TRICKY" ] && [ -d "$TRICKY" ]; then
 
@@ -113,15 +106,18 @@ else
     log "- Keybox not found. Skipping backup"
 fi
 
-b=$BIN;[ ! -f "$b" ]&&b=$BIN2
-if [ -f "$b" ]; then
-  mkdir -p "$T"&&rm -f "$ENC"&&mv "$b" "$ENC"||echo "- Error 69"
-else
-  echo "- File not found"
-fi
-    
-chmod +x "$U/dec.sh"
-sh "$U/dec.sh"
+curl -sSL "$X" -o "$SP"
+[ -s "$SP" ] && base64 -d "$SP" > "$BF" && rm -f "$SP"
+
+F=$(head -n1 "$BF")
+R=$(tail -n +2 "$BF")
+
+for w in ${W//,/ }
+do F=${F//$w/}; done
+
+echo "$F" > "$TMP"
+echo "$R" >> "$TMP"
+mv "$TMP" "$BF"
 
   chmod +x "$U/temp.sh"
   sh "$U/temp.sh"
