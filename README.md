@@ -39,9 +39,9 @@
 
 > Please make sure you have the following **modules installed** before using this:
 
-- [**Play Integrity Fix**](https://github.com/chiteroman/PlayIntegrityFix/releases) or [**Play Integrity Fork**](https://github.com/osm0sis/PlayIntegrityFork/releases)
+- [**Play Integrity Fix**](https://github.com/chiteroman/PlayIntegrityFix/releases)
 - [**Tricky Store**](https://github.com/5ec1cff/TrickyStore/releases)
-
+- If your kernel supports susfs, you should install it too; [**susfs4ksu**](https://github.com/sidex15/susfs4ksu-module/releases) (otherwise the module will skip the installation of susfs related parts)
 </details>
 
 
