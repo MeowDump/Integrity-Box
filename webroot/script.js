@@ -1,12 +1,7 @@
-const MODDIR = "/data/adb/modules/Integrity-Box";
+const MODDIR = "/data/adb/modules/integrity_box";
 const PROP = `${MODDIR}/module.prop`;
 
-function isMMRL() {
-  return navigator.userAgent.includes("com.dergoogler.mmrl");
-}
-
 function runShell(command) {
-  if (isMMRL()) return Promise.reject("Not compatible with MMRL. Use KSUWebUI.");
   if (typeof ksu !== "object" || typeof ksu.exec !== "function")
     return Promise.reject("KernelSU JavaScript API not available.");
   const cb = `cb_${Date.now()}`;
@@ -29,7 +24,7 @@ async function getModuleName() {
     document.getElementById("module-name").textContent = name.trim();
     document.title = name.trim();
   } catch {
-    document.getElementById("module-name").textContent = "Integrity-Box";
+    document.getElementById("module-name").textContent = "integrity_box";
   }
 }
 
