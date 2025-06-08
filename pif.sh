@@ -9,7 +9,7 @@ NORMAL_JSON="$DST_DIR/pif.json"
 LOG="$DST_DIR/Integrity-Box/pif.log"
 KILL="$MODDIR/kill.sh"
 
-MEOW() {
+popup() {
     am start -a android.intent.action.MAIN -e mona "$@" -n meow.helper/.MainActivity &>/dev/null
     sleep 0.5
 }
@@ -26,7 +26,7 @@ if [ -f "$SRC_JSON" ]; then
         cp "$SRC_JSON" "$FORK_JSON"
         chmod 644 "$FORK_JSON"
         log "- PIF Fork detected, saved as custom.pif.json"
-        MEOW "custom.pif.json updated"
+        popup "custom.pif.json updated"
         sleep 2
         chmod +x "$KILL"
         sh "$KILL"
@@ -34,14 +34,14 @@ if [ -f "$SRC_JSON" ]; then
         cp "$SRC_JSON" "$NORMAL_JSON"
         chmod 644 "$NORMAL_JSON"
         log "- Saved as pif.json"
-        MEOW "pif.json updated"
+        popup "pif.json updated"
         sleep 2
         chmod +x "$KILL"
         sh "$KILL"
     fi
 else
     log "❌ pif.json not found!"
-    MEOW "pif.json missing"
+    popup "pif.json missing"
 fi
 
 exit 0
