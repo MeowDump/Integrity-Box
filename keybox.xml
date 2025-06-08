@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+<!-- AOSP KEYBOX -->
 <AndroidAttestation>
     <NumberOfKeyboxes>1</NumberOfKeyboxes>
     <Keybox DeviceID="sw">
