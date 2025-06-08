@@ -2,7 +2,7 @@
 TARGET='/data/adb/tricky_store/target.txt'
 TEE_STATUS='/data/adb/tricky_store/tee_status'
 
-MEOW() {
+popup() {
     am start -a android.intent.action.MAIN -e mona "$@" -n meow.helper/.MainActivity > /dev/null
     sleep 0.5
 }
@@ -11,7 +11,7 @@ MEOW() {
 if [ ! -d "/data/adb/tricky_store" ]; then
     echo "- Please install Trickystore Module"
     nohup am start -a android.intent.action.VIEW -d https://github.com/5ec1cff/TrickyStore/releases >/dev/null 2>&1 & 
-    MEOW "Redirecting to Github"
+    popup "Redirecting to Github"
     exit 1
 fi
 
@@ -37,7 +37,7 @@ echo "com.reveny.nativecheck!" >> "$TARGET"
 echo "io.github.vvb2060.keyattestation!" >> "$TARGET"
 echo "io.github.vvb2060.mahoshojo" >> "$TARGET"
 echo "icu.nullptr.nativetest" >> "$TARGET"
-MEOW "This may take a while, have patience☕"
+popup "This may take a while, have patience☕"
 echo "- Updating target list as per your TEE status"
 
 # Function to add package names to target list
@@ -66,7 +66,7 @@ echo "-----------------------------------------------"
 echo "  All System & User Apps with TEE support"
 echo "-----------------------------------------------"
 cat "$TARGET"
-MEOW "🤩 Updated target.txt"
+popup "🤩 Updated target.txt"
 
 su -c "am force-stop com.google.android.gms.unstable"
 su -c "am force-stop com.android.vending"
