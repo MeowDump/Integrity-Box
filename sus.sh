@@ -7,7 +7,7 @@ MEOW() {
 MEOW " Let Me Take Care Of This🤫"
 
 # log file path and output file path
-L="/data/adb/Integrity-Box/Integrity-Box.log"
+L="/data/adb/Integrity-Box-Logs/sus.log"
 O="/data/adb/susfs4ksu/sus_path.txt"
 
 # Ensure files exist before changing permissions

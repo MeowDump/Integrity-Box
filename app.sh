@@ -1,6 +1,6 @@
 #!/system/bin/sh
 
-L="/data/adb/Integrity-Box/risky_apps.log"
+L="/data/adb/Integrity-Box-Logs/risky_apps.log"
 TIME=$(date "+%Y-%m-%d %H:%M:%S")
 Q="------------------------------------------"
 R="════════════════════════════════"

@@ -1,15 +1,2 @@
 # Storage & Encryption
 ro.crypto.state=encrypted
-
-# Disable unnecessary prefetching
-persist.mm.enable.prefetch=false
-
-# Optimize Logging System
-ro.logd.size=128K
-persist.logd.size.radio=512K
-persist.logd.limit=OFF
-persist.logd.size.system=512K
-ro.logd.size.stats=128K
-persist.logd.size=128K
-persist.logd.size.crash=512K
-log.tag.stats_log=OFF

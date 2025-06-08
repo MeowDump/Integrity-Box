@@ -1,12 +1,12 @@
 #!/system/bin/sh
 
 # Paths
-LOG="/data/adb/Integrity-Box"
-LOGFILE="$LOG/Integrity-Box.log"
+LOG="/data/adb/Integrity-Box-Logs"
+LOGFILE="$LOG/patch.log"
 TARGET_DIR="/data/adb/tricky_store"
 FILE_PATH="$TARGET_DIR/security_patch.txt"
 FILE_CONTENT="all=2025-05-05"
-U="/data/adb/modules/Integrity-Box"
+U="/data/adb/modules/integrity_box"
 
 chmod +x "$U/kill.sh"
 sh "$U/kill.sh"

@@ -1,9 +1,4 @@
 #!/system/bin/sh
-# Set log level for LSPosed
-#tags=("LSPosed" "LSPosed-Bridge")
-#for tag in "${tags[@]}"; do
-#    setprop persist.log.tag."$tag" S
-#done
 
 # Wait for system to stabilize before setting SELinux
 sleep 10

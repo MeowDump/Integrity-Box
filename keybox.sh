@@ -13,3 +13,5 @@ else
 fi
 
 [ -f /data/adb/tricky_store/keybox.md ] && rm -f /data/adb/tricky_store/keybox.md
+
+exit 0

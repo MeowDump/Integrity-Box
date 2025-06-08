@@ -1,9 +1,11 @@
 #!/system/bin/sh
 
-SCRIPT_DIR="/data/adb/modules/Integrity-Box"
+SCRIPT_DIR="/data/adb/modules/integrity_box"
 TMP_KEY="/dev/key_tmp"
 
 MENU="
+Disable Auto-Whitelist Mode:stop.sh
+Enable Auto-Whitelist Mode:start.sh
 Add All apps in Target list:systemuser.sh
 Add User app only in Target list:user.sh
 Spoof TrickyStore patch:patch.sh
@@ -43,12 +45,16 @@ EOF
 }
 
 print_menu() {
-  printf "\033c"  # Clear screen and reset terminal
+  clear
   draw_box "     Integrity-Box Menu "
   echo "- Use Volume Down to navigate"
   echo "+ Use Volume Up to execute"
   echo "• Press Power to cancel"
   echo " "
+  print_selection_only
+}
+
+print_selection_only() {
   i=1
   while IFS= read -r line; do
     LABEL=$(echo "$line" | cut -d: -f1)
@@ -95,8 +101,14 @@ while :; do
       [ "$INDEX" -gt "$TOTAL" ] && INDEX=1
       SELECTED=$(sed -n "${INDEX}p" /dev/tmp_menu)
       LABEL=$(echo "$SELECTED" | cut -d: -f1)
-      MEOW "$LABEL"
-      print_menu
+#      MEOW "$LABEL"
+      clear
+      draw_box "     Integrity-Box Menu "
+      echo "- Use Volume Down to navigate"
+      echo "+ Use Volume Up to execute"
+      echo "• Press Power to cancel"
+      echo " "
+      print_selection_only
       ;;
     POWER)
       MEOW "Cancelled"

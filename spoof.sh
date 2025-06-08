@@ -1,11 +1,11 @@
 #!/bin/sh
 
 # Path to module and JSON files
-MODDIR=/data/adb
+MODDIR=/data/adb/modules/playintegrityfix
 PIF_PATH="$MODDIR/pif.json"
 PIF_FORK_PATH="$MODDIR/custom.pif.json"
-D="$MODDIR/Integrity-Box"
-L="$D/Integrity-Box.log"
+D="$MODDIR/integrity_box"
+L="$D/integrity_box.log"
 
 # meow meow 
 MEOW() {

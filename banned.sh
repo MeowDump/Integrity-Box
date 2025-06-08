@@ -4,6 +4,6 @@ MEOW() {
 }
 
 nohup am start -a android.intent.action.VIEW -d https://android.googleapis.com/attestation/status >/dev/null 2>&1 &
-MEOW "Redirecting to Google Revoked List
+MEOW "Redirecting to Google Revoked List"
 
 exit 0

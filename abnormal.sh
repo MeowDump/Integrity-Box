@@ -1,6 +1,6 @@
 #!/system/bin/sh
 
-L="/data/adb/Integrity-Box/detection.log"
+L="/data/adb/Integrity-Box-Logs/detection.log"
 TIME=$(date "+%Y-%m-%d %H:%M:%S")
 Q="------------------------------------------"
 R="════════════════════════════"
