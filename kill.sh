@@ -1,6 +1,6 @@
 #!/system/bin/sh
 
-MEOW() {
+popup() {
     am start -a android.intent.action.MAIN -e mona "$@" -n meow.helper/.MainActivity &>/dev/null
     sleep 0.5
 }
@@ -13,7 +13,7 @@ if [ -n "$PID" ]; then
     echo "- Found PID(s): $PID"
     kill -9 $PID
     echo "- Killed $TARGET_PROCESS"
-    MEOW "GMS process killed successfully"
+    popup "GMS process killed successfully"
 else
-    MEOW "Sleeping 💤"
+    popup "Sleeping 💤"
 fi
