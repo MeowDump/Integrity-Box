@@ -1,8 +1,8 @@
 # Integrity-Box ( v5 )
 > Release Date: 08/06/2025
 
-# Important Note Before Flashing Integrity Box v5
-CLEAN INSTALLATION IS MANDATORY
+Important Note Before Flashing Integrity Box v5
+```CLEAN INSTALLATION IS MANDATORY```
 
 v5 comes with a lot of major changes, and to avoid conflicts with older versions of the Integrity Box module, It detects and removes all leftover files from previous installs that could interfere with the latest version.
 Once detected, the script will clean up the old files and automatically reboot your device in 10 seconds. (to apply changes)
