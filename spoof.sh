@@ -4,17 +4,16 @@
 MODDIR=/data/adb/modules/playintegrityfix
 PIF_PATH="$MODDIR/pif.json"
 PIF_FORK_PATH="$MODDIR/custom.pif.json"
-D="$MODDIR/integrity_box"
-L="$D/integrity_box.log"
+L="/data/adb/Integrity-Box-Logs/spoof.log"
 
-# meow meow 
-MEOW() {
+# popup message 
+popup() {
     am start -a android.intent.action.MAIN -e mona "$@" -n meow.helper/.MainActivity &>/dev/null
     sleep 0.5
 }
 
 # Logger
-log() { echo -e "$1" | tee -a "$L"; }
+meow() { echo -e "$1" | tee -a "$L"; }
 
 # Function to create backup of the fingerprint
 create_backup() {
@@ -22,7 +21,7 @@ create_backup() {
     local backup_file="${json_file}.bak"
     
     cp "$json_file" "$backup_file"
-    log "- Backup created 🌟"
+    meow "- Backup created 🌟"
 }
 
 # Function to restore the backup of the fingerprint
@@ -32,10 +31,10 @@ restore_backup() {
 
     if [ -f "$backup_file" ]; then
         cp "$backup_file" "$json_file"
-        log "- Backup restored 🌟"
-        MEOW "spoofVendingSdk disabled"
+        meow "- Backup restored 🌟"
+        popup "spoofVendingSdk disabled"
     else
-        log "🍳 Skipped"
+        meow "🍳 Skipped"
     fi
 }
 
@@ -54,7 +53,8 @@ update_json() {
     if [ "$spoof_value" -eq 0 ]; then
         sed -i '/"spoofVendingSdk":/d' "$json_file"
         sed -i '/\/\/ This key is used to spoof Vending SDK for compatibility purposes./d' "$json_file"
-        MEOW "spoofVendingSdk removed from $json_file"
+        popup "spoof removed successfully"
+        meow "spoofVendingSdk removed from $json_file"
     else
         if grep -q '"spoofVendingSdk":' "$json_file"; then
             current_value=$(grep '"spoofVendingSdk":' "$json_file" | awk -F': ' '{print $2}' | tr -d ',')
@@ -69,23 +69,25 @@ update_json() {
         if [ "$json_file" == "$PIF_FORK_PATH" ]; then
             sed -i '/}/i \ \n     "spoofVendingSdk": '$spoof_value',' "$json_file"
             sed -i '/}/i \ \n  // This key is used to spoof Vending SDK for compatibility purposes.' "$json_file"
-            MEOW "spoofVendingSdk added to custom.pif.json"
+            popup "spoofed successfully"
+            meow "spoofVendingSdk added to custom.pif.json"
         else
             sed -i '/}/i \  "spoofVendingSdk": '$spoof_value',' "$json_file"
             sed -i '/}/i \  // This key is used to spoof Vending SDK for compatibility purposes.' "$json_file"
-            MEOW "spoofVendingSdk added to pif.json"
+            popup "spoofed successfully"
+            meow "spoofVendingSdk added to pif.json"
         fi
     fi
 }
 
 # Preview 
-log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-log "   [➕]  Enable spoofVendingSdk"
-log "   [➖]  Disable spoofVendingSdk"
-log "   [🔴]  Cancel"
-log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-log " "
-MEOW " Vol+ Enable / Vol- Disable"
+meow "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+meow "   [➕]  Enable spoofVendingSdk"
+meow "   [➖]  Disable spoofVendingSdk"
+meow "   [🔴]  Cancel"
+meow "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+meow " "
+popup " Vol+ Enable / Vol- Disable"
 # Choose the fingeprint (check if custom.pif.json exists, otherwise use pif.json)
 if [ -f "$PIF_FORK_PATH" ]; then
     json_file=$PIF_FORK_PATH
