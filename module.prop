@@ -1,8 +1,8 @@
 id=integrity_box
 name=Integrity Box 📦
-version=5
-versionCode=500
-author=𝗠𝗘𝗢𝗪𝗻𝗮 💅 || MeowDump @telegram
+version=v6
+versionCode=600
+author=𝗠𝗘𝗢𝗪𝗻𝗮 💅 || tg@MeowDump
 description=This module provides real, working keyboxes for free with no hidden charges or scams, along with several powerful features. Smash the WebUI button to discover more!
 updateJson=https://raw.githubusercontent.com/MeowDump/Integrity-Box/main/release.json
 support=https://t.me/MeowDump
