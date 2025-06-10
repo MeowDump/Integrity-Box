@@ -111,7 +111,6 @@ while :; do
       draw_box "     Integrity-Box Menu "
       echo "- Use Volume Down to navigate"
       echo "+ Use Volume Up to execute"
-      echo "• Press Power to cancel"
       echo " "
       print_selection_only
       ;;
