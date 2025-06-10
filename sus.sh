@@ -1,21 +1,27 @@
-# MeowMeow
-MEOW() {
+# Meowpopup
+popup() {
   am start -a android.intent.action.MAIN -e mona "$@" -n meow.helper/.MainActivity >/dev/null
   sleep 0.5
 }
-
-MEOW " Let Me Take Care Of This🤫"
 
 # log file path and output file path
 L="/data/adb/Integrity-Box-Logs/sus.log"
 O="/data/adb/susfs4ksu/sus_path.txt"
 
-# Ensure files exist before changing permissions
-touch "$O" "$L"
+# If file doesn't exist, notify and exit
+if [ ! -f "$O" ]; then
+  popup "susfs isn't installed ❌"
+  exit 1
+fi
+
+popup " Let Me Take Care Of This🤫"
+
+# Ensure file exists before changing permissions
+touch "$L"
 chmod 644 "$O" "$L"
 
-# Function to log messages
-log() {
+# Function to meow messages
+meow() {
     echo "$1" | tee -a "$L"
 }
 
@@ -26,13 +32,13 @@ echo " " >> "$L"
 
 # Check if the output file is writable
 if [ ! -w "$O" ]; then
-    log "- $O is not writable. Please check file permissions."
+    meow "- $O is not writable. Please check file permissions."
     exit 1
 fi
 
 # Log the start of the process
-log "- Adding necessary paths to sus list"
-log " "
+meow "- Adding necessary paths to sus list"
+meow " "
 > "$O"
 
 # Add paths manually
@@ -43,24 +49,24 @@ for path in \
     "/vendor/bin/install-recovery.sh" \
     "/system/bin/install-recovery.sh"; do
     echo "$path" >> "$O"
-    log "- Path added: $path"
+    meow "- Path added: $path"
 done
 
-log "- saved to sus list"
-log " "
+meow "- saved to sus list"
+meow " "
 
 # Prepare for scanning
-log "- Scanning system for Custom ROM detection.."
+meow "- Scanning system for Custom ROM detection.."
 
 # Search for traces in the specified directories
 for dir in /system /product /data /vendor /etc /root; do
-    log "- Searching in: $dir... "
+    meow "- Searching in: $dir... "
     find "$dir" -type f 2>/dev/null | grep -i -E "lineageos|crdroid|gapps|evolution|magisk" >> "$O"
 done
 
 chmod 644 "$O"
-log "- Scan complete. & saved to sus list "
+meow "- Scan complete. & saved to sus list "
 
-MEOW "Make it SUS🥷"
-log " "
+popup "Make it SUS🥷"
+meow " "
 exit 0

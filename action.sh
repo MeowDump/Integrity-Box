@@ -27,7 +27,7 @@ Report a problem:issue.sh
 Module Info:info.sh
 "
 
-MEOW() {
+popup() {
   am start -a android.intent.action.MAIN -e mona "$@" -n meow.helper/.MainActivity &>/dev/null
   sleep 0.5
 }
@@ -49,7 +49,6 @@ print_menu() {
   draw_box "     Integrity-Box Menu "
   echo "- Use Volume Down to navigate"
   echo "+ Use Volume Up to execute"
-  echo "• Press Power to cancel"
   echo " "
   print_selection_only
 }
@@ -64,15 +63,21 @@ print_selection_only() {
   echo " "
 }
 
-# Function to get key press
+# Function to get key press using keycheck
 wait_for_key() {
+  chmod +x "$SCRIPT_DIR/keycheck"
+
   while :; do
-    keyevent=$(getevent -qlc 1 2>/dev/null | grep "KEY_" | head -n 1)
-    case "$keyevent" in
-      *KEY_VOLUMEUP*) echo "UP"; return ;;
-      *KEY_VOLUMEDOWN*) echo "DOWN"; return ;;
-      *KEY_POWER*) echo "POWER"; return ;;
-    esac
+    "$SCRIPT_DIR/keycheck"
+    KEY="$?"
+
+    # Debounce loop: wait until no key is pressed
+    sleep 0.2
+    "$SCRIPT_DIR/keycheck"
+    [ "$?" != "$KEY" ] && continue
+
+    # Once key is stable, return the value
+    return "$KEY"
   done
 }
 
@@ -85,23 +90,23 @@ print_menu
 
 # Main Interaction Loop
 while :; do
-  key=$(wait_for_key)
+  wait_for_key
+  key=$?
+
   case "$key" in
-    UP)
+    42) # Volume Up
       SELECTED=$(sed -n "${INDEX}p" /dev/tmp_menu)
       LABEL=$(echo "$SELECTED" | cut -d: -f1)
       SCRIPT=$(echo "$SELECTED" | cut -d: -f2)
       sh "$SCRIPT_DIR/$SCRIPT"
-      MEOW "Done: $LABEL"
       echo "- Done."
       break
       ;;
-    DOWN)
+    41) # Volume Down
       INDEX=$((INDEX + 1))
       [ "$INDEX" -gt "$TOTAL" ] && INDEX=1
       SELECTED=$(sed -n "${INDEX}p" /dev/tmp_menu)
       LABEL=$(echo "$SELECTED" | cut -d: -f1)
-#      MEOW "$LABEL"
       clear
       draw_box "     Integrity-Box Menu "
       echo "- Use Volume Down to navigate"
@@ -109,12 +114,6 @@ while :; do
       echo "• Press Power to cancel"
       echo " "
       print_selection_only
-      ;;
-    POWER)
-      MEOW "Cancelled"
-      echo " "
-      echo "- Cancelled by user."
-      break
       ;;
   esac
 done
