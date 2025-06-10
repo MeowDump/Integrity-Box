@@ -1,31 +1,31 @@
 #!/system/bin/sh
 FILE="/data/adb/tricky_store/keybox.xml"
 TMP="/data/adb/tricky_store/keybox.xml.tmp"
-LOG_FILE="/data/adb/Integrity-Box-Logs/remove.log"
+L="/data/adb/Integrity-Box-Logs/remove.log"
 PLACEHOLDER="mona.sh"
 
-log() {
-    echo "- $1" | tee -a "$LOG_FILE"
+meow() {
+    echo "- $1" | tee -a "$L"
 }
 
-delete_if_exists() {
+nuke() {
     path="$1"
     if [ -e "$path" ]; then
         rm -rf "$path"
-        log "Deleted: $path"
+        meow "Deleted: $path"
     fi
 }
 
-touch $LOG_FILE
-echo "" >> "$LOG_FILE"
-echo "••••••• Cleanup Started •••••••" >> "$LOG_FILE"
+touch $L
+echo "" >> "$L"
+echo "••••••• Cleanup Started •••••••" >> "$L"
 
 if [ ! -f "$FILE" ]; then
-    log "File not found: $FILE"
+    meow "File not found: $FILE"
     exit 1
 fi
 
-log "Removing leftover files..."
+echo "Removing leftover files..." >> "$L"
 
 C1=""
 while IFS= read -r LINE; do
@@ -35,15 +35,15 @@ done < "$FILE"
 
 printf "%b" "$C1" > "$TMP" && mv "$TMP" "$FILE"
 
-delete_if_exists /data/adb/Integrity-Box/openssl
-delete_if_exists /data/adb/Integrity-Box/libssl.so.3
-delete_if_exists /data/adb/modules/Integrity-Box/system/bin/openssl
-delete_if_exists /data/data/com.termux/files/usr/bin/openssl
-delete_if_exists /data/data/com.termux/files/lib/openssl.so
-delete_if_exists /data/data/com.termux/files/lib/libssl.so
-delete_if_exists /data/data/com.termux/files/lib/libcrypto.so
-delete_if_exists /data/data/com.termux/files/lib/libssl.so.3
-delete_if_exists /data/data/com.termux/files/lib/libcrypto.so.3
+nuke /data/adb/Integrity-Box/openssl
+nuke /data/adb/Integrity-Box/libssl.so.3
+nuke /data/adb/modules/Integrity-Box/system/bin/openssl
+nuke /data/data/com.termux/files/usr/bin/openssl
+nuke /data/data/com.termux/files/lib/openssl.so
+nuke /data/data/com.termux/files/lib/libssl.so
+nuke /data/data/com.termux/files/lib/libcrypto.so
+nuke /data/data/com.termux/files/lib/libssl.so.3
+nuke /data/data/com.termux/files/lib/libcrypto.so.3
 
-echo "•••••••= Cleanup Ended •••••••=" >> "$LOG_FILE"
-echo "" >> "$LOG_FILE"
+echo "•••••••= Cleanup Ended •••••••=" >> "$L"
+echo "" >> "$L"
