@@ -5,8 +5,8 @@
 - Updated valid keybox
 - Fixed action button bug
 - Fixed Translation error in webui
-- Switched to key checker
-- Dropped support for power button
+- Shipped with key checker
+- Dropped support for power button (cancel operation)
 - Minor fixes and improvements
 
 > NOTE:
