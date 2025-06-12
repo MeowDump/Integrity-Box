@@ -1,7 +1,7 @@
 #!/system/bin/sh
 
-# Define Meow popup
-MEOW() {
+# Define popup
+popup() {
     am start -a android.intent.action.MAIN -e mona "$@" -n meow.helper/.MainActivity &>/dev/null
     sleep 0.5
 }
@@ -23,6 +23,11 @@ nohello_prev=""
 
 # Loop to monitor toggle state
 while true; do
+  if [ -f /sdcard/stop ]; then
+    popup "Stop file found. Exiting background loop."
+    break
+  fi
+  
   if [ ! -e "${MCTRL}/disable" ] && [ ! -e "${MCTRL}/remove" ]; then
     if is_magisk && [ ! -f /sdcard/stop ]; then
 
@@ -34,15 +39,15 @@ while true; do
         touch "$NOHELLO_WHITELIST"
       fi
 
-      # Show Meow if Shamiko just got activated
+      # Show popup if Shamiko just got activated
       if [ "$shamiko_prev" != "on" ] && [ -f "$SHAMIKO_WHITELIST" ]; then
-        MEOW "Shamiko Whitelist Mode Activated.✅"
+        popup "Shamiko Whitelist Mode Activated.✅"
         shamiko_prev="on"
       fi
 
-      # Show Meow if NoHello just got activated
+      # Show popup if NoHello just got activated
       if [ "$nohello_prev" != "on" ] && [ -f "$NOHELLO_WHITELIST" ]; then
-        MEOW "NoHello Whitelist Mode Activated.✅"
+        popup "NoHello Whitelist Mode Activated.✅"
         nohello_prev="on"
       fi
 
@@ -50,13 +55,13 @@ while true; do
   else
     if [ -f "$SHAMIKO_WHITELIST" ]; then
       rm -f "$SHAMIKO_WHITELIST"
-      MEOW "Shamiko Blacklist Mode Activated.❌"
+      popup "Shamiko Blacklist Mode Activated.❌"
       shamiko_prev="off"
     fi
 
     if [ -f "$NOHELLO_WHITELIST" ]; then
       rm -f "$NOHELLO_WHITELIST"
-      MEOW "NoHello Blacklist Mode Activated.❌"
+      popup "NoHello Blacklist Mode Activated.❌"
       nohello_prev="off"
     fi
   fi
