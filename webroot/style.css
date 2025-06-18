@@ -2,80 +2,56 @@
   font-family: 'Mona';
   src: url('mona.ttf') format('truetype');
 }
-
 :root {
-  --bg: #faf7ff;
-  --fg: #1a1a1a;
-  --accent: #7e57c2;
-  --btn-bg: #f3effa;
-  --btn-hover: #e6dbf5;
+  --bg: #1a1625;
+  --fg: #e0e0e0;
+  --accent: #825ce2;
+  --panel-bg: #2c2541;
+  --btn-hover: #393053;
+  --border-color: #393053;
+  --success: #4caf50;
+  --error: #f44336;
+  --loading: #ffc107;
 }
-
-:root[dir="rtl"] {
-  direction: rtl;
-  text-align: right;
-}
-
-.dark {
-  --bg: #121212;
-  --fg: #1a1a1a;
-  --accent: #f5d491;
-  --btn-bg: #f5d491;
-  --btn-hover: #d4af37;
-}
-
 body {
   margin: 0;
   background: var(--bg);
   color: var(--fg);
-  font-family: 'Mona', monospace;
+  font-family: 'Mona', 'Segoe UI', system-ui, sans-serif;
   transition: background 0.3s, color 0.3s;
 }
-
 .container {
-  max-width: 820px;
-  margin: 2rem auto;
-  padding: 1rem;
+  max-width: 1200px;
+  margin: 1rem auto;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
 }
-
 .title-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
 }
-
-.title {
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: var(--accent);
+.title { font-size: 2rem; font-weight: bold; color: #ffffff; }
+.subtitle { font-size: 0.9rem; color: var(--accent); }
+.lang-select { display: flex; align-items: center; gap: 0.5rem; }
+#lang-dropdown {
+  background-color: var(--panel-bg);
+  color: var(--fg);
+  font-family: 'Mona', monospace;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
 }
-
-.subtitle {
-  font-size: 0.9rem;
-  opacity: 0.7;
-}
-
-.theme-switch {
-  position: relative;
-  display: inline-block;
-  width: 42px;
-  height: 24px;
-}
-
-.theme-switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
+.theme-switch { position: relative; display: inline-block; width: 42px; height: 24px; }
+.theme-switch input { display: none; }
 .slider {
   position: absolute;
   cursor: pointer;
-  background-color: #ccc;
+  background-color: var(--panel-bg);
   border-radius: 34px;
   top: 0;
   left: 0;
@@ -83,7 +59,6 @@ body {
   bottom: 0;
   transition: 0.4s;
 }
-
 .slider::before {
   content: "";
   position: absolute;
@@ -95,55 +70,124 @@ body {
   border-radius: 50%;
   transition: 0.4s;
 }
-
-input:checked + .slider {
-  background-color: #4cd964;
+input:checked + .slider { background-color: var(--accent); }
+input:checked + .slider::before { transform: translateX(18px); }
+.dashboard {
+  display: flex;
+  gap: 1.5rem;
+  background-color: var(--panel-bg);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  font-size: 0.9rem;
+  flex-wrap: wrap;
 }
-
-input:checked + .slider::before {
-  transform: translateX(18px);
+.status-item { display: flex; align-items: center; gap: 0.5rem; }
+.status-indicator { font-weight: bold; }
+.status-indicator.enabled { color: var(--success); }
+.status-indicator.disabled { color: var(--error); }
+.status-indicator.loading { color: var(--loading); }
+.button-group { margin-bottom: 1.5rem; }
+.group-title {
+  font-size: 1.1rem;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
 }
-
 .button-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1rem;
 }
-
 .btn {
-  background: var(--btn-bg);
-  border: 2px solid var(--accent);
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
   color: var(--fg);
-  font-family: 'Mona', monospace;
+  font-family: inherit;
   padding: 0.8rem 1rem;
-  border-radius: 12px;
+  border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
-  transition: transform 0.2s ease, background 0.3s;
-}
-
-.btn:hover {
-  background: var(--btn-hover);
-  transform: scale(1.03);
-}
-.lang-select {
+  transition: all 0.2s ease;
+  text-align: left;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  position: relative;
 }
-
-#lang-toggle {
-  background: transparent;
+.btn:hover {
+  background: var(--btn-hover);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+.btn .icon { margin-right: 10px; color: var(--accent); }
+.btn.loading { cursor: not-allowed; color: #888; }
+.btn.loading .spinner { display: block; }
+.spinner {
+  display: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #555;
+  border-top-color: var(--fg);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.hidden { display: none !important; }
+#modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+#modal-content {
+  background-color: #1e192c;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  width: 90%;
+  max-width: 800px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+#modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+#modal-title { margin: 0; font-size: 1.5rem; color: #fff; }
+#modal-close {
+  background: none;
   border: none;
-  font-size: 1.2rem;
+  color: #fff;
+  font-size: 2rem;
   cursor: pointer;
+  line-height: 1;
 }
-
-#lang-dropdown {
+#modal-output {
+  flex-grow: 1;
+  overflow-y: auto;
+  background-color: #110e1b;
+  padding: 1rem;
+  border-radius: 8px;
   font-family: 'Mona', monospace;
-  padding: 4px;
-  border-radius: 6px;
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  color: #c5c8c6;
 }
-
-:root[data-theme='dark'] footer { color: #ffffff; }
-:root[data-theme='dark'] footer { color: #ffffff !important; }
+#modal-output::-webkit-scrollbar { width: 8px; }
+#modal-output::-webkit-scrollbar-track { background: var(--panel-bg); }
+#modal-output::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px;}

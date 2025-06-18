@@ -1,14 +1,20 @@
 const MODDIR = "/data/adb/modules/integrity_box";
 const PROP = `${MODDIR}/module.prop`;
 
+const modalBackdrop = document.getElementById("modal-backdrop");
+const modalTitle = document.getElementById("modal-title");
+const modalOutput = document.getElementById("modal-output");
+const modalClose = document.getElementById("modal-close");
+
 function runShell(command) {
-  if (typeof ksu !== "object" || typeof ksu.exec !== "function")
+  if (typeof ksu !== "object" || typeof ksu.exec !== "function") {
     return Promise.reject("KernelSU JavaScript API not available.");
+  }
   const cb = `cb_${Date.now()}`;
   return new Promise((resolve, reject) => {
     window[cb] = (code, stdout, stderr) => {
       delete window[cb];
-      code === 0 ? resolve(stdout) : reject(stderr || "Shell error");
+      code === 0 ? resolve(stdout) : reject(new Error(stderr || "Shell command failed"));
     };
     ksu.exec(command, "{}", cb);
   });
@@ -16,6 +22,16 @@ function runShell(command) {
 
 function popup(msg) {
   return runShell(`am start -a android.intent.action.MAIN -e mona "${msg}" -n meow.helper/.MainActivity`);
+}
+
+function openModal(title, content) {
+  modalTitle.textContent = title;
+  modalOutput.textContent = content || "Loading...";
+  modalBackdrop.classList.remove("hidden");
+}
+
+function closeModal() {
+  modalBackdrop.classList.add("hidden");
 }
 
 async function getModuleName() {
@@ -28,57 +44,141 @@ async function getModuleName() {
   }
 }
 
+async function updateDashboard() {
+  const statusWhitelist = document.getElementById("status-whitelist");
+  const statusGms = document.getElementById("status-gms");
+  const statusSusfs = document.getElementById("status-susfs");
+
+  try {
+    await runShell("[ -f /data/adb/shamiko/whitelist ]");
+    statusWhitelist.textContent = "Enabled";
+    statusWhitelist.className = "status-indicator enabled";
+  } catch {
+    statusWhitelist.textContent = "Disabled";
+    statusWhitelist.className = "status-indicator disabled";
+  }
+
+  try {
+    const gmsProp = await runShell("getprop persist.sys.pihooks.disable.gms_props");
+    if (gmsProp.trim() === "true") {
+      statusGms.textContent = "Disabled";
+      statusGms.className = "status-indicator enabled";
+    } else {
+      statusGms.textContent = "Enabled";
+      statusGms.className = "status-indicator disabled";
+    }
+  } catch {
+    statusGms.textContent = "Unknown";
+    statusGms.className = "status-indicator";
+  }
+
+  try {
+    await runShell("[ -d /data/adb/modules/susfs4ksu ]");
+    statusSusfs.textContent = "Detected";
+    statusSusfs.className = "status-indicator enabled";
+  } catch {
+    statusSusfs.textContent = "Not Found";
+    statusSusfs.className = "status-indicator disabled";
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   getModuleName();
+  updateDashboard();
 
   document.querySelectorAll(".btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
       const script = btn.dataset.script;
-      runShell(`sh ${MODDIR}/${script}`);
+      const type = btn.dataset.type;
+      const command = `sh ${MODDIR}/${script}`;
+      btn.classList.add("loading");
+      try {
+        if (type === "scanner") {
+          const title = btn.innerText.trim();
+          openModal(title, "Running scan...");
+          const output = await runShell(command);
+          modalOutput.textContent = output || "Script executed with no output.";
+        } else {
+          await runShell(command);
+        }
+      } catch (error) {
+        if (type === "scanner") {
+          modalOutput.textContent = `Error executing script:\n\n${error.message}`;
+        } else {
+          popup(`Error: ${error.message}`);
+        }
+      } finally {
+        btn.classList.remove("loading");
+        setTimeout(updateDashboard, 1000);
+      }
     });
   });
 
-  const toggle = document.getElementById("theme-toggle");
-  const saved = localStorage.getItem("theme");
-  if (saved === "dark") {
-    document.documentElement.classList.add("dark");
-    toggle.checked = true;
-  }
-
-  toggle.addEventListener("change", () => {
-    document.documentElement.classList.toggle("dark", toggle.checked);
-    localStorage.setItem("theme", toggle.checked ? "dark" : "light");
+  modalClose.addEventListener("click", closeModal);
+  modalBackdrop.addEventListener("click", (e) => {
+    if (e.target === modalBackdrop) closeModal();
   });
-
-  const translations = {
-    en: ["Add All Apps in Target list", "Add Only User Apps in Target list", "Set Valid Keybox", "Set AOSP Keybox", "Set Custom Fingerprint", "Kill GMS Process", "Spoof PIF SDK", "Update TrickyStore Security Patch File", "Add custom rom detection files into SusFS Config", "Banned Keybox List", "Disable inbuilt GMS Spoofing", "Enable inbuilt GMS Spoofing", "FIX Device is not Certified", "Scan for Abnormal Detection", "Scan for harmful Apps", "Scan for Props Detection", "Module Info", "Report a Problem", "Join Help Group", "Join Update Channel"],
-    id: ["Tambahkan semua aplikasi ke daftar target", "Tambahkan hanya aplikasi pengguna", "Setel Keybox yang valid", "Setel Keybox AOSP", "Setel sidik jari kustom", "Matikan proses GMS", "Spoof PIF SDK", "Perbarui file patch TrickyStore", "Tambahkan file deteksi ROM ke konfigurasi SusFS", "Daftar Keybox yang diblokir", "Nonaktifkan spoofing GMS", "Aktifkan spoofing GMS", "PERBAIKI perangkat tidak bersertifikat", "Pindai deteksi abnormal", "Pindai aplikasi berbahaya", "Pindai deteksi properti", "Info Modul", "Laporkan masalah", "Gabung grup bantuan", "Gabung saluran pembaruan"],
-    pl: ["Dodaj wszystkie apki do listy", "Dodaj tylko apki użytkownika", "Ustaw nieodwołany keybox", "Ustaw keybox AOSP", "Ustaw własny PIF", "Zabij proces GMS", "Sfałszuj PIF SDK", "Zaktualizuj plik łatki TrickyStore", "Dodaj pliki detekcji custom ROM do SusFS", "Zbanowane keyboxy", "Wyłącz podszywanie w GMS", "Włącz podszywanie w GMS", "Napraw brak certyfikatu", "Skanuj niezamaskowane apki", "Skanuj szkodliwe apki", "Skanuj wykrycie właściwości", "Informacje o module", "Zgłoś problem", "Dołącz do grupy pomocy", "Dołącz do kanału aktualizacji"],
-    ru: ["Добавить все приложения в список", "Добавить только пользовательские приложения", "Установить действительный Keybox", "Установить AOSP Keybox", "Установить пользовательский отпечаток", "Завершить процесс GMS", "Спуфинг PIF SDK", "Обновить файл безопасности TrickyStore", "Добавить файлы обнаружения ROM в SusFS", "Список запрещенных Keybox", "Отключить GMS Spoofing", "Включить GMS Spoofing", "ИСПРАВИТЬ: устройство не сертифицировано", "Сканировать на аномалии", "Сканировать вредоносные приложения", "Сканировать Props", "Информация о модуле", "Сообщить о проблеме", "Присоединиться к группе поддержки", "Подписаться на канал обновлений"],
-    hi: ["सभी ऐप्स को सूची में जोड़ें", "केवल उपयोगकर्ता ऐप्स जोड़ें", "वैध कीबॉक्स सेट करें", "AOSP कीबॉक्स सेट करें", "कस्टम फिंगरप्रिंट सेट करें", "GMS प्रक्रिया समाप्त करें", "PIF SDK को स्पूफ करें", "ट्रिकी स्टोर की पैच स्पूफिंग अपडेट करें", "SusFS में कस्टम रोम डिटेक्शन जोड़ें", "प्रतिबंधित कीबॉक्स सूची", "GMS स्पूफिंग बंद करें", "GMS स्पूफिंग चालू करें", "डिवाइस प्रमाणन ठीक करें", "असामान्य गतिविधि स्कैन करें", "हानिकारक ऐप्स स्कैन करें", "प्रॉप्स डिटेक्शन स्कैन करें", "मॉड्यूल जानकारी", "समस्या रिपोर्ट करें", "सहायता समूह से जुड़ें", "अपडेट चैनल से जुड़ें"],
-    te: ["అన్ని యాప్స్ జాబితాలో చేర్చండి", "వినియోగదారు యాప్స్ మాత్రమే చేర్చండి", "చెల్లుబాటు అయ్యే Keybox సెట్ చేయండి", "AOSP Keybox సెట్ చేయండి", "కస్టమ్ ఫింగర్ ప్రింట్ సెట్ చేయండి", "GMS ప్రాసెస్‌ను ముగించండి", "PIF SDK స్పూఫ్ చేయండి", "TrickyStore ఫైల్‌ను అప్‌డేట్ చేయండి", "SusFS కాన్ఫిగ్‌లో డిటెక్షన్ ఫైళ్ళను జోడించండి", "నిషేధిత Keybox లిస్ట్", "GMS స్పూఫింగ్ నిలిపివేయండి", "GMS స్పూఫింగ్ ప్రారంభించండి", "సర్టిఫికేషన్ ఫిక్స్ చేయండి", "అసాధారణ డిటెక్షన్ స్కాన్ చేయండి", "హానికరమైన యాప్‌లను స్కాన్ చేయండి", "Props డిటెక్షన్ స్కాన్ చేయండి", "మాడ్యూల్ సమాచారం", "సమస్యను నివేదించండి", "హెల్ప్ గ్రూప్‌లో చేరండి", "అప్‌డేట్ ఛానెల్‌లో చేరండి"],
-    ta: ["அனைத்து பயன்பாடுகளையும் சேர்க்கவும்", "பயனர் பயன்பாடுகளை மட்டும் சேர்க்கவும்", "சரியான Keybox அமைக்கவும்", "AOSP Keybox அமைக்கவும்", "விருப்பமான விரல் ரேகை அமைக்கவும்", "GMS செயலியை நிறுத்தவும்", "PIF SDK ஐ ஸ்பூஃப் செய்யவும்", "TrickyStore பாதுகாப்பு கோப்பை புதுப்பிக்கவும்", "SusFS இல் ROM கண்டறிதல் கோப்புகளை சேர்க்கவும்", "தடைசெய்யப்பட்ட Keybox பட்டியல்", "GMS Spoofing ஐ முடக்கவும்", "GMS Spoofing ஐ இயக்கவும்", "சான்றளிக்கப்படாத சாதனத்தை சரிசெய்க", "அசாதாரண கண்டறிதலை ஸ்கேன் செய்யவும்", "விழிப்புணர்வான பயன்பாடுகளை ஸ்கேன் செய்யவும்", "Props கண்டறிதலை ஸ்கேன் செய்யவும்", "தொகுதி தகவல்", "பிரச்சனையை தெரிவிக்கவும்", "உதவி குழுவில் சேரவும்", "புதுப்பிப்பு சேனலில் சேரவும்"],
-    es: ["Agregar todas las apps al listado", "Agregar solo apps de usuario", "Configurar Keybox válido", "Configurar Keybox AOSP", "Configurar huella personalizada", "Finalizar proceso GMS", "Falsificar PIF SDK", "Actualizar parche de seguridad TrickyStore", "Agregar detección de ROM en SusFS", "Lista de Keybox prohibidos", "Desactivar GMS Spoofing", "Activar GMS Spoofing", "ARREGLAR dispositivo no certificado", "Escanear anormalidades", "Escanear apps dañinas", "Escanear detección de Props", "Información del módulo", "Reportar un problema", "Unirse al grupo de ayuda", "Unirse al canal de actualizaciones"],
-    bn: ["সব অ্যাপ যুক্ত করুন", "শুধু ইউজার অ্যাপ যুক্ত করুন", "বৈধ Keybox সেট করুন", "AOSP Keybox সেট করুন", "কাস্টম ফিঙ্গারপ্রিন্ট সেট করুন", "GMS প্রক্রিয়া বন্ধ করুন", "PIF SDK স্পুফ করুন", "TrickyStore সুরক্ষা ফাইল আপডেট করুন", "SusFS কনফিগে ডিটেকশন ফাইল যোগ করুন", "নিষিদ্ধ Keybox তালিকা", "GMS Spoofing নিষ্ক্রিয় করুন", "GMS Spoofing সক্রিয় করুন", "অননুমোদিত ডিভাইস ঠিক করুন", "অস্বাভাবিক স্ক্যান করুন", "ক্ষতিকারক অ্যাপ স্ক্যান করুন", "Props স্ক্যান করুন", "মডিউল তথ্য", "সমস্যা রিপোর্ট করুন", "সাহায্য গ্রুপে যোগ দিন", "আপডেট চ্যানেলে যোগ দিন"],
-    pt: ["Adicionar todos os apps à lista", "Adicionar apenas apps de usuário", "Definir Keybox válido", "Definir Keybox AOSP", "Definir impressão personalizada", "Finalizar processo GMS", "Falsificar PIF SDK", "Atualizar patch de segurança do TrickyStore", "Adicionar detecção de ROM no SusFS", "Lista de Keybox banidos", "Desativar GMS Spoofing", "Ativar GMS Spoofing", "CORRIGIR dispositivo não certificado", "Escanear anormalidades", "Escanear apps nocivos", "Escanear Props", "Informações do módulo", "Relatar um problema", "Entrar no grupo de ajuda", "Entrar no canal de atualizações"],
-    zh: ["添加所有应用到目标列表", "只添加用户应用", "设置有效 Keybox", "设置 AOSP Keybox", "设置自定义指纹", "结束 GMS 进程", "伪装 PIF SDK", "更新 TrickyStore 安全补丁", "添加自定义 ROM 检测到 SusFS", "被封锁的 Keybox 列表", "禁用 GMS Spoofing", "启用 GMS Spoofing", "修复设备未认证问题", "扫描异常", "扫描恶意应用", "扫描 Props 检测", "模块信息", "报告问题", "加入帮助组", "加入更新频道"],
-    fr: ["Ajouter toutes les apps", "Ajouter uniquement les apps utilisateur", "Définir Keybox valide", "Définir Keybox AOSP", "Définir empreinte personnalisée", "Terminer le processus GMS", "Falsifier PIF SDK", "Mettre à jour le patch TrickyStore", "Ajouter détection ROM personnalisée dans SusFS", "Liste Keybox bannis", "Désactiver le spoofing GMS", "Activer le spoofing GMS", "RÉPARER l’appareil non certifié", "Analyser les anomalies", "Analyser les apps nuisibles", "Analyser la détection Props", "Infos du module", "Signaler un problème", "Rejoindre le groupe d'aide", "Rejoindre le canal d'actualités"],
-    ar: ["إضافة كل التطبيقات", "إضافة تطبيقات المستخدم فقط", "تعيين Keybox صالح", "تعيين Keybox AOSP", "تعيين بصمة مخصصة", "إنهاء عملية GMS", "تزوير PIF SDK", "تحديث ملف TrickyStore الأمني", "إضافة كشف ROM إلى SusFS", "قائمة Keybox المحظورة", "تعطيل GMS Spoofing", "تمكين GMS Spoofing", "إصلاح الجهاز غير المعتمد", "مسح للكشف غير الطبيعي", "مسح التطبيقات الضارة", "مسح كشف الخصائص", "معلومات الوحدة", "الإبلاغ عن مشكلة", "الانضمام لمجموعة الدعم", "الانضمام لقناة التحديثات"],
-    ur: ["تمام ایپس شامل کریں", "صرف یوزر ایپس شامل کریں", "درست Keybox سیٹ کریں", "AOSP Keybox سیٹ کریں", "کاسٹم فنگر پرنٹ سیٹ کریں", "GMS پروسیس بند کریں", "PIF SDK کو سپوف کریں", "TrickyStore سیکیورٹی فائل اپ ڈیٹ کریں", "SusFS میں ROM کی شناخت شامل کریں", "ممنوعہ Keybox کی فہرست", "GMS Spoofing غیر فعال کریں", "GMS Spoofing فعال کریں", "غیر تصدیق شدہ ڈیوائس کو درست کریں", "غیر معمولی سکین کریں", "نقصان دہ ایپس سکین کریں", "Props سکین کریں", "ماڈیول معلومات", "مسئلہ رپورٹ کریں", "مدد گروپ میں شامل ہوں", "اپڈیٹ چینل میں شامل ہوں"],
-    vi: ["Thêm tất cả ứng dụng vào danh sách mục tiêu", "Chỉ thêm ứng dụng người dùng vào danh sách mục tiêu", "Đặt hộp khóa keybox hợp lệ", "Đặt hộp khóa keybox AOSP", "Đặt vân tay tùy chỉnh", "Buộc dừng GMS", "Giả mạo PIF SDK", "Cập nhật tệp vá bảo mật TrickyStore", "Thêm các tập tin bị phát hiện rom tùy chỉnh vào SusFS Config", "Danh sách hộp khóa keybox bị cấm", "Vô hiệu hóa giả mạo GMS tích hợp", "Bật giả mạo GMS tích hợp", "Khắc phục thiết bị không được chứng nhận", "Quét để phát hiện bất thường", "Quét các ứng dụng có hại", "Quét để phát hiện Props", "Thông tin mô-đun", "Báo cáo sự cố", "Tham gia nhóm hỗ trợ", "Tham gia kênh cập nhật"],
-    uk: ["Додати всі програми до цільового списку", "Додати лише програми користувача до цільового списку", "Встановити дійсний Keybox", "Встановити AOSP Keybox", "Встановити власний відбиток пальця", "Зупинити процес GMS", "Підмінити PIF SDK", "Оновити файл виправлення безпеки TrickyStore", "Додати файли виявлення кастомної прошивки в конфігурацію SusFS", "Список заблокованих Keybox", "Вимкнути вбудовану підміну GMS", "Увімкнути вбудовану підміну GMS", "ВИПРАВИТИ: Пристрій не сертифіковано", "Сканувати на аномальне виявлення", "Сканувати на шкідливі програми", "Сканувати на виявлення Props", "Інформація про модуль", "Повідомити про проблему", "Приєднатися до групи допомоги", "Приєднатися до каналу оновлень"]
-  };
-
+  
   const langDropdown = document.getElementById("lang-dropdown");
   if (langDropdown) {
+    const translations = {
+      en: ["Disable Auto-Whitelist Mode", "Enable Auto-Whitelist Mode", "Target All Apps", "Target User Apps", "Set Valid Keybox", "Set AOSP Keybox", "Set Custom Fingerprint", "Kill GMS Process", "Spoof PIF SDK", "Spoof Tricky Patch", "Update SusFS Config", "Banned Keybox List", "Disable GMS Spoofing", "Enable GMS Spoofing", "FIX Device not Certified", "Abnormal Detection", "Flagged Apps", "Props Detection", "Module Info", "Report a Problem", "Help Group", "Update Channel"],
+      id: ["Nonaktifkan Mode Daftar Putih Otomatis", "Aktifkan Mode Daftar Putih Otomatis", "Targetkan Semua Aplikasi", "Targetkan Aplikasi Pengguna", "Setel Keybox yang Valid", "Setel Keybox AOSP", "Setel Sidik Jari Kustom", "Matikan Proses GMS", "Spoof PIF SDK", "Spoof Patch Tricky", "Perbarui Konfigurasi SusFS", "Daftar Keybox yang Diblokir", "Nonaktifkan Spoofing GMS", "Aktifkan Spoofing GMS", "PERBAIKI Perangkat Tidak Bersertifikat", "Deteksi Abnormal", "Aplikasi yang Ditandai", "Deteksi Properti", "Info Modul", "Laporkan Masalah", "Grup Bantuan", "Saluran Pembaruan"],
+      pl: ["Wyłącz tryb automatycznej białej listy", "Włącz tryb automatycznej białej listy", "Namierz wszystkie aplikacje", "Namierz aplikacje użytkownika", "Ustaw prawidłowy Keybox", "Ustaw Keybox AOSP", "Ustaw niestandardowy odcisk palca", "Zabij proces GMS", "Sfałszuj PIF SDK", "Sfałszuj łatkę Tricky", "Zaktualizuj konfigurację SusFS", "Lista zbanowanych Keyboxów", "Wyłącz spoofing GMS", "Włącz spoofing GMS", "NAPRAW urządzenie nie jest certyfikowane", "Wykrywanie nieprawidłowości", "Oznaczone aplikacje", "Wykrywanie właściwości", "Informacje o module", "Zgłoś problem", "Grupa pomocy", "Kanał aktualizacji"],
+      ru: ["Отключить авто-белый список", "Включить авто-белый список", "Добавить все приложения в список", "Добавить только пользовательские приложения", "Установить действительный Keybox", "Установить AOSP Keybox", "Установить пользовательский отпечаток", "Завершить процесс GMS", "Спуфинг PIF SDK", "Спуфинг патча Tricky", "Обновить конфигурацию SusFS", "Список запрещенных Keybox", "Отключить GMS Spoofing", "Включить GMS Spoofing", "ИСПРАВИТЬ: устройство не сертифицировано", "Сканировать на аномалии", "Сканировать вредоносные приложения", "Сканировать Props", "Информация о модуле", "Сообщить о проблеме", "Присоединиться к группе поддержки", "Подписаться на канал обновлений"],
+      uk: ["Вимкнути авто-білий список", "Увімкнути авто-білий список", "Додати всі програми", "Додати лише програми користувача", "Встановити дійсний Keybox", "Встановити AOSP Keybox", "Встановити власний відбиток", "Зупинити процес GMS", "Підмінити PIF SDK", "Підмінити патч Tricky", "Оновити конфігурацію SusFS", "Список заблокованих Keybox", "Вимкнути GMS Spoofing", "Увімкнути GMS Spoofing", "ВИПРАВИТИ: Пристрій не сертифіковано", "Сканувати на аномалії", "Сканувати шкідливі програми", "Сканувати Props", "Інформація про модуль", "Повідомити про проблему", "Група допомоги", "Канал оновлень"],
+      hi: ["ऑटो-व्हाइटलिस्ट मोड अक्षम करें", "ऑटो-व्हाइटलिस्ट मोड सक्षम करें", "सभी ऐप्स को लक्षित करें", "उपयोगकर्ता ऐप्स को लक्षित करें", "वैध कीबॉक्स सेट करें", "AOSP कीबॉक्स सेट करें", "कस्टम फिंगरप्रिंट सेट करें", "GMS प्रक्रिया समाप्त करें", "PIF SDK को स्पूफ करें", "ट्रिकी पैच को स्पूफ करें", "SusFS कॉन्फ़िगरेशन अपडेट करें", "प्रतिबंधित कीबॉक्स सूची", "GMS स्पूफिंग अक्षम करें", "GMS स्पूफिंग सक्षम करें", "डिवाइस प्रमाणित नहीं है ठीक करें", "असामान्य पहचान", "चिह्नित ऐप्स", "प्रॉप्स पहचान", "मॉड्यूल जानकारी", "समस्या की रिपोर्ट करें", "सहायता समूह", "अपडेट चैनल"],
+      te: ["ఆటో-వైట్‌లిస్ట్ మోడ్‌ను నిలిపివేయండి", "ఆటో-వైట్‌లిస్ట్ మోడ్‌ను ప్రారంభించండి", "అన్ని అనువర్తనాలను లక్ష్యం చేయండి", "వినియోగదారు అనువర్తనాలను లక్ష్యం చేయండి", "చెల్లుబాటు అయ్యే కీబాక్స్‌ను సెట్ చేయండి", "AOSP కీబాక్స్‌ను సెట్ చేయండి", "అనుకూల వేలిముద్రను సెట్ చేయండి", "GMS ప్రక్రియను ఆపండి", "PIF SDKని స్పూఫ్ చేయండి", "ట్రిక్కీ ప్యాచ్‌ను స్పూఫ్ చేయండి", "SusFS కాన్ఫిగరేషన్‌ను నవీకరించండి", "నిషేధించబడిన కీబాక్స్ జాబితా", "GMS స్పూఫింగ్‌ను నిలిపివేయండి", "GMS స్పూఫింగ్‌ను ప్రారంభించండి", "పరికరం ధృవీకరించబడలేదు సరిచేయండి", "అసాధారణ గుర్తింపు", "ఫ్లాగ్ చేయబడిన అనువర్తనాలు", "ప్రాప్స్ గుర్తింపు", "మాడ్యూల్ సమాచారం", "సమస్యను నివేదించండి", "సహాయ సమూహం", "నవీకరణ ఛానెల్"],
+      ta: ["தானியங்கு வெள்ளைப்பட்டியல் பயன்முறையை முடக்கு", "தானியங்கு வெள்ளைப்பட்டியல் பயன்முறையை இயக்கு", "அனைத்து பயன்பாடுகளையும் குறிவை", "பயனர் பயன்பாடுகளை குறிவை", "சரியான கீபாக்ஸை அமை", "AOSP கீபாக்ஸை அமை", "தனிப்பயன் கைரேகையை அமை", "GMS செயல்முறையை நிறுத்து", "PIF SDK ஐ ஏமாற்று", "தந்திரமான பேட்சை ஏமாற்று", "SusFS கட்டமைப்பைப் புதுப்பி", "தடைசெய்யப்பட்ட கீபாக்ஸ் பட்டியல்", "GMS ஏமாற்றலை முடக்கு", "GMS ஏமாற்றலை இயக்கு", "சாதனம் சான்றளிக்கப்படவில்லை சரிசெய்", "இயல்பற்ற கண்டறிதல்", "கொடியிடப்பட்ட பயன்பாடுகள்", "பண்புகள் கண்டறிதல்", "தொகுதி தகவல்", "சிக்கலைப் புகாரளி", "உதவி குழு", "புதுப்பிப்பு சேனல்"],
+      es: ["Desactivar modo de lista blanca automática", "Activar modo de lista blanca automática", "Apuntar a todas las aplicaciones", "Apuntar a aplicaciones de usuario", "Establecer Keybox válido", "Establecer Keybox AOSP", "Establecer huella digital personalizada", "Matar proceso de GMS", "Falsificar SDK de PIF", "Falsificar parche Tricky", "Actualizar configuración de SusFS", "Lista de Keybox prohibidos", "Desactivar suplantación de GMS", "Activar suplantación de GMS", "ARREGLAR: dispositivo no certificado", "Detección de anomalías", "Aplicaciones marcadas", "Detección de propiedades", "Información del módulo", "Informar de un problema", "Grupo de ayuda", "Canal de actualizaciones"],
+      bn: ["অটো-হোয়াইটলিস্ট মোড নিষ্ক্রিয় করুন", "অটো-হোয়াইটলিস্ট মোড সক্ষম করুন", "সমস্ত অ্যাপ টার্গেট করুন", "ব্যবহারকারী অ্যাপ টার্গেট করুন", "বৈধ কী-বক্স সেট করুন", "AOSP কী-বক্স সেট করুন", "কাস্টম ফিঙ্গারপ্রিন্ট সেট করুন", "GMS প্রক্রিয়া বন্ধ করুন", "PIF SDK স্পুফ করুন", "ট্রিকি প্যাচ স্পুফ করুন", "SusFS কনফিগারেশন আপডেট করুন", "নিষিদ্ধ কী-বক্স তালিকা", "GMS স্পুফিং নিষ্ক্রিয় করুন", "GMS স্পুফিং সক্ষম করুন", "ডিভাইস প্রত্যয়িত নয় ঠিক করুন", "অস্বাভাবিক সনাক্তকরণ", "ফ্ল্যাগ করা অ্যাপ", "প্রপস সনাক্তকরণ", "মডিউল তথ্য", "সমস্যা রিপোর্ট করুন", "সহায়তা গ্রুপ", "আপডেট চ্যানেল"],
+      pt: ["Desativar modo de lista de permissões automática", "Ativar modo de lista de permissões automática", "Visar todos os aplicativos", "Visar aplicativos do usuário", "Definir Keybox válido", "Definir Keybox AOSP", "Definir impressão digital personalizada", "Matar processo GMS", "Falsificar SDK PIF", "Falsificar patch Tricky", "Atualizar configuração SusFS", "Lista de Keybox banidos", "Desativar falsificação GMS", "Ativar falsificação GMS", "CORRIGIR: dispositivo não certificado", "Detecção de anomalias", "Aplicativos sinalizados", "Detecção de propriedades", "Informações do módulo", "Relatar um problema", "Grupo de ajuda", "Canal de atualização"],
+      zh: ["禁用自动白名单模式", "启用自动白名单模式", "针对所有应用", "针对用户应用", "设置有效密钥盒", "设置AOSP密钥盒", "设置自定义指纹", "终止GMS进程", "伪造PIF SDK", "伪造Tricky补丁", "更新SusFS配置", "被禁密钥盒列表", "禁用GMS伪装", "启用GMS伪装", "修复设备未认证", "异常检测", "已标记应用", "属性检测", "模块信息", "报告问题", "帮助组", "更新频道"],
+      fr: ["Désactiver le mode liste blanche auto", "Activer le mode liste blanche auto", "Cibler toutes les applications", "Cibler les applications utilisateur", "Définir un Keybox valide", "Définir un Keybox AOSP", "Définir une empreinte digitale personnalisée", "Tuer le processus GMS", "Falsifier le SDK PIF", "Falsifier le patch Tricky", "Mettre à jour la configuration SusFS", "Liste des Keybox bannis", "Désactiver la falsification GMS", "Activer la falsification GMS", "RÉPARER: appareil non certifié", "Détection d'anomalies", "Applications signalées", "Détection des propriétés", "Infos sur le module", "Signaler un problème", "Groupe d'aide", "Canal de mise à jour"],
+      ar: ["تعطيل وضع القائمة البيضاء التلقائي", "تمكين وضع القائمة البيضاء التلقائي", "استهداف جميع التطبيقات", "استهداف تطبيقات المستخدم", "تعيين صندوق مفاتيح صالح", "تعيين صندوق مفاتيح AOSP", "تعيين بصمة مخصصة", "إنهاء عملية GMS", "تزييف PIF SDK", "تزييف باتش Tricky", "تحديث تكوين SusFS", "قائمة صناديق المفاتيح المحظورة", "تعطيل تزييف GMS", "تمكين تزييف GMS", "إصلاح الجهاز غير معتمد", "كشف غير طبيعي", "التطبيقات المبلغ عنها", "كشف الخصائص", "معلومات الوحدة", "الإبلاغ عن مشكلة", "مجموعة المساعدة", "قناة التحديثات"],
+      ur: ["آٹو وائٹ لسٹ موڈ کو غیر فعال کریں", "آٹو وائٹ لسٹ موڈ کو فعال کریں", "تمام ایپس کو نشانہ بنائیں", "صارف ایپس کو نشانہ بنائیں", "درست کی باکس سیٹ کریں", "AOSP کی باکس سیٹ کریں", "کسٹم فنگر پرنٹ سیٹ کریں", "GMS پروسیس کو ختم کریں", "PIF SDK کو سپوف کریں", "ٹرکی پیچ کو سپوف کریں", "SusFS کنفگ کو اپ ڈیٹ کریں", "پابندی شدہ کی باکس کی فہرست", "GMS سپوفنگ کو غیر فعال کریں", "GMS سپوفنگ کو فعال کریں", "ڈیوائس تصدیق شدہ نہیں ہے درست کریں", "غیر معمولی کھوج", "نشان زد ایپس", "پراپس کھوج", "ماڈیول کی معلومات", "مسئلہ کی اطلاع دیں", "مدد گروپ", "اپ ڈیٹ چینل"],
+      vi: ["Tắt chế độ danh sách trắng tự động", "Bật chế độ danh sách trắng tự động", "Nhắm mục tiêu tất cả ứng dụng", "Nhắm mục tiêu ứng dụng người dùng", "Đặt Hộp khóa hợp lệ", "Đặt Hộp khóa AOSP", "Đặt vân tay tùy chỉnh", "Dừng tiến trình GMS", "Giả mạo PIF SDK", "Giả mạo bản vá Tricky", "Cập nhật cấu hình SusFS", "Danh sách Hộp khóa bị cấm", "Tắt giả mạo GMS", "Bật giả mạo GMS", "SỬA: thiết bị chưa được chứng nhận", "Phát hiện bất thường", "Ứng dụng bị gắn cờ", "Phát hiện thuộc tính", "Thông tin mô-đun", "Báo cáo sự cố", "Nhóm trợ giúp", "Kênh cập nhật"]
+    };
+
+    const buttonGroups = {
+      "System & Toggles": { en: "System & Toggles", ru: "Система и Переключатели", uk: "Система та Перемикачі", id: "Sistem & Pengalih", pl: "System i Przełączniki", hi: "सिस्टम और टॉगल", te: "సిస్టమ్ & టోగుల్స్", ta: "கணினி & மாற்றிகள்", es: "Sistema y Conmutadores", bn: "সিস্টেম এবং টগল", pt: "Sistema e Alternadores", zh: "系统和切换", fr: "Système et Bascules", ar: "النظام والمفاتيح", ur: "سسٹم اور ٹوگلز", vi: "Hệ thống & Chuyển đổi" },
+      "Spoofing & Patching": { en: "Spoofing & Patching", ru: "Спуфинг и Патчи", uk: "Спуфінг та Патчі", id: "Spoofing & Penambalan", pl: "Fałszowanie i Łatanie", hi: "स्पूफिंग और पैचिंग", te: "స్పూఫింగ్ & ప్యాచింగ్", ta: "ஏமாற்றுதல் & ஒட்டுதல்", es: "Falsificación y Parcheo", bn: "স্পুফিং এবং প্যাচিং", pt: "Falsificação e Correção", zh: "伪装与修补", fr: "Falsification et Patch", ar: "التزييف والتصحيح", ur: "سپوفنگ اور پیچنگ", vi: "Giả mạo & Vá lỗi" },
+      "Diagnostics": { en: "Diagnostics", ru: "Диагностика", uk: "Діагностика", id: "Diagnostik", pl: "Diagnostyka", hi: "निदान", te: "డయాగ్నోస్టిక్స్", ta: "நோய் கண்டறிதல்", es: "Diagnósticos", bn: "ডায়াগনস্টিকস", pt: "Diagnósticos", zh: "诊断", fr: "Diagnostics", ar: "التشخيص", ur: "تشخیص", vi: "Chẩn đoán" },
+      "Community & Info": { en: "Community & Info", ru: "Сообщество и Информация", uk: "Спільнота та Інфо", id: "Komunitas & Info", pl: "Społeczność i Informacje", hi: "समुदाय और जानकारी", te: "సంఘం & సమాచారం", ta: "சமூகம் & தகவல்", es: "Comunidad e Información", bn: "সম্প্রদায় এবং তথ্য", pt: "Comunidade e Informações", zh: "社区与信息", fr: "Communauté et Informations", ar: "المجتمع والمعلومات", ur: "کمیونٹی اور معلومات", vi: "Cộng đồng & Thông tin" }
+    };
+
     langDropdown.addEventListener("change", () => {
       const lang = langDropdown.value;
-      const labels = translations[lang];
-      if (!labels) return;
       document.documentElement.setAttribute("dir", lang === "ar" || lang === "ur" ? "rtl" : "ltr");
-      document.querySelectorAll(".btn").forEach((btn, i) => {
-        btn.textContent = labels[i] || btn.textContent;
+
+      document.querySelectorAll(".group-title").forEach(title => {
+        const originalKey = title.dataset.key || title.textContent;
+        if (!title.dataset.key) title.dataset.key = originalKey;
+        if (buttonGroups[originalKey] && buttonGroups[originalKey][lang]) {
+          title.textContent = buttonGroups[originalKey][lang];
+        }
+      });
+
+      const buttonLabels = translations[lang] || translations["en"];
+      const buttonOrder = ["stop.sh", "start.sh", "systemuser.sh", "user.sh", "keybox.sh", "aosp.sh", "pif.sh", "kill.sh", "spoof.sh", "patch.sh", "sus.sh", "banned.sh", "setprop.sh", "resetprop.sh", "vending.sh", "abnormal.sh", "app.sh", "prop.sh", "info.sh", "issue.sh", "meowverse.sh", "meowdump.sh"];
+
+      buttonOrder.forEach((scriptName, index) => {
+        const btn = document.querySelector(`.btn[data-script='${scriptName}']`);
+        if (btn) {
+          const icon = btn.querySelector('.icon');
+          const spinner = btn.querySelector('.spinner');
+          const label = buttonLabels[index] || btn.textContent.replace(/<[^>]*>/g, "").trim();
+          btn.innerHTML = '';
+          if (icon) btn.appendChild(icon);
+          btn.appendChild(document.createTextNode(label));
+          if (spinner) btn.appendChild(spinner);
+        }
       });
     });
   }
+
+  const toggle = document.getElementById("theme-toggle");
+  toggle.checked = true;
+  document.documentElement.classList.add("dark");
+  localStorage.setItem("theme", "dark");
 });
