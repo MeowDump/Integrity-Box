@@ -1,5 +1,5 @@
-const MODDIR = "/data/adb/modules/integrity_box";
-const PROP = `${MODDIR}/module.prop`;
+const MODDIR = "/data/adb/modules/integrity_box/webroot/common_scripts";
+const PROP = `/data/adb/modules/integrity_box/module.prop`;
 
 const modalBackdrop = document.getElementById("modal-backdrop");
 const modalTitle = document.getElementById("modal-title");
@@ -50,7 +50,7 @@ async function updateDashboard() {
   const statusSusfs = document.getElementById("status-susfs");
 
   try {
-    await runShell("[ -f /data/adb/shamiko/whitelist ]");
+    await runShell("[ -f /data/adb/nohello/whitelist ] || [ -f /data/adb/shamiko/whitelist ]");
     statusWhitelist.textContent = "Enabled";
     statusWhitelist.className = "status-indicator enabled";
   } catch {
@@ -160,7 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       const buttonLabels = translations[lang] || translations["en"];
-      const buttonOrder = ["stop.sh", "start.sh", "systemuser.sh", "user.sh", "keybox.sh", "aosp.sh", "pif.sh", "kill.sh", "spoof.sh", "patch.sh", "sus.sh", "banned.sh", "setprop.sh", "resetprop.sh", "vending.sh", "abnormal.sh", "app.sh", "prop.sh", "info.sh", "issue.sh", "meowverse.sh", "meowdump.sh"];
+      const buttonOrder = ["stop.sh", "start.sh", "systemuser.sh", "user.sh", "keybox.sh", "aosp.sh", "pif.sh", "kill.sh", "spoof.sh", "patch.sh", "sus.sh", "banned.sh", "setprop.sh", "resetprop.sh", "vending.sh", "abnormal.sh", "app.sh", "prop.sh", "issue.sh", "meowverse.sh", "meowdump.sh", "support.sh", "info.sh"];
 
       buttonOrder.forEach((scriptName, index) => {
         const btn = document.querySelector(`.btn[data-script='${scriptName}']`);
@@ -177,8 +177,29 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  const toggle = document.getElementById("theme-toggle");
-  toggle.checked = true;
-  document.documentElement.classList.add("dark");
-  localStorage.setItem("theme", "dark");
+const toggle = document.getElementById("theme-toggle");
+
+// Ensure theme is set correctly on load
+function applyTheme(theme) {
+  if (theme === "light") {
+    document.documentElement.classList.remove("dark");
+    document.documentElement.classList.add("light");
+    toggle.checked = false;
+  } else {
+    document.documentElement.classList.remove("light");
+    document.documentElement.classList.add("dark");
+    toggle.checked = true;
+  }
+}
+
+// Load and apply saved theme
+const savedTheme = localStorage.getItem("theme") || "dark";
+applyTheme(savedTheme);
+
+// Theme toggle listener
+toggle.addEventListener("change", () => {
+  const newTheme = toggle.checked ? "dark" : "light";
+  localStorage.setItem("theme", newTheme);
+  applyTheme(newTheme);
+  });
 });
