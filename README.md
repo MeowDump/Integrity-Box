@@ -45,7 +45,7 @@
 </details>
 
 <details>
-<summary><strong>❓ Frequently Asked Questions (FAQ)</strong></summary>
+<summary><strong>❓ Frequently Asked Questions</strong></summary>
 
 <details>
 <summary><strong>Is Meow Assistant a malware?</strong></summary>
@@ -75,21 +75,28 @@ This helps you stay informed about the actions being triggered and improves the 
 </details>
 
 <details>
-<summary><strong>🔍 Having Issues? Click Here</strong></summary>
+<summary><strong>😭Need help?</strong></summary>
 
-- Unable to grant root access to apps? `Disable` the IntegrityBox module, it will switch shamiko/nohello to `blacklist mode` and unhide the root  
-- [Shamiko](https://t.me/LSPosed/292) does not work with magisk delta (kitsune mask)  
-- [Shamiko](https://t.me/LSPosed/292) only works with [Zygisk Next](https://github.com/Dr-TSNG/ZygiskNext/releases)  
+
+NOTE: Use Action/WebUI button to report bugs/issues
+
 - Hide root properly if play integrity isn't passing for you. If you are using a custom rom, make sure you have disabled inbuilt gms spoofing. How to disable it? Well it depends on what rom you're using. Join your rom help group & ask `how to disable it` there.  
 - Switch to [Magisk Alpha](https://t.me/magiskalpha/683) if you're having integrity issue with official magisk.  
 
 </details>
 
 <details>
-<summary><strong>🔗 Support</strong></summary>
+<summary><strong>🙏🏻 Support x Donate</strong></summary>
 
-[![Support Group](https://ziadoua.github.io/m3-Markdown-Badges/badges/Telegram/telegram1.svg "Join our Telegram Group")](https://t.me/+NCWzd1G--UNmNDY1)  
-[![PayPal Donate](https://ziadoua.github.io/m3-Markdown-Badges/badges/PayPal/paypal1.svg "Donate via PayPal")](https://paypal.me/TempMeow)
+[![Telegram](https://ziadoua.github.io/m3-Markdown-Badges/badges/Telegram/telegram1.svg "Join our Telegram Group")](https://t.me/+NCWzd1G--UNmNDY1)  
+
+[![PayPal](https://ziadoua.github.io/m3-Markdown-Badges/badges/PayPal/paypal1.svg "Donate via PayPal")](https://paypal.me/TempMeow)  
+
+[![Binance TRC20](https://raw.githubusercontent.com/VadimMalykhin/binance-icons/main/crypto/busd.svg "Donate TRC20 USDT")](https://www.binance.com)  `TRC20 USDT Address:` **TCfhyVTfJDw8gHQT8Ph7DknNgie6ZAH5Bt**  
+
+[![Binance BSC](https://raw.githubusercontent.com/VadimMalykhin/binance-icons/main/crypto/busd.svg "Donate TRC20 USDT")](https://www.binance.com)  `BEP20 USDT Address:` **0x6b3f76339f2953db765dd2fb305784643e7d49df**
+
+-
 
 </details>
 
