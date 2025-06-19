@@ -108,7 +108,7 @@ NOTE: Use Action/WebUI button to report bugs/issues
 3. ![](https://raw.githubusercontent.com/MeowDump/Integrity-Box/main/DUMP/3.png)  
 4. ![](https://raw.githubusercontent.com/MeowDump/Integrity-Box/main/DUMP/4.png)  
 5. ![](https://raw.githubusercontent.com/MeowDump/Integrity-Box/main/DUMP/5.gif)  
-6. ![](https://raw.githubusercontent.com/MeowDump/Integrity-Box/main/DUMP/6.gif)  
+6. ![](https://raw.githubusercontent.com/MeowDump/Integrity-Box/main/DUMP/6.png)  
 7. ![](https://raw.githubusercontent.com/MeowDump/Integrity-Box/main/DUMP/7.gif)  
 8. ![](https://raw.githubusercontent.com/MeowDump/Integrity-Box/main/DUMP/8.png)  
 9. ![](https://raw.githubusercontent.com/MeowDump/Integrity-Box/main/DUMP/9.jpg)  
