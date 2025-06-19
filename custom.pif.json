@@ -1,0 +1,24 @@
+{
+  // Build Fields
+    "MANUFACTURER": "Google",
+    "MODEL": "Pixel 6",
+    "FINGERPRINT": "google/oriole_beta/oriole:16/BP31.250502.008.A1/13572937:user/release-keys",
+    "BRAND": "google",
+    "PRODUCT": "oriole_beta",
+    "DEVICE": "oriole",
+    "RELEASE": "16",
+    "ID": "BP31.250502.008.A1",
+    "INCREMENTAL": "13572937",
+    "TYPE": "user",
+    "TAGS": "release-keys",
+    "SECURITY_PATCH": "2025-05-05",
+    "DEVICE_INITIAL_SDK_INT": "32",
+
+  // System Properties
+    "*.build.id": "BP31.250502.008.A1",
+    "*.security_patch": "2025-05-05",
+    "*api_level": "32"
+
+  // Beta Released: 2025-06-10
+  // Estimated Expiry: 2025-07-22
+}

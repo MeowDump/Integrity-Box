@@ -69,11 +69,12 @@ if [ ! -d "$SUSFS" ]; then
     exit 0
 fi
 
+# SusFs action button [DEPRECIATED]
 # Copy 
-cp "$SRC" "$DEST_FILE"
+#cp "$SRC" "$DEST_FILE"
 
 # Set perms
-chmod +x "$DEST_FILE" 
-chmod 644 "$DEST_FILE" 
+#chmod +x "$DEST_FILE" 
+#chmod 644 "$DEST_FILE" 
 
-echo " check out "
+log " ok "

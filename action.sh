@@ -1,6 +1,7 @@
 #!/system/bin/sh
 
-SCRIPT_DIR="/data/adb/modules/integrity_box"
+SCRIPT_DIR="/data/adb/modules/integrity_box/webroot/common_scripts"
+KEY_DIR="/data/adb/modules/integrity_box"
 TMP_KEY="/dev/key_tmp"
 
 MENU="
@@ -24,7 +25,8 @@ FIX Device not Certified:vending.sh
 Help Group:meowverse.sh
 Telegram Channel:meowdump.sh
 Report a problem:issue.sh
-Module Info:info.sh
+Source Code:info.sh
+Support Developer:support.sh
 "
 
 popup() {
@@ -65,15 +67,15 @@ print_selection_only() {
 
 # Function to get key press using keycheck
 wait_for_key() {
-  chmod +x "$SCRIPT_DIR/keycheck"
+  chmod +x "$KEY_DIR/keycheck"
 
   while :; do
-    "$SCRIPT_DIR/keycheck"
+    "$KEY_DIR/keycheck"
     KEY="$?"
 
     # Debounce loop: wait until no key is pressed
     sleep 0.2
-    "$SCRIPT_DIR/keycheck"
+    "$KEY_DIR/keycheck"
     [ "$?" != "$KEY" ] && continue
 
     # Once key is stable, return the value

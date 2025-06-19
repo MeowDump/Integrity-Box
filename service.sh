@@ -99,16 +99,16 @@ sleep 30
 resetprop -n --file "$MODPATH/system.prop"
 
 # Hide unlocked bootloader
-sleep 5
-resetprop ro.boot.vbmeta.device_state locked
-resetprop ro.boot.verifiedbootstate green
-resetprop ro.boot.flash.locked 1
-resetprop ro.boot.veritymode enforcing
-resetprop vendor.boot.vbmeta.device_state locked
-resetprop vendor.boot.verifiedbootstate green
-resetprop ro.secureboot.lockstate locked
-resetprop ro.boot.realmebootstate green
-resetprop ro.boot.realme.lockstate 1
-resetprop ro.bootmode unknown
-resetprop ro.boot.bootmode unknown
-resetprop vendor.boot.bootmode unknown
+#sleep 5
+#resetprop ro.boot.vbmeta.device_state locked
+#resetprop ro.boot.verifiedbootstate green
+#resetprop ro.boot.flash.locked 1
+#resetprop ro.boot.veritymode enforcing
+#resetprop vendor.boot.vbmeta.device_state locked
+#resetprop vendor.boot.verifiedbootstate green
+#resetprop ro.secureboot.lockstate locked
+#resetprop ro.boot.realmebootstate green
+#resetprop ro.boot.realme.lockstate 1
+#resetprop ro.bootmode unknown
+#resetprop ro.boot.bootmode unknown
+#resetprop vendor.boot.bootmode unknown
