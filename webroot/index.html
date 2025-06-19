@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>
+  (function() {
+    const theme = localStorage.getItem('theme');
+    if (theme === 'light') {
+      document.documentElement.classList.add('light');
+    }
+    // If theme is 'dark' or null, we do nothing (dark is default)
+  })();
+</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Integrity-Box</title>
@@ -15,7 +24,7 @@
     <header class="title-bar">
       <div>
         <div id="module-name" class="title">Integrity-Box</div>
-        <div class="subtitle">Made with 💖 by Mona</div>
+        <div class="subtitle">Made with 🩷 by Mona</div>
       </div>
       <div class="lang-select">
         <select id="lang-dropdown">
@@ -24,17 +33,18 @@
           <option value="pl">🇵🇱 Polski</option>
           <option value="ru">🇷🇺 Русский</option>
           <option value="uk">🇺🇦 Українська</option>
-          <option value="hi">🇮🇳 हिन्दी</option>
-          <option value="ta">🇮🇳 தமிழ்</option>
-          <option value="te">🇮🇳 తెలుగు</option>
+          <option value="vi">🇻🇳 Tiếng Việt</option>
+          <option value="zh">🇨🇳 中文</option>
+          <option value="tr">🇹🇷 Türkçe</option>
           <option value="es">🇪🇸 Español</option>
+          <option value="hi">🇮🇳 हिन्दी</option>
+          <option value="ar">🇸🇦 العربية</option>
           <option value="bn">🇧🇩 বাংলা</option>
           <option value="pt">🇵🇹 Português</option>
-          <option value="zh">🇨🇳 中文</option>
           <option value="fr">🇫🇷 Français</option>
-          <option value="ar">🇸🇦 العربية</option>
           <option value="ur">🇵🇰 اُردُو</option>
-          <option value="vi">🇻🇳 Tiếng Việt</option>
+          <option value="ta">🇮🇳 தமிழ்</option>
+          <option value="te">🇮🇳 తెలుగు</option>
         </select>
         <label class="theme-switch">
           <input type="checkbox" id="theme-toggle" checked />
@@ -55,7 +65,9 @@
         <div class="button-grid">
           <button class="btn" data-script="start.sh"><span class="icon material-symbols-outlined">toggle_on</span>Enable Auto-Whitelist <div class="spinner"></div></button>
           <button class="btn" data-script="stop.sh"><span class="icon material-symbols-outlined">toggle_off</span>Disable Auto-Whitelist <div class="spinner"></div></button>
-          <button class="btn" data-script="kill.sh"><span class="icon material-symbols-outlined">power_off</span>Kill GMS Process <div class="spinner"></div></button>
+          <button class="btn" data-script="systemuser.sh"><span class="icon material-symbols-outlined">check_circle</span>Target All Apps <div class="spinner"></div></button>
+<button class="btn" data-script="user.sh"><span class="icon material-symbols-outlined">android</span>Target User Apps <div class="spinner"></div></button>
+          <button class="btn" data-script="kill.sh"><span class="icon material-symbols-outlined">swords</span>Kill GMS Process <div class="spinner"></div></button>
           <button class="btn" data-script="vending.sh"><span class="icon material-symbols-outlined">build_circle</span>FIX Device not Certified <div class="spinner"></div></button>
         </div>
       </div>
@@ -65,12 +77,12 @@
         <div class="button-grid">
           <button class="btn" data-script="keybox.sh"><span class="icon material-symbols-outlined">verified_user</span>Set Valid Keybox <div class="spinner"></div></button>
           <button class="btn" data-script="aosp.sh"><span class="icon material-symbols-outlined">gpp_maybe</span>Set AOSP Keybox <div class="spinner"></div></button>
-          <button class="btn" data-script="pif.sh"><span class="icon material-symbols-outlined">fingerprint</span>Set Custom Fingerprint <div class="spinner"></div></button>
+          <button class="btn" data-script="pif.sh"><span class="icon material-symbols-outlined">science</span>Set Custom Fingerprint <div class="spinner"></div></button>
           <button class="btn" data-script="spoof.sh"><span class="icon material-symbols-outlined">sdk</span>Spoof PIF SDK <div class="spinner"></div></button>
           <button class="btn" data-script="patch.sh"><span class="icon material-symbols-outlined">security</span>Spoof Tricky Patch <div class="spinner"></div></button>
           <button class="btn" data-script="resetprop.sh"><span class="icon material-symbols-outlined">published_with_changes</span>Enable GMS Spoofing <div class="spinner"></div></button>
           <button class="btn" data-script="setprop.sh"><span class="icon material-symbols-outlined">unpublished</span>Disable GMS Spoofing <div class="spinner"></div></button>
-          <button class="btn" data-script="sus.sh"><span class="icon material-symbols-outlined">folder_managed</span>Update SusFS Config <div class="spinner"></div></button>
+          <button class="btn" data-script="sus.sh"><span class="icon material-symbols-outlined">terminal</span>Update SusFS Config <div class="spinner"></div></button>
         </div>
       </div>
 
@@ -80,18 +92,17 @@
           <button class="btn" data-script="abnormal.sh" data-type="scanner"><span class="icon material-symbols-outlined">bug_report</span>Abnormal Detection <div class="spinner"></div></button>
           <button class="btn" data-script="app.sh" data-type="scanner"><span class="icon material-symbols-outlined">privacy_tip</span>Flagged Apps <div class="spinner"></div></button>
           <button class="btn" data-script="prop.sh" data-type="scanner"><span class="icon material-symbols-outlined">summarize</span>Props Detection <div class="spinner"></div></button>
-          <button class="btn" data-script="banned.sh"><span class="icon material-symbols-outlined">block</span>Banned Keybox List <div class="spinner"></div></button>
+          <button class="btn" data-script="banned.sh"><span class="icon material-symbols-outlined">dangerous</span>Banned Keybox List <div class="spinner"></div></button>
         </div>
       </div>
 
       <div class="button-group">
         <h3 class="group-title">Community & Info</h3>
         <div class="button-grid">
-          <button class="btn" data-script="issue.sh"><span class="icon material-symbols-outlined">report</span>Report a Problem <div class="spinner"></div></button>
           <button class="btn" data-script="meowverse.sh"><span class="icon material-symbols-outlined">group</span>Help Group <div class="spinner"></div></button>
-          <button class="btn" data-script="meowdump.sh"><span class="icon material-symbols-outlined">update</span>Update Channel <div class="spinner"></div></button>
+          <button class="btn" data-script="meowdump.sh"><span class="icon material-symbols-outlined">move_to_inbox</span>Update Channel <div class="spinner"></div></button>
           <button class="btn" data-script="support.sh"><span class="icon material-symbols-outlined">volunteer_activism</span>Support the Developer <div class="spinner"></div></button>
-          <button class="btn" data-script="info.sh"><span class="icon material-symbols-outlined">info</span>Source Code<div class="spinner"></div></button>
+          <button class="btn" data-script="info.sh"><span class="icon material-symbols-outlined">code</span>Source Code<div class="spinner"></div></button>
         </div>
       </div>
     </main>
