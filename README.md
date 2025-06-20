@@ -30,7 +30,7 @@
 - 🔑 Spoofs ROM release key  
 - 😋 Spoofs SE Linux status  
 - 🕵️ Detects abnormal activity to help debug issues
-- 🎨 More feature are there, check [WebUI](https://raw.githubusercontent.com/MeowDump/Integrity-Box/main/DUMP/9.jpg)
+- 🎨 More feature are there, check [WebUI](https://raw.githubusercontent.com/MeowDump/Integrity-Box/main/DUMP/10.png)
 
 </details>
 
