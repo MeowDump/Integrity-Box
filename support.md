@@ -7,7 +7,7 @@
 ### 🪙 Donate via USDT (Crypto)
 ‎ 
 
- ***`TRC20 Address`***
+ [![Binance TRC20](https://raw.githubusercontent.com/VadimMalykhin/binance-icons/main/crypto/busd.svg "Donate TRC20 USDT")](https://www.binance.com)  ***`TRC20 Address`***
 ```text
 TCfhyVTfJDw8gHQT8Ph7DknNgie6ZAH5Bt
 
@@ -15,16 +15,18 @@ TCfhyVTfJDw8gHQT8Ph7DknNgie6ZAH5Bt
 ‎ 
 ‎ 
 ‎
- ***`BEP20 Address`***
+ [![Binance TRC20](https://raw.githubusercontent.com/VadimMalykhin/binance-icons/main/crypto/busd.svg "Donate TRC20 USDT")](https://www.binance.com)  ***`BEP20 Address`***
 ```text
 0x6b3f76339f2953db765dd2fb305784643e7d49df
 
 ```
-
+‎ 
+‎
 ## 💸 Donate via PayPal
-
+`Click the PayPal logo below to donate`
+ 
 <p align="center">
   <a href="https://paypal.me/TempMeow" target="_blank">
-    <img src="https://ziadoua.github.io/m3-Markdown-Badges/badges/PayPal/paypal1.svg" alt="Donate with PayPal" />
+    <img src="https://ziadoua.github.io/m3-Markdown-Badges/badges/PayPal/paypal1.svg" alt="Donate with PayPal" width="350" />
   </a>
 </p>
