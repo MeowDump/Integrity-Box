@@ -5,5 +5,7 @@ popup() {
     sleep 0.5
 }
 
-popup "This feature is under maintenance"
+nohup am start -a android.intent.action.VIEW -d https://github.com/MeowDump/Integrity-Box/blob/main/support.md >/dev/null 2>&1 & 
+popup "Redirecting to Donation page"
+
 exit 0
