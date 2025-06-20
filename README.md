@@ -86,20 +86,21 @@ NOTE: Use Action/WebUI button to report bugs/issues
 </details>
 
 <details>
-<summary><strong>🙏🏻 Support x Donate</strong></summary>
+<summary><strong>🙏🏻 Support</strong></summary>
 
-[![Telegram](https://ziadoua.github.io/m3-Markdown-Badges/badges/Telegram/telegram1.svg "Join our Telegram Group")](https://t.me/+NCWzd1G--UNmNDY1)  
+<p align="center">
+  <a href="https://t.me/+NCWzd1G--UNmNDY1" target="_blank">
+    <img src="https://ziadoua.github.io/m3-Markdown-Badges/badges/Telegram/telegram1.svg" alt="Join our Telegram Group" width="150">
+  </a><br>
+  <code>Join help group</code>
+</p>
 
-# Support only if you earn. Others, your kindness is enough.
-
-[![PayPal](https://ziadoua.github.io/m3-Markdown-Badges/badges/PayPal/paypal1.svg "Donate via PayPal")](https://paypal.me/TempMeow)  
-
-[![Binance TRC20](https://raw.githubusercontent.com/VadimMalykhin/binance-icons/main/crypto/busd.svg "Donate TRC20 USDT")](https://www.binance.com)  `TRC20 USDT Address:` **TCfhyVTfJDw8gHQT8Ph7DknNgie6ZAH5Bt**  
-
-[![Binance BSC](https://raw.githubusercontent.com/VadimMalykhin/binance-icons/main/crypto/busd.svg "Donate TRC20 USDT")](https://www.binance.com)  `BEP20 USDT Address:` **0x6b3f76339f2953db765dd2fb305784643e7d49df**
-
--
-
+<p align="center">
+  <a href="https://github.com/MeowDump/Integrity-Box/blob/main/support.md" target="_blank">
+    <img src="https://www.svgrepo.com/show/194198/donate-donation.svg" alt="Support Developer" width="100">
+  </a><br>
+  <code>Donate to Developer</code>
+</p>
 </details>
 
 <details>
@@ -110,7 +111,7 @@ NOTE: Use Action/WebUI button to report bugs/issues
 3. ![](https://raw.githubusercontent.com/MeowDump/Integrity-Box/main/DUMP/3.png)  
 4. ![](https://raw.githubusercontent.com/MeowDump/Integrity-Box/main/DUMP/4.png)  
 5. ![](https://raw.githubusercontent.com/MeowDump/Integrity-Box/main/DUMP/5.gif)  
-6. ![](https://raw.githubusercontent.com/MeowDump/Integrity-Box/main/DUMP/6.gif)  
+6. ![](https://raw.githubusercontent.com/MeowDump/Integrity-Box/main/DUMP/6.png)  
 7. ![](https://raw.githubusercontent.com/MeowDump/Integrity-Box/main/DUMP/7.gif)  
 8. ![](https://raw.githubusercontent.com/MeowDump/Integrity-Box/main/DUMP/8.png)  
 9. ![](https://raw.githubusercontent.com/MeowDump/Integrity-Box/main/DUMP/9.jpg)  
