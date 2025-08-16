@@ -1,9 +1,5 @@
 #!/system/bin/sh
 
-clear
-
-echo "."
-echo " "
 echo "============================================"
 echo "           🚀 Why I Built This Module"
 echo "============================================"
