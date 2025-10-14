@@ -67,7 +67,7 @@
 <details>
 <summary><strong>Why No Commit Messages?</strong></summary>
 
-I don’t write code directly on GitHub. I use Notepad locally and upload the files when they’re ready, for transpirancy. If you’re expecting handcrafted commit messages or spotless diffs, you’ve confused this repo with a museum exhibit. I focus on getting things done, not polishing every line for spectators. The commits are visible, and you can compare changes anytime. There’s even a [changelog](https://raw.githubusercontent.com/MeowDump/MeowDump/refs/heads/main/playintegrity/changelog.md), for those brave enough to read. If that’s still too much effort, feel free to rewrite the commit messages and send a pull request. Otherwise, Save the drama and look elsewhere
+I don’t write code directly on GitHub. I use Notepad locally and upload the files when they’re ready, for transparancy. If you’re expecting handcrafted commit messages or spotless diffs, you’ve confused this repo with a museum exhibit. I focus on getting things done, not polishing every line for spectators. The commits are visible, and you can compare changes anytime. There’s even a [changelog](https://raw.githubusercontent.com/MeowDump/MeowDump/refs/heads/main/playintegrity/changelog.md), for those brave enough to read. If that’s still too much effort, feel free to rewrite the commit messages and send a pull request. Otherwise, Save the drama and look elsewhere
 
 ![Commit](https://raw.githubusercontent.com/MeowDump/Integrity-Box/refs/heads/main/DUMP/commit.gif)
 
