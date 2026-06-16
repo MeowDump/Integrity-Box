@@ -33,12 +33,10 @@ check_integrity() {
             if sh "$MODPATH/verify.sh"; then
                 debug " ✦ Module integrity verified." > /dev/null 2>&1
             else
-                debug " ✘ Module integrity check failed!"
-                exit 1
+                abort " ✘ Module integrity check failed!"
             fi
         else
-            debug " ✘ Missing verification script!"
-            exit 1
+            abort " ✘ Missing verification script!"
         fi
     fi
 }
@@ -322,4 +320,3 @@ if [ -f "$MEOW/action.sh" ] && [ -d "$MEOW/webroot" ]; then
 fi
 
 display_footer
-exit 0

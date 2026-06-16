@@ -3,7 +3,7 @@ MODPATH="${0%/*}"
 . $MODPATH/common_func.sh
 
 # Module path and file references
-PIF="/data/adb/modules/playintegrityfix"
+PIF="$MODPATH"
 ROOT_SOL=$(detect_root_solution)
 SCRIPT="$MODPATH/webroot/common_scripts/autopilot.sh"
 LOG_DIR="/data/adb/Box-Brain/Integrity-Box-Logs"

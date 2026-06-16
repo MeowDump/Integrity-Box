@@ -80,6 +80,8 @@ delete_file /data/adb/service.d/hash.sh
 delete_file /data/adb/service.d/lineage.sh
 delete_file /data/adb/service.d/prop.sh
 delete_file /data/adb/service.d/shamiko.sh
+delete_file /data/adb/service.d/package.sh
+delete_file /data/adb/service.d/.box_cleanup.sh
 
 # Restore backups
 restore_backup "$TARGET_BACKUP" "$TARGET"

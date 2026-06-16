@@ -23,19 +23,19 @@ fi
 
 # Handle GMS-specific props
 if [ -f "/data/adb/Box-Brain/enablegms" ]; then
-    setprop persist.sys.pihooks.disable.gms_key_attestation_block false
-    setprop persist.sys.pihooks.disable.gms_props false
-    setprop persist.sys.pihooks.enabled_features 1
-    setprop persist.sys.pihooks.disable 0
-    setprop persist.sys.kihooks.disable 0
+    resetprop -n persist.sys.pihooks.disable.gms_key_attestation_block false
+    resetprop -n persist.sys.pihooks.disable.gms_props false
+    resetprop -n persist.sys.pihooks.enabled_features 1
+    resetprop -n persist.sys.pihooks.disable 0
+    resetprop -n persist.sys.kihooks.disable 0
 fi
 
 if [ -f "/data/adb/Box-Brain/disablegms" ]; then
-    setprop persist.sys.pihooks.disable.gms_key_attestation_block true
-    setprop persist.sys.pihooks.disable.gms_props true
-    setprop persist.sys.pihooks.enabled_features 0
-    setprop persist.sys.pihooks.disable 1
-    setprop persist.sys.kihooks.disable 1
+    resetprop -n persist.sys.pihooks.disable.gms_key_attestation_block true
+    resetprop -n persist.sys.pihooks.disable.gms_props true
+    resetprop -n persist.sys.pihooks.enabled_features 0
+    resetprop -n persist.sys.pihooks.disable 1
+    resetprop -n persist.sys.kihooks.disable 1
 fi
 
 cat <<'EOF' > "$boot/.box_cleanup.sh"

@@ -530,7 +530,6 @@ y() {
   fi
 
   log " ✦ Missing file: $p (tried: $f ${alt_f}) "
-  reboot recovery
   exit 100
 }
 
@@ -583,7 +582,6 @@ y() {
   fi
 
   log " ✦ Missing file: $p (tried: $f ${alt_f}) "
-  reboot recovery
   exit 100
 }
 

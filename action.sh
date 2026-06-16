@@ -21,7 +21,6 @@ PROP="$MODPATH/module.prop"
 BAK="$PROP.bak"
 
 URL="https://raw.githubusercontent.com/MeowDump/Integrity-Box/refs/heads/main/keybox/key-status"
-INSTALLATION="/data/adb/modules_update/playintegrityfix/webroot/common_scripts/key.sh"
 
 FLAG="$BOX/advanced"
 PATCH_FLAG="$BOX/patch"
