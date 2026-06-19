@@ -142,133 +142,35 @@ get_size() {
   if [ -f "$1" ]; then du -h "$1" 2>/dev/null | awk '{print $1}'; else echo "-"; fi
 }
 
-# determine downloader binary
-detect_downloader() {
-  # curl
-  if command -v curl >/dev/null 2>&1; then
-    DOWNLOADER=$(command -v curl)
-    DL_MODE="curl"
-    return
-  fi
-
-  # wget
-  if command -v wget >/dev/null 2>&1; then
-    DOWNLOADER=$(command -v wget)
-    DL_MODE="wget"
-    return
-  fi
-
-  # Magisk BusyBox
-  if [ -x /data/adb/magisk/busybox ]; then
-    DOWNLOADER="/data/adb/magisk/busybox"
-    DL_MODE="busybox"
-    return
-  fi
-
-  # KSU BusyBox
-  if [ -x /data/adb/ksu/bin/busybox ]; then
-    DOWNLOADER="/data/adb/ksu/bin/busybox"
-    DL_MODE="busybox"
-    return
-  fi
-
-  # Built-in toybox wget
-  if toybox wget --help >/dev/null 2>&1; then
-    DOWNLOADER="toybox"
-    DL_MODE="toybox"
-    return
-  fi
-
-  # nothing available
-  DOWNLOADER=""
-  DL_MODE=""
-}
-
-wait_for_network() {
-  max_wait=${1:-30} # seconds
-  step=2
-  waited=0
-
-  while [ $waited -lt $max_wait ]; do
-    if command -v ping >/dev/null 2>&1; then
-      ping -c 1 1.1.1.1 >/dev/null 2>&1 && return 0
-    fi
-
-    if [ -n "$DOWNLOADER" ]; then
-      if [ "$DL_MODE" = "curl" ]; then
-        /system/bin/curl -s --head --connect-timeout 5 https://raw.githubusercontent.com >/dev/null 2>&1 && return 0
-      elif [ "$DL_MODE" = "wget" ]; then
-        /system/bin/wget --spider --timeout=5 --tries=1 https://raw.githubusercontent.com >/dev/null 2>&1 && return 0
-      elif [ "$DL_MODE" = "busybox" ]; then
-        /data/adb/magisk/busybox wget --spider --timeout=5 --tries=1 https://raw.githubusercontent.com >/dev/null 2>&1 && return 0
-      fi
-    fi
-
-    sleep $step
-    waited=$((waited+step))
-  done
-
-  return 1
-}
-
 download() {
   url="$1"
   file="$2"
   sum="$3"
-
   tmp="$OUT/$file.tmp"
   final="$OUT/$file"
   rm -f "$tmp" "$final"
 
-  detect_downloader
-  if [ -z "$DOWNLOADER" ]; then
-    echo "ERROR: No downloader binary found" >>"$LOGZ"
-    return 1
+  # Simplified downloader logic
+  if command -v curl >/dev/null 2>&1; then
+      curl -sL --fail --connect-timeout 10 -o "$tmp" "$url"
+  elif command -v wget >/dev/null 2>&1; then
+      wget -qO "$tmp" "$url"
+  elif [ -x /data/adb/magisk/busybox ]; then
+      /data/adb/magisk/busybox wget -qO "$tmp" "$url"
+  else
+      echo "ERROR: No downloader found" >>"$LOGZ"
+      return 1
   fi
 
-  att=1
-  while [ $att -le 3 ]; do
-    echo "$(date +%F' '%T) Download attempt $att for $file using $DL_MODE" >>"$LOGZ"
-
-    if [ "$DL_MODE" = "curl" ]; then
-        "$DOWNLOADER" -L --fail --connect-timeout 10 --max-time 120 -o "$tmp" "$url" 2>>"$LOGZ"
-        rc=$?
-    elif [ "$DL_MODE" = "wget" ]; then
-        "$DOWNLOADER" --no-check-certificate -O "$tmp" "$url" 2>>"$LOGZ"
-        rc=$?
-    elif [ "$DL_MODE" = "busybox" ]; then
-        "$DOWNLOADER" wget --no-check-certificate -O "$tmp" "$url" 2>>"$LOGZ"
-        rc=$?
-    elif [ "$DL_MODE" = "toybox" ]; then
-        toybox wget -O "$tmp" "$url" 2>>"$LOGZ"
-        rc=$?
-    fi
-
-    if [ $rc -ne 0 ]; then
-      echo "WARN: downloader failed rc=$rc for $file" >>"$LOGZ"
-      rm -f "$tmp"
-      att=$((att+1))
-      sleep 1
-      continue
-    fi
-
-    # verify sha
-    if sha_ok "$tmp" "$sum"; then
+  if sha_ok "$tmp" "$sum"; then
       mv "$tmp" "$final"
-      echo "$(date +%F' '%T) OK: $file saved to $final" >>"$LOGZ"
+      echo "$(date +%F' '%T) OK: $file saved" >>"$LOGZ"
       return 0
-    else
-      echo "WARN: SHA mismatch for $file" >>"$LOGZ"
+  else
+      echo "WARN: Download failed or SHA mismatch for $file" >>"$LOGZ"
       rm -f "$tmp"
-      att=$((att+1))
-      sleep 1
-      continue
-    fi
-  done
-
-  echo "ERROR: Failed to download $file after retries" >>"$LOGZ"
-  rm -f "$tmp"
-  return 1
+      return 1
+  fi
 }
 
 safe_mv() {
@@ -340,29 +242,12 @@ add_pkg() {
 
 # Connectivity check
 megatron() {
-  max_attempts=5
-  attempt=1
-  delay=1
-  hosts="1.1.1.1 8.8.8.8 9.9.9.9 223.5.5.5 114.114.114.114"
-
-  while [ $attempt -le $max_attempts ]; do
-    echo " "
-    echo "🌐 Attempt $attempt of $max_attempts..."
-
-    for host in $hosts; do
-      if ping -c1 -W2 "$host" >/dev/null 2>&1; then
-        return 0
-      fi
-    done
-
-    echo "❌ No internet detected"
-    sleep $delay
-    attempt=$((attempt + 1))
-    [ $delay -lt 5 ] && delay=$((delay + 1))
-  done
-
-  echo "🚫 No internet detected after $max_attempts attempts."
-  return 1
+  if ping -c 1 -W 2 1.1.1.1 >/dev/null 2>&1 || ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1; then
+    return 0
+  else
+    echo "🚫 No internet detected"
+    return 1
+  fi
 }
 
 # Print header
@@ -533,57 +418,7 @@ y() {
   exit 100
 }
 
-P() {
-  for Q in /data/adb/modules/busybox-ndk/system/*/busybox \
-           /data/adb/ksu/bin/busybox \
-           /data/adb/ap/bin/busybox \
-           /data/adb/magisk/busybox; do
-    [ -x "$Q" ] && echo "$Q" && return
-  done
-}
 
-Z() {
-  b=0; s=0
-  while IFS= read -r -n1 c; do
-    case "$c" in
-      [A-Z]) v=$(printf '%d' "'$c"); v=$((v - 65));;
-      [a-z]) v=$(printf '%d' "'$c"); v=$((v - 71));;
-      [0-9]) v=$(printf '%d' "'$c"); v=$((v + 4));;
-      '+') v=62;;
-      '/') v=63;;
-      '=') break;;
-      *) continue;;
-    esac
-    b=$((b << 6 | v)); s=$((s + 6))
-    if [ "$s" -ge 8 ]; then
-      s=$((s - 8)); o=$(((b >> s) & 0xFF))
-      printf \\$(printf '%03o' "$o")
-    fi
-  done
-}
-
-y() {
-  p=$1
-  f="$p"
-  if echo "$p" | grep -q "/modules/"; then
-    alt_f=$(echo "$p" | sed 's/\/modules\//\/modules_update\//')
-  else
-    alt_f=""
-  fi
-
-  # Check first path
-  if [ -r "$f" ] && [ -s "$f" ]; then
-    return 0
-  fi
-
-  # Check alternate path if set
-  if [ -n "$alt_f" ] && [ -r "$alt_f" ] && [ -s "$alt_f" ]; then
-    return 0
-  fi
-
-  log " ✦ Missing file: $p (tried: $f ${alt_f}) "
-  exit 100
-}
 
 writelog() {
     echo "$(date +'%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"

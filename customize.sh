@@ -47,16 +47,6 @@ rom_type() {
         return 0
     fi
     
-    # read system build.prop
-    if [ -f /system/build.prop ] && grep -iq "lineage" /system/build.prop; then
-        return 0
-    fi
-    
-    # read vendor build.prop
-    if [ -f /vendor/build.prop ] && grep -iq "lineage" /vendor/build.prop; then
-        return 0
-    fi
-    
     return 1
 }
 

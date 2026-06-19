@@ -14,11 +14,11 @@ fi
 
 # Handle Vending-specific prop
 if [ -f "/data/adb/Box-Brain/enablevending" ]; then
-    set_simpleprop persist.sys.pixelprops.vending true
+    resetprop -n persist.sys.pixelprops.vending true
 fi
 
 if [ -f "/data/adb/Box-Brain/disablevending" ]; then
-    set_simpleprop persist.sys.pixelprops.vending false
+    resetprop -n persist.sys.pixelprops.vending false
 fi
 
 # Handle GMS-specific props
@@ -144,16 +144,6 @@ if [ -f "/data/adb/modules/playintegrityfix/disable" ]; then
 fi
 
 execute_if_needed
-
-# Monitor in background
-while true; do
-    sleep 30
-    if [ -f "$IGNORE_FLAG" ]; then
-        log "Ignore flag detected during monitoring, stopping"
-        exit 0
-    fi
-    execute_if_needed
-done
 EOF
 fi
 

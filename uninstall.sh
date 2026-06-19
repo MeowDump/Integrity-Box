@@ -74,7 +74,8 @@ delete_file "$KEYBOX"
 delete_file "$TARGET"
 delete_file /data/adb/shamiko/whitelist
 delete_file /data/adb/nohello/whitelist
-delete_file /data/adb/modules/playintegrityfix
+MODDIR="${0%/*}"
+delete_file "$MODDIR"
 delete_file /data/adb/Box-Brain
 delete_file /data/adb/service.d/hash.sh
 delete_file /data/adb/service.d/lineage.sh
