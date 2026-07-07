@@ -19,73 +19,45 @@
 
 	<!-- Dashboard -->
     <div class="dashboard">
+      <div class="status-item">Integrity: <span id="status-integrity" class="status-indicator loading">...</span></div>
+      <div class="status-item">Profile: <span id="status-profile" class="status-indicator loading">...</span></div>
+      <div class="status-item">Props: <span id="status-LineageProp" class="status-indicator loading">...</span></div>
+      <div class="status-item">SELinux: <span id="status-selinux" class="status-indicator loading">...</span></div>
       <div class="status-item">Config: <span id="status-pixel" class="status-indicator loading">...</span></div>
       <div class="status-item">Expiry: <span id="status-expiry" class="status-indicator loading">...</span></div>
       <div class="status-item">Patch: <span id="status-patch" class="status-indicator loading">...</span></div>
       <div class="status-item">Target: <span id="status-target" class="status-indicator loading">...</span></div>
-      <div class="status-item">Spoofed: <span id="status-apps" class="status-indicator loading">...</span></div>
-      <div class="status-item">AutoPilot: <span id="status-autopilot" class="status-indicator loading">...</span></div>
-      <div class="status-item">Profile: <span id="status-profile" class="status-indicator loading">...</span></div>
-      <div class="status-item">Vending: <span id="status-playstore" class="status-indicator loading">...</span></div>
-      <div class="status-item">Props: <span id="status-LineageProp" class="status-indicator loading">...</span></div>
-      <div class="status-item">SELinux: <span id="status-selinux" class="status-indicator loading">...</span></div>
     </div>
 
     <!-- Buttons -->
     <main>
-            <div class="button-group">
-        <h3 class="group-title">Miscellaneous</h3>
-        <div class="button-grid">
-          <button class="btn" data-type="flags"><span class="icon material-symbols-outlined">handyman</span>Module Settings<div class="spinner"></div></button>
-          <button class="btn" data-type="profile"><span class="icon material-symbols-outlined">man</span>Set Profile<div class="spinner"></div></button>
-          <button class="btn" data-type="beast"><span class="icon material-symbols-outlined">dynamic_form</span>Beast Mode<div class="spinner"></div></button>
-          <button class="btn" data-script="status" data-type="status"><span class="icon material-symbols-outlined">verified</span>Integrity Status<div class="spinner"></div></button>
-        </div>
-      </div>
-
       <div class="button-group">
-        <h3 class="group-title">Spoofing Menu</h3>
-        <div class="button-grid">
-          <button class="btn" data-type="pixel"><span class="icon material-symbols-outlined">computer</span>Device Spoofing<div class="spinner"></div></button>
-          <button class="btn" data-script="spoofing" data-type="spoofing"><span class="icon material-symbols-outlined">bolt</span>ROM Spoofing<div class="spinner"></div></button>
-          <button class="btn" data-type="piffork"><span class="icon material-symbols-outlined">shop</span>Play Integrity<div class="spinner"></div></button>
-          <button class="btn" data-type="propspoofer"><span class="icon material-symbols-outlined">shield</span>Prop Spoofing<div class="spinner"></div></button>
-        </div>
-      </div>
-          
-      <div class="button-group">
-        <h3 class="group-title">Toolkit</h3>
+        <h3 class="group-title">Integrity Hub</h3>
         <div class="button-grid">
           <button class="btn" data-type="user"><span class="icon material-symbols-outlined">android</span>Manage Targets <div class="spinner"></div></button>
-          <button class="btn" data-type="hide"><span class="icon material-symbols-outlined">visibility_off</span>Hide Sus Files <div class="spinner"></div></button>
+          <button class="btn" data-type="repair"><span class="icon material-symbols-outlined">dynamic_form</span>Repair Mode<div class="spinner"></div></button>
+          <button class="btn" data-type="flags"><span class="icon material-symbols-outlined">handyman</span>Module Settings<div class="spinner"></div></button>
+          <button class="btn" data-type="profile"><span class="icon material-symbols-outlined">man</span>Set Profile<div class="spinner"></div></button>
         </div>
       </div>
 
       <div class="button-group">
-        <h3 class="group-title">Extra</h3>
+        <h3 class="group-title">Spoofing Hub</h3>
+        <div class="button-grid">
+          <button class="btn" data-type="ctrl"><span class="icon material-symbols-outlined">settings</span>Advanced Mode <div class="spinner"></div></button>
+          <button class="btn" data-type="piffork"><span class="icon material-symbols-outlined">shop</span>Play Integrity<div class="spinner"></div></button>
+          <button class="btn" data-type="propspoofer"><span class="icon material-symbols-outlined">shield</span>Prop Spoofing<div class="spinner"></div></button>
+          <button class="btn" data-script="spoofing" data-type="spoofing"><span class="icon material-symbols-outlined">bolt</span>ROM Spoofing<div class="spinner"></div></button>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <h3 class="group-title">Meow Hub</h3>
         <div class="button-grid">
           <button class="btn" data-type="hash"><span class="icon material-symbols-outlined">threat_intelligence</span>Fix Abnormal Boot Hash<div class="spinner"></div></button>
-          <button class="btn" data-type="ctrl"><span class="icon material-symbols-outlined">settings</span>Advanced Mode <div class="spinner"></div></button>
-          <button class="btn" data-type="pif"><span class="icon material-symbols-outlined">wand_stars</span>Set Custom Fingerprint <div class="spinner"></div></button>
-          <button class="btn" data-type="pilot"><span class="icon material-symbols-outlined">key robot_2 rocket_launch</span>Auto Pilot<div class="spinner"></div></button>
-        </div>
-      </div>
-      
-      <div class="button-group">
-        <h3 class="group-title">Help</h3>
-        <div class="button-grid">
-          <button class="btn" data-type="scanner"><span class="icon material-symbols-outlined">microbiology</span>Scan Flagged Apps <div class="spinner"></div></button>
-          <button class="btn" data-script="assistant" data-type="assistant"><span class="icon material-symbols-outlined">help</span>Ask Assistant<div class="spinner"></div></button>
-        </div>
-      </div>
-
-      <div class="button-group">
-        <h3 class="group-title">Tricky Store & TEE Simulator</h3>
-        <div class="button-grid">
-          <button class="btn" data-script="key.sh" data-type="keybox"><span class="icon material-symbols-outlined">deployed_code_update</span>Update Keybox<div class="spinner"></div></button>
-          <button class="btn" data-type="xml"><span class="icon material-symbols-outlined">key</span>Key Simulator <div class="spinner"></div></button>
+          <button class="btn" data-type="hide"><span class="icon material-symbols-outlined">visibility_off</span>Hide Sus Files <div class="spinner"></div></button>
+          <button class="btn" data-type="xml"><span class="icon material-symbols-outlined">key</span>Import Keybox <div class="spinner"></div></button>
           <button class="btn" data-type="tee"><span class="icon material-symbols-outlined">key</span>Target Simulator <div class="spinner"></div></button>
-          <button class="btn" data-type="patch"><span class="icon material-symbols-outlined">android</span>Patch Spoofing<div class="spinner"></div></button>
         </div>
       </div>
       
@@ -93,7 +65,9 @@
         <h3 class="group-title">Community & Support</h3>
         <div class="button-grid">
           <button class="btn" data-script="report" data-type="report"><span class="icon material-symbols-outlined">report</span>Report a Problem<div class="spinner"></div></button>
+          <button class="btn" data-script="assistant" data-type="assistant"><span class="icon material-symbols-outlined">help</span>Ask Assistant<div class="spinner"></div></button>
           <button class="btn" data-script="support" data-type="support"><span class="icon material-symbols-outlined">volunteer_activism</span>Support the Developer <div class="spinner"></div></button>
+          <button class="btn" data-script="downloader" data-type="downloader"><span class="icon material-symbols-outlined">download</span>Integrity Downloader<div class="spinner"></div></button>
         </div>
       </div>
     </main>
