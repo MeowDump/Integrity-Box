@@ -1,8 +1,20 @@
-> Release Date: 21/06/2026
+> Release Date: 07/07/2026
 
 ####  [🏆 Click here to support my work](https://meowdump.github.io/)
 
 # What's New?
+
+### Additional changes
+- Added **Keybox Update** support for **Oh My KeyMint**
+- Added **Scoop Update** support for **Oh My KeyMint**
+- Added **Device Spoofing** support for **Oh My KeyMint**
+- Spoofed to **July 2026 Android & Vendor Security Patch**
+- Removed **MMRL** configuration
+- Removed the red edge glow indicator from iframe gestures
+- Fixed `resetprop` failures that occurred in certain Prop Spoofer scenarios
+- Switched Prop Spoofer to use the compact `resetprop` implementation
+- Added a brief warning note for users
+- Improved the default settings and configuration
 
 ### Core Changes
 - Switched configuration to prop format for better compatibility
