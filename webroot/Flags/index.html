@@ -524,8 +524,8 @@ var REBOOT_FLAGS=[
   {id:"twrp",icon:"settings_backup_restore",title:"Hide Recovery",label:"reboot",desc:"Hides custom recovery presence by spoofing recovery path."},
   {id:"safemode",icon:"shield",title:"Safe Mode",label:"reboot",desc:"Disables all extra spoofing features for maximum compatibility mode."},
   {id:"skip",icon:"warning",title:"Skip System Patch",label:"reboot",desc:"Prevents spoofing of the security patch date. Use if banking apps detect patch mismatch. Disabling this can cause play integrity failure on old ROMs/Android versions"},
-  {id:"ignore",icon:"stop",title:"Disable Target Sanitizer",label:"reboot",desc:"It won't remove system apps from target.txt automatically when there's an unnecessary module is installed which message up with it."},
-  {id:"rukja",icon:"timer",title:"Disable AutoPilot",label:"reboot",desc:"Stops automatic keybox and fingerprint updates from running."}
+  {id:"ignore",icon:"stop",title:"Ewww Mode",label:"reboot",desc:"It won't remove system apps from target.txt automatically when there's an unnecessary module is installed which message up with it."},
+  {id:"keymint",icon:"timer",title:"OMK Pixel Device",label:"reboot",desc:"Forces to appear as Pixel Device & use latest security patch if using Oh My Keymint module"}
 ];
 
 var ACTION_FLAGS=[
@@ -552,7 +552,7 @@ var MESSAGES={
   iframe_back_button:{on:"Floating button active",off:"Floating button disabled"},
   safemode:{on:"Safe mode active",off:"Safe mode disabled"},
   twrp:{on:"Custom recovery spoofed",off:"Custom recovery disabled"},
-  rukja:{on:"AutoPilot disabled",off:"AutoPilot enabled"},
+  keymint:{on:"OMK Pixel disabled",off:"OMK Pixel enabled"},
   ignore:{on:"Target sanitizer disabled",off:"Target sanitizer enabled"},
   encrypt:{on:"Encryption spoofed",off:"Encryption disabled"},
   lsposed:{on:"LSposed cleared",off:"LSposed disabled"},
