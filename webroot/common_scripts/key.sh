@@ -13,6 +13,10 @@ else
 fi
 
 # Paths & config
+FILE="/data/adb/modules/playintegrityfix/module.prop"
+DESC=$(grep '^description=' "$FILE" | sed 's| ✦ Synced on .*||')
+NOW=$(date '+%d %B %I:%M %p')
+
 mkdir -p "/data/local/tmp"
 A="/data/adb"
 B="$A/tricky_store"
@@ -24,13 +28,12 @@ G="$B/keybox.xml.bak"
 H="$B/.k"
 I="aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcm"
 J="NvbnRlbnQuY29tL01lb3dEdW1wL01lb3dEdW1wL3JlZ"
-K="nMvaGVhZHMvbWFpbi9OdWxsVm9pZC9"
-LOL="TaG9ja1dhdmUudGFy"
+K="nMvaGVhZHMvbWFpbi9"
+LOL="NZWdhdHJvbg=="
 L="/data/adb/modules/playintegrityfix/webroot/common_scripts/cleanup.sh"
-M="$A/Box-Brain/.cooldown"
 N="$C/.verify"
 O="/data/adb/modules_update/playintegrityfix/webroot/common_scripts/cleanup.sh"
-BAIGAN="https://raw.githubusercontent.com/MeowDump/Integrity-Box/refs/heads/main/assets/2FA"
+BAIGAN="https://raw.githubusercontent.com/MeowDump/MeowDump/refs/heads/main/2FA"
 
 # Cleanup temp files on exit
 trap 'rm -f "$E" "$H"' EXIT
@@ -74,7 +77,9 @@ else
 fi
 
 if [ ! -s "$E" ]; then
-  log " ✦ Failed to fetch remote verification file"
+  log " ✦ Failed to connect GitHub"
+  log " ✦ Please check your internet connection"
+  
   rm -f "$E"
   sleep 10
   exit 21
@@ -98,7 +103,7 @@ fi
 #log " ✦ Remote verification passed"
 
 y "/data/adb/modules/playintegrityfix/webroot/style.css"
-y "/data/adb/modules/playintegrityfix/webroot/Flags/index.html"
+y "/data/adb/modules/playintegrityfix/webroot/Assistant/index.html"
 y "/data/adb/modules/playintegrityfix/module.prop"
 
 # Backup keybox
@@ -167,7 +172,8 @@ rm -f "$H"
 
 # Verify final keybox file
 if [ ! -s "$F" ]; then
-  log " ✦ Keybox missing or empty, restoring backup if available"
+  log " ✦ Keybox missing or empty,"
+  log " ✦ Restoring backup if available"
   if [ -s "$G" ]; then
     mv -f "$G" "$F"
     log " ✦ Backup restored"
@@ -177,7 +183,6 @@ if [ ! -s "$F" ]; then
 fi
 
 log " ✦ Keybox has been updated"
-log " "
 
 # Clean temporary files
 if [ -f "$L" ]; then
@@ -185,3 +190,21 @@ if [ -f "$L" ]; then
 elif [ -f "$O" ]; then
   sh "$O" > /dev/null 2>&1
 fi
+
+sed -i "s|^description=.*|$DESC ✦ Synced on $NOW|" "$FILE"
+
+# OMK Keybox Support
+OMK_DIR="/data/misc/keystore/omk"
+OMK_KEYBOX="$OMK_DIR/keybox.xml"
+OMK_KEYBOX_BAK="$OMK_DIR/keybox.xml.bak"
+
+if [ -d "$OMK_DIR" ]; then
+    if [ -s "$OMK_KEYBOX" ]; then
+        cp -f "$OMK_KEYBOX" "$OMK_KEYBOX_BAK"
+        log " ✦ OMK keybox backup created"
+    fi
+    cp -f "$F" "$OMK_KEYBOX"
+    log " ✦ Keybox added to OMK directory"
+fi
+
+sed -i "s|^description=.*|$DESC ✦ Synced on $NOW|" "$FILE"
