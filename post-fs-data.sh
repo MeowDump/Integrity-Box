@@ -59,6 +59,7 @@ for _f in \
     "$placeholder/Report.sh" \
     "$placeholder/force_override.sh" \
     "$placeholder/override_lineage.sh" \
+    "$placeholder/keymint.sh" \
     "$placeholder/hma.sh"
 do
     set_perm_if_needed "$_f" 755
