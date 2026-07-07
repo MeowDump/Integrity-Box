@@ -30,7 +30,7 @@ P="$MODPATH/custom.pif.prop"
 SKIP_FILE="$BOX/skip"
 SPOOF_APPS="$BOX/per-app-spoofing"
 
-PATCH_DATE="2026-06-01"
+PATCH_DATE="2026-07-05"
 PROP_MAIN="ro.build.version.security_patch"
 
 TARGET_DIR="/data/adb/tricky_store"
@@ -306,6 +306,10 @@ reset_tricky_store
 sh "$UPDATE" || { sleep 10; exit 1; }
 echo " "
 
+if [ -f "$BOX/keymint" ]; then
+    "$SCRIPT_DIR/keymint.sh"
+fi
+
 # RUN STEPS
 # Ensure log file exists
 mkdir -p "$(dirname "$CPP")" 2>/dev/null || true
@@ -484,6 +488,72 @@ mv -f "$TMP" "$TARGET" && success=1 && log_step "UPDATED" "Target Packages confi
 
 if [ ! -f "$SKIP_FILE" ] && [ "$orig_selinux" = "Enforcing" ]; then
     setenforce 1
+fi
+
+# OMK Injector TOML Support
+OMK_DIR="/data/misc/keystore/omk"
+INJECTOR_TOML="$OMK_DIR/injector.toml"
+TMP_TOML="${INJECTOR_TOML}.tmp.$$"
+SCOOP_TMP="/data/local/tmp/.omk_scoop_$$"
+
+if [ -d "$OMK_DIR" ]; then
+    # Build scoop array from target.txt
+    {
+        echo "scoop = ["
+        while IFS= read -r pkg || [ -n "$pkg" ]; do
+            [ -z "$pkg" ] && continue
+            pkg_clean="${pkg%!}"
+            echo "  \"$pkg_clean\","
+        done < "$TARGET"
+        echo "]"
+    } > "$SCOOP_TMP" 2>/dev/null
+
+    if [ -f "$INJECTOR_TOML" ]; then
+        # Extract everything before scoop section
+        sed -n '1,/^scoop[[:space:]]*=[[:space:]]*\[/p' "$INJECTOR_TOML" | sed '$d' > "$TMP_TOML" 2>/dev/null
+        
+        # Append our new scoop section
+        cat "$SCOOP_TMP" >> "$TMP_TOML" 2>/dev/null
+        
+        # Extract everything after scoop section
+        sed -n '/^[[:space:]]*\]/,$p' "$INJECTOR_TOML" | sed '1d' >> "$TMP_TOML" 2>/dev/null
+        
+        mv -f "$TMP_TOML" "$INJECTOR_TOML" 2>/dev/null
+        rm -f "$SCOOP_TMP" 2>/dev/null
+        log_step "SCOOPED" "Targets in injector.toml"
+    else
+        # No existing file, create fresh
+        {
+            echo '# Only packages listed in `scoop` are intercepted.'
+            echo ''
+            cat "$SCOOP_TMP"
+            echo ''
+            echo '[main]'
+            echo 'enabled = true'
+            echo 'log_level = "debug"'
+            echo ''
+            echo '[filter]'
+            echo 'enabled = true'
+            echo 'deny_packages = []'
+            echo 'block_android_package = true'
+            echo 'allow_unknown_package = false'
+            echo ''
+            echo '# Do not edit if you have no idea about the things below'
+            echo '[intercept]'
+            echo 'get_security_level = true'
+            echo 'get_key_entry = true'
+            echo 'update_subcomponent = true'
+            echo 'list_entries = true'
+            echo 'delete_key = true'
+            echo 'grant = true'
+            echo 'ungrant = true'
+            echo 'get_number_of_entries = true'
+            echo 'list_entries_batched = true'
+            echo 'get_supplementary_attestation_info = true'
+        } > "$INJECTOR_TOML" 2>/dev/null
+        rm -f "$SCOOP_TMP" 2>/dev/null
+        log_step "CREATED" "Missing injector.toml for OMK"
+    fi
 fi
 
 # Write security_patch.txt based on patch flag
