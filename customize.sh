@@ -20,6 +20,71 @@ mkdir -p "$TRICKY"
 # Support Hot Installation
 export MODULE_HOT_INSTALL_REQUEST="true"
 
+# Warn user
+show_warning() {
+    HOUR=$(date +"%H")
+
+    if [ "$HOUR" -ge 5 ] && [ "$HOUR" -lt 12 ]; then
+        GREETING="Good Morning"
+    elif [ "$HOUR" -ge 12 ] && [ "$HOUR" -lt 17 ]; then
+        GREETING="Good Afternoon"
+    elif [ "$HOUR" -ge 17 ] && [ "$HOUR" -lt 21 ]; then
+        GREETING="Good Evening"
+    else
+        GREETING="You should sleep now"
+    fi
+
+    echo " "
+    echo "yo, $GREETING"
+    echo " "
+    sleep 2
+    echo "Look man, i gotta be straight with you."
+    echo " "
+    sleep 2
+    echo "Things have been changed, properly broken."
+    echo "You can bypass every detector,"
+    echo "and SOME apps might still wont work"
+    echo " "
+    sleep 7
+    echo "Keyboxes are getting revoked in a week,"
+    echo "Sometimes a day. and good luck finding one."
+    echo "NO KEYBOX = NO PLAY INTEGRITY = YOU'RE COOKED."
+    echo " "
+    sleep 7
+    echo "And even with PI passing, theres server side"
+    echo "checks now. behavioral stuff. you cant fake that"
+    echo "               (atleast for now)"
+    echo " "
+    sleep 7
+    echo " "
+    echo "𝚜𝚘 𝚑𝚎𝚛𝚎𝚜 𝚠𝚑𝚊𝚝 𝚢𝚘𝚞 𝚊𝚌𝚝𝚞𝚊𝚕𝚕𝚢 𝚍𝚘:"
+    echo " "
+    sleep 1
+    echo "𝗚𝗘𝗧 𝗔 𝗦𝗘𝗖𝗢𝗡𝗗 𝗣𝗛𝗢𝗡𝗘."
+    echo "cheap or secondary one."
+    echo "use it for banking, payments"
+    echo "or anything serious."
+    echo "keep your rooted phone for everything else."
+    echo " "
+    sleep 7
+    echo "And stop giving money to keybox sellers."
+    echo "or 'guaranteed bypass' services. its a scam."
+    echo "youre burning cash on something"
+    echo "that dies in days."
+    echo " "
+    sleep 2
+    echo "Also dont trust anyone in this space."
+    echo "too many scammers. too many liars."
+    echo " "
+    sleep 2
+    echo "Anyway. thats all i got."
+    echo "Take care of yourself out there."
+    echo " "
+    echo " "
+    echo " "
+    sleep 3
+}
+
 # Logger
 debug() {
     echo "$1" | tee -a "$INSTALL_LOG"
@@ -163,13 +228,15 @@ release_source() {
 
 # Enable recommended settings
 enable_recommended_settings() {
-    debug " ✦ Enabling Recommended Settings "
-    touch "$FLAG/iframe_back_button"
-    touch "$FLAG/migrate_force"
-    touch "$FLAG/run_migrate"
-    touch "$FLAG/noredirect"
-    touch "$FLAG/ignore"
-    touch "$FLAG/rukja"
+    if [ ! -f "$MEOW/service.sh" ]; then
+        debug " ✦ Enabling Recommended Settings "
+        touch "$FLAG/iframe_back_button"
+        touch "$FLAG/migrate_force"
+        touch "$FLAG/run_migrate"
+        touch "$FLAG/noredirect"
+        touch "$FLAG/ignore"
+        touch "$FLAG/rukja"
+    fi
 }
 
 # Final footer message
@@ -208,6 +275,10 @@ echo "
  |___/\___/_\_\                       
                                                 
                                       
+  Processing installation in background...
+  Please wait
+  
+  
 "
 
 # Set fingerprint on installation 
@@ -234,12 +305,13 @@ fi
 # Write security patch file if missing 
 if [ ! -f $TRICKY/security_patch.txt ]; then
 cat <<EOF > $TRICKY/security_patch.txt
-all=2026-06-01
+all=2026-07-05
 EOF
 fi
 
 # Start the installation process
-install_module
+install_module >/dev/null
+show_warning
 
 # Create scripts 
 boot="/data/adb/service.d"
@@ -579,13 +651,13 @@ exit 0
 EOF
 fi
 
-if [ ! -f "$placeholder/june" ]; then
-touch "$placeholder/june"
+if [ ! -f "$placeholder/july" ]; then
+touch "$placeholder/july"
 cat <<'EOF' > "$boot/prop.sh"
 #!/system/bin/sh
 
 # CONFIG
-PATCH_DATE="2026-06-01"
+PATCH_DATE="2026-07-05"
 FILE_PATH="/data/adb/tricky_store/security_patch.txt"
 SKIP_FILE="/data/adb/Box-Brain/skip"
 LOG_DIR="/data/adb/Box-Brain/Integrity-Box-Logs"
