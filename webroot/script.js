@@ -41,9 +41,10 @@ const messageMap = {
   "ulock": { success: "Done", type: "info" },
   "faq": { start: "Coming Soon", type: "info" },
   "nuke": { start: "Coming Soon", type: "info" },
-  "beast": { success: "These doesn't require reboot", type: "info" },
+  "repair": { success: "These doesn't require reboot", type: "info" },
   "spoofing": { start: "These are for custom ROM users", type: "info" },
   "pilot": { start: "Updates keybox & fp automatically whether a new key is available", type: "info" },
+  "downloader": { start: "Some useful stuff you may need", type: "info" },
   "hash": { start: "Paste your boot hash buddy", success: "Boot hash operation complete", type: "success" }
 };
 
@@ -155,24 +156,6 @@ function createIframeUI(url, config) {
 
   document.body.appendChild(edge);
 
-  const glow = document.createElement("div");
-  Object.assign(glow.style, {
-    position: "fixed",
-    top: "0",
-    [isRight ? "right" : "left"]: "0",
-    width: "20px",
-    height: "100vh",
-    zIndex: "99998",
-    pointerEvents: "none",
-    opacity: "0",
-    background: isRight 
-      ? "linear-gradient(to left, rgba(255,40,40,0.45), transparent)"
-      : "linear-gradient(to right, rgba(255,40,40,0.45), transparent)",
-    transition: "opacity 0.2s ease, transform 0.3s ease"
-  });
-
-  document.body.appendChild(glow);
-
   let backBtn = null;
   if (config.backButton) {
     backBtn = document.createElement("div");
@@ -217,71 +200,30 @@ function createIframeUI(url, config) {
     document.body.appendChild(backBtn);
   }
 
-  let idleTimer;
-  const idleDelay = 2000;
-  let idle = false;
-
-  const startIdle = () => {
-    idle = true;
-    glow.style.opacity = "0.15";
-    glow.style.transform = "scaleY(0.75)";
-  };
-
-  const stopIdle = () => {
-    idle = false;
-    glow.style.opacity = "0";
-    glow.style.transform = "scaleY(1)";
-  };
-
-  const resetIdle = () => {
-    clearTimeout(idleTimer);
-    stopIdle();
-    idleTimer = setTimeout(startIdle, idleDelay);
-  };
-
-  resetIdle();
-
-  const flashGlow = () => {
-    glow.style.opacity = "0.5";
-    glow.style.transform = "scaleY(1)";
-    setTimeout(() => {
-      glow.style.opacity = idle ? "0.15" : "0";
-    }, 180);
-  };
-
   let startX = 0;
   let startTime = 0;
 
   const onStart = (e) => {
-    resetIdle();
     const t = e.touches?.[0] || e;
     startX = t.clientX;
     startTime = Date.now();
-    glow.style.opacity = "0.35";
-    glow.style.transform = "scaleY(1)";
   };
 
   const onEnd = (e) => {
-    resetIdle();
     const t = e.changedTouches?.[0] || e;
     const diff = isRight ? startX - t.clientX : t.clientX - startX;
     const dt = Date.now() - startTime;
     const swipe = diff > 40 && dt < 300;
 
     if (swipe || Math.abs(diff) < 10) {
-      flashGlow();
       closeIframe();
-    } else {
-      glow.style.opacity = idle ? "0.15" : "0";
     }
   };
 
   const closeIframe = () => {
     iframe.remove();
     edge.remove();
-    glow.remove();
     if (backBtn) backBtn.remove();
-    clearTimeout(idleTimer);
   };
 
   edge.addEventListener("touchstart", onStart, { passive: true });
@@ -300,25 +242,30 @@ async function readExpiry(file){
   )).trim();
 }
 
+async function fetchKeyboxStatus() {
+  const url = "https://raw.githubusercontent.com/MeowDump/Integrity-Box/refs/heads/main/keybox/key-status";
+  try {
+    const response = await fetch(url, { cache: 'no-store' });
+    if (!response.ok) throw new Error('HTTP ' + response.status);
+    const text = await response.text();
+    if (text.includes('🟢🟢🟢')) return { status: 'STRONG', label: 'Strong' };
+    if (text.includes('🟢🟢🔴')) return { status: 'DEVICE', label: 'Device' };
+    if (text.includes('🔴🔴🔴')) return { status: 'BANNED', label: 'Banned' };
+    return { status: 'UNKNOWN', label: 'Unknown' };
+  } catch (e) {
+    return { status: 'OFFLINE', label: 'Offline' };
+  }
+}
+
 async function updateDashboard() {
   const statusItems = {
     "status-playstore": "dumpsys package com.android.vending | grep versionName | head -n1 | awk -F'=' '{print $2}' | cut -d'-' -f1 | cut -d' ' -f1 | cut -d'.' -f1-3",
     "status-selinux": "getenforce || echo Unknown",
     "status-target": "[ -f /data/adb/tricky_store/target.txt ] && grep -cve '^$' /data/adb/tricky_store/target.txt || echo 0",
-    "status-pixel": "[ -f /data/adb/modules/playintegrityfix/pixel.txt ] && awk -F= '/^MODEL=/{print $2}' /data/adb/modules/playintegrityfix/pixel.txt || echo None",
+    "status-pixel": "[ -f /data/adb/modules/playintegrityfix/custom.pif.prop ] && awk -F= '/^MODEL=/{print $2}' /data/adb/modules/playintegrityfix/custom.pif.prop || echo None",
     "status-patch": "getprop ro.build.version.security_patch || echo Unknown",
-    "status-apps": "[ -f /data/adb/modules/playintegrityfix/apps.txt ] && grep -cve '^$' /data/adb/modules/playintegrityfix/apps.txt || echo 0",
+    "status-integrity": "__FETCH_KEYBOX__",
     "status-profile": `if [ -f ${BOXBRAIN}/advanced ]; then echo 'Supreme'; elif [ -f ${BOXBRAIN}/pixelify ]; then echo 'Pixelify'; elif [ -f ${BOXBRAIN}/legacy ]; then echo 'Legacy'; elif [ -f ${BOXBRAIN}/wipe ]; then echo 'Meta'; else echo 'None'; fi`,
-
-    "status-autopilot": `
-      if [ ! -f ${BOXBRAIN}/autopilot ]; then
-        echo DISABLED
-      elif [ -f ${BOXBRAIN}/run_action ]; then
-        echo XTREME
-      else
-        echo KEYBOX
-      fi
-    `,
 
     "status-LineageProp": `
       if [ -f ${BOXBRAIN}/safemode ]; then
@@ -334,7 +281,7 @@ async function updateDashboard() {
   const expiryEl = document.getElementById("status-expiry");
   if (expiryEl) {
     try {
-      const file = "/data/adb/modules/playintegrityfix/pixel.txt";
+      const file = "/data/adb/modules/playintegrityfix/custom.pif.prop";
       const exp = await readExpiry(file);
 
       if (!exp) {
@@ -371,11 +318,31 @@ async function updateDashboard() {
     const el = document.getElementById(id);
     if (!el) continue;
 
-    try {
-      let out = (await runShell(cmd)).trim();
-      if (!out) out = "Unknown";
+    if (id === "status-integrity") {
+      try {
+        const result = await fetchKeyboxStatus();
+        el.textContent = result.label;
+        if (result.status === 'STRONG') {
+          el.className = "status-indicator play";
+        } else if (result.status === 'DEVICE') {
+          el.className = "status-indicator play";
+        } else if (result.status === 'BANNED') {
+          el.className = "status-indicator disabled";
+        } else {
+          el.className = "status-indicator disabled";
+        }
+      } catch {
+        el.textContent = "Offline";
+        el.className = "status-indicator disabled";
+      }
+      continue;
+    }
+  try {
+    let out = (await runShell(cmd)).trim();
+    if (!out) out = "Unknown";
 
-      switch (id) {
+    switch (id) {
+
         case "status-playstore":
         case "status-profile":
           el.textContent = out;
@@ -395,26 +362,29 @@ async function updateDashboard() {
           el.className = `status-indicator ${count === 0 || count > 50 ? "disabled" : "enabled"}`;
           break;
           
-        case "status-apps":
-          el.textContent = `${out} apps`;
-          el.className = "status-indicator aqua";
+        case "status-integrity":
+          try {
+            const result = await fetchKeyboxStatus();
+            el.textContent = result.label;
+            if (result.status === 'STRONG') {
+              el.className = "status-indicator neutral";
+            } else if (result.status === 'DEVICE') {
+              el.className = "status-indicator peela";
+            } else if (result.status === 'BANNED') {
+              el.className = "status-indicator disabled";
+            } else {
+              el.className = "status-indicator disabled";
+            }
+          } catch {
+            el.textContent = "Offline";
+            el.className = "status-indicator disabled";
+          }
           break;
 
         case "status-pixel":
         case "status-patch":
           el.textContent = out;
           el.className = "status-indicator enabled";
-          break;
-
-        case "status-autopilot":
-          if (out === "DISABLED") {
-            el.textContent = "Disabled";
-          } else if (out === "XTREME") {
-            el.textContent = "Xtreme";
-          } else {
-            el.textContent = "Keybox";
-          }
-          el.className = "status-indicator aqua";
           break;
 
         case "status-LineageProp":
@@ -461,34 +431,29 @@ function attachButtonListeners() {
           return;
         }
 
-        if (["scanner","hash","user","flags","cache","nuke","piffork","propspoofer","pif","vending",
-             "support","report","profile","assistant","beast","pilot","faq","spoofing","status","tee","xml","pixel","hide","patch","ctrl"].includes(type)) {
+        if (["scanner","hash","user","flags","cache","nuke","piffork","propspoofer","pif","vending","downloader","keymint",
+             "support","report","profile","assistant","repair","pilot","faq","spoofing","status","tee","xml","pixel","hide","patch","ctrl"].includes(type)) {
 
           const pathMap = {
-            scanner:"./Risky/index.html",
             ctrl:"./Control/index.html",
             hash:"./BootHash/index.html",
             flags:"./Flags/index.html",
             piffork:"./PlayIntegrityFork/index.html",
             propspoofer:"./PropSpoofer/index.html",
-            pif:"./CustomPIF/index.html",
             vending:"./Certified/index.html",
             support:"./Support/index.html",
             report:"./Report/index.html",
-            cache:"./Cache/index.html",
             user:"./TrickyStore/index.html",
             xml:"./KeyboxLoader/index.html",
             pixel:"./Pixel/index.html",
             hide:"./HideMyFiles/index.html",
-            patch:"./Patch/index.html",
-            status:"./Status/index.html",
             profile:"./Profile/index.html",
             assistant:"./Assistant/index.html",
-            beast:"./BeastMode/index.html",
+            repair:"./RepairMode/index.html",
+            keymint:"./Keymint/index.html",
             faq:"./Faq/index.html",
-            pilot:"./AutoPilot/index.html",
-            nuke:"./Nuke/index.html",
             spoofing:"./Spoofing/index.html",
+            downloader:"./Downloader/index.html",
             tee:"./TEEsimulator/index.html"
           };
 
