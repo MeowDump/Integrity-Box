@@ -483,6 +483,10 @@ h1{
   <div id="action-rows"></div>
 
   <div class="divider"></div>
+  <div class="section-label">Kernel (Not recommended to enable)</div>
+  <div id="kernel-rows"></div>
+  
+  <div class="divider"></div>
   <div class="section-label">General</div>
   <div id="general-rows"></div>
 
@@ -504,15 +508,15 @@ var DIR="/data/adb/Box-Brain";
 var ACTION_SCRIPT="/data/adb/modules/playintegrityfix/action.sh";
 
 var BOOT_FLAGS=[
-  {id:"hidehook",icon:"visibility_off",title:"Hide PIF Detection",label:"custom ROM",desc:"Hides PIF-related hooks and detection traces on boot.",risk:"low"},
   {id:"spoof-los-boot",icon:"android",title:"Hide Lineage",label:"custom ROM",desc:"Spoofs LineageOS-specific properties on boot so apps cannot detect you are running a LineageOS-based custom ROM.",risk:"low"},
   {id:"nuke-los-boot",icon:"delete_forever",title:"Nuke Lineage",label:"custom ROM",desc:"Aggressively removes all LineageOS traces including props, services and build fingerprints on boot.",risk:"medium"},
   {id:"spoof-custom-rom-boot",icon:"phone_android",title:"Hide Custom ROM",label:"custom ROM",desc:"Generic custom ROM hiding that spoofs build.props to appear as stock Android on boot.",risk:"low"},
   {id:"nuke-sus-boot",icon:"cleaning_services",title:"Hide SUS Files",label:"root traces",desc:"Cleans suspicious files and directories that may reveal root access or module presence on boot.",risk:"medium"},
+  {id:"spoof-selinux-boot",icon:"security",title:"Spoof SELinux",label:"bootloop risk",desc:"Spoofs SELinux status to report as enforcing. WARNING: May cause bootloops on some devices. Use with caution.",risk:"high"},
+  {id:"hidehook",icon:"visibility_off",title:"Hide PIF Detection",label:"not recommended",desc:"Hides PIF-related hooks and detection traces on boot, it may automatically enable inbuilt ROM spoofing.",risk:"high"}
 //  {id:"fetch-pif-boot",icon:"cloud_download",title:"Update Pixel Config",label:"internet",desc:"Downloads latest Pixel configuration on every boot. Requires active internet connection.",risk:"low"},
 //  {id:"fetch-target-boot",icon:"format_list_bulleted",title:"Update Target List",label:"tricky store",desc:"Automatically updates tricky store's target app list on boot.",risk:"low"},
 //  {id:"fetch-keybox-boot",icon:"vpn_key",title:"Update Keybox",label:"internet",desc:"Updates valid keybox from server on boot to maintain valid device certification.",risk:"low"},
-  {id:"spoof-selinux-boot",icon:"security",title:"Spoof SELinux",label:"bootloop risk",desc:"Spoofs SELinux status to report as enforcing. WARNING: May cause bootloops on some devices. Use with caution.",risk:"high"}
 ];
 
 var REBOOT_FLAGS=[
@@ -522,10 +526,9 @@ var REBOOT_FLAGS=[
   {id:"tag",icon:"sell",title:"Build Tag",label:"reboot",desc:"Spoofs build tags to release-keys instead of test-keys."},
   {id:"encrypt",icon:"lock",title:"Spoof Encryption",label:"reboot",desc:"Fakes device encryption status to appear as encrypted"},
   {id:"twrp",icon:"settings_backup_restore",title:"Hide Recovery",label:"reboot",desc:"Hides custom recovery presence by spoofing recovery path."},
-  {id:"safemode",icon:"shield",title:"Safe Mode",label:"reboot",desc:"Disables all extra spoofing features for maximum compatibility mode."},
+  {id:"safemode",icon:"shield",title:"Safe Mode",label:"bootloop fix",desc:"Disables all extra spoofing features for maximum compatibility mode.",risk:"low"},
   {id:"skip",icon:"warning",title:"Skip System Patch",label:"reboot",desc:"Prevents spoofing of the security patch date. Use if banking apps detect patch mismatch. Disabling this can cause play integrity failure on old ROMs/Android versions"},
-  {id:"ignore",icon:"stop",title:"Ewww Mode",label:"reboot",desc:"It won't remove system apps from target.txt automatically when there's an unnecessary module is installed which message up with it."},
-  {id:"keymint",icon:"timer",title:"OMK Pixel Device",label:"reboot",desc:"Forces to appear as Pixel Device & use latest security patch if using Oh My Keymint module"}
+  {id:"ignore",icon:"stop",title:"Ewww Mode",label:"reboot",desc:"It won't remove system apps from target.txt automatically when there's an unnecessary module is installed which message up with it."}
 ];
 
 var ACTION_FLAGS=[
@@ -538,7 +541,20 @@ var ACTION_FLAGS=[
   {id:"hma",icon:"visibility_off",title:"HMA Config",label:"action",desc:"Injects Hide My Applist configuration manually into HMA OOS."}
 ];
 
+var KERNEL_FLAGS=[
+  {id:"buildtime",icon:"timer",title:"Spoof Build Time",label:"bootloop / soft brick risk",risk:"high",desc:"Fixed duck detector system & kernel build date mismatch detection"},
+  {id:"customkernel",icon:"adb",title:"Hide Custom Kernel",label:"bootloop / soft brick risk",risk:"high",desc:"Fixes custom kernel detection"},
+  {id:"emoji",icon:"block",title:"No Gore",label:"bootloop / soft brick risk",risk:"high",desc:"Hides emojis & special characters from kernel string"},
+  {id:"chinese",icon:"language",title:"Made in China",label:"bootloop / soft brick risk",risk:"high",desc:"Hides stuff written in chinese language to avoid detection."},
+  {id:"telegram",icon:"display_settings",title:"No Telegram",label:"bootloop / soft brick risk",risk:"high",desc:"Hides Telegram strings"},
+  {id:"mention",icon:"engineering",title:"No Mention Tags",label:"bootloop / soft brick risk",risk:"high",desc:"Hides Mention strings"},
+  {id:"cmdline",icon:"terminal",title:"Spoof CMDline",label:"bootloop / soft brick risk",risk:"high",desc:"spoofs CMDline"},
+  {id:"board",icon:"gavel",title:"Spoof Kernel",label:"bootloop / soft brick risk",risk:"high",desc:"Hides Kernel name strings"},
+  {id:"scanall",icon:"build",title:"All of Above",label:"bootloop / hard brick risk",risk:"high",desc:"Hides everything"}
+];
+
 var GENERAL_FLAGS=[
+  {id:"keymint",icon:"timer",title:"OMK Pixel Device",label:"reboot",desc:"Forces to appear as Pixel Device & use latest security patch if using Oh My Keymint module"},
   {id:"iframe_gesture_right",icon:"swipe",title:"Right Gestures",desc:"Enables right-hand-side back gesture swipe area in WebUI iframes."},
   {id:"iframe_back_button",icon:"arrow_back",title:"Floating Back",desc:"Adds a floating back button overlay for easier iframe navigation."},
   {id:"noredirect",icon:"block",title:"No Redirect",desc:"Disables automatic Telegram link redirects from the WebUI."}
@@ -548,11 +564,22 @@ var ALL_FLAGS=BOOT_FLAGS.concat(REBOOT_FLAGS);
 
 var MESSAGES={
   noredirect:{on:"Redirect disabled",off:"Redirect enabled"},
+  buildtime:{on:"Reboot your device",off:"Reboot your device"},
+  customkernel:{on:"Reboot your device",off:"Reboot your device"},
+  emoji:{on:"Reboot your device",off:"Reboot your device"},
+  chinese:{on:"Reboot your device",off:"Reboot your device"},
+  telegram:{on:"Reboot your device",off:"Reboot your device"},
+  mention:{on:"Reboot your device",off:"Reboot your device"},
+  cmdline:{on:"Reboot your device",off:"Reboot your device"},
+  board:{on:"Reboot your device",off:"Reboot your device"},
+  scanall:{on:"Reboot your device",off:"Reboot your device"},
   iframe_gesture_right:{on:"RHS gestures active",off:"RHS gestures disabled"},
   iframe_back_button:{on:"Floating button active",off:"Floating button disabled"},
   safemode:{on:"Safe mode active",off:"Safe mode disabled"},
   twrp:{on:"Custom recovery spoofed",off:"Custom recovery disabled"},
   keymint:{on:"OMK Pixel disabled",off:"OMK Pixel enabled"},
+//  spoof-selinux-boot:{on:"Please reboot your device",off:"Please reboot your device"},
+//  hidehook:{on:"Please reboot your device",off:"Please reboot your device"},
   ignore:{on:"Target sanitizer disabled",off:"Target sanitizer enabled"},
   encrypt:{on:"Encryption spoofed",off:"Encryption disabled"},
   lsposed:{on:"LSposed cleared",off:"LSposed disabled"},
@@ -670,6 +697,32 @@ function createActionRow(cfg){
       '<div class="title">'+cfg.title+'</div>'+
       '<div class="subtitle-text">'+cfg.desc+'</div>'+
       '<div class="badge"><span class="material-icons">play_arrow</span>'+cfg.label+'</div>'+
+    '</div>'+
+    '<div class="status-dot"></div>'+
+    '<label class="switch" onclick="event.stopPropagation()">'+
+      '<input type="checkbox" id="cb-'+cfg.id+'">'+
+      '<span class="slider"><span class="knob"></span></span>'+
+    '</label>';
+
+  return div;
+}
+
+function createKernellRow(cfg){
+  var div=document.createElement("div");
+  div.className="row";
+  div.id="row-"+cfg.id;
+  div.onclick=function(){toggle(cfg.id)};
+
+  var badgeClass=getBadgeClass(cfg.risk);
+  var badgeIcon=getBadgeIcon(cfg.risk);
+  var badgeText=cfg.label;
+
+  div.innerHTML=
+    '<div class="icon-wrap"><span class="material-icons">'+cfg.icon+'</span></div>'+
+    '<div class="content">'+
+      '<div class="title">'+cfg.title+'</div>'+
+      '<div class="subtitle-text">'+cfg.desc+'</div>'+
+      '<div class="badge '+badgeClass+'" id="badge-cb-'+cfg.id+'"><span class="material-icons">'+badgeIcon+'</span>'+badgeText+'</div>'+
     '</div>'+
     '<div class="status-dot"></div>'+
     '<label class="switch" onclick="event.stopPropagation()">'+
@@ -869,6 +922,25 @@ function openInfoModal(){
       }
     });
 
+    var kernelTitle=document.createElement("div");
+    kernelTitle.className="info-section-title";
+    kernelTitle.textContent="Kernel";
+    content.appendChild(kernelTitle);
+
+    KERNEL_FLAGS.forEach(function(item,i){
+      var div=document.createElement("div");
+      div.className="info-item";
+      var riskColor=item.risk==="high"?"var(--danger)":item.risk==="medium"?"var(--warning)":"var(--success)";
+      var riskText=item.risk==="high"?"High Risk":item.risk==="medium"?"Medium Risk":"Low Risk";
+      div.innerHTML='<div class="info-item-title"><span class="material-icons">'+item.icon+'</span>'+item.title+'</div><div class="info-item-desc">'+item.desc+'</div><div class="info-item-flag">Flag: '+item.id+'</div><div class="info-item-risk" style="color:'+riskColor+'">'+riskText+'</div>';
+      content.appendChild(div);
+      if(i<KERNEL_FLAGS.length-1){
+        var d=document.createElement("div");
+        d.className="modal-divider";
+        content.appendChild(d);
+      }
+    });
+
     var generalTitle=document.createElement("div");
     generalTitle.className="info-section-title";
     generalTitle.textContent="General";
@@ -907,12 +979,15 @@ async function refreshAll(){
   var actionIds=ACTION_FLAGS.map(function(a){return a.id}).join(" ");
   var actionCmd='for f in '+actionIds+';do if [ -f "'+DIR+'/$f" ];then echo "action:$f:1";else echo "action:$f:0";fi;done';
 
+  var kernelIds=KERNEL_FLAGS.map(function(g){return g.id}).join(" ");
+  var kernelCmd='for f in '+kernelIds+';do if [ -f "'+DIR+'/$f" ];then echo "kernel:$f:1";else echo "kernel:$f:0";fi;done';
+
   var generalIds=GENERAL_FLAGS.map(function(g){return g.id}).join(" ");
   var generalCmd='for f in '+generalIds+';do if [ -f "'+DIR+'/$f" ];then echo "general:$f:1";else echo "general:$f:0";fi;done';
 
   var execCmd='if [ -f "'+DIR+'/action_exec" ];then echo "exec:action_exec:1";else echo "exec:action_exec:0";fi';
 
-  var result=await runShell(bootCmd+";"+rebootCmd+";"+actionCmd+";"+generalCmd+";"+execCmd);
+  var result=await runShell(bootCmd+";"+rebootCmd+";"+actionCmd+";"+kernelCmd+";"+generalCmd+";"+execCmd);
 
   if(result){
     result.trim().split("\n").forEach(function(line){
@@ -929,6 +1004,13 @@ async function refreshAll(){
           cb.checked=val==="1";
           row.classList.toggle("active",val==="1");
         }
+      } else if(type==="reboot"||type==="action"||type==="kernel"||type==="general"){
+          var cb2=document.getElementById("cb-"+id);
+          var row2=document.getElementById("row-"+id);
+          if(cb2&&row2){
+              cb2.checked=val==="1";
+              row2.classList.toggle("active",val==="1");
+          }
       }else if(type==="reboot"||type==="action"||type==="general"){
         var cb2=document.getElementById("cb-"+id);
         var row2=document.getElementById("row-"+id);
@@ -953,11 +1035,13 @@ async function refreshAll(){
 function init(){
   var flagContainer=document.getElementById("flag-rows");
   var actionContainer=document.getElementById("action-rows");
+  var kernelContainer=document.getElementById("kernel-rows");
   var generalContainer=document.getElementById("general-rows");
 
   BOOT_FLAGS.forEach(function(b){flagContainer.appendChild(createFlagRow(b,true))});
   REBOOT_FLAGS.forEach(function(b){flagContainer.appendChild(createFlagRow(b,false))});
   ACTION_FLAGS.forEach(function(a){actionContainer.appendChild(createActionRow(a))});
+  KERNEL_FLAGS.forEach(function(g){kernelContainer.appendChild(createKernellRow(g))});
   GENERAL_FLAGS.forEach(function(g){generalContainer.appendChild(createGeneralRow(g))});
 
   setTimeout(refreshAll,50);
@@ -967,3 +1051,4 @@ document.addEventListener("DOMContentLoaded",init);
 </script>
 </body>
 </html>
+
