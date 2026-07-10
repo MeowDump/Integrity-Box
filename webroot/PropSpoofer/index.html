@@ -464,23 +464,25 @@ const rowsEl = document.getElementById('rows');
 const deleteRowsEl = document.getElementById('delete-rows');
 const duckRowsEl = document.getElementById('duck-rows');
 
+let RESETPROP_RS = '';
+
 const props = [
-{id:'usb_adb_disabled',cmd:'su -c resetprop -n sys.usb.adb.disabled 1',label:'USB Debug Block',sub:'sys.usb.adb.disabled',icon:'usb_off'},
-{id:'usb_config_mtp',cmd:'su -c resetprop -n persist.sys.usb.config mtp; su -c resetprop -n sys.usb.config mtp; su -c resetprop -n sys.usb.state mtp',label:'MTP Only Mode',sub:'persist.sys.usb.config',icon:'usb'},
-{id:'adb_root_off',cmd:'su -c resetprop -n service.adb.root 0; su -c resetprop -n service.adb.tcp.port -1',label:'ADB Root Off',sub:'service.adb.root',icon:'terminal'},
-{id:'ro_secure',cmd:'su -c resetprop -n ro.secure 1; su -c resetprop -n ro.adb.secure 1',label:'Secure Mode',sub:'ro.secure',icon:'verified_user'},
-{id:'ro_debuggable',cmd:'su -c resetprop -n ro.debuggable 0; su -c resetprop -n persist.sys.debuggable 0',label:'Debug Off',sub:'ro.debuggable',icon:'bug_report'},
-{id:'dev_options',cmd:'su -c resetprop -n persist.sys.developer_options 0; su -c resetprop -n persist.sys.dev_mode 0',label:'Dev Options Off',sub:'persist.sys.developer_options',icon:'code_off'},
-{id:'global_dev',cmd:'settings put global development_settings_enabled 0; settings put global adb_enabled 0; settings put global oem_unlock_allowed 0',label:'Global Settings',sub:'development_settings_enabled',icon:'settings'},
-{id:'verified_boot',cmd:'su -c resetprop -n ro.boot.verifiedbootstate green; su -c resetprop -n vendor.boot.verifiedbootstate green',label:'Verified Boot',sub:'ro.boot.verifiedbootstate',icon:'security'},
-{id:'flash_locked',cmd:'su -c resetprop -n ro.boot.flash.locked 1',label:'Flash Locked',sub:'ro.boot.flash.locked',icon:'lock'},
-{id:'vbmeta_locked',cmd:'su -c resetprop -n ro.boot.vbmeta.device_state locked; su -c resetprop -n vendor.boot.vbmeta.device_state locked',label:'VBMeta Locked',sub:'ro.boot.vbmeta.device_state',icon:'shield'},
-{id:'secureboot',cmd:'su -c resetprop -n ro.secureboot.lockstate locked',label:'SecureBoot',sub:'ro.secureboot.lockstate',icon:'gpp_good'},
-{id:'warranty_bit',cmd:'su -c resetprop -n ro.boot.warranty_bit 0',label:'Warranty Valid',sub:'ro.boot.warranty_bit',icon:'check_circle'},
-{id:'build_type',cmd:'su -c resetprop -n ro.build.type user; su -c resetprop -n ro.build.tags release-keys',label:'User Build',sub:'ro.build.type',icon:'build_circle'},
-{id:'oem_unlock',cmd:'su -c resetprop -n ro.oem_unlock_supported 0; su -c resetprop -n sys.oem_unlock_allowed 0',label:'OEM Lock',sub:'ro.oem_unlock_supported',icon:'block'},
-{id:'qemu_off',cmd:'su -c resetprop -n ro.kernel.qemu 0; su -c resetprop -n ro.boot.qemu 0; su -c resetprop -n ro.hardware.virtual_device 0',label:'No Emulator',sub:'ro.kernel.qemu',icon:'computer'},
-{id:'cache_clean',cmd:'find /data/app -type f \( -name "*.odex" -o -name "*.vdex" \) -delete 2>/dev/null; find /data/app -type f -name "base.odex" -delete 2>/dev/null',label:'Nuke Trash',sub:'odex_cleanup',icon:'delete_sweep'}
+{id:'usb_adb_disabled',cmd:'sys.usb.adb.disabled 1',label:'USB Debug Block',sub:'sys.usb.adb.disabled',icon:'usb_off'},
+{id:'usb_config_mtp',cmd:'persist.sys.usb.config mtp;sys.usb.config mtp;sys.usb.state mtp',label:'MTP Only Mode',sub:'persist.sys.usb.config',icon:'usb'},
+{id:'adb_root_off',cmd:'service.adb.root 0;service.adb.tcp.port -1',label:'ADB Root Off',sub:'service.adb.root',icon:'terminal'},
+{id:'ro_secure',cmd:'ro.secure 1;ro.adb.secure 1',label:'Secure Mode',sub:'ro.secure',icon:'verified_user'},
+{id:'ro_debuggable',cmd:'ro.debuggable 0;persist.sys.debuggable 0',label:'Debug Off',sub:'ro.debuggable',icon:'bug_report'},
+{id:'dev_options',cmd:'persist.sys.developer_options 0;persist.sys.dev_mode 0',label:'Dev Options Off',sub:'persist.sys.developer_options',icon:'code_off'},
+{id:'global_dev',cmd:'settings put global development_settings_enabled 0;settings put global adb_enabled 0;settings put global oem_unlock_allowed 0',label:'Global Settings',sub:'development_settings_enabled',icon:'settings',isSettings:true},
+{id:'verified_boot',cmd:'ro.boot.verifiedbootstate green;vendor.boot.verifiedbootstate green',label:'Verified Boot',sub:'ro.boot.verifiedbootstate',icon:'security'},
+{id:'flash_locked',cmd:'ro.boot.flash.locked 1',label:'Flash Locked',sub:'ro.boot.flash.locked',icon:'lock'},
+{id:'vbmeta_locked',cmd:'ro.boot.vbmeta.device_state locked;vendor.boot.vbmeta.device_state locked',label:'VBMeta Locked',sub:'ro.boot.vbmeta.device_state',icon:'shield'},
+{id:'secureboot',cmd:'ro.secureboot.lockstate locked',label:'SecureBoot',sub:'ro.secureboot.lockstate',icon:'gpp_good'},
+{id:'warranty_bit',cmd:'ro.boot.warranty_bit 0',label:'Warranty Valid',sub:'ro.boot.warranty_bit',icon:'check_circle'},
+{id:'build_type',cmd:'ro.build.type user;ro.build.tags release-keys',label:'User Build',sub:'ro.build.type',icon:'build_circle'},
+{id:'oem_unlock',cmd:'ro.oem_unlock_supported 0;sys.oem_unlock_allowed 0',label:'OEM Lock',sub:'ro.oem_unlock_supported',icon:'block'},
+{id:'qemu_off',cmd:'ro.kernel.qemu 0;ro.boot.qemu 0;ro.hardware.virtual_device 0',label:'No Emulator',sub:'ro.kernel.qemu',icon:'computer'},
+{id:'cache_clean',cmd:'find /data/app -type f \\( -name "*.odex" -o -name "*.vdex" \\) -delete 2>/dev/null;find /data/app -type f -name "base.odex" -delete 2>/dev/null',label:'Nuke Trash',sub:'odex_cleanup',icon:'delete_sweep',isShell:true}
 ];
 
 const deleteProps = [
@@ -579,6 +581,50 @@ const duckProps = [
 {id:'del_build_tags',prop:'ro.build.tags',label:'Build Tags',icon:'tag'},
 {id:'del_build_type',prop:'ro.build.type',label:'Build Type',icon:'build_circle'}
 ];
+
+async function detectResetpropRs(){
+log('Detecting resetprop-rs binary...','cmd');
+try{
+const result=await sh('for f in /data/adb/modules/playintegrityfix/resetprop-rs/resetprop-arm64-v8a /data/adb/modules/playintegrityfix/resetprop-rs/resetprop-armeabi-v7a /data/adb/modules/playintegrityfix/resetprop-rs/resetprop-x86_64 /data/adb/modules/playintegrityfix/resetprop-rs/resetprop-x86; do [ -x "$f" ] && echo "$f" && break; done');
+RESETPROP_RS=result.trim();
+if(RESETPROP_RS){
+log('Found: ' + RESETPROP_RS.split('/').pop(),'ok');
+}else{
+log('resetprop-rs not found!','err');
+}
+}catch(e){
+log('Detection failed: ' + e.message,'err');
+}
+}
+
+function buildResetpropCmd(propCmd){
+if(!RESETPROP_RS){
+log('resetprop-rs not initialized','err');
+return '';
+}
+const parts=propCmd.split(';');
+return parts.map(p=>{
+const trimmed=p.trim();
+if(!trimmed)return '';
+const spaceIdx=trimmed.indexOf(' ');
+if(spaceIdx===-1)return '';
+const prop=trimmed.substring(0,spaceIdx);
+const val=trimmed.substring(spaceIdx+1);
+return 'su -c "' + RESETPROP_RS + ' --stealth ' + prop + ' ' + val + '"';
+}).filter(c=>c).join(';');
+}
+
+function buildDeleteCmd(prop){
+if(!RESETPROP_RS){
+log('resetprop-rs not initialized','err');
+return '';
+}
+return 'su -c "' + RESETPROP_RS + ' --nuke ' + prop + '"';
+}
+
+function buildSettingsCmd(cmd){
+return 'su -c "' + cmd + '"';
+}
 
 function render(){
 duckRowsEl.innerHTML='';
@@ -736,7 +782,7 @@ ksuApi.exec(cmd,'{}',cb);
 
 async function propExists(prop){
 try{
-const result=await sh(`getprop ${prop} 2>/dev/null`);
+const result=await sh('su -c "' + RESETPROP_RS + ' ' + prop + '"');
 return result && result.trim() !== '';
 }catch{
 return false;
@@ -744,6 +790,11 @@ return false;
 }
 
 async function execute(){
+if(!RESETPROP_RS){
+log('resetprop-rs not detected, aborting','err');
+return;
+}
+
 const selected=props.filter(p=>document.getElementById(p.id).checked);
 const selectedDelete=deleteProps.filter(p=>document.getElementById(p.id).checked);
 const selectedDuck=duckProps.filter(p=>document.getElementById(p.id).checked);
@@ -757,7 +808,13 @@ logEl.innerHTML='';
 for(const p of selected){
 log(p.label,'cmd');
 try{
-await sh(p.cmd);
+if(p.isSettings){
+await sh(buildSettingsCmd(p.cmd));
+}else if(p.isShell){
+await sh('su -c "' + p.cmd + '"');
+}else{
+await sh(buildResetpropCmd(p.cmd));
+}
 log('OK','ok');
 }catch(e){
 log('Failed','err');
@@ -770,10 +827,10 @@ if(!exists){
 log(`${p.label} (N/A)`,'info');
 continue;
 }
-log(`Delete ${p.label}`,'cmd');
+log(`Nuke ${p.label}`,'cmd');
 try{
-await sh(`su -c resetprop -n --delete ${p.prop}`);
-log('Deleted','ok');
+await sh(buildDeleteCmd(p.prop));
+log('Nuked','ok');
 }catch(e){
 log('Failed','err');
 }
@@ -785,10 +842,10 @@ if(!exists){
 log(`${p.label} (N/A)`,'info');
 continue;
 }
-log(`Delete ${p.label}`,'cmd');
+log(`Nuke ${p.label}`,'cmd');
 try{
-await sh(`su -c resetprop -n --delete ${p.prop}`);
-log('Deleted','ok');
+await sh(buildDeleteCmd(p.prop));
+log('Nuked','ok');
 }catch(e){
 log('Failed','err');
 }
@@ -798,6 +855,7 @@ setStatus('Complete',false);
 }
 
 render();
+detectResetpropRs();
 
 const hasKsu=(typeof ksu!=='undefined'&&ksu.exec)||(window.parent&&window.parent.ksu&&window.parent.ksu.exec)||(window.parent&&typeof window.parent.runShellFromIframe==='function');
 if(!hasKsu){

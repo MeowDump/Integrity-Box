@@ -1,43 +1,17 @@
 #!/system/bin/sh
 
-# Universal resetprop detection
-RP=""
-for p in $(which resetprop 2>/dev/null) /data/adb/ksu/bin/resetprop /data/adb/ap/bin/resetprop /data/adb/magisk/resetprop /sbin/resetprop /system/xbin/resetprop /system/bin/resetprop; do
-    if [ -f "$p" ]; then
-        RP="$p"
-        break
-    fi
-done
+RESETPROP_RS="/data/adb/modules/playintegrityfix/resetprop-rs/resetprop-arm64-v8a"
 
-# Detect compact vs full resetprop
-IS_COMPACT=false
-if [ -n "$RP" ]; then
-    HELP=$($RP --help 2>&1 || true)
-    if echo "$HELP" | grep -q "\-p"; then
-        : # Full resetprop, -p supported
-    else
-        IS_COMPACT=true
-    fi
-fi
-
-# Helper functions
-resetprop_set(){
-    if [ "$IS_COMPACT" = "true" ]; then
-        $RP -n "$1" "$2"
-    else
-        $RP "$1" "$2"
-    fi
-}
-
-resetprop_delete(){
-    if [ "$IS_COMPACT" = "true" ]; then
-        $RP -d "$1"
-    else
-        $RP -d "$1"
-    fi
-}
+[ -x "$RESETPROP_RS" ] || RESETPROP_RS="/data/adb/modules/playintegrityfix/resetprop-rs/resetprop-armeabi-v7a"
+[ -x "$RESETPROP_RS" ] || RESETPROP_RS="/data/adb/modules/playintegrityfix/resetprop-rs/resetprop-x86_64"
+[ -x "$RESETPROP_RS" ] || RESETPROP_RS="/data/adb/modules/playintegrityfix/resetprop-rs/resetprop-x86"
 
 OVERRIDE="/data/adb/modules/playintegrityfix/webroot/common_scripts/force_override.sh"
+
+if [ ! -x "$RESETPROP_RS" ]; then
+    echo "[ERROR] resetprop-rs binary not found"
+    exit 1
+fi
 
 # Stop when safe mode is enabled 
 if [ -f "/data/adb/Box-Brain/safemode" ]; then
@@ -47,7 +21,7 @@ fi
 
 # check prop
 echo " Checking for Lineage Props"
-getprop | grep -i lineage
+$RESETPROP_RS | grep -i lineage
 echo " "
 
 # config
@@ -71,10 +45,8 @@ fi
 
 # process lines
 while IFS= read -r line || [ -n "$line" ]; do
-    # Strip [brackets] if present
     clean_line=$(echo "$line" | sed -E 's/^\[(.*)\]=\[(.*)\]$/\1=\2/')
 
-    # Skip empty or comment lines
     if [ -z "$clean_line" ] || echo "$clean_line" | grep -qE '^#'; then
         echo "[SKIP] Empty or comment: $line" >> "$LOG_FILE"
         continue
@@ -83,7 +55,6 @@ while IFS= read -r line || [ -n "$line" ]; do
     key=$(echo "$clean_line" | cut -d '=' -f1)
     value=$(echo "$clean_line" | cut -d '=' -f2-)
 
-    # Sanity check
     if [ -z "$key" ] || [ -z "$value" ]; then
         echo "[SKIP] Malformed line: $line" >> "$LOG_FILE"
         continue
@@ -99,10 +70,8 @@ while IFS= read -r line || [ -n "$line" ]; do
             continue
             ;;
         *)
-            # Attempt to override using resetprop
-            resetprop_set "$key" "$value"
-            # Check if the change was successful
-            actual_value=$(getprop "$key")
+            $RESETPROP_RS --stealth "$key" "$value"
+            actual_value=$($RESETPROP_RS "$key")
             if [ "$actual_value" = "$value" ]; then
                 echo "[OK] Overridden: $key=$value" >> "$LOG_FILE"
             else

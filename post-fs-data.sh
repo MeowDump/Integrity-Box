@@ -7,11 +7,6 @@ placeholder="$MODPATH/webroot/common_scripts"
 mkdir -p "/data/adb/Box-Brain/Integrity-Box-Logs"
 mkdir -p "$boot"
 
-# Grant perms 
-if [ -f "$placeholder/autopilot.sh" ]; then
-    chmod 755 "$placeholder/autopilot.sh"
-fi
-
 # Handle Vending-specific prop
 if [ -f "/data/adb/Box-Brain/enablevending" ]; then
     set_simpleprop persist.sys.pixelprops.vending true
@@ -60,6 +55,7 @@ for _f in \
     "$placeholder/force_override.sh" \
     "$placeholder/override_lineage.sh" \
     "$placeholder/keymint.sh" \
+    "$placeholder/kernel.sh" \
     "$placeholder/hma.sh"
 do
     set_perm_if_needed "$_f" 755
@@ -76,16 +72,13 @@ if [ -d "/data/adb/magisk" ]; then
     echo "Magisk detected."
 
     if [ -d "$MODPATH/zygisk" ]; then
-        # Remove Play Services and Play Store from Magisk DenyList when set to Enforce in normal mode
         if magisk --denylist status; then
             magisk --denylist rm com.google.android.gms
             magisk --denylist rm com.android.vending
         fi
 
-        # Run common tasks for installation and boot-time
         . "$MODPATH/common_setup.sh"
     else
-        # Add Play Services DroidGuard and Play Store processes to Magisk DenyList for better results in scripts-only mode
         magisk --denylist add com.google.android.gms com.google.android.gms.unstable
         magisk --denylist add com.android.vending
     fi
@@ -97,34 +90,44 @@ fi
 # Conditional early sensitive properties
 
 # Samsung
-resetprop_if_diff ro.boot.warranty_bit 0
-resetprop_if_diff ro.vendor.boot.warranty_bit 0
-resetprop_if_diff ro.vendor.warranty_bit 0
-resetprop_if_diff ro.warranty_bit 0
+$RESETPROP_RS --stealth ro.boot.warranty_bit 0
+$RESETPROP_RS --stealth ro.vendor.boot.warranty_bit 0
+$RESETPROP_RS --stealth ro.vendor.warranty_bit 0
+$RESETPROP_RS --stealth ro.warranty_bit 0
 
 # Realme
-resetprop_if_diff ro.boot.realmebootstate green
+$RESETPROP_RS --stealth ro.boot.realmebootstate green
 
 # OnePlus
-resetprop_if_diff ro.is_ever_orange 0
+$RESETPROP_RS --stealth ro.is_ever_orange 0
 
 # Microsoft
-for PROP in $(resetprop | grep -oE 'ro.*.build.tags'); do
-    resetprop_if_diff $PROP release-keys
+for PROP in $($RESETPROP_RS | grep -oE 'ro.*.build.tags'); do
+    $RESETPROP_RS --stealth "$PROP" release-keys
 done
 
 # Other
-for PROP in $(resetprop | grep -oE 'ro.*.build.type'); do
-    resetprop_if_diff $PROP user
+for PROP in $($RESETPROP_RS | grep -oE 'ro.*.build.type'); do
+    $RESETPROP_RS --stealth "$PROP" user
 done
-resetprop_if_diff ro.adb.secure 1
+$RESETPROP_RS --stealth ro.adb.secure 1
 if ! $SKIPDELPROP; then
-    delprop_if_exist ro.boot.verifiedbooterror
-    delprop_if_exist ro.boot.verifyerrorpart
+    $RESETPROP_RS --nuke ro.boot.verifiedbooterror
+    $RESETPROP_RS --nuke ro.boot.verifyerrorpart
 fi
-resetprop_if_diff ro.boot.veritymode.managed yes
-resetprop_if_diff ro.debuggable 0
-resetprop_if_diff ro.force.debuggable 0
-resetprop_if_diff ro.secure 1
+$RESETPROP_RS --stealth ro.boot.veritymode.managed yes
+$RESETPROP_RS --stealth ro.debuggable 0
+$RESETPROP_RS --stealth ro.force.debuggable 0
+$RESETPROP_RS --stealth ro.secure 1
+
+
+# Hide custom ROM
+if [ -f "/data/adb/Box-Brain/kernel" ]; then
+   log "Detected kernel flag"
+   sh "$placeholder/kernel.sh"
+   log "kernel.sh executed successfully"
+else
+   log "kernel spoofer flag not found, skipping kernel.sh"
+fi
 
 exit 0
