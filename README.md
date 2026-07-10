@@ -264,6 +264,7 @@ Ensure all requirements are met and recheck this list before reporting an issue.
 #### This project uses code from the following external open-source work:
 - **[ezme-nodebug](https://github.com/ez-me/ezme-nodebug)**
 - **[PlayIntegrityFork](https://github.com/osm0sis/PlayIntegrityFork)**
+- **[resetprop-rs](https://github.com/Enginex0/resetprop-rs)**
 #
 </details>
 
