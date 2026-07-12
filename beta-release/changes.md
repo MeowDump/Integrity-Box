@@ -2,20 +2,10 @@
 
 > What's New?
 
-## Changelog BETA 1 | 23 June 2026
+## Changelog BETA 2 | 12 July 2026
 
-- Fixed an issue where per-app spoofing configuration would reset after updating the module.
-
-- Fixed Keybox status not updating correctly in the module description.
-
-- Added support for hot installation.
-
-- Added functionality to removed previous key database before updating Keybox to avoid conflicts.
-
-- Added GWallet and key attestation packages to the default target scope.
-
-- Updated ZN hash/link reference.
-
-- Dropped Integrity Box backup configuration.
-
-- Cleaned up unused code and removed redundant logic.
+- Switched to resetprop-rs. the whole backend is updated (lazy to write everything. check commits if you are interested)
+- Added WebUI translation support
+- Added ability to hide kernel related detections
+- Synced PIF source
+- Spoofed system & vendor patch to JULy 2026
