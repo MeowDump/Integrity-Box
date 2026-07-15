@@ -446,28 +446,6 @@ Z() {
   done
 }
 
-y() {
-  p=$1
-  f="$p"
-  if echo "$p" | grep -q "/modules/"; then
-    alt_f=$(echo "$p" | sed 's/\/modules\//\/modules_update\//')
-  else
-    alt_f=""
-  fi
-
-  if [ -r "$f" ] && [ -s "$f" ]; then
-    return 0
-  fi
-
-  if [ -n "$alt_f" ] && [ -r "$alt_f" ] && [ -s "$alt_f" ]; then
-    return 0
-  fi
-
-  log " ✦ Missing file: $p (tried: $f ${alt_f}) "
-  reboot recovery
-  exit 100
-}
-
 writelog() {
     echo "$(date +'%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"
     /system/bin/log -t PATCH_OVERRIDE "$1"
