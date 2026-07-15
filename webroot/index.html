@@ -15,6 +15,12 @@
     <header class="title-bar">
       <div id="module-name" class="title">𝙋𝙡𝙖𝙮 𝙄𝙣𝙩𝙚𝙜𝙧𝙞𝙩𝙮 𝘽𝙤𝙭</div>
       <div class="subtitle">Hated By Many, Defeated By None</div>
+      <select id="lang-dropdown" onchange="localStorage.setItem('ibLang',this.value);broadcastLangChange(this.value);location.reload()">
+        <option value="en">English</option>
+        <option value="zh_CN">简体中文</option>
+        <option value="hi">हिन्दी</option>
+      </select>
+
     </header>
 
 	<!-- Dashboard -->
@@ -84,6 +90,25 @@
   </div>
 
 <script src="script.js"></script>
+<script src="TRANSLATIONS/meow.js"></script>
+<script>(function(){try{var v=localStorage.getItem('ibLang')||'en';var s=document.getElementById('lang-dropdown');if(s)s.value=v;}catch(e){}})();</script>
+<script>
+function broadcastLangChange(lang) {
+  var iframe = document.getElementById('active-iframe');
+  if (iframe && iframe.contentWindow) {
+    iframe.contentWindow.postMessage({ type: 'ibLangChange', lang: lang }, '*');
+  }
+}
+
+(function(){
+  var lang = localStorage.getItem('ibLang') || 'en';
+  if (lang !== 'en') {
+    var s = document.createElement('script');
+    s.src = 'TRANSLATIONS/' + lang + '.js';
+    s.onload = function(){ if(window.i18nBoot) window.i18nBoot(); };
+    document.head.appendChild(s);
+  }
+})();
 </script>
 </body>
 </html>
