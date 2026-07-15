@@ -526,6 +526,10 @@ com.kimcy929.screenrecorder
 com.kowx712.supermanager
 com.metrolist.music
 mark.via.gp
+org.mozilla.firefox
+org.mozilla.focus
+org.mozilla.firefox_beta
+org.mozilla.fenix
 org.swiftapps.swiftbackup
 "
 
