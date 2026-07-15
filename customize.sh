@@ -274,11 +274,6 @@ elif [ ! -f "$MEOW/service.sh" ]; then
     fi
 fi
 
-# Quote of the day 
-cat <<EOF > $LOG_DIR/.verify
-DreamsWithoutDisciplineAreMerelyWishesThatFadeWithTheMorningLight
-EOF
-
 # remove old module id to avoid conflict
 if [ -d /data/adb/modules/playintegrity ]; then
     touch "/data/adb/modules/playintegrity/remove"
