@@ -1,61 +1,58 @@
-> Release Date: 07/07/2026
+> Release Date: 17/08/2026
 
 ####  [🏆 Click here to support my work](https://meowdump.github.io/)
 
 # What's New?
 
-### Additional changes
-- Added **Keybox Update** support for **Oh My KeyMint**
-- Added **Scoop Update** support for **Oh My KeyMint**
-- Added **Device Spoofing** support for **Oh My KeyMint**
-- Spoofed to **July 2026 Android & Vendor Security Patch**
-- Removed **MMRL** configuration
-- Removed the red edge glow indicator from iframe gestures
-- Fixed `resetprop` failures that occurred in certain Prop Spoofer scenarios
-- Switched Prop Spoofer to use the compact `resetprop` implementation
-- Added a brief warning note for users
-- Improved the default settings and configuration
+- Added **WebUI translation support**.
+   - 🇨🇳 Chinese translation by **@LQ2002**
+   - 🇮🇳 🇵🇰 🇧🇩 🇦🇫 🇳🇵Hinglish translation by **Tehreem**
+ 
+- Migrated to **resetprop-rs** with a complete backend refactor and various internal improvements.
+   - Improved Hide Lineage
+   - Improved Nuke Lineage
+   - Improved Hide Custom ROM
+   - Improved Hide PIF Detection
+   - Improved Spoof Lineage Props
+   - Improved Spoof Debug Fingerprint
+   - Improved VB meta backend
+   - Improved patch spoofing
 
-### Core Changes
-- Switched configuration to prop format for better compatibility
-- Synchronized with latest PIFork codebase
-- Dropped per-app spoofing support 
-- Brought back pixelify spoofing 
-- Fixed battery drain issues caused by background processes
-- Fixed RCS messaging issues on certain carriers
-- Introduced **Repair Mode** click this when Play Integrity is failing or fails after some time or key attestation shows "bootloader unlocked" even with a valid keybox
-- Added automatic cleanup of previous key database before Keybox updates
-- Added GWallet and key attestation packages to default target scope
-- Updated ZN hash/link reference to latest
+- Added ability to **hide kernel-related detections**.
+   - Spoof Build Time: Fixes duck detector system & kernel build date mismatch detection `(Tested & Working)`
+   - Spoof Hide Custom Kernel: Fixes custom kernel detection `(NOT Tested & NOT Recommended)`
+   - No Gore: Hides emojis & special characters from kernel string `(NOT Tested & NOT Recommended)`
+   - Made in China: Hides stuff written in chinese language to avoid detection `(NOT Tested & NOT Recommended)`
+   - No Telegram: Hides Telegram strings `(NOT Tested & NOT Recommended)`
+   - No Mention Tags: Hides Mention strings `(NOT Tested & NOT Recommended)`
+   - Spoof CMDline: spoofs CMDline `(NOT Tested & NOT Recommended)`
+   - Spoof Kernel: Hides Kernel name strings `(NOT Tested & NOT Recommended)`
+   - All of Above: Hides everything `(NOT Tested & NOT Recommended)`
+ 
+- Synced with latest **PIF** source.
 
-### Removed Features
-- Dropped Beast Mode
-- Dropped Beast Mode WebUI
-- Dropped Integrity Status WebUI
-- Dropped per-app Device Spoofing WebUI
-- Dropped Auto Pilot
-- Dropped Auto Pilot backend
-- Dropped Custom Fingerprint WebUI
-- Dropped Flagged App Scanner UI
-- Dropped Keybox Update WebUI
-- Dropped Patch Spoofing WebUI
-- Dropped Spoofed, Vending & Autopilot indicators from dashboard
-- Dropped Daemon backend
-- Dropped Local Fingerprints backend
-- Dropped Integrity Box backup configuration
-- Dropped unnecessary/redundant code throughout
+- Updated **system** and **vendor** security patch levels to **July 2026**.
 
-### Dashboard Updates
-- Added Play Integrity status directly to dashboard
-- Removed legacy indicator icons (spoofed, vending, autopilot)
+- Improved **Keybox** script.
 
-### Bug Fixes
-- Fixed some apps crashing on some ROMs
-- Fixed safe mode getting re-enabled on stock/spoofed ROM after module update even when user manually disabled it
-- Fixed Keybox status not updating correctly in module description
-- Fixed installation flow to use ASK checks when setting fingerprint
+- Simplified and cleaned up scripts for better readability and maintenance.
 
-### Backend & Cleanup
-- Cleaned up unused code and removed redundant logic
-- General performance improvements and stability fixes
-- Probably more that didn't make it into this list (i don't remember)
+- Changed Keybox backup source.
+
+- Removed URL decoding.
+
+- Removed force updater.
+
+- Removed verification config updater.
+
+- Cleaned up legacy code that is no longer used.
+
+- Added a **Contributors** section to Support WebUI.
+
+- Blacklisted selected browsers from accessing the Keybox, as they unnecessarily perform Play Integrity checks, which can ruin the Keybox.
+
+- Updated Hashtag & URL in integrity downloader
+
+- Updated HMA config
+
+- Fixed known bugs
