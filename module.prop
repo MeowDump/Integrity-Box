@@ -1,12 +1,12 @@
 id=playintegrityfix
 name=.𝙄𝙣𝙩𝙚𝙜𝙧𝙞𝙩𝙮 𝘽𝙤𝙭 📦
-version=39
-versionCode=39000
+version=v40
+versionCode=40000
 author=𝗠𝗘𝗢𝗪𝗻𝗮 💅
 support=https://t.me/MeowDump
 donate=https://MeowDump.github.io
 actionIcon=key.png
 webuiIcon=box.png
 updateJson=https://raw.githubusercontent.com/MeowDump/Integrity-Box/refs/heads/main/release.json
-banner=https://i.pinimg.com/736x/e9/06/6e/e9066e3283dc73f523a75e67f6bde7ae.jpg
-description=Status: 😵‍💫 ✦ Synced on ❓ • Click on action button to sync again 
+banner=https://4kwallpapers.com/images/walls/thumbs_2t/13324.png
+description=A toolkit for managing play integrity & root detection 
