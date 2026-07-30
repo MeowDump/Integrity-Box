@@ -264,7 +264,6 @@ Ensure all requirements are met and recheck this list before reporting an issue.
 #### This project uses code from the following external open-source work:
 - **[ezme-nodebug](https://github.com/ez-me/ezme-nodebug)**
 - **[PlayIntegrityFork](https://github.com/osm0sis/PlayIntegrityFork)**
-- **[resetprop-rs](https://github.com/Enginex0/resetprop-rs)**
 #
 </details>
 
@@ -272,7 +271,7 @@ Ensure all requirements are met and recheck this list before reporting an issue.
 <summary><strong>Report a Problem</strong></summary>
   
 - Use Report a bug/issue button in WebUI to report bugs/issues/feedback
-- Enable `KILL SWITCH` toggle from webui > `module settings` and reboot your device if you're facing any issue after flashing IntegrityBox. This wil disable all experimental features.
+- Enable `SAFE MODE` toggle from webui > `module settings` and reboot your device if you're facing any issue after flashing IntegrityBox. This wil disable all experimental features.
 #
 </details>
 
