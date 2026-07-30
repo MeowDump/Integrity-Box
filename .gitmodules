@@ -1,9 +1,6 @@
 [submodule "PlayIntegrityFork"]
 	path = PlayIntegrityFork
 	url = https://github.com/MeowDump/PlayIntegrityFork
-[submodule "resetprop-rs"]
-	path = resetprop-rs
-	url = https://github.com/Enginex0/resetprop-rs.git
 [submodule "webroot/TRANSLATIONS"]
 	path = webroot/TRANSLATIONS
 	url = https://github.com/MeowDump/TRANSLATIONS.git
