@@ -5,38 +5,96 @@ LOGZ="/data/adb/Box-Brain/Integrity-Box-Logs/integrity_downloader.log"
 LOG_FILE="/data/adb/Box-Brain/Integrity-Box-Logs/action.log"
 WIDTH=53
 
-# resetprop-rs Setup
-RESETPROP_RS_DIR="/data/adb/modules/playintegrityfix/resetprop-rs"
-RESETPROP_RS_UPDATE_DIR="/data/adb/modules_update/playintegrityfix/resetprop-rs"
-RESETPROP_RS=""
-
-# Find the binary: active path first, fallback to update path during installation
-for dir in "$RESETPROP_RS_DIR" "$RESETPROP_RS_UPDATE_DIR"; do
-    [ -d "$dir" ] || continue
-    for f in "$dir"/resetprop-*; do
-        [ -x "$f" ] && RESETPROP_RS="$f" && break 2
-    done
-done
-
-[ -z "$RESETPROP_RS" ] && { debug " ✗ resetprop-rs binary not found"; }
-
 # Property Backend Setup
-RESETPROP="$RESETPROP_RS"
-PROP_DELETE="$RESETPROP_RS --delete"
-PROP_WAIT="$RESETPROP_RS --wait"
+RESETPROP="resetprop"
+PROP_DELETE="resetprop --delete"
+PROP_WAIT="resetprop -w"
+COMPACT_SUPPORTED=false
+
+# Root Solution Detection & Binary Setup
+detect_root_solution() {
+    if [ -f "/data/adb/ksud" ] || [ -d "/data/adb/ksu" ]; then
+        # KernelSU
+        if [ -f "/data/adb/ksu/bin/resetprop" ]; then
+            export PATH="/data/adb/ksu/bin:$PATH"
+            echo "kernelsu"
+        else
+            echo "kernelsu_legacy"
+        fi
+    elif [ -f "/data/adb/apd" ] || [ -d "/data/adb/ap" ]; then
+        # APatch
+        if [ -f "/data/adb/ap/bin/resetprop" ]; then
+            export PATH="/data/adb/ap/bin:$PATH"
+            echo "apatch"
+        else
+            echo "apatch_legacy"
+        fi
+    elif [ -f "/data/adb/magisk" ] || [ -f "/data/adb/magisk/magisk" ]; then
+        # Magisk
+        echo "magisk"
+    else
+        echo "unknown"
+    fi
+}
+
+ROOT_SOL=$(detect_root_solution)
+
+# resetprop Feature Detection
+check_compact_support() {
+    resetprop --help 2>&1 | grep -q "compact"
+}
 
 # stub for boot-time
 if [ "$(getprop sys.boot_completed)" != "1" ]; then
     ui_print() { return; }
 fi
 
+setup_resetprop() {
+    case "$ROOT_SOL" in
+        magisk)
+            # Check Magisk version for hexpatch fallback
+            if [ -f /data/adb/magisk/util_functions.sh ]; then
+                MAGISK_VER=$(grep MAGISK_VER_CODE /data/adb/magisk/util_functions.sh | cut -d= -f2)
+                [ "$MAGISK_VER" -lt 27003 ] 2>/dev/null && RESETPROP="resetprop_hexpatch" || RESETPROP="resetprop -n"
+            else
+                RESETPROP="resetprop -n"
+            fi
+            check_compact_support && COMPACT_SUPPORTED=true
+            ;;
+        kernelsu|apatch)
+            # Modern KSU/APatch with resetprop support
+            RESETPROP="resetprop -n"
+            PROP_DELETE="resetprop --delete"
+            PROP_WAIT="resetprop -w"
+            check_compact_support && COMPACT_SUPPORTED=true
+            ;;
+        kernelsu_legacy|apatch_legacy|unknown)
+            # Legacy or unknown - limited setprop only
+            RESETPROP="setprop"
+            PROP_DELETE="setprop"  # Can't actually delete
+            PROP_WAIT="sleep"
+            ;;
+    esac
+}
+
+
 set_perm_if_needed() {
     _file="$1"
     _perm="$2"
     
+    # Skip if missing
     [ -e "$_file" ] || return 0
+    
+    # For 755: just check if owner executable bit is set
     [ -x "$_file" ] && return 0
+    
+    # Only chmod if not executable
     chmod "$_perm" "$_file" 2>/dev/null || true
+}
+
+# Compact Function
+run_compact() {
+    $COMPACT_SUPPORTED && resetprop -c 2>/dev/null
 }
 
 # Logger function
@@ -86,42 +144,48 @@ get_size() {
 
 # determine downloader binary
 detect_downloader() {
+  # curl
   if command -v curl >/dev/null 2>&1; then
     DOWNLOADER=$(command -v curl)
     DL_MODE="curl"
     return
   fi
 
+  # wget
   if command -v wget >/dev/null 2>&1; then
     DOWNLOADER=$(command -v wget)
     DL_MODE="wget"
     return
   fi
 
+  # Magisk BusyBox
   if [ -x /data/adb/magisk/busybox ]; then
     DOWNLOADER="/data/adb/magisk/busybox"
     DL_MODE="busybox"
     return
   fi
 
+  # KSU BusyBox
   if [ -x /data/adb/ksu/bin/busybox ]; then
     DOWNLOADER="/data/adb/ksu/bin/busybox"
     DL_MODE="busybox"
     return
   fi
 
+  # Built-in toybox wget
   if toybox wget --help >/dev/null 2>&1; then
     DOWNLOADER="toybox"
     DL_MODE="toybox"
     return
   fi
 
+  # nothing available
   DOWNLOADER=""
   DL_MODE=""
 }
 
 wait_for_network() {
-  max_wait=${1:-30}
+  max_wait=${1:-30} # seconds
   step=2
   waited=0
 
@@ -188,6 +252,7 @@ download() {
       continue
     fi
 
+    # verify sha
     if sha_ok "$tmp" "$sum"; then
       mv "$tmp" "$final"
       echo "$(date +%F' '%T) OK: $file saved to $final" >>"$LOGZ"
@@ -228,6 +293,7 @@ setval() { grep -q "^$2=" "$1" && sed -i "s/^$2=.*/$2=$3/" "$1" && log "$2 > $3"
 
 lineage() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') $*" | tee -a "$RECORD/lineage.log"
+#    echo "$(date '+%Y-%m-%d %H:%M:%S') $*"
 }
 
 chup() {
@@ -239,7 +305,7 @@ set_resetprop() {
     local VALUE="$2"
 
     if prop_exists "$PROP"; then
-        if $RESETPROP_RS -n -p "$PROP" "$VALUE" 2>/dev/null; then
+        if resetprop -n -p "$PROP" "$VALUE" 2>/dev/null; then
             chup "Disabled spoof: $PROP > $VALUE"
         else
             chup "Failed to modify $PROP"
@@ -446,6 +512,36 @@ Z() {
   done
 }
 
+P() {
+  for Q in /data/adb/modules/busybox-ndk/system/*/busybox \
+           /data/adb/ksu/bin/busybox \
+           /data/adb/ap/bin/busybox \
+           /data/adb/magisk/busybox; do
+    [ -x "$Q" ] && echo "$Q" && return
+  done
+}
+
+Z() {
+  b=0; s=0
+  while IFS= read -r -n1 c; do
+    case "$c" in
+      [A-Z]) v=$(printf '%d' "'$c"); v=$((v - 65));;
+      [a-z]) v=$(printf '%d' "'$c"); v=$((v - 71));;
+      [0-9]) v=$(printf '%d' "'$c"); v=$((v + 4));;
+      '+') v=62;;
+      '/') v=63;;
+      '=') break;;
+      *) continue;;
+    esac
+    b=$((b << 6 | v)); s=$((s + 6))
+    if [ "$s" -ge 8 ]; then
+      s=$((s - 8)); o=$(((b >> s) & 0xFF))
+      printf \\$(printf '%03o' "$o")
+    fi
+  done
+}
+
+
 writelog() {
     echo "$(date +'%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"
     /system/bin/log -t PATCH_OVERRIDE "$1"
@@ -462,7 +558,7 @@ check_and_set_prop() {
     if [ "$CURRENT" = "$VALUE" ]; then
         writelog " $PROP is already set to $VALUE no change needed"
     else
-        if $RESETPROP_RS "$PROP" "$VALUE"; then
+        if resetprop "$PROP" "$VALUE"; then
             writelog " Set $PROP to $VALUE (was: $CURRENT)"
         else
             writelog " Failed to set $PROP (current: $CURRENT)"
@@ -473,9 +569,11 @@ check_and_set_prop() {
 ensure_blacklist_entries() {
     BLACKLIST="/data/adb/Box-Brain/blacklist.txt"
 
+    # Ensure directory & file exist
     mkdir -p "$(dirname "$BLACKLIST")"
     [ -f "$BLACKLIST" ] || touch "$BLACKLIST"
 
+    # list of blacklisted packages 
     REQUIRED_ENTRIES="
 io.github.vvb2060.mahoshojo
 com.reveny.nativecheck
@@ -504,14 +602,11 @@ com.kimcy929.screenrecorder
 com.kowx712.supermanager
 com.metrolist.music
 mark.via.gp
-org.mozilla.firefox
-org.mozilla.focus
-org.mozilla.firefox_beta
-org.mozilla.fenix
 org.swiftapps.swiftbackup
 "
 
     for entry in $REQUIRED_ENTRIES; do
+        # Exact match only
         if ! grep -qxF "$entry" "$BLACKLIST"; then
             echo "$entry" >> "$BLACKLIST"
         fi
@@ -541,15 +636,23 @@ ensure_exec_permissions() {
 SKIPDELPROP=false
 [ -f "$MODPATH/skipdelprop" ] && SKIPDELPROP=true
 
-# Core Property Functions — unified via resetprop-rs
+# Core Property Functions
 # resetprop_if_diff <prop> <expected>
 resetprop_if_diff() {
     local NAME="$1"
     local EXPECTED="$2"
     local CURRENT
-
-    CURRENT="$($RESETPROP_RS "$NAME")"
-    [ -z "$CURRENT" ] || [ "$CURRENT" = "$EXPECTED" ] || $RESETPROP_RS "$NAME" "$EXPECTED"
+    
+    case "$ROOT_SOL" in
+        magisk|kernelsu|apatch)
+            CURRENT="$(resetprop "$NAME")"
+            [ -z "$CURRENT" ] || [ "$CURRENT" = "$EXPECTED" ] || $RESETPROP "$NAME" "$EXPECTED"
+            ;;
+        *)
+            CURRENT="$(getprop "$NAME")"
+            [ -z "$CURRENT" ] || [ "$CURRENT" = "$EXPECTED" ] || setprop "$NAME" "$EXPECTED" 2>/dev/null
+            ;;
+    esac
 }
 
 # resetprop_if_match <prop> <match> <new_value>
@@ -558,37 +661,84 @@ resetprop_if_match() {
     local MATCH="$2"
     local VALUE="$3"
     local CURRENT
-
-    CURRENT="$($RESETPROP_RS "$NAME")"
+    
+    case "$ROOT_SOL" in
+        magisk|kernelsu|apatch)
+            CURRENT="$(resetprop "$NAME")"
+            ;;
+        *)
+            CURRENT="$(getprop "$NAME")"
+            ;;
+    esac
+    
     case "$CURRENT" in
-        *"$MATCH"*) $RESETPROP_RS "$NAME" "$VALUE" ;;
+        *"$MATCH"*) $RESETPROP "$NAME" "$VALUE" ;;
     esac
 }
 
 # delprop_if_exist <prop>
 delprop_if_exist() {
-    [ -n "$($RESETPROP_RS "$1")" ] && $RESETPROP_RS --delete "$1"
+    case "$ROOT_SOL" in
+        magisk|kernelsu|apatch)
+            [ -n "$(resetprop "$1")" ] && $PROP_DELETE "$1"
+            ;;
+        *)
+            # Can't delete on legacy, set to empty
+            setprop "$1" "" 2>/dev/null
+            ;;
+    esac
 }
 
 # persistprop <prop> <value>
 persistprop() {
+    [ "$ROOT_SOL" = "kernelsu_legacy" ] || [ "$ROOT_SOL" = "apatch_legacy" ] || [ "$ROOT_SOL" = "unknown" ] && return 0
+    
     local NAME="$1"
     local NEWVALUE="$2"
-    local CURVALUE="$($RESETPROP_RS "$NAME")"
+    local CURVALUE="$(resetprop "$NAME")"
 
     if ! grep -q "$NAME" "$MODPATH/uninstall.sh" 2>/dev/null; then
         if [ "$CURVALUE" ]; then
-            [ "$NEWVALUE" = "$CURVALUE" ] || echo "$RESETPROP_RS -n -p \"$NAME\" \"$CURVALUE\"" >> "$MODPATH/uninstall.sh"
+            [ "$NEWVALUE" = "$CURVALUE" ] || echo "resetprop -n -p \"$NAME\" \"$CURVALUE\"" >> "$MODPATH/uninstall.sh"
         else
-            echo "$RESETPROP_RS -p --delete \"$NAME\"" >> "$MODPATH/uninstall.sh"
+            echo "resetprop -p --delete \"$NAME\"" >> "$MODPATH/uninstall.sh"
         fi
     fi
-    $RESETPROP_RS -n -p "$NAME" "$NEWVALUE"
+    resetprop -n -p "$NAME" "$NEWVALUE"
 }
 
 # Legacy wrappers
 check_reset_prop() { resetprop_if_diff "$@"; }
 contains_reset_prop() { resetprop_if_match "$@"; }
+
+# Hexpatch Fallback
+resetprop_hexpatch() {
+    [ "$ROOT_SOL" != "magisk" ] && return 1
+    
+    case "$1" in
+        -f|--force) local FORCE=1; shift;;
+    esac 
+
+    local NAME="$1"
+    local NEWVALUE="$2"
+    local CURVALUE="$(resetprop "$NAME")"
+
+    [ ! "$NEWVALUE" ] || [ ! "$CURVALUE" ] && return 1
+    [ "$NEWVALUE" = "$CURVALUE" ] && [ ! "$FORCE" ] && return 2
+
+    local NEWLEN=${#NEWVALUE}
+    if [ -f /dev/__properties__ ]; then
+        local PROPFILE=/dev/__properties__
+    else
+        local PROPFILE="/dev/__properties__/$(resetprop -Z "$NAME")"
+    fi
+    [ ! -f "$PROPFILE" ] && return 3
+    local NAMEOFFSET=$(strings -t d "$PROPFILE" | grep "$NAME" | head -1 | cut -d\  -f1)
+
+    local NEWHEX="$(printf '%02x' "$NEWLEN")$(printf "$NEWVALUE" | od -A n -t x1 -v | tr -d ' \n')$(printf "%$((92-NEWLEN))s" | sed 's/ /00/g')"
+    echo -ne "\x00\x00" | dd obs=1 count=2 seek=$((NAMEOFFSET-96)) conv=notrunc of="$PROPFILE" 2>/dev/null
+    echo -ne "$(printf "$NEWHEX" | sed -e 's/.\{2\}/&\\x/g' -e 's/^/\\x/' -e 's/\\x$//')" | dd obs=1 count=93 seek=$((NAMEOFFSET-93)) conv=notrunc of="$PROPFILE" 2>/dev/null
+}
 
 boot_log() {
     echo "$1" | tee -a "$RECORD/boot.log"
@@ -608,11 +758,13 @@ wait_for_boot() {
 }
 
 reset_tricky_store() {
+    # Tricky Store
     if [ -d "/data/adb/tricky_store/key_db" ]; then
         rm -rf "/data/adb/tricky_store/key_db"
         mkdir -p "/data/adb/tricky_store/key_db"
     fi
 
+    # TEE Simulator 
     if [ -d "/data/adb/tricky_store/persistent_keys" ]; then
         rm -rf "/data/adb/tricky_store/persistent_keys"
         mkdir -p "/data/adb/tricky_store/persistent_keys"
