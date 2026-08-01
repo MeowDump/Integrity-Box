@@ -4,6 +4,7 @@ MODPATH="${0%/*}"
 
 # Module path and file references
 PIF="/data/adb/modules/playintegrityfix"
+ROOT_SOL=$(detect_root_solution)
 SCRIPT="$MODPATH/webroot/common_scripts"
 BOX="/data/adb/Box-Brain"
 LOG_DIR="$BOX/Integrity-Box-Logs"
@@ -13,6 +14,7 @@ PROP2="ro.build.tags=release-keys"
 PROP3="ro.build.type=user"
 LOG="$LOG_DIR/service.log"
 LOG2="$LOG_DIR/encrypt.log"
+#LOG3="$LOG_DIR/autopif.log"
 LOG4="$LOG_DIR/twrp.log"
 LOG5="$LOG_DIR/tag.log"
 LOG6="$LOG_DIR/build.log"
@@ -25,60 +27,73 @@ log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') | $1" | tee -a "$LOG"
 }
 
+setup_resetprop
+
 # Boot-Phase Properties
-# Wait for boot using resetprop-rs
-###$RESETPROP_RS --wait sys.boot_completed 0
-wait_for_boot
+# Wait for boot (Magisk/KSU/APatch with resetprop only)
+case "$ROOT_SOL" in
+    magisk|kernelsu|apatch) $PROP_WAIT sys.boot_completed 0 ;;
+esac
 
 # •••• EARLY BOOT PROPS ••••
 
 # Bootloader/VBMeta
-$RESETPROP_RS --stealth "ro.boot.vbmeta.device_state" "locked"
-$RESETPROP_RS --stealth "vendor.boot.vbmeta.device_state" "locked"
-$RESETPROP_RS --stealth "ro.boot.verifiedbootstate" "green"
-$RESETPROP_RS --stealth "vendor.boot.verifiedbootstate" "green"
-$RESETPROP_RS --stealth "ro.boot.flash.locked" "1"
-$RESETPROP_RS --stealth "ro.boot.veritymode" "enforcing"
+resetprop_if_diff "ro.boot.vbmeta.device_state" "locked"
+resetprop_if_diff "vendor.boot.vbmeta.device_state" "locked"
+resetprop_if_diff "ro.boot.verifiedbootstate" "green"
+resetprop_if_diff "vendor.boot.verifiedbootstate" "green"
+resetprop_if_diff "ro.boot.flash.locked" "1"
+resetprop_if_diff "ro.boot.veritymode" "enforcing"
 
 # Warranty/Debug
-$RESETPROP_RS --stealth "ro.boot.warranty_bit" "0"
-$RESETPROP_RS --stealth "ro.warranty_bit" "0"
-$RESETPROP_RS --stealth "ro.vendor.boot.warranty_bit" "0"
-$RESETPROP_RS --stealth "ro.vendor.warranty_bit" "0"
-$RESETPROP_RS --stealth "ro.debuggable" "0"
-$RESETPROP_RS --stealth "ro.force.debuggable" "0"
-$RESETPROP_RS --stealth "ro.secure" "1"
-$RESETPROP_RS --stealth "ro.adb.secure" "1"
-$RESETPROP_RS --stealth "sys.oem_unlock_allowed" "0"
+resetprop_if_diff "ro.boot.warranty_bit" "0"
+resetprop_if_diff "ro.warranty_bit" "0"
+resetprop_if_diff "ro.vendor.boot.warranty_bit" "0"
+resetprop_if_diff "ro.vendor.warranty_bit" "0"
+resetprop_if_diff "ro.debuggable" "0"
+resetprop_if_diff "ro.force.debuggable" "0"
+resetprop_if_diff "ro.secure" "1"
+resetprop_if_diff "ro.adb.secure" "1"
+resetprop_if_diff "sys.oem_unlock_allowed" "0"
 
 # Build
-$RESETPROP_RS --stealth "ro.build.type" "user"
-$RESETPROP_RS --stealth "ro.build.tags" "release-keys"
+resetprop_if_diff "ro.build.type" "user"
+resetprop_if_diff "ro.build.tags" "release-keys"
 
 # OEM-Specific
-$RESETPROP_RS --stealth "ro.secureboot.lockstate" "locked"
-$RESETPROP_RS --stealth "ro.boot.realmebootstate" "green"
-$RESETPROP_RS --stealth "ro.boot.realme.lockstate" "1"
+resetprop_if_diff "ro.secureboot.lockstate" "locked"  # MIUI
+resetprop_if_diff "ro.boot.realmebootstate" "green"   # Realme
+resetprop_if_diff "ro.boot.realme.lockstate" "1"       # Realme
 
 # Recovery Mode Hiding
-$RESETPROP_RS --stealth "ro.bootmode" "unknown"
-$RESETPROP_RS --stealth "ro.boot.bootmode" "unknown"
-$RESETPROP_RS --stealth "vendor.boot.bootmode" "unknown"
+resetprop_if_match "ro.bootmode" "recovery" "unknown"
+resetprop_if_match "ro.boot.bootmode" "recovery" "unknown"
+resetprop_if_match "vendor.boot.bootmode" "recovery" "unknown"
 
-# Other props
-$RESETPROP_RS --stealth persist.sys.developer_options 0
-$RESETPROP_RS --stealth persist.sys.dev_mode 0
-$RESETPROP_RS --stealth persist.sys.debuggable 0
-$RESETPROP_RS --stealth ro.oem_unlock_supported 0
-$RESETPROP_RS --stealth ro.hardware.virtual_device 0
+# USB/ADB
+# Reset system properties if mismatch
+#[ -n "$(resetprop sys.usb.adb.disabled)" ] && [ "$(resetprop sys.usb.adb.disabled)" != "1" ] && resetprop sys.usb.adb.disabled 1
+#[ -n "$(resetprop service.adb.root)" ] && [ "$(resetprop service.adb.root)" != "0" ] && resetprop service.adb.root 0
+
+# Other props use normal function
+resetprop_if_diff persist.sys.developer_options 0
+resetprop_if_diff persist.sys.dev_mode 0
+resetprop_if_diff persist.sys.debuggable 0
+resetprop_if_diff ro.oem_unlock_supported 0
+resetprop_if_diff ro.hardware.virtual_device 0
 
 # SELinux
-$RESETPROP_RS --stealth "ro.boot.selinux" "enforcing"
-[ -f "$MODPATH/skipdelprop" ] || $RESETPROP_RS --nuke "ro.build.selinux"
+resetprop_if_diff "ro.boot.selinux" "enforcing"
+[ "$ROOT_SOL" = "magisk" ] && ! [ -f "$MODPATH/skipdelprop" ] && delprop_if_exist "ro.build.selinux"
 
-# Compact arenas after early props
-$RESETPROP_RS --compact
+# Fix SELinux permissions if permissive
+#if [ "$(cat /sys/fs/selinux/enforce 2>/dev/null)" = "0" ]; then
+#    chmod 640 /sys/fs/selinux/enforce 2>/dev/null
+#    chmod 440 /sys/fs/selinux/policy 2>/dev/null
+#fi
 
+# Run compact after early props if supported
+run_compact
 wait_for_boot
 
 # Spoof Encryption 
@@ -214,4 +229,28 @@ if [ -f "$BOX/nuke-los-boot" ]; then
    log "force_override.sh executed successfully"
 else
    log "nuke-los-boot flag not found, skipping force_override.sh"
+fi
+
+resetprop --compact >/dev/null 2>&1 || true
+
+# Stop daemon if needed 
+if [ -f "$BOX/rukja" ]; then
+    exit 0
+fi
+
+# Daemon watchdog
+if [ -f "$BOX/autopilot" ]; then
+    (
+        while true; do
+            last=$(cat $BOX/daemon_heartbeat 2>/dev/null || echo "0")
+            now=$(date +%s)
+            
+            if [ $((now - last)) -gt 180 ]; then
+                rm -rf $BOX/autorun.lockdir $BOX/.executing 2>/dev/null
+                sh "$SCRIPT/autopilot.sh" >/dev/null 2>&1 &
+            fi
+            
+            sleep 60
+        done
+    ) &
 fi
