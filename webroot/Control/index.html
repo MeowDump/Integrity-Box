@@ -471,7 +471,7 @@ h1 .material-icons{
     </div>
   </div>
 
-  <div class="section-label" style="margin-top:20px">Output</div>
+  <div class="section-label" style="margin-top:20px">Save to internal storage</div>
   <div class="mode-grid">
     <div class="mode-btn" id="keybox" onclick="toggle('keybox')">
       <div class="icon-wrap"><span class="material-icons">vpn_key</span></div>
@@ -493,7 +493,7 @@ h1 .material-icons{
 
 <script>
 const DIR="/data/adb/Box-Brain";
-const PROP="/data/adb/modules/playintegrityfix/pixel.txt";
+const PROP="/data/adb/modules/playintegrityfix/custom.pif.prop";
 const MOD_PROP="/data/adb/modules/playintegrityfix/module.prop";
 const STABLE_URL="https://raw.githubusercontent.com/MeowDump/Integrity-Box/refs/heads/main/release.json";
 const BETA_URL="https://raw.githubusercontent.com/MeowDump/Integrity-Box/refs/heads/main/beta-release/ota.json";
@@ -669,6 +669,18 @@ function init(){
 }
 
 document.addEventListener("DOMContentLoaded",init);
+</script>
+<script src="../TRANSLATIONS/meow.js"></script>
+<script>
+(function(){
+  var lang = localStorage.getItem('ibLang') || 'en';
+  if (lang !== 'en') {
+    var s = document.createElement('script');
+    s.src = '../TRANSLATIONS/' + lang + '.js';
+    s.onload = function(){ if(window.i18nBoot) window.i18nBoot(); };
+    document.head.appendChild(s);
+  }
+})();
 </script>
 </body>
 </html>
