@@ -259,7 +259,7 @@ body {
 <script>
 const faq = {
   "General": [
-    { q:"What are the requirements?", a:"Well, it depends on your ROM, Sometimes Zygisk isn't needed. Anyways here are the recommended modules which works universally on all devices. <p> 1. Tricky Store <p/> <p> 2. Integrity Box <p/> <p> 3. Zygisk Next <p/> <p> You can download them by opening integrity box's webui  <p/> <p> <p/> <p> Module Settings > Download Recommended Modules <p> . <p/> Go back to modules tab & click on integrity box's action button. Modules will be downloaded into /sdcard/Downloads/IntegrityModules folder<p/>" },
+    { q:"What are the requirements?", a:"Well, it depends on your ROM, Zygisk isn't needed if you're using Google pixel stock ROM. Anyways here are the recommended modules which works universally on all devices. <p> 1. Tricky Store <p/> <p> 2. Integrity Box <p/> <p> 3. Zygisk Next <p/> <p> You can download them by opening integrity box's webui  <p/> <p> <p/> <p> Module Settings > Integrity downloader<p> . <p/> Go back to modules tab & click on integrity box's action button. Modules will be downloaded into /sdcard/Downloads/IntegrityModules folder<p/>" },
     { q:"Why does my device pass Play Integrity but still fail ‘Device certification / license’ within apps?", a:"Passing Play Integrity doesn’t always mean device is certified. <p> Google Play certification/licensing checks may also require valid GMS certification, correct vendor‑partition signatures, valid attestation keys, and genuine vendor keybox. <p> If those are tampered with (by custom ROM, modded firmware, or spoof), apps checking “certified device status” might still fail even if integrity test passes." },
     { q:"Fix Device not Certified", a:"You need to pass atleast DEVICE INTEGRITY then Open WebUI, Go to FIX DEVICE IS NOT CERTIFIED button, keep in mind that your root & zygisk should be hidden properly, otherwise it won't work." },
     { q:"I don't know how to use WebUI", a:"I got you bro, If you're using magisk, then you've to Install KSU WebUI app & grant it root permission to use WebUI features of you're installed modules. <p> If you want to know about the usage of a specific setting, check Integrity Box's github repository, everything is well explained there. <p\>" },
@@ -492,6 +492,18 @@ function openLink(url){
   try { ksu.exec(`am start -a android.intent.action.VIEW -d ${url}`); alert("Opening…"); }
   catch(e){ alert("Unable to open link."); }
 }
+</script>
+<script src="../TRANSLATIONS/meow.js"></script>
+<script>
+(function(){
+  var lang = localStorage.getItem('ibLang') || 'en';
+  if (lang !== 'en') {
+    var s = document.createElement('script');
+    s.src = '../TRANSLATIONS/' + lang + '.js';
+    s.onload = function(){ if(window.i18nBoot) window.i18nBoot(); };
+    document.head.appendChild(s);
+  }
+})();
 </script>
 </body>
 </html>
