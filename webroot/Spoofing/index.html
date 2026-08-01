@@ -786,5 +786,17 @@ async function render(){
 
 document.addEventListener("DOMContentLoaded", render);
 </script>
+<script src="../TRANSLATIONS/meow.js"></script>
+<script>
+(function(){
+  var lang = localStorage.getItem('ibLang') || 'en';
+  if (lang !== 'en') {
+    var s = document.createElement('script');
+    s.src = '../TRANSLATIONS/' + lang + '.js';
+    s.onload = function(){ if(window.i18nBoot) window.i18nBoot(); };
+    document.head.appendChild(s);
+  }
+})();
+</script>
 </body>
 </html>
