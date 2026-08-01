@@ -19,53 +19,6 @@ mkdir -p "$TRICKY"
 # Support Hot Installation
 #export MODULE_HOT_INSTALL_REQUEST="true"
 
-# Set-up Resetprop-rs 
-cleanup_resetprop_binaries() {
-    local dir="$1"
-    local arch fallback
-
-    case "$(getprop ro.product.cpu.abi)" in
-        arm64-v8a)
-            arch="arm64-v8a"
-            fallback="armeabi-v7a"
-            ;;
-        armeabi-v7a)
-            arch="armeabi-v7a"
-            fallback=""
-            ;;
-        x86_64)
-            arch="x86_64"
-            fallback="x86"
-            ;;
-        x86)
-            arch="x86"
-            fallback=""
-            ;;
-        *)
-            arch="arm64-v8a"
-            fallback="armeabi-v7a"
-            ;;
-    esac
-
-    debug " ✦ Configuring Resetprop-RS"
-
-    for f in "$dir"/resetprop-*; do
-        local name
-        name=$(basename "$f")
-        case "$name" in
-            "resetprop-${arch}"|\
-            "resetprop-${fallback}")
-                chmod +x "$f"
-                debug " ✔ Kept ${name}"
-                ;;
-            *)
-                rm -f "$f"
-                debug " ✗  Removed ${name}"
-                ;;
-        esac
-    done
-}
-
 # Logger
 debug() {
     echo "$1" | tee -a "$INSTALL_LOG"
@@ -236,12 +189,11 @@ display_footer() {
 
 # Main installation flow
 install_module() {
-#    check_integrity
+    check_integrity
     prepare_directories
     handle_module_props
     set_integritybox_profile
     setup_environment
-    cleanup_resetprop_binaries "$MODPATH/resetprop-rs"
     hizru
     cleanup
     check_boot_hash
@@ -282,7 +234,7 @@ fi
 # Write security patch file if missing 
 if [ ! -f $TRICKY/security_patch.txt ]; then
 cat <<EOF > $TRICKY/security_patch.txt
-all=2026-07-05
+all=2026-08-05
 EOF
 fi
 
@@ -331,7 +283,6 @@ if [ ! -f "$PROP_FILE" ] || ! grep -Fq "$REQUIRED_LINE" "$PROP_FILE"; then
 fi
 EOF
 
-if [ ! -f "$boot/package.sh" ]; then
 cat <<'EOF' > "$boot/package.sh"
 #!/system/bin/sh
 
@@ -341,6 +292,7 @@ MODULE1="/data/adb/modules/.TA_utl"
 MODULE2="/data/adb/modules/tsupport-advance"
 MODULE3="/data/adb/modules/Yurikey"
 MODULE4="/data/adb/modules/tricky_store/webroot"
+MODULE5="/data/adb/modules/specter"
 
 # Paths
 IGNORE_FLAG="/data/adb/Box-Brain/ignore"
@@ -348,7 +300,7 @@ TARGET_FILE="/data/adb/tricky_store/target.txt"
 SCRIPT="/data/adb/modules/playintegrityfix/webroot/common_scripts/target.sh"
 LOG_FILE="/data/adb/Box-Brain/Integrity-Box-Logs/target.log"
 
-if [ ! -d "$MODULE1" ] && [ ! -d "$MODULE2" ] && [ ! -d "$MODULE3" ] && [ ! -d "$MODULE4" ]; then
+if [ ! -d "$MODULE1" ] && [ ! -d "$MODULE2" ] && [ ! -d "$MODULE3" ] && [ ! -d "$MODULE4" ] && [ ! -d "$MODULE5" ]; then
     exit 0
 fi
 
@@ -406,9 +358,7 @@ while true; do
     execute_if_needed
 done
 EOF
-fi
 
-###if [ ! -f "$boot/lineage.sh" ]; then
 cat <<'EOF' > "$boot/lineage.sh"
 #!/system/bin/sh
 
@@ -425,7 +375,7 @@ note() {
     printf "%s | %s\n" "$TS" "$1" >> "$LOG_DIR/Lineage.log"
 }
 
-# Abort the script & delete flags when safe mode is active 
+# Abort the script & delete flags wen safe mode is active 
 if [ -f "/data/adb/Box-Brain/safemode" ]; then
     note "$(date '+%Y-%m-%d %H:%M:%S') : Safemode active, script aborted." >> "/data/adb/Box-Brain/Integrity-Box-Logs/safemode.log"
     rm -rf "/data/adb/Box-Brain/NoLineageProp"
@@ -440,13 +390,16 @@ if [ -f "/data/adb/modules/playintegrityfix/disable" ]; then
     exit 0
 fi
 
+# Module install path
+export MODPATH="/data/adb/modules/playintegrityfix"
+
 NO_LINEAGE_FLAG="/data/adb/Box-Brain/NoLineageProp"
 NODEBUG_FLAG="/data/adb/Box-Brain/nodebug"
 TAG_FLAG="/data/adb/Box-Brain/tag"
 
 TMP_PROP="$MODPATH/tmp.prop"
 SYSTEM_PROP="$MODPATH/system.prop"
-> "$TMP_PROP"
+> "$TMP_PROP" # clear old temp file
 
 # Build summary of active flags
 FLAGS_ACTIVE=""
@@ -457,10 +410,11 @@ FLAGS_ACTIVE=""
 if [ -n "$FLAGS_ACTIVE" ]; then
     note "Prop sanitization flags active: $FLAGS_ACTIVE"
     note "Preparing temporary prop file..."
-    $RESETPROP_RS | grep "userdebug" >> "$TMP_PROP"
-    $RESETPROP_RS | grep "test-keys" >> "$TMP_PROP"
-    $RESETPROP_RS | grep "lineage_" >> "$TMP_PROP"
+    getprop | grep "userdebug" >> "$TMP_PROP"
+    getprop | grep "test-keys" >> "$TMP_PROP"
+    getprop | grep "lineage_" >> "$TMP_PROP"
 
+    # Basic cleanup
     sed -i 's///g' "$TMP_PROP"
     sed -i 's/: /=/g' "$TMP_PROP"
 else
@@ -479,7 +433,7 @@ if [ -f "$NO_LINEAGE_FLAG" ]; then
         ro.lineage.releasetype \
         ro.lineage.version \
         ro.lineagelegal.url; do
-        $RESETPROP_RS --nuke "$prop"
+        resetprop --delete "$prop"
     done
     sed -i 's/lineage_//g' "$TMP_PROP"
     note "LineageOS props sanitized."
@@ -511,14 +465,14 @@ if [ -s "$TMP_PROP" ]; then
     note "Waiting 30 seconds before applying props..."
     sleep 30
 
-    note "Applying props via resetprop-rs..."
-    $RESETPROP_RS --file "$SYSTEM_PROP"
+    note "Applying props via resetprop..."
+    resetprop -n --file "$SYSTEM_PROP"
     note "Prop sanitization applied from system.prop"
 fi
 
 # Explicit fingerprint sanitization
 if [ -f "$NODEBUG_FLAG" ] || [ -f "$TAG_FLAG" ]; then
-    fp=$($RESETPROP_RS ro.build.fingerprint)
+    fp=$(getprop ro.build.fingerprint)
     fp_clean="$fp"
 
     [ -f "$NODEBUG_FLAG" ] && fp_clean=${fp_clean/userdebug/user}
@@ -528,30 +482,22 @@ if [ -f "$NODEBUG_FLAG" ] || [ -f "$TAG_FLAG" ]; then
     }
 
     if [ "$fp" != "$fp_clean" ]; then
-        $RESETPROP_RS --stealth ro.build.fingerprint "$fp_clean"
-        [ -f "$NODEBUG_FLAG" ] && $RESETPROP_RS --stealth ro.build.type "user"
-        [ -f "$TAG_FLAG" ] && $RESETPROP_RS --stealth ro.build.tags "release-keys"
+        resetprop ro.build.fingerprint "$fp_clean"
+        [ -f "$NODEBUG_FLAG" ] && resetprop ro.build.type "user"
+        [ -f "$TAG_FLAG" ] && resetprop ro.build.tags "release-keys"
         note "Fingerprint sanitized to $fp_clean"
     else
         note "Fingerprint already clean. No changes applied."
     fi
 fi
 EOF
-###fi
 
-###if [ ! -f "$boot/hash.sh" ]; then
 cat <<'EOF' > "$boot/hash.sh"
 #!/system/bin/sh
 
 HASH_FILE="/data/adb/Box-Brain/hash.txt"
 LOG_DIR="/data/adb/Box-Brain/Integrity-Box-Logs"
 LOG_FILE="$LOG_DIR/vbmeta.log"
-RESETPROP_RS="/data/adb/modules/playintegrityfix/resetprop-rs/resetprop-arm64-v8a"
-
-# Fallback binary detection
-[ -x "$RESETPROP_RS" ] || RESETPROP_RS="/data/adb/modules/playintegrityfix/resetprop-rs/resetprop-armeabi-v7a"
-[ -x "$RESETPROP_RS" ] || RESETPROP_RS="/data/adb/modules/playintegrityfix/resetprop-rs/resetprop-x86_64"
-[ -x "$RESETPROP_RS" ] || RESETPROP_RS="/data/adb/modules/playintegrityfix/resetprop-rs/resetprop-x86"
 
 mkdir -p "$LOG_DIR"
 
@@ -568,25 +514,40 @@ fi
 log " "
 log "Script started"
 
-# Verify resetprop-rs binary
-if [ ! -x "$RESETPROP_RS" ]; then
-  log "ERROR: resetprop-rs binary not found or not executable. Exiting."
+# Find resetprop
+RESETPROP=""
+for RP in \
+  /sbin/resetprop \
+  /system/bin/resetprop \
+  /system/xbin/resetprop \
+  /data/adb/magisk/resetprop \
+  /data/adb/ksu/bin/resetprop \
+  $(command -v resetprop 2>/dev/null)
+do
+  if [ -x "$RP" ]; then
+    RESETPROP="$RP"
+    break
+  fi
+done
+
+if [ -z "$RESETPROP" ]; then
+  log "ERROR: resetprop binary not found. Exiting."
   exit 0
 fi
 
-log "Using resetprop-rs: $RESETPROP_RS"
+log "Using resetprop: $RESETPROP"
 
-# Always set static default props 
-$RESETPROP_RS --stealth ro.boot.vbmeta.size "4096"
-$RESETPROP_RS --stealth ro.boot.vbmeta.hash_alg "sha256"
-$RESETPROP_RS --stealth ro.boot.vbmeta.avb_version "2.0"
-$RESETPROP_RS --stealth ro.boot.vbmeta.device_state "locked"
+# Always set static default props
+"$RESETPROP" ro.boot.vbmeta.size "4096"
+"$RESETPROP" ro.boot.vbmeta.hash_alg "sha256"
+"$RESETPROP" ro.boot.vbmeta.avb_version "2.0"
+"$RESETPROP" ro.boot.vbmeta.device_state "locked"
 log "Set static VBMeta props: size=4096, hash_alg=sha256, avb_version=2.0, device_state=locked"
 
 # Handle hash
 if [ ! -s "$HASH_FILE" ]; then
   log "Hash file missing or empty : clearing vbmeta.digest"
-  $RESETPROP_RS --nuke ro.boot.vbmeta.digest
+  "$RESETPROP" --delete ro.boot.vbmeta.digest
   exit 0
 fi
 
@@ -595,42 +556,33 @@ DIGEST=$(tr -cd '0-9a-fA-F' < "$HASH_FILE")
 
 if [ -z "$DIGEST" ]; then
   log "Hash file contained no valid hex. Clearing vbmeta.digest."
-  $RESETPROP_RS --nuke ro.boot.vbmeta.digest
+  "$RESETPROP" --delete ro.boot.vbmeta.digest
   exit 0
 fi
 
 if [ "${#DIGEST}" -ne 64 ]; then
   log "Invalid hash length (${#DIGEST}). Expected 64 (SHA-256). Clearing vbmeta.digest."
-  $RESETPROP_RS --nuke ro.boot.vbmeta.digest
+  "$RESETPROP" --delete ro.boot.vbmeta.digest
   exit 0
 fi
 
 # Set digest if valid
-$RESETPROP_RS --stealth ro.boot.vbmeta.digest "$DIGEST"
+"$RESETPROP" ro.boot.vbmeta.digest "$DIGEST"
 log "Set ro.boot.vbmeta.digest = $DIGEST"
 log " "
 
 exit 0
 EOF
-###fi
 
-if [ ! -f "$placeholder/july2" ]; then
-touch "$placeholder/july2"
 cat <<'EOF' > "$boot/prop.sh"
 #!/system/bin/sh
 
 # CONFIG
-PATCH_DATE="2026-07-05"
+PATCH_DATE="2026-08-05"
 FILE_PATH="/data/adb/tricky_store/security_patch.txt"
 SKIP_FILE="/data/adb/Box-Brain/skip"
 LOG_DIR="/data/adb/Box-Brain/Integrity-Box-Logs"
 LOG_FILE="$LOG_DIR/prop_patch.log"
-RESETPROP_RS="/data/adb/modules/playintegrityfix/resetprop-rs/resetprop-arm64-v8a"
-
-# Fallback binary detection
-[ -x "$RESETPROP_RS" ] || RESETPROP_RS="/data/adb/modules/playintegrityfix/resetprop-rs/resetprop-armeabi-v7a"
-[ -x "$RESETPROP_RS" ] || RESETPROP_RS="/data/adb/modules/playintegrityfix/resetprop-rs/resetprop-x86_64"
-[ -x "$RESETPROP_RS" ] || RESETPROP_RS="/data/adb/modules/playintegrityfix/resetprop-rs/resetprop-x86"
 
 writelog() {
     TS="$(date '+%Y-%m-%d %H:%M:%S')"
@@ -644,30 +596,30 @@ abort() {
 }
 
 # SAFE MODE CHECK
-#if [ -f "/data/adb/Box-Brain/safemode" ]; then
-#    echo "$(date '+%Y-%m-%d %H:%M:%S') : Safemode active, script aborted." \
-#        >> "/data/adb/Box-Brain/Integrity-Box-Logs/safemode.log"
-#    exit 1
-#fi
+if [ -f "/data/adb/Box-Brain/safemode" ]; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') : Safemode active, script aborted." \
+        >> "/data/adb/Box-Brain/Integrity-Box-Logs/safemode.log"
+    exit 1
+fi
 
-# RESETPROP-RS CHECK
-if [ ! -x "$RESETPROP_RS" ]; then
-    abort "resetprop-rs binary not found or not executable at $RESETPROP_RS"
+# RESETPROP CHECK
+if ! command -v resetprop >/dev/null 2>&1; then
+    abort "resetprop not found, cannot continue"
 fi
 
 # PROP SET FUNCTION
 setprop_safe() {
     PROP=$1
     VALUE=$2
-    CURRENT=$($RESETPROP_RS "$PROP")
+    CURRENT=$(getprop "$PROP")
 
     if [ "$CURRENT" = "$VALUE" ]; then
         writelog "✔ $PROP already set to $VALUE"
         return
     fi
 
-    if $RESETPROP_RS --stealth "$PROP" "$VALUE"; then
-        writelog "✔ Stealth set $PROP to $VALUE (was: $CURRENT)"
+    if resetprop "$PROP" "$VALUE"; then
+        writelog "✔ Set $PROP to $VALUE (was: $CURRENT)"
     else
         writelog "❌ Failed to set $PROP (current: $CURRENT)"
     fi
@@ -695,8 +647,8 @@ else
 fi
 
 # FINAL VERIFICATION
-BUILD_VAL=$($RESETPROP_RS ro.build.version.security_patch)
-VENDOR_VAL=$($RESETPROP_RS ro.vendor.build.security_patch)
+BUILD_VAL=$(getprop ro.build.version.security_patch)
+VENDOR_VAL=$(getprop ro.vendor.build.security_patch)
 
 if [ -f "$SKIP_FILE" ]; then
     writelog "⚠ Sensitive device detected, Vendor patch override intentionally skipped"
@@ -708,10 +660,9 @@ fi
 writelog "•••••• Script Finished Successfully ••••••"
 exit 0
 EOF
-fi
 
 # A message for y'all 
-sed -i 's/^description=.*/description=> Passing integrity checks means nothing if you’re missing life./' "$MEOW/module.prop"
+sed -i 's/^description=.*/description=> You`ve got 69 modules installed and zero goals achieved this month. I`m not angry, I`m just disappointed. And slightly angry./' "$MEOW/module.prop"
 
 ##########################################
 # adapted from Play Integrity Fork by @osm0sis
@@ -764,17 +715,6 @@ rm -f /data/data/com.google.android.gms/cache/pif.prop /data/data/com.google.and
 
 # Remove flag from /sdcard to avoid detection 
 [ -f /sdcard/zygisk ] || [ -d /sdcard/zygisk ] && rm -rf /sdcard/zygisk
-
-# Hide Action & WebUI after update to enforce reboot.
-# Some users flash (update) the module, skip rebooting, and still expect it to work.
-# Then they report "bugs" that were already fixed in newer releases,
-# while insisting they're on the latest version.
-# If you didn't reboot, you're not actually running the update. 🙂
-#if [ -f "$MEOW/action.sh" ] && [ -d "$MEOW/webroot" ]; then
-#    mv "$MEOW/action.sh" "$MEOW/action.sh.bak"
-#    mv "$MEOW/webroot" "$MEOW/webui"
-#    sed -i 's/^description=.*/description=> 𝚁𝚎𝚋𝚘𝚘𝚝 𝚢𝚘𝚞𝚛 𝚙𝚑𝚘𝚗𝚎 𝚝𝚘 𝚞𝚜𝚎 𝚖𝚎 🪷🦢/' "$MEOW/module.prop"
-#fi
 
 display_footer
 exit 0
