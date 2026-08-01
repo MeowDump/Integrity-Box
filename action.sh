@@ -39,131 +39,17 @@ FILE_PATH="$TARGET_DIR/security_patch.txt"
 DIR="/sdcard/Download"
 OUTJSON="/sdcard/meow.json"
 
-URL_ZN="https://github.com/Dr-TSNG/ZygiskNext/releases/download/v1.4.3/Zygisk-Next-1.4.3-817-e815170-release.zip"
-SUM_ZN="82fb9176037771a9ed4f6a530581c7826460dbc19ca5a6908b95c60b86903858"
-URL_CP="https://github.com/LSPosed/CorePatch/releases/download/4.9/app-release.apk"
-SUM_CP="1bdc47d5b48afffd37948a9f5638ae6a5f3d4d02ca01ae36143588284b979996"
-URL_TH="https://github.com/trinadhthatakula/Thor/releases/download/v1.92.0/foss-release.apk"
-SUM_TH="4a11ab3a9d0e454fbf00051fa1b6ec883d5cb4ffad450255f87520b1d6c21d68"
-URL_AF="https://github.com/Android1500/AndroidFaker/releases/download/v2.0.0-beta-9-5/AF-v2.0.0-beta-9-5.apk"
-SUM_AF="ec46d481c8f455f36204ffb113dd2623c464dab58d1d2e64e4e42d24fa69d7c8"
-URL_TS="https://github.com/5ec1cff/TrickyStore/releases/download/1.4.1/Tricky-Store-v1.4.1-245-72b2e84-release.zip"
-SUM_TS="2f5e73fcba0e4e43b6e96b38f333cbe394873e3a81cf8fe1b831c2fbd6c46ea9"
-URL_KA="https://github.com/qwq233/KeyAttestation/releases/download/1.8.4/key-attestation-v1.8.4-release.apk"
-SUM_KA="c9bbc118c75b11bfca7d99b67470d68b5505e1959b6a5f0b298b38ba8104c93a"
-URL_UL="https://github.com/Xposed-Modules-Repo/ru.mike.updatelocker/releases/download/20-1.4.3/updatelocker_v1.4.3_icon.apk"
-SUM_UL="a5ad1d5263e5f55500423f629b314c6003e8108df3f6d487db7581474b44d097"
-URL_HMA="https://raw.githubusercontent.com/MeowDump/Integrity-Box/refs/heads/main/toolkit/config.json"
-SUM_HMA="c8eba943f9c5611f3f53dd661d51f364120b23b0e2ed9c2a2f0089a603ce30d7"
-URL_HMA2="https://github.com/frknkrc44/HMA-OSS/releases/download/oss-164/HMA-OSS-ZYGISK-oss-164-release.zip"
-SUM_HMA2="4bf157db64f0daa59137436fef8eafeb3180d0fd545ca2e1196b47aa8abef9fa"
-URL_RP="https://github.com/uragiristereo/Reverse_Pixelify/releases/download/v1.0/Reverse_Pixelify_v1.0.apk"
-SUM_RP="d7c69f958bfdec13f8d3ded5cf34705cf3743645aad713813f463aefab9d971a"
-URL_KW="https://github.com/MeowDump/KsuWebUIStandalone/releases/download/v2/v2-Meow-KsuWebUI.apk"
-SUM_KW="f48a940c951e669a0b8c577a54e7cd1d6159d4c7a0107d6511d18aa3fadaac91"
-URL_MA="https://github.com/MeowDump/MeowAssistant/releases/download/v1/v1-MeowTile.apk"
-SUM_MA="b2aa89e09d1177ecdfbffe9d0925fd491135228df450e65f5d599a1836fc764a"
-PIPE="$RECORD/integrity_downloader.pipe"
-OUT="/storage/emulated/0/Download/IntegrityModules"
 WIDTH=55
 BRAND_PROP=$(getprop ro.product.system.brand)
-
-mkdir -p "$BOX" "$LOGDIR"
-ensure_exec_permissions
-recommended_settings
-ensure_blacklist_entries
 
 AUTOPIF_OK=0
 MIGRATE_OK=0
 INPUT_PROP=""
 
-if [ -f $BOX/download ]; then
-
-    rm -f "$LOGZ" "$PIPE"
-    mkdir -p "$OUT"
-
-    if command -v mkfifo >/dev/null 2>&1; then
-        mkfifo "$PIPE"
-        tee -a "$LOGZ" < "$PIPE" &
-        exec 1> "$PIPE" 2>&1
-    else
-        exec >> "$LOGZ" 2>&1
-    fi
-
-    banner
-    printf "Module                  Size         Status\n"
-    printf "%${WIDTH}s\n" | tr ' ' '-'
-
-    download "$URL_ZN" "ZygiskNext.zip" "$SUM_ZN"
-    [ -f "$OUT/ZygiskNext.zip" ] &&
-        print_row "ZygiskNext" "$(get_size "$OUT/ZygiskNext.zip")" "Verified" ||
-        print_row "ZygiskNext" "-" "Failed"
-
-    download "$URL_TS" "TrickyStore.zip" "$SUM_TS"
-    [ -f "$OUT/TrickyStore.zip" ] &&
-        print_row "TrickyStore" "$(get_size "$OUT/TrickyStore.zip")" "Verified" ||
-        print_row "TrickyStore" "-" "Failed"
-
-    download "$URL_KA" "KeyAttestation.apk" "$SUM_KA"
-    [ -f "$OUT/KeyAttestation.apk" ] &&
-        print_row "KeyAttestation" "$(get_size "$OUT/KeyAttestation.apk")" "Verified" ||
-        print_row "KeyAttestation" "-" "Failed"
-
-    download "$URL_UL" "UpdateLocker.apk" "$SUM_UL"
-    [ -f "$OUT/UpdateLocker.apk" ] &&
-        print_row "UpdateLocker" "$(get_size "$OUT/UpdateLocker.apk")" "Verified" ||
-        print_row "UpdateLocker" "-" "Failed"
-
-    download "$URL_HMA" "HMA_Config.json" "$SUM_HMA"
-    [ -f "$OUT/HMA_Config.json" ] &&
-        print_row "HMA_Config" "$(get_size "$OUT/HMA_Config.json")" "Verified" ||
-        print_row "HMA_Config" "-" "Failed"
-
-    download "$URL_HMA2" "HMA_zygisk.zip" "$SUM_HMA2"
-    [ -f "$OUT/HMA_zygisk.zip" ] &&
-        print_row "HideMyApplist" "$(get_size "$OUT/HMA_zygisk.zip")" "Verified" ||
-        print_row "HideMyApplist" "-" "Failed"
-
-    download "$URL_RP" "Disable_ROM_spoofing_lsposed.apk" "$SUM_RP"
-    [ -f "$OUT/Disable_ROM_spoofing_lsposed.apk" ] &&
-        print_row "Reverse Pixelify" "$(get_size "$OUT/Disable_ROM_spoofing_lsposed.apk")" "Verified" ||
-        print_row "Reverse Pixelify" "-" "Failed"
-        
-    download "$URL_KW" "WebUI.apk" "$SUM_KW"
-    [ -f "$OUT/WebUI.apk" ] &&
-        print_row "KSU WebUI" "$(get_size "$OUT/WebUI.apk")" "Verified" ||
-        print_row "KSU WebUI" "-" "Failed"
-        
-    download "$URL_CP" "Downgrade_Playstore.apk" "$SUM_CP"
-    [ -f "$OUT/Downgrade_Playstore.apk" ] &&
-        print_row "Core Patch" "$(get_size "$OUT/Downgrade_Playstore.apk")" "Verified" ||
-        print_row "Core Patch" "-" "Failed"
-        
-    download "$URL_TH" "Installation_Spoofer.apk" "$SUM_TH"
-    [ -f "$OUT/Installation_Spoofer.apk" ] &&
-        print_row "Thor Installer" "$(get_size "$OUT/Installation_Spoofer.apk")" "Verified" ||
-        print_row "Thor Installer" "-" "Failed"
-        
-    download "$URL_MA" "Meow_QS_Tile.apk" "$SUM_MA"
-    [ -f "$OUT/Meow_QS_Tile.apk" ] &&
-        print_row "Meow QS Tile" "$(get_size "$OUT/Meow_QS_Tile.apk")" "Verified" ||
-        print_row "Meow QS Tile" "-" "Failed"
-        
-#    download "$URL_AF" "Android_Faker.apk" "$SUM_AF"
-#    [ -f "$OUT/Android_Faker.apk" ] &&
-#        print_row "Android Faker" "$(get_size "$OUT/Android_Faker.apk")" "Verified" ||
-#        print_row "Android Faker" "-" "Failed"
-
-    printf "%${WIDTH}s\n" | tr ' ' '='
-    center "DONE"
-    printf "%${WIDTH}s\n" | tr ' ' '='
-
-    rm -rf "$BOX/download"
-    echo 
-    echo "Saved to $OUT"
-    handle_delay
-    exit 0
-fi
+mkdir -p "$BOX" "$LOGDIR"
+ensure_exec_permissions
+recommended_settings
+ensure_blacklist_entries
 
 if [ -f "$BOX/root" ]; then
   rm -f "$BOX/root"
@@ -276,28 +162,6 @@ log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >>"$CPP"; }
 
 # Exit if offline
 #if ! megatron; then exit 1; fi
-
-# Description content update
-{
-  for p in /data/adb/modules/busybox-ndk/system/*/busybox \
-           /data/adb/ksu/bin/busybox \
-           /data/adb/ap/bin/busybox \
-           /data/adb/magisk/busybox \
-           /system/bin/busybox \
-           /system/xbin/busybox; do
-    [ -x "$p" ] && bb=$p && break
-  done
-  [ -z "$bb" ] && return 0
-
-  C=$($bb wget -qO- "$URL" 2>/dev/null)
-  if [ -n "$C" ]; then
-    [ ! -f "$BAK" ] && $bb cp "$PROP" "$BAK"
-    $bb sed -i '/^description=/d' "$PROP"
-    echo "description=$C" >> "$PROP"
-  else
-    [ -f "$BAK" ] && $bb cp "$BAK" "$PROP"
-  fi
-} || true
 
 # Show header
 print_header
@@ -602,19 +466,59 @@ log_step "RESTART" "Google Service Processes"
 sh "$SCRIPT_DIR/cleanup.sh" >/dev/null 2>&1; 
 
 # Restore per-App-Spoofing value
-#if [ -f "$P" ]; then
-#    if [ -f "$SPOOF_APPS" ]; then
-#        sed -i 's/^spoofApps=.*/spoofApps=1/' "$P"
-#    else
-#        sed -i 's/^spoofApps=.*/spoofApps=0/' "$P"
-#    fi
-#fi
-
-# TSA Farewell || Disable auto target update of outdated module 
-if [ -f "/data/adb/modules/tsupport-advance/service.sh" ]; then
-    mkdir -p "/sdcard/TSupportConfig"
-    touch "/sdcard/TSupportConfig/stop-tspa-auto-target"
+if [ -f "$P" ]; then
+    if [ -f "$SPOOF_APPS" ]; then
+        sed -i 's/^spoofApps=.*/spoofApps=1/' "$P"
+    else
+        sed -i 's/^spoofApps=.*/spoofApps=0/' "$P"
+    fi
 fi
+
+# Update module description
+{
+  for p in /data/adb/modules/busybox-ndk/system/*/busybox \
+           /data/adb/ksu/bin/busybox \
+           /data/adb/ap/bin/busybox \
+           /data/adb/magisk/busybox \
+           /system/bin/busybox \
+           /system/xbin/busybox; do
+    [ -x "$p" ] && bb="$p" && break
+  done
+  [ -z "$bb" ] && return 0
+
+  # Model
+  MODEL=""
+  [ -f "$P" ] && MODEL=$($bb sed -n 's/^MODEL=//p' "$P" | $bb head -n1)
+  [ -z "$MODEL" ] && MODEL="Unknown"
+
+  # Targets
+  T=0
+  [ -f "/data/adb/tricky_store/target.txt" ] && T=$($bb grep -c '.' "/data/adb/tricky_store/target.txt" 2>/dev/null | $bb tr -d ' ')
+  [ -z "$T" ] && T=0
+
+  # Spoofed apps
+  S=0
+  SPOOF_APPS_VAL=""
+  [ -f "$P" ] && SPOOF_APPS_VAL=$($bb sed -n 's/^spoofApps=//p' "$P" | $bb head -n1)
+
+  if [ "$SPOOF_APPS_VAL" = "1" ]; then
+    [ -f "/data/adb/modules/playintegrityfix/apps.txt" ] && S=$($bb grep -c '.' "/data/adb/modules/playintegrityfix/apps.txt" 2>/dev/null | $bb tr -d ' ')
+    [ -z "$S" ] && S=0
+  fi
+
+  # Blocked
+  B=0
+  [ -f "$BOX/blacklist.txt" ] && B=$($bb grep -c '.' "$BOX/blacklist.txt" 2>/dev/null | $bb tr -d ' ')
+  [ -z "$B" ] && B=0
+
+  # Build & write
+  DESC="$MODEL    Targets: $T    Spoofed: $S    Blocked: $B"
+
+  [ ! -f "$BAK" ] && $bb cp "$PROP" "$BAK"
+  $bb sed -i '/^description=/d' "$PROP"
+  echo "description=$DESC" >> "$PROP"
+} || true
+
 echo " "
 echo " "
 echo "    -- ACTION COMPLETED SUCCESSFULLY --"
