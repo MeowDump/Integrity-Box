@@ -1,58 +1,55 @@
-> Release Date: 17/08/2026
+> Release Date: 05/08/2026
 
 ####  [🏆 Click here to support my work](https://meowdump.github.io/)
 
 # What's New?
 
-- Added **WebUI translation support**.
-   - 🇨🇳 Chinese translation by **@LQ2002**
-   - 🇮🇳 🇵🇰 🇧🇩 🇦🇫 🇳🇵Hinglish translation by **Tehreem**
- 
-- Migrated to **resetprop-rs** with a complete backend refactor and various internal improvements.
-   - Improved Hide Lineage
-   - Improved Nuke Lineage
-   - Improved Hide Custom ROM
-   - Improved Hide PIF Detection
-   - Improved Spoof Lineage Props
-   - Improved Spoof Debug Fingerprint
-   - Improved VB meta backend
-   - Improved patch spoofing
+• Fixed some detections caused by Prop Spoofer WebUI
 
-- Added ability to **hide kernel-related detections**.
-   - Spoof Build Time: Fixes duck detector system & kernel build date mismatch detection `(Tested & Working)`
-   - Spoof Hide Custom Kernel: Fixes custom kernel detection `(NOT Tested & NOT Recommended)`
-   - No Gore: Hides emojis & special characters from kernel string `(NOT Tested & NOT Recommended)`
-   - Made in China: Hides stuff written in chinese language to avoid detection `(NOT Tested & NOT Recommended)`
-   - No Telegram: Hides Telegram strings `(NOT Tested & NOT Recommended)`
-   - No Mention Tags: Hides Mention strings `(NOT Tested & NOT Recommended)`
-   - Spoof CMDline: spoofs CMDline `(NOT Tested & NOT Recommended)`
-   - Spoof Kernel: Hides Kernel name strings `(NOT Tested & NOT Recommended)`
-   - All of Above: Hides everything `(NOT Tested & NOT Recommended)`
- 
-- Synced with latest **PIF** source.
+• Fixed some newly introduced lineageos props not getting spoofed on A17
 
-- Updated **system** and **vendor** security patch levels to **July 2026**.
+• Fixed property detection in Hunter.
 
-- Improved **Keybox** script.
+• Hide My Files can now hide a few more suspicious paths.
 
-- Simplified and cleaned up scripts for better readability and maintenance.
+• Per-App Spoofing is back baby. You asked for it, so it's back.
 
-- Changed Keybox backup source.
+• Autopilot also makes a return for the same reason.
 
-- Removed URL decoding.
+• Added a built-in downloader for modules, APKs, and KPMs.
 
-- Removed force updater.
+• Security patch spoofing has been bumped to August 2026.
 
-- Removed verification config updater.
+• You can now update translations without updating the entire module.
 
-- Cleaned up legacy code that is no longer used.
+• Added a toggle for the recommended ZN settings.
 
-- Added a **Contributors** section to Support WebUI.
+• Module Settings got a bit of a cleanup and should feel nicer to use.
 
-- Blacklisted selected browsers from accessing the Keybox, as they unnecessarily perform Play Integrity checks, which can ruin the Keybox.
+• Spoofing configs are now backed up automatically during updates.
 
-- Updated Hashtag & URL in integrity downloader
+• Fixed OTA updates breaking on LineageOS.
 
-- Updated HMA config
+• Fixed broken translations in sub-WebUIs.
 
-- Fixed known bugs
+• Improved module description indicators
+
+• Updated HMA configuration.
+
+• Added Spanish translation by @LeojGH.
+
+• Added Arabic translation by @i3BSKA.
+
+• Added Indonesian translation by @Nade-is-not-a-dev.
+
+• Added Russian translation by @Damima3369.
+
+• Dropped Integrity Downloader action shell code.
+
+• Dropped support for resetprop-rs.
+
+• Dropped package.sh script.
+
+• Cleaned up a bunch of internal code.
+
+• Probably fixed a few things I forgot to write down. Who cares anyway? Life's short. I'm enjoying it & that's what really matters to me ;)
