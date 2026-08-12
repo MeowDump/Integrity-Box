@@ -414,9 +414,10 @@ if [ -n "$FLAGS_ACTIVE" ]; then
     getprop | grep "test-keys" >> "$TMP_PROP"
     getprop | grep "lineage_" >> "$TMP_PROP"
 
-    # Basic cleanup
+    # Convert Android getprop output from "[key]: [value]" to the
+    # key=value syntax required by system.prop loaders.
     sed -i 's///g' "$TMP_PROP"
-    sed -i 's/: /=/g' "$TMP_PROP"
+    sed -i -E 's/^\[([^]]+)\]: \[(.*)\]$/\1=\2/' "$TMP_PROP"
 else
     note "No prop sanitization flags found. Skipping."
 fi
