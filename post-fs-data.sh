@@ -46,11 +46,12 @@ done
 
 # Verify backend perms
 for _f in \
+    "$MODPATH/webroot/UpdateTranslation.sh" \
     "$boot/prop.sh" \
     "$boot/hash.sh" \
     "$boot/lineage.sh" \
-    "$boot/package.sh" \
     "$boot/.box_cleanup.sh" \
+    "$placeholder/teesim.sh" \
     "$placeholder/autopilot.sh" \
     "$placeholder/target.sh" \
     "$placeholder/gms.sh" \
