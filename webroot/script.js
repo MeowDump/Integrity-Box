@@ -440,21 +440,17 @@ function attachButtonListeners() {
             flags:"./Flags/index.html",
             piffork:"./PlayIntegrityFork/index.html",
             propspoofer:"./PropSpoofer/index.html",
-            vending:"./Certified/index.html",
             support:"./Support/index.html",
             report:"./Report/index.html",
             user:"./TrickyStore/index.html",
-            xml:"./KeyboxLoader/index.html",
             pixel:"./Pixel/index.html",
             hide:"./HideMyFiles/index.html",
             profile:"./Profile/index.html",
             assistant:"./Assistant/index.html",
             repair:"./RepairMode/index.html",
-            keymint:"./Keymint/index.html",
-            faq:"./Faq/index.html",
+            pilot:"./Pilot/index.html",
             spoofing:"./Spoofing/index.html",
-            downloader:"./Downloader/index.html",
-            tee:"./TEEsimulator/index.html"
+            downloader:"./Downloader/index.html"
           };
 
           const toastKey = (type || script || "").trim().replace(/\.sh$/, "");
