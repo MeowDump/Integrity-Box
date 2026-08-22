@@ -4,52 +4,77 @@
 
 # What's New?
 
-- Fixed some detections caused by Prop Spoofer WebUI
+- Rebuilt Props Spoofer WebUI to automatically detect all known detection props, now it select the necessary fixes, and handle the entire process for you. All you have to do is to click the Fix button, and Integrity Box will take care of the rest automatically
 
-- Fixed some newly introduced lineageos props not getting spoofed on A17
+- Added ability to spoof build fields (device, model, manufacturer, patch, mode, Android) with latest Pixel Canary release props for TeeSim v4+
 
-- Fixed property detection in Hunter.
+- Updated autopilot backend
 
-- Hide My Files can now hide a few more suspicious paths.
+- Merged PR that fixes prop error (Thanks @incapdns)
 
-- Per-App Spoofing is back baby. You asked for it, so it's back.
+- Updated keybox script, fixed download errors
 
-- Autopilot also makes a return for the same reason.
+- Added ability to switch between Classic & Modern UI
 
-- Added a built-in downloader for modules, APKs, and KPMs.
+- Added support for Modern UI layout
 
-- Security patch spoofing has been bumped to August 2026.
+- Added UI backend script
 
-- You can now update translations without updating the entire module.
+- Updated Advanced Mode
 
-- Added a toggle for the recommended ZN settings.
+- Cleaned up description from Advanced Mode
 
-- Module Settings got a bit of a cleanup and should feel nicer to use.
+- Added info button to explain settings in Advanced Mode
 
-- Spoofing configs are now backed up automatically during updates.
+- Updated Module Settings UI
 
-- Fixed OTA updates breaking on LineageOS.
+- Cleaned up description from Module Settings
 
-- Fixed broken translations in sub-WebUIs.
+- Grouped rows in Module Settings
 
-- Improved module description indicators
+- Updated WebUI icon loading to use ksu://icon/ URI scheme
 
-- Updated HMA configuration.
+- Fixed app list loading using proper KSU exec commands
 
-- Added Spanish translation by @LeojGH.
+- Fixed system/user app filter using pm list packages
 
-- Added Arabic translation by @i3BSKA.
+- Added Control Center-style dashboard layout
 
-- Added Indonesian translation by @Nade-is-not-a-dev.
+- Added script execution logging with per-script output
 
-- Added Russian translation by @Damima3369.
+- Added popup toast notifications for script completion
 
-- Dropped Integrity Downloader action shell code.
+- Fixed debug toggle state persistence
 
-- Dropped support for resetprop-rs.
+- Dropped SHA256 hash verification for downloaded modules
 
-- Dropped package.sh script.
+- Updated keybox path for TeeSim v4+
 
-- Cleaned up a bunch of internal code.
+- Updated auto target scope to follow TeeSim v4+ JSON formatting
 
-- Probably fixed a few things I forgot to write down. Who cares anyway? Life's short. I'm enjoying it & that's what really matters to me ;)
+- Updated keybox backup function to backup/restore support for TeeSim v4+
+
+- Added option to skip TeeSim config auto updater if needed (module settings > general)
+
+- Dropped HMA config
+
+- Dropped HMA backend script
+
+- Dropped HMA injector from module settings UI ( Zygisk HMA OOS version doesn't support dirty config injection, manual import is required, so this feature is kinda useles ATM. Now you have to Download config via WebUI > Integrity Downloader > HMA Config)
+
+- Dropped target simulator UI
+
+- Dropped keybox import UI
+
+- Fixed props not getting spoofed on some ROMs
+
+- Disabled banner randomisation
+
+- Updated Pixelify props
+
+- Updated Legacy props
+
+- Added Ploish translation by @StasGr12
+
+- A lot of CSS modifications across all WebUIs which i am lazy to write
+
