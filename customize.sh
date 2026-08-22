@@ -169,7 +169,7 @@ enable_recommended_settings() {
         touch "$FLAG/run_migrate"
         touch "$FLAG/noredirect"
         touch "$FLAG/ignore"
-        touch "$FLAG/rukja"
+        touch "$FLAG/keyswitch"
     fi
 }
 
@@ -719,3 +719,4 @@ rm -f /data/data/com.google.android.gms/cache/pif.prop /data/data/com.google.and
 
 display_footer
 exit 0
+
