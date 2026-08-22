@@ -37,6 +37,10 @@ body{
   color:var(--fg);
   -webkit-font-smoothing:antialiased;
   padding:20px;
+  transition:background 0.5s ease;
+}
+body.modern-bg{
+  background:radial-gradient(circle at 30% 20%,#2d1b4e 0%,#120820 100%);
 }
 .card{
   width:380px;
@@ -69,7 +73,7 @@ body{
 h1{
   position:relative;
   z-index:2;
-  margin:0 0 8px 0;
+  margin:0 0 24px 0;
   text-align:center;
   font-size:22px;
   font-weight:700;
@@ -84,15 +88,6 @@ h1 .material-icons{
   background:linear-gradient(135deg,var(--accent),#5AC8FA);
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
-}
-.subtitle{
-  text-align:center;
-  color:var(--text2);
-  font-size:13px;
-  font-weight:500;
-  margin-bottom:24px;
-  position:relative;
-  z-index:2;
 }
 .section-label{
   position:relative;
@@ -163,14 +158,7 @@ h1 .material-icons{
   font-size:15px;
   font-weight:600;
   color:var(--fg);
-  margin-bottom:3px;
   transition:color 0.3s;
-}
-.subtitle-text{
-  font-size:12px;
-  color:var(--text2);
-  font-weight:500;
-  line-height:1.3;
 }
 .status-dot{
   width:8px;
@@ -373,25 +361,203 @@ h1 .material-icons{
   text-shadow:0 0 10px var(--accent-glow);
 }
 
+.ui-labels{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:12px;
+  font-weight:600;
+  color:var(--text2);
+  transition:color 0.3s;
+}
+.ui-labels .active-label{
+  color:var(--accent);
+  text-shadow:0 0 10px var(--accent-glow);
+}
+
+.help-btn{
+  position:absolute;
+  top:18px;
+  right:18px;
+  z-index:10;
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  transition:all 0.25s ease;
+}
+.help-btn:hover{
+  background:rgba(77,163,255,0.15);
+  border-color:rgba(77,163,255,0.3);
+  transform:scale(1.1);
+}
+.help-btn:active{transform:scale(0.95)}
+.help-btn .material-icons{
+  font-size:20px;
+  color:var(--text2);
+}
+
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  backdrop-filter:blur(12px);
+  z-index:10000;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.35s ease;
+}
+.modal-overlay.show{
+  opacity:1;
+  pointer-events:auto;
+}
+.modal-sheet{
+  width:100%;
+  max-width:420px;
+  max-height:85vh;
+  background:var(--panel-bg);
+  backdrop-filter:blur(30px);
+  border-radius:24px 24px 0 0;
+  box-shadow:0 -10px 60px rgba(0,0,0,0.5);
+  display:flex;
+  flex-direction:column;
+  transform:translateY(100%);
+  transition:transform 0.4s var(--spring);
+  overflow:hidden;
+}
+.modal-overlay.show .modal-sheet{
+  transform:translateY(0);
+}
+.modal-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:20px 24px 12px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  flex-shrink:0;
+}
+.modal-header h2{
+  font-size:18px;
+  font-weight:700;
+  color:var(--fg);
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.modal-header h2 .material-icons{
+  color:var(--accent);
+  font-size:22px;
+}
+.modal-close{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+.modal-close:hover{
+  background:rgba(255,255,255,0.1);
+}
+.modal-close .material-icons{
+  font-size:18px;
+  color:var(--text2);
+}
+.modal-body{
+  overflow-y:auto;
+  padding:16px 20px 32px;
+  -webkit-overflow-scrolling:touch;
+}
+.modal-body::-webkit-scrollbar{width:4px}
+.modal-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:4px}
+.help-section{
+  margin-bottom:20px;
+}
+.help-section-title{
+  font-size:11px;
+  font-weight:700;
+  color:var(--accent);
+  text-transform:uppercase;
+  letter-spacing:1px;
+  margin-bottom:10px;
+  padding-left:4px;
+}
+.help-item{
+  display:flex;
+  gap:14px;
+  padding:14px;
+  border-radius:14px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.05);
+  margin-bottom:8px;
+  transition:all 0.2s;
+}
+.help-item:hover{
+  background:rgba(255,255,255,0.05);
+  border-color:rgba(77,163,255,0.15);
+}
+.help-item .icon-wrap{
+  width:40px;
+  height:40px;
+  border-radius:10px;
+  background:rgba(255,255,255,0.06);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+}
+.help-item .icon-wrap .material-icons{
+  font-size:20px;
+  color:var(--accent);
+}
+.help-item .help-content{flex:1}
+.help-item .help-title{
+  font-size:14px;
+  font-weight:600;
+  color:var(--fg);
+  margin-bottom:4px;
+}
+.help-item .help-desc{
+  font-size:12px;
+  color:var(--text2);
+  line-height:1.5;
+  font-weight:500;
+}
+
 @media(max-width:420px){
   .card{width:100%;padding:22px}
   .row{padding:14px}
   .icon-wrap{width:40px;height:40px}
   .mode-btn .icon-wrap{width:44px;height:44px}
+  .modal-sheet{max-height:90vh}
 }
 </style>
 </head>
 <body>
 <div class="card">
+  <button class="help-btn" onclick="openHelp()" aria-label="Help">
+    <span class="material-icons">help_outline</span>
+  </button>
+
   <h1><span class="material-icons">security</span>IntegrityBox Toolkit</h1>
-  <div class="subtitle">For Advanced users, Not for noobs & newbies</div>
 
   <div class="section-label">Update Channel</div>
   <div class="row" id="beta" onclick="toggleBeta()">
     <div class="icon-wrap"><span class="material-icons">update</span></div>
     <div class="content">
       <div class="title">OTA</div>
-      <div class="subtitle-text" id="betaSub">Receive stable release updates</div>
     </div>
     <div class="beta-labels">
       <span id="labelStable" class="active-label">Stable</span>
@@ -408,7 +574,6 @@ h1 .material-icons{
     <div class="icon-wrap"><span class="material-icons">tune</span></div>
     <div class="content">
       <div class="title">Zygiskless Mode</div>
-      <div class="subtitle-text">Enable if using pixel stock ROM or inbuilt spoofing</div>
     </div>
     <div class="status-dot"></div>
     <label class="switch" onclick="event.stopPropagation()">
@@ -420,7 +585,6 @@ h1 .material-icons{
     <div class="icon-wrap"><span class="material-icons">developer_mode</span></div>
     <div class="content">
       <div class="title">Developer Mode</div>
-      <div class="subtitle-text">Don't enable this, Your apps will stop working</div>
     </div>
     <div class="status-dot"></div>
     <label class="switch" onclick="event.stopPropagation()">
@@ -432,13 +596,46 @@ h1 .material-icons{
     <div class="icon-wrap"><span class="material-icons">bolt</span></div>
     <div class="content">
       <div class="title">Lite Mode</div>
-      <div class="subtitle-text">Battery saving mode</div>
     </div>
     <div class="status-dot"></div>
     <label class="switch" onclick="event.stopPropagation()">
       <input id="liteInput" type="checkbox">
       <span class="slider"><span class="knob"></span></span>
     </label>
+  </div>
+
+  <div class="section-label" style="margin-top:20px">Miscellaneous</div>
+  <div class="row" id="zygisknext" onclick="toggleZygiskNext()">
+    <div class="icon-wrap"><span class="material-icons">memory</span></div>
+    <div class="content">
+      <div class="title">Customize ZN</div>
+    </div>
+    <div class="status-dot"></div>
+    <label class="switch" onclick="event.stopPropagation()">
+      <input id="zygisknextInput" type="checkbox">
+      <span class="slider"><span class="knob"></span></span>
+    </label>
+  </div>
+  <div class="row" id="uiMode" onclick="toggleUiMode()">
+    <div class="icon-wrap"><span class="material-icons">web</span></div>
+    <div class="content">
+      <div class="title">UI Style</div>
+    </div>
+    <div class="ui-labels">
+      <span id="labelClassic" class="active-label">Classic</span>
+      <label class="switch" onclick="event.stopPropagation()">
+        <input id="uiModeInput" type="checkbox">
+        <span class="slider"><span class="knob"></span></span>
+      </label>
+      <span id="labelModern">Modern</span>
+    </div>
+  </div>
+  <div class="row" id="updateTrans" onclick="updateCanary()">
+    <div class="icon-wrap"><span class="material-icons">update</span></div>
+    <div class="content">
+      <div class="title">Sync with Canary</div>
+    </div>
+    <span class="material-icons" style="color:var(--text2);font-size:22px;">chevron_right</span>
   </div>
 
   <div class="section-label" style="margin-top:20px">Processing</div>
@@ -480,7 +677,7 @@ h1 .material-icons{
     </div>
     <div class="mode-btn" id="json" onclick="toggle('json')">
       <div class="icon-wrap"><span class="material-icons">code</span></div>
-      <div class="title"> Export PIF.json</div>
+      <div class="title">Export PIF.json</div>
       <div class="status-dot"></div>
     </div>
   </div>
@@ -491,12 +688,128 @@ h1 .material-icons{
   <span id="toastText">Saved</span>
 </div>
 
+<div id="helpModal" class="modal-overlay" onclick="closeHelpOnBackdrop(event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h2><span class="material-icons">help_outline</span>What does this do?</h2>
+      <button class="modal-close" onclick="closeHelp()"><span class="material-icons">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="help-section">
+        <div class="help-section-title">Update Channel</div>
+        <div class="help-item">
+          <div class="icon-wrap"><span class="material-icons">update</span></div>
+          <div class="help-content">
+            <div class="help-title">OTA : Stable vs Beta</div>
+            <div class="help-desc">Switches the module's OTA update source. Stable receives tested releases. Beta receives early builds with latest fixes but may contain bugs.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-section-title">Quick Settings</div>
+        <div class="help-item">
+          <div class="icon-wrap"><span class="material-icons">tune</span></div>
+          <div class="help-content">
+            <div class="help-title">Zygiskless Mode</div>
+            <div class="help-desc">Enable this if you are on a Pixel stock ROM or a ROM with built-in Play Integrity spoofing. It disables Zygisk-based injection to avoid conflicts.</div>
+          </div>
+        </div>
+        <div class="help-item">
+          <div class="icon-wrap"><span class="material-icons">developer_mode</span></div>
+          <div class="help-content">
+            <div class="help-title">Developer Mode</div>
+            <div class="help-desc">Enables verbose logging inside the module. Only use for debugging. Many banking and streaming apps detect verbose logs and may refuse to launch. You should not enabled this toggle unless you're reporting a bug.</div>
+          </div>
+        </div>
+        <div class="help-item">
+          <div class="icon-wrap"><span class="material-icons">bolt</span></div>
+          <div class="help-content">
+            <div class="help-title">Lite Mode</div>
+            <div class="help-desc">Battery-saving mode. Reduces background processing of spoofing intensity. Best for daily drivers who want minimal overhead.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-section-title">Miscellaneous</div>
+        <div class="help-item">
+          <div class="icon-wrap"><span class="material-icons">memory</span></div>
+          <div class="help-content">
+            <div class="help-title">Customize ZN</div>
+            <div class="help-desc">You should enable this if you're using ZygiskNext. It automatically configured the best setup for your apps & modules by tweaking memory type, linker hooks, and denylist enforcement.</div>
+          </div>
+        </div>
+        <div class="help-item">
+          <div class="icon-wrap"><span class="material-icons">web</span></div>
+          <div class="help-content">
+            <div class="help-title">UI Style : Classic vs Modern</div>
+            <div class="help-desc">Switches the WebUI visual theme. Classic uses the old UI layout. Modern uses new UI layout.</div>
+          </div>
+        </div>
+        <div class="help-item">
+          <div class="icon-wrap"><span class="material-icons">update</span></div>
+          <div class="help-content">
+            <div class="help-title">Sync with Canary</div>
+            <div class="help-desc">Enables seamless, independent updates for language packs and hotfix patches without requiring a module upgrade or device reboot.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-section-title">Processing</div>
+        <div class="help-item">
+          <div class="icon-wrap"><span class="material-icons">speed</span></div>
+          <div class="help-content">
+            <div class="help-title">Basic Mode</div>
+            <div class="help-desc">Fastest and safest processing of prop generation</div>
+          </div>
+        </div>
+        <div class="help-item">
+          <div class="icon-wrap"><span class="material-icons">balance</span></div>
+          <div class="help-content">
+            <div class="help-title">Normal Mode</div>
+            <div class="help-desc">Balanced between speed and thoroughness for prop generation.</div>
+          </div>
+        </div>
+        <div class="help-item">
+          <div class="icon-wrap"><span class="material-icons">local_fire_department</span></div>
+          <div class="help-content">
+            <div class="help-title">Extreme Mode</div>
+            <div class="help-desc">Maximum spoofing depth for prop generation.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-section-title">Save to Internal Storage</div>
+        <div class="help-item">
+          <div class="icon-wrap"><span class="material-icons">vpn_key</span></div>
+          <div class="help-content">
+            <div class="help-title">Export Keybox.xml</div>
+            <div class="help-desc">Generates a valid keybox.xml file in your device’s internal storage (/sdcard) whenever you trigger the Integrity Box action. The generated file can then be manually imported into your custom ROM’s spoofing settings. Recommended for users running Integrity Box in ZYGISKLESS Mode. (ROM's inbuilt spoofing).</div>
+          </div>
+        </div>
+        <div class="help-item">
+          <div class="icon-wrap"><span class="material-icons">code</span></div>
+          <div class="help-content">
+            <div class="help-title">Export PIF.json</div>
+            <div class="help-desc">Generates a valid meow.json file in your device’s internal storage (/sdcard) whenever you trigger the Integrity Box action. The generated file can then be manually imported into your custom ROM’s spoofing settings. Recommended for users running Integrity Box in ZYGISKLESS Mode. (ROM's inbuilt spoofing).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 const DIR="/data/adb/Box-Brain";
 const PROP="/data/adb/modules/playintegrityfix/custom.pif.prop";
 const MOD_PROP="/data/adb/modules/playintegrityfix/module.prop";
 const STABLE_URL="https://raw.githubusercontent.com/MeowDump/Integrity-Box/refs/heads/main/release.json";
 const BETA_URL="https://raw.githubusercontent.com/MeowDump/Integrity-Box/refs/heads/main/beta-release/ota.json";
+const ZYGISK_DIR="/data/adb/zygisksu";
+const STYLE_SCRIPT="/data/adb/modules/playintegrityfix/webroot/common_scripts/UI/style.sh";
 
 function popup(msg, type) {
   if(!type) type="info";
@@ -541,6 +854,7 @@ function run(cmd,cb){
 }
 
 function has(path,cb){run("[ -f "+path+" ] && echo 1 || echo 0",cb)}
+function readFile(path,cb){run("cat "+path+" 2>/dev/null || echo ''",cb)}
 function touch(path,on){if(on)run("mkdir -p "+DIR+" && touch "+path,function(){});else run("rm -f "+path,function(){});}
 function read(key,cb){run("grep -m1 '^"+key+"=' "+PROP+" | cut -d'=' -f2- || echo ''",cb)}
 function write(key,val,cb){
@@ -592,6 +906,42 @@ function toggleLite(){
   });
 }
 
+function toggleZygiskNext(){
+  var el=document.getElementById("zygisknext");
+  var on=!el.classList.contains("on");
+  if(on){
+    run(
+      "mkdir -p "+ZYGISK_DIR+" && " +
+      "echo '2' > "+ZYGISK_DIR+"/denylist_enforce && " +
+      "echo '1' > "+ZYGISK_DIR+"/memory_type && " +
+      "echo '1' > "+ZYGISK_DIR+"/linker && " +
+      "echo '0' > "+ZYGISK_DIR+"/klog",
+      function(){
+        setOn("zygisknext",true);
+        popup("Zygisk Next configured","success");
+      }
+    );
+  }else{
+    run(
+      "mkdir -p "+ZYGISK_DIR+" && " +
+      "echo '0' > "+ZYGISK_DIR+"/denylist_enforce && " +
+      "echo '0' > "+ZYGISK_DIR+"/memory_type && " +
+      "echo '0' > "+ZYGISK_DIR+"/linker && " +
+      "echo '0' > "+ZYGISK_DIR+"/klog",
+      function(){
+        setOn("zygisknext",false);
+        popup("Zygisk Next reset to defaults","success");
+      }
+    );
+  }
+}
+
+function updateCanary(){
+  run("sh /data/adb/modules/playintegrityfix/webroot/UpdateTranslation.sh", function(r){
+    popup("Canary updated","success");
+  });
+}
+
 function setMode(v){
   [3,6,9].forEach(function(x){touch(DIR+"/top_"+x,false);touch(DIR+"/depth_"+x,false)});
   touch(DIR+"/top_"+v,true);
@@ -630,9 +980,6 @@ function updateBetaUI(isBeta){
   document.getElementById("betaInput").checked=isBeta;
   document.getElementById("labelStable").classList.toggle("active-label",!isBeta);
   document.getElementById("labelBeta").classList.toggle("active-label",isBeta);
-  document.getElementById("betaSub").textContent=isBeta
-    ?"Receiving early beta updates"
-    :"Receiving stable release updates";
 }
 
 function toggleBeta(){
@@ -645,27 +992,102 @@ function toggleBeta(){
   });
 }
 
+function applyBg(isModern){
+  if(isModern){
+    document.body.classList.add("modern-bg");
+  }else{
+    document.body.classList.remove("modern-bg");
+  }
+}
+
+function updateUiModeUI(isModern){
+  var el=document.getElementById("uiMode");
+  el.classList.toggle("on",isModern);
+  document.getElementById("uiModeInput").checked=isModern;
+  document.getElementById("labelClassic").classList.toggle("active-label",!isModern);
+  document.getElementById("labelModern").classList.toggle("active-label",isModern);
+  applyBg(isModern);
+}
+
+function toggleUiMode(){
+  var el=document.getElementById("uiMode");
+  var isModern=!el.classList.contains("on");
+  var cmd="mkdir -p "+DIR+" && ";
+  if(isModern){
+    cmd+="rm -f "+DIR+"/classic && touch "+DIR+"/modern";
+  }else{
+    cmd+="rm -f "+DIR+"/modern && touch "+DIR+"/classic";
+  }
+  cmd+=" && sh "+STYLE_SCRIPT;
+  run(cmd,function(){
+    updateUiModeUI(isModern);
+    popup(isModern?"Switched to Modern UI":"Switched to Classic UI","success");
+  });
+}
+
+function openHelp(){
+  document.getElementById("helpModal").classList.add("show");
+  document.body.style.overflow="hidden";
+}
+
+function closeHelp(){
+  document.getElementById("helpModal").classList.remove("show");
+  document.body.style.overflow="";
+}
+
+function closeHelpOnBackdrop(e){
+  if(e.target===e.currentTarget) closeHelp();
+}
+
 function init(){
-  has(DIR+"/zygisk",function(r){setOn("zygisk",r.trim()==="1")});
-  has(DIR+"/keybox",function(r){setOn("keybox",r.trim()==="1")});
-  has(DIR+"/json",function(r){setOn("json",r.trim()==="1")});
-  read("verboseLogs",function(r){setOn("verbose",r.trim()==="1")});
-  read("spoofApps", function(r) {
-    var spoofDisabled = r.trim() === "0";
+  var cmd =
+    "DIR='"+DIR+"'; " +
+    "PROP='"+PROP+"'; " +
+    "MOD_PROP='"+MOD_PROP+"'; " +
+    "ZYGISK_DIR='"+ZYGISK_DIR+"'; " +
+    "check(){ [ -f \"$1\" ] && echo 1 || echo 0; }; " +
+    "printf '{\"zygisk\":\"%s\",\"keybox\":\"%s\",\"json\":\"%s\",\"verbose\":\"%s\",\"spoofApps\":\"%s\",\"autopilot\":\"%s\",\"updateUrl\":\"%s\",\"modern\":\"%s\",\"top3\":\"%s\",\"top6\":\"%s\",\"top9\":\"%s\",\"zn_mem\":\"%s\",\"zn_link\":\"%s\",\"zn_klog\":\"%s\",\"zn_deny\":\"%s\"}\\n' " +
+    "\"$(check $DIR/zygisk)\" " +
+    "\"$(check $DIR/keybox)\" " +
+    "\"$(check $DIR/json)\" " +
+    "\"$(grep -m1 '^verboseLogs=' $PROP | cut -d= -f2- | tr -d '\\n' || echo '')\" " +
+    "\"$(grep -m1 '^spoofApps=' $PROP | cut -d= -f2- | tr -d '\\n' || echo '')\" " +
+    "\"$(check $DIR/autopilot)\" " +
+    "\"$(grep -m1 '^updateJson=' $MOD_PROP | cut -d= -f2- | tr -d '\\n' || echo '')\" " +
+    "\"$(check $DIR/modern)\" " +
+    "\"$(check $DIR/top_3)\" " +
+    "\"$(check $DIR/top_6)\" " +
+    "\"$(check $DIR/top_9)\" " +
+    "\"$(cat $ZYGISK_DIR/memory_type 2>/dev/null | tr -d '\\n' || echo '')\" " +
+    "\"$(cat $ZYGISK_DIR/linker 2>/dev/null | tr -d '\\n' || echo '')\" " +
+    "\"$(cat $ZYGISK_DIR/klog 2>/dev/null | tr -d '\\n' || echo '')\" " +
+    "\"$(cat $ZYGISK_DIR/denylist_enforce 2>/dev/null | tr -d '\\n' || echo '')\"";
 
-    has(DIR+"/autopilot", function(a) {
-      var autopilotEnabled = a.trim() === "1";
+  run(cmd, function(r){
+    var d;
+    try { d = JSON.parse(r.trim()); } catch(e) { return; }
 
-      setOn("lite", spoofDisabled && autopilotEnabled);
-    });
+    setOn("zygisk", d.zygisk === "1");
+    setOn("keybox", d.keybox === "1");
+    setOn("json", d.json === "1");
+    setOn("verbose", d.verbose === "1");
+
+    var spoofDisabled = d.spoofApps === "0";
+    var autopilotEnabled = d.autopilot === "1";
+    setOn("lite", spoofDisabled && autopilotEnabled);
+
+    updateBetaUI(d.updateUrl === BETA_URL);
+    updateUiModeUI(d.modern === "1");
+
+    var a = 3;
+    if(d.top9 === "1") a = 9;
+    else if(d.top6 === "1") a = 6;
+    else if(d.top3 === "1") a = 3;
+    setMode(a);
+
+    var znOn = d.zn_mem === "1" && d.zn_link === "1" && d.zn_klog === "0" && d.zn_deny === "2";
+    setOn("zygisknext", znOn);
   });
-  getUpdateUrl(function(r){
-    var current=r.trim();
-    updateBetaUI(current===BETA_URL);
-  });
-  var a=3;
-  [3,6,9].forEach(function(v){has(DIR+"/top_"+v,function(r){if(r.trim()==="1")a=v})});
-  setTimeout(function(){setMode(a)},250);
 }
 
 document.addEventListener("DOMContentLoaded",init);
