@@ -1,38 +1,39 @@
 #!/system/bin/sh
 
-RESETPROP_RS="/data/adb/modules/playintegrityfix/resetprop-rs/resetprop-arm64-v8a"
+# Universal resetprop detection
+RP=""
+for p in $(which resetprop 2>/dev/null) /data/adb/ksu/bin/resetprop /data/adb/ap/bin/resetprop /data/adb/magisk/resetprop /sbin/resetprop /system/xbin/resetprop /system/bin/resetprop; do
+    if [ -f "$p" ]; then
+        RP="$p"
+        break
+    fi
+done
 
-[ -x "$RESETPROP_RS" ] || RESETPROP_RS="/data/adb/modules/playintegrityfix/resetprop-rs/resetprop-armeabi-v7a"
-[ -x "$RESETPROP_RS" ] || RESETPROP_RS="/data/adb/modules/playintegrityfix/resetprop-rs/resetprop-x86_64"
-[ -x "$RESETPROP_RS" ] || RESETPROP_RS="/data/adb/modules/playintegrityfix/resetprop-rs/resetprop-x86"
+resetprop_set(){
+    $RP -n "$1" "$2"
+}
+
+resetprop_delete(){
+    $RP -d "$1"
+}
 
 OVERRIDE="/data/adb/modules/playintegrityfix/webroot/common_scripts/force_override.sh"
 
-if [ ! -x "$RESETPROP_RS" ]; then
-    echo "[ERROR] resetprop-rs binary not found"
-    exit 1
-fi
-
-# Stop when safe mode is enabled 
 if [ -f "/data/adb/Box-Brain/safemode" ]; then
     echo " Permission denied by Safe Mode"
     exit 1
 fi
 
-# check prop
 echo " Checking for Lineage Props"
-$RESETPROP_RS | grep -i lineage
+getprop | grep -i lineage
 echo " "
 
-# config
 PROP_FILE="/data/adb/modules/playintegrityfix/system.prop"
 LOG_FILE="/data/adb/Box-Brain/Integrity-Box-Logs/prop_debug.log"
 
-# init logging
 echo "[prop spoof debug log]" > "$LOG_FILE"
 echo "[INFO] Script started at $(date)" >> "$LOG_FILE"
 
-# check file
 if [ ! -f "$PROP_FILE" ]; then
     echo "[ERROR] Prop file not found: $PROP_FILE" >> "$LOG_FILE"
     exit 1
@@ -43,7 +44,6 @@ if [ ! -r "$PROP_FILE" ]; then
     exit 1
 fi
 
-# process lines
 while IFS= read -r line || [ -n "$line" ]; do
     clean_line=$(echo "$line" | sed -E 's/^\[(.*)\]=\[(.*)\]$/\1=\2/')
 
@@ -70,8 +70,8 @@ while IFS= read -r line || [ -n "$line" ]; do
             continue
             ;;
         *)
-            $RESETPROP_RS --stealth "$key" "$value"
-            actual_value=$($RESETPROP_RS "$key")
+            resetprop_set "$key" "$value"
+            actual_value=$(getprop "$key")
             if [ "$actual_value" = "$value" ]; then
                 echo "[OK] Overridden: $key=$value" >> "$LOG_FILE"
             else
@@ -80,6 +80,9 @@ while IFS= read -r line || [ -n "$line" ]; do
             ;;
     esac
 done < "$PROP_FILE"
+
+# Compact arenas to fix holes from other modules/sources
+$RP -c >/dev/null 2>&1 || true
 
 if [ -f "$OVERRIDE" ]; then
     sh "$OVERRIDE"
