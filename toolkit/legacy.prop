@@ -1,21 +1,21 @@
 # Build Fields
 MANUFACTURER=Google
-MODEL=Pixel 9
-FINGERPRINT=google/tokay_beta/tokay:CANARY/ZP11.260515.009/15513807:user/release-keys
+MODEL=Pixel 6
+FINGERPRINT=google/oriole_beta/oriole:CANARY/ZP11.260717.006/16004061:user/release-keys
 BRAND=google
-PRODUCT=tokay_beta
-DEVICE=tokay
+PRODUCT=oriole_beta
+DEVICE=oriole
 RELEASE=CANARY
-ID=ZP11.260515.009
-INCREMENTAL=15513807
+ID=ZP11.260717.006
+INCREMENTAL=16004061
 TYPE=user
 TAGS=release-keys
-SECURITY_PATCH=2026-06-01
+SECURITY_PATCH=2026-08-05
 DEVICE_INITIAL_SDK_INT=32
 
 # System Properties
-*.build.id=ZP11.260515.009
-*.security_patch=2026-06-01
+*.build.id=ZP11.260717.006
+*.security_patch=2026-08-05
 *api_level=32
 
 # Advanced Settings
@@ -29,5 +29,5 @@ spoofVendingFinger=0
 spoofVendingSdk=0
 spoofPixel=0
  
-# Released On: 2026-06-03
-# Estimated Expiry: 2026-07-15
+# Released On: 2026-08-06
+# Estimated Expiry: 2026-09-17
