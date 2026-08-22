@@ -7,810 +7,1198 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
 :root{
---bg:#1f2233;
---fg:#e6e6e6;
---accent:#4da3ff;
---accent-glow:rgba(77,163,255,0.3);
---danger:#ff4d4d;
---danger-glow:rgba(255,77,77,0.3);
---panel-bg:#232637cc;
---success:#4dff88;
---pink:#ff6b9d;
---pink-glow:rgba(255,107,157,0.3);
---text2:#9aa3ff;
---transition:0.3s;
+  --bg0:#0b0d1a;
+  --bg1:#161a35;
+  --accent:#4da3ff;
+  --accent-dim:rgba(77,163,255,0.15);
+  --accent-glow:rgba(77,163,255,0.08);
+  --green:#4dff88;
+  --green-dim:rgba(77,255,136,0.15);
+  --green-glow:rgba(77,255,136,0.08);
+  --red:#ff4d4d;
+  --amber:#ffaa4d;
+  --text:#e9ecff;
+  --muted:#8b95c9;
+  --surface:rgba(27,30,51,0.65);
+  --surface-solid:#1b1e33;
+  --border:rgba(255,255,255,0.06);
+  --border-hover:rgba(77,163,255,0.2);
+  --shadow-soft:0 8px 32px rgba(0,0,0,0.35);
+  --shadow-glow:0 0 40px rgba(77,163,255,0.06);
 }
-*{box-sizing:border-box;margin:0;padding:0}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+
 body{
-margin:0;min-height:100vh;
-display:flex;align-items:center;justify-content:center;
-font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui;
-background:radial-gradient(circle at 30% 20%,#1c2045 0%,#0e1020 100%);
-color:var(--fg);
--webkit-font-smoothing:antialiased;
-padding:20px;
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro",system-ui,sans-serif;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(77,163,255,0.07), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(77,255,136,0.03), transparent 50%),
+    radial-gradient(circle at 50% 0%,var(--bg1),var(--bg0) 70%);
+  color:var(--text);
+  padding:20px;
+  overflow-x:hidden;
 }
-.card{
-width:420px;max-width:100%;
-background:var(--panel-bg);
-backdrop-filter:blur(20px);
-border-radius:20px;
-padding:28px;
-box-shadow:0 25px 60px rgba(0,0,0,0.4),0 0 0 1px rgba(255,255,255,0.06);
-position:relative;overflow:hidden;
-animation:cardEntry 0.6s cubic-bezier(0.2,0.8,0.2,1);
+
+.app{
+  width:100%;max-width:440px;
+  display:flex;flex-direction:column;align-items:center;
+  animation:fadeIn 0.6s cubic-bezier(0.22,1,0.36,1);
 }
-@keyframes cardEntry{
-from{opacity:0;transform:translateY(30px) scale(0.96)}
-to{opacity:1;transform:translateY(0) scale(1)}
+
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
 }
-.card::before{
-content:"";
-position:absolute;inset:0;
-background:radial-gradient(circle at 50% 0%,var(--accent) 0%,transparent 70%);
-filter:blur(40px);opacity:0.15;pointer-events:none;z-index:0;
-animation:glowPulse 8s ease-in-out infinite;
+
+header{
+  width:100%;
+  display:flex;justify-content:space-between;align-items:flex-start;
+  margin-bottom:36px;
+  padding:0 4px;
 }
-@keyframes glowPulse{0%,100%{opacity:0.12}50%{opacity:0.25}}
-h1{
-position:relative;z-index:2;
-margin:0 0 8px 0;text-align:center;
-font-size:22px;font-weight:700;
-display:flex;align-items:center;justify-content:center;gap:10px;
+
+.brand{
+  display:flex;align-items:center;gap:14px;
 }
-.subtitle{
-text-align:center;color:var(--text2);
-font-size:13px;font-weight:500;margin-bottom:24px;
-position:relative;z-index:2;
+
+.brand-icon{
+  width:44px;height:44px;
+  border-radius:14px;
+  background:linear-gradient(135deg,rgba(77,163,255,0.18),rgba(77,163,255,0.05));
+  border:1px solid rgba(77,163,255,0.15);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 20px rgba(77,163,255,0.1), inset 0 1px 0 rgba(255,255,255,0.06);
 }
-.controls{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-margin-bottom:12px;
-position:relative;z-index:2;
+.brand-icon .material-icons{font-size:22px;color:var(--accent)}
+
+.brand-text h1{
+  font-size:26px;font-weight:700;
+  letter-spacing:-0.6px;
+  line-height:1.2;
 }
-.btn{
-padding:14px;
-border-radius:14px;
-border:1px solid rgba(255,255,255,0.08);
-background:rgba(255,255,255,0.03);
-color:var(--fg);
-font-size:13px;
-font-weight:600;
-cursor:pointer;
-display:flex;
-align-items:center;
-justify-content:center;
-gap:8px;
-transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
+.brand-text p{
+  font-size:12px;color:var(--muted);font-weight:500;
+  margin-top:3px;
+  letter-spacing:0.3px;
 }
-.btn:hover{
-background:rgba(255,255,255,0.06);
-transform:translateY(-2px);
-border-color:rgba(77,163,255,0.2);
+
+.icon-btn{
+  width:40px;height:40px;
+  border-radius:14px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--border);
+  color:var(--muted);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  transition:all .25s cubic-bezier(0.22,1,0.36,1);
+  backdrop-filter:blur(12px);
 }
-.btn:active{transform:scale(0.96)}
-.btn .material-icons{font-size:18px;color:var(--text2)}
-.btn-primary{
-background:rgba(77,163,255,0.1);
-border-color:rgba(77,163,255,0.3);
-color:var(--accent);
+.icon-btn:hover{
+  border-color:var(--border-hover);
+  color:var(--accent);
+  background:rgba(77,163,255,0.08);
+  transform:translateY(-1px);
+  box-shadow:0 4px 16px rgba(77,163,255,0.1);
 }
-.btn-primary .material-icons{color:var(--accent)}
-.btn-primary:hover{
-background:rgba(77,163,255,0.2);
-box-shadow:0 8px 24px rgba(77,163,255,0.2);
+.icon-btn:active{transform:scale(0.94)}
+.icon-btn .material-icons{font-size:20px}
+
+.scanner-wrap{
+  width:100%;
+  display:flex;flex-direction:column;align-items:center;
+  margin-bottom:36px;
 }
-.btn-danger{
-background:rgba(255,77,77,0.1);
-border-color:rgba(255,77,77,0.3);
-color:var(--danger);
+
+.scanner{
+  width:300px;height:300px;
+  position:relative;
+  border-radius:50%;
+  border:1px solid rgba(77,163,255,0.08);
+  overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .6s cubic-bezier(0.22,1,0.36,1);
+  box-shadow:var(--shadow-glow);
 }
-.btn-danger .material-icons{color:var(--danger)}
-.btn-danger:hover{
-background:rgba(255,77,77,0.2);
-box-shadow:0 8px 24px rgba(255,77,77,0.2);
+
+.scanner::before{
+  content:"";position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(77,163,255,0.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(77,163,255,0.025) 1px,transparent 1px);
+  background-size:24px 24px;
+  -webkit-mask:radial-gradient(circle,black 52%,transparent 70%);
+  mask:radial-gradient(circle,black 52%,transparent 70%);
 }
-.apply-wrap{
-display:flex;
-justify-content:center;
-margin-bottom:20px;
-position:relative;z-index:2;
+
+.ring{position:absolute;border-radius:50%;border:1px solid rgba(77,163,255,0.06);transition:all .6s ease}
+.r1{inset:8%}
+.r2{inset:24%}
+.r3{inset:40%}
+
+.cross{position:absolute;background:rgba(77,163,255,0.04)}
+.cross.h{top:50%;left:0;right:0;height:1px;transform:translateY(-50%)}
+.cross.v{left:50%;top:0;bottom:0;width:1px;transform:translateX(-50%)}
+
+.sweep{
+  position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 0deg,transparent 0deg,rgba(77,163,255,0.18) 50deg,transparent 51deg);
+  animation:spin 3s linear infinite;
 }
-.apply-btn{
-padding:16px 48px;
-border-radius:14px;
-border:1px solid rgba(77,163,255,0.4);
-background:linear-gradient(135deg,rgba(77,163,255,0.15),rgba(77,163,255,0.05));
-color:var(--accent);
-font-size:15px;
-font-weight:700;
-cursor:pointer;
-display:flex;
-align-items:center;
-gap:10px;
-transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
-text-transform:uppercase;
-letter-spacing:0.5px;
-}
-.apply-btn:hover{
-background:linear-gradient(135deg,rgba(77,163,255,0.25),rgba(77,163,255,0.1));
-transform:translateY(-2px) scale(1.02);
-box-shadow:0 12px 32px rgba(77,163,255,0.3);
-}
-.apply-btn:active{transform:scale(0.98)}
-.apply-btn .material-icons{font-size:22px;color:var(--accent)}
-.terminal{
-position:relative;z-index:2;
-margin-bottom:20px;
-border-radius:16px;
-background:linear-gradient(135deg,rgba(21,146,255,0.08) 0%,rgba(21,146,255,0.03) 100%);
-border:1px solid rgba(77,163,255,0.2);
-box-shadow:0 0 40px rgba(77,163,255,0.1),inset 0 1px 0 rgba(255,255,255,0.05);
-overflow:hidden;
-}
-.terminal-header{
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:12px 16px;
-background:rgba(77,163,255,0.08);
-border-bottom:1px solid rgba(77,163,255,0.15);
-}
-.terminal-title{
-display:flex;
-align-items:center;
-gap:8px;
-font-size:12px;
-font-weight:600;
-color:var(--accent);
-text-transform:uppercase;
-letter-spacing:0.5px;
-}
-.terminal-title .material-icons{font-size:16px;color:var(--accent)}
-.terminal-actions{
-display:flex;
-gap:8px;
-}
-.dot{
-width:10px;height:10px;
-border-radius:50%;
-background:rgba(255,255,255,0.2);
-}
-.dot.red{background:var(--danger)}
-.dot.yellow{background:#ff9f0a}
-.dot.green{background:var(--success)}
-.terminal-body{
-padding:16px;
-font-family:'SF Mono',SFMono-Regular,monospace;
-font-size:11px;
-line-height:1.6;
-height:160px;
-overflow-y:auto;
-color:rgba(255,255,255,0.6);
-}
-.terminal-body::-webkit-scrollbar{width:6px}
-.terminal-body::-webkit-scrollbar-track{background:transparent}
-.terminal-body::-webkit-scrollbar-thumb{
-background:rgba(77,163,255,0.3);
-border-radius:3px;
-}
-.log-entry{
-display:flex;
-align-items:flex-start;
-gap:10px;
-margin-bottom:6px;
-padding:6px 0;
-border-bottom:1px solid rgba(77,163,255,0.1);
-animation:slideIn 0.3s ease;
-}
-@keyframes slideIn{
-from{opacity:0;transform:translateX(-10px)}
-to{opacity:1;transform:translateX(0)}
-}
-.log-entry:last-child{border-bottom:none}
-.log-time{
-color:rgba(77,163,255,0.5);
-font-size:10px;
-min-width:50px;
-}
-.log-content{
-flex:1;
-display:flex;
-align-items:center;
-gap:8px;
-}
-.log-icon{
-width:16px;
-height:16px;
-border-radius:50%;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:12px;
-}
-.log-icon.ok{background:rgba(77,255,136,0.15);color:var(--success)}
-.log-icon.err{background:rgba(255,77,77,0.15);color:var(--danger)}
-.log-icon.cmd{background:rgba(77,163,255,0.2);color:var(--accent)}
-.log-icon.info{background:rgba(255,255,255,0.1);color:var(--text2)}
-.log-text{flex:1;word-break:break-all}
-.section-title{
-position:relative;z-index:2;
-font-size:12px;
-font-weight:600;
-color:var(--text2);
-text-transform:uppercase;
-letter-spacing:0.5px;
-margin:20px 0 12px 0;
-padding-left:12px;
-border-left:3px solid var(--accent);
-}
-.section-title.danger{
-border-left-color:var(--danger);
-color:var(--danger);
-}
-.section-title.success{
-border-left-color:var(--pink);
-color:var(--pink);
-}
-.row{
-position:relative;z-index:2;
-display:flex;align-items:center;justify-content:space-between;
-gap:14px;padding:14px 16px;border-radius:14px;
-background:rgba(255,255,255,0.03);
-border:1px solid rgba(255,255,255,0.06);
-margin-bottom:8px;
-transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
-cursor:pointer;
-}
-.row:hover{
-background:rgba(255,255,255,0.06);
-transform:translateY(-2px);
-box-shadow:0 8px 24px rgba(0,0,0,0.3);
-border-color:rgba(77,163,255,0.2);
-}
-.row:active{transform:scale(0.98)}
-.row.active{
-background:rgba(77,163,255,0.1);
-border-color:rgba(77,163,255,0.4);
-box-shadow:0 0 20px rgba(77,163,255,0.15);
-}
-.row.active .icon-wrap{
-background:var(--accent);
-box-shadow:0 4px 16px var(--accent-glow);
-}
-.row.active .icon-wrap .material-icons{color:white}
-.row.active .title{color:var(--accent)}
-.row.danger:hover{
-border-color:rgba(255,77,77,0.3);
-}
-.row.danger.active{
-background:rgba(255,77,77,0.1);
-border-color:rgba(255,77,77,0.5);
-box-shadow:0 0 20px rgba(255,77,77,0.15);
-}
-.row.danger.active .icon-wrap{
-background:var(--danger);
-box-shadow:0 4px 16px var(--danger-glow);
-}
-.row.danger.active .title{color:var(--danger)}
-.row.success.active{
-background:rgba(255,107,157,0.1);
-border-color:rgba(255,107,157,0.4);
-box-shadow:0 0 20px rgba(255,107,157,0.15);
-}
-.row.success.active .icon-wrap{
-background:var(--pink);
-box-shadow:0 4px 16px var(--pink-glow);
-}
-.row.success.active .icon-wrap .material-icons{color:white}
-.row.success.active .title{color:var(--pink)}
-.row.success:hover{
-border-color:rgba(255,107,157,0.3);
-}
-.icon-wrap{
-width:40px;height:40px;border-radius:10px;
-background:rgba(255,255,255,0.08);
-display:flex;align-items:center;justify-content:center;
-transition:all 0.3s;flex-shrink:0;
-}
-.icon-wrap .material-icons{
-font-size:20px;color:var(--text2);
-transition:all 0.3s;
-}
-.content{flex:1;min-width:0}
-.title{
-font-size:15px;font-weight:600;
-color:var(--fg);margin-bottom:2px;
-transition:color 0.3s;
-}
-.subtitle-text{
-font-size:11px;color:var(--text2);
-font-weight:500;
-opacity:0.8;
-font-family:'SF Mono',SFMono-Regular,monospace;
-}
-.switch{
-position:relative;width:50px;height:28px;flex-shrink:0;
-pointer-events:none;
-}
-.switch input{position:absolute;opacity:0;width:0;height:0}
-.slider{
-position:absolute;inset:0;border-radius:999px;
-background:rgba(255,255,255,0.1);
-transition:all var(--transition);
-box-shadow:inset 0 2px 4px rgba(0,0,0,0.2);
-}
-.knob{
-position:absolute;left:2px;top:2px;
-width:24px;height:24px;border-radius:50%;
-background:linear-gradient(145deg,#fff,#e0e0e0);
-transition:transform 0.25s cubic-bezier(0.2,0.8,0.2,1);
-box-shadow:0 2px 8px rgba(0,0,0,0.3);
-}
-.switch input:checked + .slider{
-background:var(--accent);
-box-shadow:0 0 20px var(--accent-glow);
-}
-.switch input:checked + .slider .knob{transform:translateX(22px)}
-.row.danger .switch input:checked + .slider{
-background:var(--danger);
-box-shadow:0 0 20px var(--danger-glow);
-}
-.row.success .switch input:checked + .slider{
-background:var(--pink);
-box-shadow:0 0 20px var(--pink-glow);
-}
-.status-bar{
-display:flex;
-align-items:center;
-justify-content:space-between;
-margin-top:16px;
-padding:0 4px;
-position:relative;z-index:2;
-}
-.status-text{
-font-size:12px;
-color:var(--text2);
-font-weight:500;
-display:flex;
-align-items:center;
-gap:8px;
-}
-.spinner{
-width:14px;height:14px;
-border:2px solid rgba(255,255,255,0.1);
-border-top-color:var(--accent);
-border-radius:50%;
-animation:spin 0.8s linear infinite;
-display:none;
-}
-.spinner.active{display:block}
 @keyframes spin{to{transform:rotate(360deg)}}
-.footer{
-margin-top:16px;text-align:center;
-color:var(--text2);font-size:11px;opacity:0.6;
-position:relative;z-index:2;
+
+.blip{
+  position:absolute;width:4px;height:4px;
+  border-radius:50%;background:var(--accent);
+  box-shadow:0 0 8px var(--accent), 0 0 20px rgba(77,163,255,0.3);
+  opacity:0;
+  animation:blip 3.5s ease-out infinite;
 }
-@media(max-width:420px){
-.card{width:100%;padding:20px}
-.row{padding:12px 14px}
-.icon-wrap{width:36px;height:36px}
-.terminal-body{height:140px}
+@keyframes blip{
+  0%{opacity:0;transform:scale(0)}
+  10%{opacity:1;transform:scale(1)}
+  90%{opacity:1;transform:scale(1)}
+  100%{opacity:0;transform:scale(0)}
 }
+
+.core{
+  position:relative;z-index:2;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:8px;
+  text-align:center;
+  padding:24px;
+}
+.core .material-icons{
+  font-size:32px;
+  color:var(--accent);
+  transition:all .5s cubic-bezier(0.22,1,0.36,1);
+  filter:drop-shadow(0 0 8px rgba(77,163,255,0.2));
+}
+.core-label{
+  font-size:10px;font-weight:700;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:3px;
+  transition:all .4s ease;
+}
+.core-count{
+  font-size:52px;font-weight:800;
+  font-variant-numeric:tabular-nums;
+  line-height:1;
+  background:linear-gradient(180deg,var(--text) 30%,var(--muted));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  transition:all .4s cubic-bezier(0.22,1,0.36,1);
+  filter:drop-shadow(0 2px 8px rgba(77,163,255,0.1));
+}
+.core-sub{
+  font-size:13px;color:var(--muted);
+  font-weight:500;
+  max-width:220px;
+  line-height:1.4;
+  transition:all .4s ease;
+}
+
+.scanner.done{
+  border-color:rgba(77,255,136,0.15);
+  box-shadow:0 0 60px rgba(77,255,136,0.06), 0 0 100px rgba(77,255,136,0.03);
+}
+.scanner.done .sweep{
+  animation:none;
+  background:conic-gradient(from 0deg,rgba(77,255,136,0.1) 0deg,rgba(77,255,136,0.1) 360deg);
+}
+.scanner.done .ring{border-color:rgba(77,255,136,0.06)}
+.scanner.done .core .material-icons{
+  font-size:56px;
+  color:var(--green);
+  filter:drop-shadow(0 0 12px rgba(77,255,136,0.3));
+}
+.scanner.done .core-count{
+  font-size:0;
+  opacity:0;
+}
+.scanner.done .core-label{
+  color:var(--green);
+  font-size:12px;
+  letter-spacing:4px;
+}
+
+.scanner.all-clear .core .material-icons{
+  font-size:72px;
+  filter:drop-shadow(0 0 16px rgba(77,255,136,0.4));
+}
+.scanner.all-clear .core-label{
+  font-size:13px;
+  letter-spacing:3px;
+  margin-top:8px;
+}
+.scanner.all-clear .core-sub{
+  color:rgba(77,255,136,0.7);
+}
+
+.status-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 12px;
+  border-radius:20px;
+  background:rgba(77,163,255,0.08);
+  border:1px solid rgba(77,163,255,0.1);
+  font-size:11px;font-weight:600;
+  color:var(--accent);
+  letter-spacing:0.5px;
+  margin-bottom:20px;
+  backdrop-filter:blur(8px);
+}
+.status-pill .dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 6px var(--accent);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:0.5;transform:scale(0.8)}
+}
+.status-pill.done{
+  background:rgba(77,255,136,0.08);
+  border-color:rgba(77,255,136,0.12);
+  color:var(--green);
+}
+.status-pill.done .dot{
+  background:var(--green);
+  box-shadow:0 0 6px var(--green);
+  animation:none;
+}
+
+.status-pill.error{
+  background:rgba(255,77,77,0.08);
+  border-color:rgba(255,77,77,0.12);
+  color:var(--red);
+}
+.status-pill.error .dot{
+  background:var(--red);
+  box-shadow:0 0 6px var(--red);
+  animation:none;
+}
+
+.fix-btn{
+  width:100%;padding:18px 24px;
+  border-radius:18px;
+  border:1px solid rgba(77,163,255,0.2);
+  background:
+    linear-gradient(135deg,rgba(77,163,255,0.12),rgba(77,163,255,0.03)),
+    var(--surface);
+  backdrop-filter:blur(20px);
+  color:var(--accent);
+  font-size:15px;font-weight:700;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  gap:10px;
+  transition:all .3s cubic-bezier(0.22,1,0.36,1);
+  letter-spacing:0.3px;
+  box-shadow:0 4px 24px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.04);
+  position:relative;
+  overflow:hidden;
+}
+.fix-btn::before{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(77,163,255,0.08),transparent 60%);
+  opacity:0;
+  transition:opacity .3s ease;
+}
+.fix-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 40px rgba(77,163,255,0.15), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.fix-btn:hover::before{opacity:1}
+.fix-btn:active{transform:scale(0.97)}
+.fix-btn .material-icons{font-size:22px;position:relative;z-index:1}
+.fix-btn span{position:relative;z-index:1}
+.fix-btn:disabled{
+  opacity:0.35;cursor:not-allowed;
+  transform:none;box-shadow:none;
+  border-color:rgba(255,255,255,0.04);
+}
+
+.fix-btn.success{
+  border-color:rgba(77,255,136,0.25);
+  background:linear-gradient(135deg,rgba(77,255,136,0.12),rgba(77,255,136,0.03)),var(--surface);
+  color:var(--green);
+  box-shadow:0 4px 24px rgba(77,255,136,0.08);
+}
+.fix-btn.success:hover{
+  box-shadow:0 12px 40px rgba(77,255,136,0.12);
+  border-color:rgba(77,255,136,0.4);
+}
+
+.fix-btn.all-clear{
+  border-color:rgba(77,255,136,0.2);
+  background:linear-gradient(135deg,rgba(77,255,136,0.1),rgba(77,255,136,0.02)),var(--surface);
+  color:var(--green);
+  opacity:1;
+  cursor:default;
+}
+
+.foot{
+  margin-top:32px;
+  text-align:center;
+  font-size:11px;color:var(--muted);
+  opacity:.3;letter-spacing:.8px;
+  font-weight:500;
+}
+
+.modal{
+  position:fixed;inset:0;z-index:1000;
+  display:none;align-items:center;justify-content:center;
+  padding:20px;
+}
+.modal.open{display:flex}
+.modal-bg{
+  position:absolute;inset:0;
+  background:rgba(5,6,14,0.75);
+  backdrop-filter:blur(12px) saturate(1.2);
+  opacity:0;
+  transition:opacity .3s ease;
+}
+.modal.open .modal-bg{opacity:1}
+.modal-card{
+  position:relative;
+  width:100%;max-width:380px;
+  background:linear-gradient(180deg,rgba(35,38,65,0.9),rgba(22,24,45,0.95));
+  backdrop-filter:blur(32px) saturate(1.3);
+  border-radius:24px;
+  border:1px solid rgba(255,255,255,0.08);
+  box-shadow:0 32px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.02);
+  padding:28px;
+  opacity:0;
+  transform:scale(0.92) translateY(16px);
+  transition:all .35s cubic-bezier(0.22,1,0.36,1);
+  max-height:88vh;
+  overflow-y:auto;
+}
+.modal.open .modal-card{
+  opacity:1;
+  transform:scale(1) translateY(0);
+}
+.modal-head{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:24px;
+  padding-bottom:16px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.modal-head .material-icons{font-size:22px;color:var(--accent)}
+.modal-title{font-size:19px;font-weight:700;letter-spacing:-0.3px}
+
+.opt-row{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 0;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  cursor:pointer;
+  transition:all .2s ease;
+  border-radius:12px;
+  padding:14px;
+  margin:0 -6px;
+}
+.opt-row:last-child{border-bottom:none}
+.opt-row:hover{background:rgba(255,255,255,0.03)}
+.opt-row:active{background:rgba(255,255,255,0.05);transform:scale(0.98)}
+
+.opt-check{
+  width:22px;height:22px;
+  border:2px solid rgba(255,255,255,0.1);
+  border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  transition:all .25s cubic-bezier(0.22,1,0.36,1);
+}
+.opt-row.on .opt-check{
+  background:var(--accent);
+  border-color:var(--accent);
+  box-shadow:0 0 12px rgba(77,163,255,0.3);
+}
+.opt-check svg{
+  width:13px;height:13px;
+  stroke:#0e1020;
+  stroke-width:2.5;
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  stroke-dasharray:18;
+  stroke-dashoffset:18;
+  transition:stroke-dashoffset .25s cubic-bezier(0.22,1,0.36,1);
+}
+.opt-row.on .opt-check svg{stroke-dashoffset:0}
+
+.opt-info{flex:1}
+.opt-info h4{font-size:15px;font-weight:600;margin-bottom:3px;letter-spacing:-0.2px}
+.opt-info p{font-size:12px;color:var(--muted);font-weight:500;line-height:1.4}
+
+.proceed-btn{
+  width:100%;margin-top:22px;
+  padding:16px;border-radius:16px;
+  border:1px solid rgba(77,163,255,0.25);
+  background:linear-gradient(135deg,rgba(77,163,255,0.12),rgba(77,163,255,0.04));
+  color:var(--accent);
+  font-size:14px;font-weight:700;
+  cursor:pointer;
+  transition:all .25s cubic-bezier(0.22,1,0.36,1);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  letter-spacing:0.3px;
+  position:relative;
+  overflow:hidden;
+}
+.proceed-btn:hover{
+  background:linear-gradient(135deg,rgba(77,163,255,0.2),rgba(77,163,255,0.06));
+  transform:translateY(-1px);
+  box-shadow:0 8px 28px rgba(77,163,255,0.12);
+}
+.proceed-btn:active{transform:scale(0.97)}
+.proceed-btn:disabled{
+  opacity:0.25;cursor:not-allowed;transform:none;box-shadow:none;
+  border-color:rgba(255,255,255,0.06);
+}
+
+.warn-icon{
+  width:52px;height:52px;
+  border-radius:16px;
+  background:linear-gradient(135deg,rgba(255,170,77,0.12),rgba(255,170,77,0.04));
+  border:1px solid rgba(255,170,77,0.15);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 20px;
+  box-shadow:0 4px 20px rgba(255,170,77,0.08);
+}
+.warn-icon .material-icons{font-size:28px;color:var(--amber)}
+
+.warn-text{
+  font-size:13px;color:var(--muted);
+  line-height:1.75;
+  margin-bottom:24px;
+  text-align:center;
+}
+
+.toast{
+  position:fixed;bottom:28px;left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:linear-gradient(180deg,rgba(35,38,65,0.95),rgba(22,24,45,0.98));
+  backdrop-filter:blur(24px) saturate(1.2);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:16px;
+  padding:14px 22px;
+  display:flex;align-items:center;gap:12px;
+  font-size:13px;font-weight:600;
+  color:var(--text);
+  box-shadow:0 16px 48px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.02);
+  opacity:0;pointer-events:none;
+  transition:all .4s cubic-bezier(0.22,1,0.36,1);
+  z-index:3000;
+  max-width:90vw;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast .material-icons{font-size:20px;flex-shrink:0}
+.toast.ok .material-icons{color:var(--green);filter:drop-shadow(0 0 6px rgba(77,255,136,0.3))}
+.toast.err .material-icons{color:var(--red);filter:drop-shadow(0 0 6px rgba(255,77,77,0.3))}
+.toast.info .material-icons{color:var(--accent);filter:drop-shadow(0 0 6px rgba(77,163,255,0.3))}
+
+.info-content p{
+  margin-bottom:14px;
+  font-size:13px;
+  color:var(--muted);
+  line-height:1.7;
+}
+.info-content strong{
+  color:var(--text);
+  font-weight:600;
+}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px}
 </style>
 </head>
 <body>
-<div class="card">
-<h1><span class="material-icons">shield</span>Prop Spoofer</h1>
-<div class="subtitle">Powered by IntegrityBox</div>
+<div class="app">
+<header>
+<div class="brand">
+<div class="brand-icon"><span class="material-icons">shield</span></div>
+<div class="brand-text">
+<h1>Prop Spoofer</h1>
+<p>Powered by IntegrityBox</p>
+</div>
+</div>
+<button class="icon-btn" onclick="openInfoSheet()" title="Info">
+<span class="material-icons">info</span>
+</button>
+</header>
 
-<div class="controls">
-<div class="btn btn-primary" onclick="selectAll()">
-<span class="material-icons">check_circle</span>
-Select All
+<div class="scanner-wrap">
+<div class="status-pill" id="statusPill">
+<span class="dot"></span>
+<span id="statusText">Scanning device</span>
 </div>
-<div class="btn btn-danger" onclick="clearAll()">
-<span class="material-icons">remove_circle</span>
-Clear All
+<div class="scanner" id="scanner">
+<div class="ring r1"></div>
+<div class="ring r2"></div>
+<div class="ring r3"></div>
+<div class="cross h"></div>
+<div class="cross v"></div>
+<div class="sweep" id="sweep"></div>
+<div class="blip" style="top:22%;left:68%;animation-delay:0s"></div>
+<div class="blip" style="top:58%;left:28%;animation-delay:.8s"></div>
+<div class="blip" style="top:38%;left:48%;animation-delay:1.6s"></div>
+<div class="blip" style="top:72%;left:62%;animation-delay:2.4s"></div>
+<div class="core">
+<span class="material-icons" id="coreIcon">radar</span>
+<div class="core-label" id="coreLabel">SCANNING DEVICE</div>
+<div class="core-count" id="coreCount">--</div>
+<div class="core-sub" id="coreSub">Analyzing system properties...</div>
+</div>
 </div>
 </div>
 
-<div class="apply-wrap">
-<div class="apply-btn" onclick="execute()" id="execBtn">
+<button class="fix-btn" id="fixBtn" onclick="openModal()" disabled>
+<span class="material-icons">auto_fix_high</span>
+<span>Fix Detection</span>
+</button>
+
+<div class="foot">2026 IntegrityBox</div>
+</div>
+
+<div class="modal" id="modal">
+<div class="modal-bg" onclick="closeModal()"></div>
+<div class="modal-card">
+<div class="modal-head">
+<span class="material-icons">settings</span>
+<div class="modal-title">Select Actions</div>
+</div>
+
+<div class="opt-row" id="m-reset" onclick="toggleModalOpt('reset')">
+<div class="opt-check">
+<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+</div>
+<div class="opt-info">
+<h4>Reset Props</h4>
+<p>Restore security props to stock values</p>
+</div>
+</div>
+
+<div class="opt-row" id="m-duck" onclick="toggleModalOpt('duck')">
+<div class="opt-check">
+<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+</div>
+<div class="opt-info">
+<h4>Duck Props</h4>
+<p>Remove DuckDetector identifiable flags</p>
+</div>
+</div>
+
+<div class="opt-row" id="m-pif" onclick="toggleModalOpt('pif')">
+<div class="opt-check">
+<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+</div>
+<div class="opt-info">
+<h4>PIF Props</h4>
+<p>Delete Play Integrity spoofing props</p>
+</div>
+</div>
+
+<div class="opt-row" id="m-detection" onclick="toggleModalOpt('detection')">
+<div class="opt-check">
+<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+</div>
+<div class="opt-info">
+<h4>Detection Props</h4>
+<p>Remove scanned hook-related properties</p>
+</div>
+</div>
+
+<div class="opt-row" id="m-romhide" onclick="toggleModalOpt('romhide')">
+<div class="opt-check">
+<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+</div>
+<div class="opt-info">
+<h4>ROM Hide</h4>
+<p>Delete any prop containing ROM identifiers</p>
+</div>
+</div>
+
+<button class="proceed-btn" id="proceedBtn" onclick="proceed()">
 <span class="material-icons">play_arrow</span>
-Apply
+Proceed
+</button>
 </div>
 </div>
 
-<div class="terminal">
-<div class="terminal-header">
-<div class="terminal-title">
-<span class="material-icons">terminal</span>
-Execution Log
+<div class="modal" id="pifWarning">
+<div class="modal-bg" onclick=""></div>
+<div class="modal-card">
+<div class="warn-icon">
+<span class="material-icons">warning</span>
 </div>
-<div class="terminal-actions">
-<div class="dot red"></div>
-<div class="dot yellow"></div>
-<div class="dot green"></div>
+<div class="warn-text">Important: Your custom ROM's built-in GMS spoofing should be OFF.
+
+After doing this, it may turn ON by itself, so make sure to check your Custom ROM Spoofing settings again.
+
+If it is ON, turn it OFF. Otherwise, after the next reboot, it may override IntegrityBox, and IntegrityBox won't be able to help you pass Play Integrity.</div>
+<button class="proceed-btn" onclick="closePifWarning()">I Understand</button>
 </div>
-</div>
-<div class="terminal-body" id="log"></div>
-</div>
-
-<div class="section-title">Reset Props</div>
-<div id="rows"></div>
-
-<div class="section-title success">Duck Detector Props</div>
-<div id="duck-rows"></div>
-
-<div class="section-title danger">Delete Props</div>
-<div id="delete-rows"></div>
-
-<div class="status-bar">
-<span class="status-text" id="status">Ready</span>
-<div class="spinner" id="spinner"></div>
 </div>
 
-<div class="footer">© IntegrityBox • 2026</div>
+<div class="modal" id="infoSheet">
+<div class="modal-bg" onclick="closeInfoSheet()"></div>
+<div class="modal-card">
+<div class="modal-head">
+<span class="material-icons">info</span>
+<div class="modal-title">About Prop Spoofer</div>
+</div>
+<div class="info-content">
+<p>Prop Spoofer scans your device for detectable properties that integrity checkers and spoofing modules leave behind.</p>
+<p><strong>Reset Props</strong> Restores security properties like USB debug, verified boot, and build type back to stock factory values.</p>
+<p><strong>Duck Props</strong> Removes properties that DuckDetector uses to identify custom ROMs or modified systems.</p>
+<p><strong>PIF Props</strong> Deletes Play Integrity related spoofing data including Pixel overrides and keybox flags.</p>
+<p><strong>Detection Props</strong> Removes dynamically found hook-related properties (pphooks, pihook, pixelprops). May re-enable your ROM's built-in spoofing verify and disable manually if needed.</p>
+<p><strong>ROM Hide</strong> Dynamically searches all properties for ROM-related keywords (Lineage, Evolution, crDroid, etc.) and deletes any matches found.</p>
+</div>
+<button class="proceed-btn" onclick="closeInfoSheet()" style="margin-top:8px">Got it</button>
+</div>
+</div>
+
+<div class="toast" id="toast">
+<span class="material-icons" id="tIcon">info</span>
+<span id="tTxt"></span>
 </div>
 
 <script>
-const logEl = document.getElementById('log');
-const statusEl = document.getElementById('status');
-const spinner = document.getElementById('spinner');
-const rowsEl = document.getElementById('rows');
-const deleteRowsEl = document.getElementById('delete-rows');
-const duckRowsEl = document.getElementById('duck-rows');
+const coreCount=document.getElementById('coreCount');
+const coreLabel=document.getElementById('coreLabel');
+const coreSub=document.getElementById('coreSub');
+const coreIcon=document.getElementById('coreIcon');
+const fixBtn=document.getElementById('fixBtn');
+const scannerEl=document.getElementById('scanner');
+const statusPill=document.getElementById('statusPill');
+const statusText=document.getElementById('statusText');
 
-const props = [
-{id:'usb_adb_disabled',cmd:'su -c resetprop -n sys.usb.adb.disabled 1',label:'USB Debug Block',sub:'sys.usb.adb.disabled',icon:'usb_off'},
-{id:'usb_config_mtp',cmd:'su -c resetprop -n persist.sys.usb.config mtp; su -c resetprop -n sys.usb.config mtp; su -c resetprop -n sys.usb.state mtp',label:'MTP Only Mode',sub:'persist.sys.usb.config',icon:'usb'},
-{id:'adb_root_off',cmd:'su -c resetprop -n service.adb.root 0; su -c resetprop -n service.adb.tcp.port -1',label:'ADB Root Off',sub:'service.adb.root',icon:'terminal'},
-{id:'ro_secure',cmd:'su -c resetprop -n ro.secure 1; su -c resetprop -n ro.adb.secure 1',label:'Secure Mode',sub:'ro.secure',icon:'verified_user'},
-{id:'ro_debuggable',cmd:'su -c resetprop -n ro.debuggable 0; su -c resetprop -n persist.sys.debuggable 0',label:'Debug Off',sub:'ro.debuggable',icon:'bug_report'},
-{id:'dev_options',cmd:'su -c resetprop -n persist.sys.developer_options 0; su -c resetprop -n persist.sys.dev_mode 0',label:'Dev Options Off',sub:'persist.sys.developer_options',icon:'code_off'},
-{id:'global_dev',cmd:'settings put global development_settings_enabled 0; settings put global adb_enabled 0; settings put global oem_unlock_allowed 0',label:'Global Settings',sub:'development_settings_enabled',icon:'settings'},
-{id:'verified_boot',cmd:'su -c resetprop -n ro.boot.verifiedbootstate green; su -c resetprop -n vendor.boot.verifiedbootstate green',label:'Verified Boot',sub:'ro.boot.verifiedbootstate',icon:'security'},
-{id:'flash_locked',cmd:'su -c resetprop -n ro.boot.flash.locked 1',label:'Flash Locked',sub:'ro.boot.flash.locked',icon:'lock'},
-{id:'vbmeta_locked',cmd:'su -c resetprop -n ro.boot.vbmeta.device_state locked; su -c resetprop -n vendor.boot.vbmeta.device_state locked',label:'VBMeta Locked',sub:'ro.boot.vbmeta.device_state',icon:'shield'},
-{id:'secureboot',cmd:'su -c resetprop -n ro.secureboot.lockstate locked',label:'SecureBoot',sub:'ro.secureboot.lockstate',icon:'gpp_good'},
-{id:'warranty_bit',cmd:'su -c resetprop -n ro.boot.warranty_bit 0',label:'Warranty Valid',sub:'ro.boot.warranty_bit',icon:'check_circle'},
-{id:'build_type',cmd:'su -c resetprop -n ro.build.type user; su -c resetprop -n ro.build.tags release-keys',label:'User Build',sub:'ro.build.type',icon:'build_circle'},
-{id:'oem_unlock',cmd:'su -c resetprop -n ro.oem_unlock_supported 0; su -c resetprop -n sys.oem_unlock_allowed 0',label:'OEM Lock',sub:'ro.oem_unlock_supported',icon:'block'},
-{id:'qemu_off',cmd:'su -c resetprop -n ro.kernel.qemu 0; su -c resetprop -n ro.boot.qemu 0; su -c resetprop -n ro.hardware.virtual_device 0',label:'No Emulator',sub:'ro.kernel.qemu',icon:'computer'},
-{id:'cache_clean',cmd:'find /data/app -type f \( -name "*.odex" -o -name "*.vdex" \) -delete 2>/dev/null; find /data/app -type f -name "base.odex" -delete 2>/dev/null',label:'Nuke Trash',sub:'odex_cleanup',icon:'delete_sweep'}
+const modalCats={reset:false,duck:false,pif:false,detection:false,romhide:false};
+let detectedProps=[];
+let hasKsu=false;
+let tT=null;
+const LOG_DIR='/data/adb/Box-Brain/Integrity-Box-Logs';
+const LOG_FILE=LOG_DIR+'/PropSpoofer.log';
+
+const resetCmds=[
+'su -c resetprop -n sys.usb.adb.disabled 1',
+'su -c resetprop -n persist.sys.usb.config mtp; su -c resetprop -n sys.usb.config mtp; su -c resetprop -n sys.usb.state mtp',
+'su -c resetprop -n service.adb.root 0; su -c resetprop -n service.adb.tcp.port -1',
+'su -c resetprop -n ro.secure 1; su -c resetprop -n ro.adb.secure 1',
+'su -c resetprop -n ro.debuggable 0; su -c resetprop -n persist.sys.debuggable 0',
+'su -c resetprop -n persist.sys.developer_options 0; su -c resetprop -n persist.sys.dev_mode 0',
+'su -c resetprop -n ro.boot.verifiedbootstate green; su -c resetprop -n vendor.boot.verifiedbootstate green',
+'su -c resetprop -n ro.boot.flash.locked 1',
+'su -c resetprop -n ro.boot.vbmeta.device_state locked; su -c resetprop -n vendor.boot.vbmeta.device_state locked',
+'su -c resetprop -n ro.secureboot.lockstate locked',
+'su -c resetprop -n ro.boot.warranty_bit 0',
+'su -c resetprop -n ro.build.type user; su -c resetprop -n ro.build.tags release-keys',
+'su -c resetprop -n ro.oem_unlock_supported 0; su -c resetprop -n sys.oem_unlock_allowed 0',
+'su -c resetprop -n ro.kernel.qemu 0; su -c resetprop -n ro.boot.qemu 0; su -c resetprop -n ro.hardware.virtual_device 0',
+'find /data/app -type f \\( -name "*.odex" -o -name "*.vdex" \\) -delete 2>/dev/null; find /data/app -type f -name "base.odex" -delete 2>/dev/null'
 ];
 
-const deleteProps = [
-{id:'del_lineage_device',prop:'ro.lineage.device',label:'Lineage Device',icon:'phone_android'},
-{id:'del_crdroid_device',prop:'ro.crdroid.device',label:'crDroid Device',icon:'phone_android'},
-{id:'del_build_flavor',prop:'ro.build.flavor',label:'Build Flavor',icon:'build'},
-{id:'del_custom_device',prop:'ro.custom.device',label:'Custom Device',icon:'phone_android'},
-{id:'del_build_elitever',prop:'ro.build.elitever',label:'Elite Version',icon:'upgrade'},
-{id:'del_xiaomi_devid',prop:'ro.xiaomi.developerid',label:'Xiaomi Dev ID',icon:'badge'},
-{id:'del_modversion',prop:'ro.modversion',label:'Mod Version',icon:'numbers'},
-{id:'del_elite_time',prop:'ro.elite.version.code_time',label:'Elite Time',icon:'schedule'},
-{id:'del_elite_keybox',prop:'sys.eliteprops.keybox',label:'Elite Keybox',icon:'vpn_key'},
-{id:'del_elite_pif',prop:'sys.eliteprops.pif',label:'Elite PIF',icon:'fingerprint'},
-{id:'del_elite_vending',prop:'sys.eliteprops.vending',label:'Elite Vending',icon:'shopping_cart'},
-{id:'del_elite_pixel',prop:'sys.eliteprops.pixelprops',label:'Elite Pixel',icon:'view_module'},
-{id:'del_elite_photos',prop:'sys.eliteprops.photos',label:'Elite Photos',icon:'photo'},
-{id:'del_elite_games',prop:'sys.eliteprops.games',label:'Elite Games',icon:'sports_esports'},
-{id:'del_elite_snap',prop:'sys.eliteprops.snapchat',label:'Elite Snapchat',icon:'camera'},
-{id:'del_elite_recent',prop:'sys.eliteprops.recent',label:'Elite Recent',icon:'history'},
-{id:'del_elite_recent_all',prop:'sys.eliteprops.recent.all',label:'Elite Recent All',icon:'history_toggle_off'},
-{id:'del_elite_spoof',prop:'sys.eliteprops.spoofastab',label:'Elite Spoof',icon:'shuffle'},
-{id:'del_pixel_device',prop:'ro.pixel.device',label:'Pixel Device',icon:'phone_iphone'},
-{id:'del_pixel_ver',prop:'ro.pixel.version',label:'Pixel Version',icon:'info'},
-{id:'del_pixel_build',prop:'ro.pixel.build.version',label:'Pixel Build',icon:'build'},
-{id:'del_pixel_release',prop:'ro.pixel.releasetype',label:'Pixel Release',icon:'new_releases'},
-{id:'del_pixel_legal',prop:'ro.pixellegal.url',label:'Pixel Legal',icon:'gavel'},
-{id:'del_evo_device',prop:'ro.evolution.device',label:'Evolution Device',icon:'phone_android'},
-{id:'del_evo_build',prop:'ro.evolution.build.version',label:'Evolution Build',icon:'build'},
-{id:'del_evo_display',prop:'ro.evolution.display.version',label:'Evolution Display',icon:'display_settings'},
-{id:'del_evo_ver',prop:'ro.evolution.version',label:'Evolution Version',icon:'info'},
-{id:'del_evo_legal',prop:'ro.evolutionlegal.url',label:'Evolution Legal',icon:'gavel'},
-{id:'del_lineage_sdk',prop:'ro.lineage.build.version.plat.sdk',label:'Lineage SDK',icon:'sdk'},
-{id:'del_lineage_rev',prop:'ro.lineage.build.version.plat.rev',label:'Lineage Rev',icon:'update'},
-{id:'del_rising_popup',prop:'ro.rising.feature.pop_up_view',label:'Rising Popup',icon:'open_in_new'},
-{id:'del_rising_chipset',prop:'ro.rising.chipset',label:'Rising Chipset',icon:'memory'},
-{id:'del_rising_maintainer',prop:'ro.rising.maintainer',label:'Rising Maintainer',icon:'engineering'},
-{id:'del_rising_code',prop:'ro.rising.code',label:'Rising Code',icon:'qr_code'},
-{id:'del_rising_pkg',prop:'ro.rising.packagetype',label:'Rising Package',icon:'inventory_2'},
-{id:'del_rising_rel',prop:'ro.rising.releasetype',label:'Rising Release',icon:'new_releases'},
-{id:'del_rising_ver',prop:'ro.rising.version',label:'Rising Version',icon:'info'},
-{id:'del_rising_build',prop:'ro.rising.build.version',label:'Rising Build',icon:'build'},
-{id:'del_rising_display',prop:'ro.rising.display.version',label:'Rising Display',icon:'display_settings'},
-{id:'del_rising_codename',prop:'ro.rising.platform_release_codename',label:'Rising Codename',icon:'tag'},
-{id:'del_rising_device',prop:'ro.rising.device',label:'Rising Device',icon:'phone_android'},
-{id:'del_rising_storage',prop:'ro.rising.storage',label:'Rising Storage',icon:'storage'},
-{id:'del_rising_ram',prop:'ro.rising.ram',label:'Rising RAM',icon:'memory'},
-{id:'del_rising_battery',prop:'ro.rising.battery',label:'Rising Battery',icon:'battery_full'},
-{id:'del_rising_dispres',prop:'ro.rising.display_resolution',label:'Rising Resolution',icon:'resolution'},
-{id:'del_lineage_ver',prop:'ro.lineage.version',label:'Lineage Version',icon:'info'},
-{id:'del_lineage_disp',prop:'ro.lineage.display.version',label:'Lineage Display',icon:'display_settings'},
-{id:'del_lineage_build',prop:'ro.lineage.build.version',label:'Lineage Build',icon:'build'},
-{id:'del_lineage_rel',prop:'ro.lineage.releasetype',label:'Lineage Release',icon:'new_releases'},
-{id:'del_lineage_legal',prop:'ro.lineagelegal.url',label:'Lineage Legal',icon:'gavel'},
-{id:'del_infinity_device',prop:'ro.infinity.device',label:'Infinity Device',icon:'phone_android'},
-{id:'del_infinity_soc',prop:'ro.infinity.soc',label:'Infinity SoC',icon:'memory'},
-{id:'del_infinity_batt',prop:'ro.infinity.battery',label:'Infinity Battery',icon:'battery_full'},
-{id:'del_infinity_disp',prop:'ro.infinity.display',label:'Infinity Display',icon:'display_settings'},
-{id:'del_infinity_cam',prop:'ro.infinity.camera',label:'Infinity Camera',icon:'camera_alt'},
-{id:'del_infinity_android',prop:'ro.infinity.android.version',label:'Infinity Android',icon:'android'},
-{id:'del_infinity_build',prop:'ro.infinity.build.version',label:'Infinity Build',icon:'build'},
-{id:'del_infinity_status',prop:'ro.infinity.build.status',label:'Infinity Status',icon:'fact_check'},
-{id:'del_infinity_date',prop:'ro.infinity.build.date',label:'Infinity Date',icon:'calendar_today'},
-{id:'del_infinity_type',prop:'ro.infinity.buildtype',label:'Infinity Type',icon:'category'},
-{id:'del_infinity_fp',prop:'ro.infinity.fingerprint',label:'Infinity Fingerprint',icon:'fingerprint'},
-{id:'del_infinity_ver',prop:'ro.infinity.version',label:'Infinity Version',icon:'info'},
-{id:'del_infinity_maint',prop:'ro.infinity.maintainer',label:'Infinity Maintainer',icon:'engineering'},
-{id:'del_havoc_variant',prop:'ro.havoc.build.variant',label:'Havoc Variant',icon:'tune'},
-{id:'del_havoc_device',prop:'ro.havoc.device',label:'Havoc Device',icon:'phone_android'},
-{id:'del_havoc_date',prop:'ro.havoc.build.date',label:'Havoc Date',icon:'calendar_today'},
-{id:'del_havoc_build',prop:'ro.havoc.build.version',label:'Havoc Build',icon:'build'},
-{id:'del_havoc_fp',prop:'ro.havoc.fingerprint',label:'Havoc Fingerprint',icon:'fingerprint'},
-{id:'del_havoc_rel',prop:'ro.havoc.releasetype',label:'Havoc Release',icon:'new_releases'},
-{id:'del_havoc_ver',prop:'ro.havoc.version',label:'Havoc Version',icon:'info'},
-{id:'del_havoc_sec',prop:'ro.havoc.build.version.security_patch',label:'Havoc Security',icon:'security_update'},
-{id:'del_derpfest_device',prop:'ro.derpfest.device',label:'Derpfest Device',icon:'phone_android'},
-{id:'del_derpfest_date',prop:'ro.derpfest.build.date',label:'Derpfest Date',icon:'calendar_today'},
-{id:'del_derpfest_build',prop:'ro.derpfest.build.version',label:'Derpfest Build',icon:'build'},
-{id:'del_derpfest_variant',prop:'ro.derpfest.build.variant',label:'Derpfest Variant',icon:'tune'},
-{id:'del_derpfest_disp',prop:'ro.derpfest.display.version',label:'Derpfest Display',icon:'display_settings'},
-{id:'del_derpfest_rel',prop:'ro.derpfest.releasetype',label:'Derpfest Release',icon:'new_releases'},
-{id:'del_derpfest_ver',prop:'ro.derpfest.version',label:'Derpfest Version',icon:'info'},
-{id:'del_derpfest_legal',prop:'ro.derpfestlegal.url',label:'Derpfest Legal',icon:'gavel'},
-{id:'del_axion_device',prop:'ro.axion.device',label:'Axion Device',icon:'phone_android'},
-{id:'del_axion_ver',prop:'ro.axion.version',label:'Axion Version',icon:'info'},
-{id:'del_axion_disp',prop:'ro.axion.display.version',label:'Axion Display',icon:'display_settings'},
-{id:'del_axion_build',prop:'ro.axion.build.version',label:'Axion Build',icon:'build'},
-{id:'del_axion_rel',prop:'ro.axion.releasetype',label:'Axion Release',icon:'new_releases'},
-{id:'del_axion_maint',prop:'persist.sys.axion_maintainer',label:'Axion Maintainer',icon:'engineering'},
-{id:'del_axion_proc',prop:'persist.sys.axion_processor_info',label:'Axion Processor',icon:'memory'}
+const duckList=[
+{prop:'ro.adb.secure',label:'ADB Secure'},
+{prop:'ro.boot.verifiedbootstate',label:'Verified Boot State'},
+{prop:'ro.boot.veritymode',label:'Verity Mode'},
+{prop:'ro.build.tags',label:'Build Tags'},
+{prop:'ro.build.type',label:'Build Type'}
 ];
 
-const duckProps = [
-{id:'del_adb_secure',prop:'ro.adb.secure',label:'ADB Secure',icon:'security'},
-{id:'del_verifiedbootstate',prop:'ro.boot.verifiedbootstate',label:'Verified Boot State',icon:'verified'},
-{id:'del_veritymode',prop:'ro.boot.veritymode',label:'Verity Mode',icon:'shield'},
-{id:'del_build_tags',prop:'ro.build.tags',label:'Build Tags',icon:'tag'},
-{id:'del_build_type',prop:'ro.build.type',label:'Build Type',icon:'build_circle'}
+const pifList=[
+'sys.eliteprops.pif','ro.pixel.device','ro.pixel.version',
+'ro.pixel.build.version','ro.pixel.releasetype','ro.pixellegal.url',
+'sys.eliteprops.pixelprops','sys.eliteprops.vending','sys.eliteprops.keybox'
 ];
 
-function render(){
-duckRowsEl.innerHTML='';
-duckProps.forEach(p=>{
-const div=document.createElement('div');
-div.className='row success';
-div.id='row-'+p.id;
-div.onclick=()=>toggle(p.id);
-div.innerHTML=`
-<div class="icon-wrap"><span class="material-icons">${p.icon}</span></div>
-<div class="content"><div class="title">${p.label}</div><div class="subtitle-text">${p.prop}</div></div>
-<label class="switch" onclick="event.stopPropagation()">
-<input type="checkbox" id="${p.id}">
-<span class="slider"><span class="knob"></span></span>
-</label>
-`;
-duckRowsEl.appendChild(div);
-});
+const deleteProps=[
+{prop:'ro.lineage.device',label:'Lineage Device'},
+{prop:'ro.crdroid.device',label:'crDroid Device'},
+{prop:'ro.build.flavor',label:'Build Flavor'},
+{prop:'ro.custom.device',label:'Custom Device'},
+{prop:'ro.build.elitever',label:'Elite Version'},
+{prop:'ro.xiaomi.developerid',label:'Xiaomi Dev ID'},
+{prop:'ro.modversion',label:'Mod Version'},
+{prop:'ro.elite.version.code_time',label:'Elite Time'},
+{prop:'sys.eliteprops.keybox',label:'Elite Keybox'},
+{prop:'sys.eliteprops.pif',label:'Elite PIF'},
+{prop:'sys.eliteprops.vending',label:'Elite Vending'},
+{prop:'sys.eliteprops.pixelprops',label:'Elite Pixel'},
+{prop:'sys.eliteprops.photos',label:'Elite Photos'},
+{prop:'sys.eliteprops.games',label:'Elite Games'},
+{prop:'sys.eliteprops.snapchat',label:'Elite Snapchat'},
+{prop:'sys.eliteprops.recent',label:'Elite Recent'},
+{prop:'sys.eliteprops.recent.all',label:'Elite Recent All'},
+{prop:'sys.eliteprops.spoofastab',label:'Elite Spoof'},
+{prop:'ro.pixel.device',label:'Pixel Device'},
+{prop:'ro.pixel.version',label:'Pixel Version'},
+{prop:'ro.pixel.build.version',label:'Pixel Build'},
+{prop:'ro.pixel.releasetype',label:'Pixel Release'},
+{prop:'ro.pixellegal.url',label:'Pixel Legal'},
+{prop:'ro.evolution.device',label:'Evolution Device'},
+{prop:'ro.evolution.build.version',label:'Evolution Build'},
+{prop:'ro.evolution.display.version',label:'Evolution Display'},
+{prop:'ro.evolution.version',label:'Evolution Version'},
+{prop:'ro.evolutionlegal.url',label:'Evolution Legal'},
+{prop:'ro.lineage.build.version.plat.sdk',label:'Lineage SDK'},
+{prop:'ro.lineage.build.version.plat.rev',label:'Lineage Rev'},
+{prop:'ro.rising.feature.pop_up_view',label:'Rising Popup'},
+{prop:'ro.rising.chipset',label:'Rising Chipset'},
+{prop:'ro.rising.maintainer',label:'Rising Maintainer'},
+{prop:'ro.rising.code',label:'Rising Code'},
+{prop:'ro.rising.packagetype',label:'Rising Package'},
+{prop:'ro.rising.releasetype',label:'Rising Release'},
+{prop:'ro.rising.version',label:'Rising Version'},
+{prop:'ro.rising.build.version',label:'Rising Build'},
+{prop:'ro.rising.display.version',label:'Rising Display'},
+{prop:'ro.rising.platform_release_codename',label:'Rising Codename'},
+{prop:'ro.rising.device',label:'Rising Device'},
+{prop:'ro.rising.storage',label:'Rising Storage'},
+{prop:'ro.rising.ram',label:'Rising RAM'},
+{prop:'ro.rising.battery',label:'Rising Battery'},
+{prop:'ro.rising.display_resolution',label:'Rising Resolution'},
+{prop:'ro.lineage.version',label:'Lineage Version'},
+{prop:'ro.lineage.display.version',label:'Lineage Display'},
+{prop:'ro.lineage.build.version',label:'Lineage Build'},
+{prop:'ro.lineage.releasetype',label:'Lineage Release'},
+{prop:'ro.lineagelegal.url',label:'Lineage Legal'},
+{prop:'ro.infinity.device',label:'Infinity Device'},
+{prop:'sys.lineage_settings_secure_version',label:'Lineage Secure'},
+{prop:'sys.lineage_settings_system_version',label:'Lineage Sys'},
+{prop:'ro.infinity.soc',label:'Infinity SoC'},
+{prop:'ro.infinity.battery',label:'Infinity Battery'},
+{prop:'ro.infinity.display',label:'Infinity Display'},
+{prop:'ro.infinity.camera',label:'Infinity Camera'},
+{prop:'ro.infinity.android.version',label:'Infinity Android'},
+{prop:'ro.infinity.build.version',label:'Infinity Build'},
+{prop:'ro.infinity.build.status',label:'Infinity Status'},
+{prop:'ro.infinity.build.date',label:'Infinity Date'},
+{prop:'ro.infinity.buildtype',label:'Infinity Type'},
+{prop:'ro.infinity.fingerprint',label:'Infinity Fingerprint'},
+{prop:'ro.infinity.version',label:'Infinity Version'},
+{prop:'ro.infinity.maintainer',label:'Infinity Maintainer'},
+{prop:'ro.havoc.build.variant',label:'Havoc Variant'},
+{prop:'ro.havoc.device',label:'Havoc Device'},
+{prop:'ro.havoc.build.date',label:'Havoc Date'},
+{prop:'ro.havoc.build.version',label:'Havoc Build'},
+{prop:'ro.havoc.fingerprint',label:'Havoc Fingerprint'},
+{prop:'ro.havoc.releasetype',label:'Havoc Release'},
+{prop:'ro.havoc.version',label:'Havoc Version'},
+{prop:'ro.havoc.build.version.security_patch',label:'Havoc Security'},
+{prop:'ro.derpfest.device',label:'Derpfest Device'},
+{prop:'ro.derpfest.build.date',label:'Derpfest Date'},
+{prop:'ro.derpfest.build.version',label:'Derpfest Build'},
+{prop:'ro.derpfest.build.variant',label:'Derpfest Variant'},
+{prop:'ro.derpfest.display.version',label:'Derpfest Display'},
+{prop:'ro.derpfest.releasetype',label:'Derpfest Release'},
+{prop:'ro.derpfest.version',label:'Derpfest Version'},
+{prop:'ro.derpfestlegal.url',label:'Derpfest Legal'},
+{prop:'ro.axion.device',label:'Axion Device'},
+{prop:'ro.axion.version',label:'Axion Version'},
+{prop:'ro.axion.display.version',label:'Axion Display'},
+{prop:'ro.axion.build.version',label:'Axion Build'},
+{prop:'ro.axion.releasetype',label:'Axion Release'},
+{prop:'persist.sys.axion_maintainer',label:'Axion Maintainer'},
+{prop:'persist.sys.axion_processor_info',label:'Axion Processor'}
+];
 
-rowsEl.innerHTML='';
-props.forEach(p=>{
-const div=document.createElement('div');
-div.className='row';
-div.id='row-'+p.id;
-div.onclick=()=>toggle(p.id);
-div.innerHTML=`
-<div class="icon-wrap"><span class="material-icons">${p.icon}</span></div>
-<div class="content"><div class="title">${p.label}</div><div class="subtitle-text">${p.sub}</div></div>
-<label class="switch" onclick="event.stopPropagation()">
-<input type="checkbox" id="${p.id}">
-<span class="slider"><span class="knob"></span></span>
-</label>
-`;
-rowsEl.appendChild(div);
-});
+const romKeywords='lineage|evolution|crdroid|arrow|mistos|axion|infinity|pixelos|rising|lunaris|halcyon|havoc|alphadroid|avium|bliss|calyx|derpfest|graphene|lmodroid|lumine|matrixx|sakura|statix|superior|clover|witaqua|yaap|mica';
 
-deleteRowsEl.innerHTML='';
-deleteProps.forEach(p=>{
-const div=document.createElement('div');
-div.className='row danger';
-div.id='row-'+p.id;
-div.onclick=()=>toggle(p.id);
-div.innerHTML=`
-<div class="icon-wrap"><span class="material-icons">${p.icon}</span></div>
-<div class="content"><div class="title">${p.label}</div><div class="subtitle-text">${p.prop}</div></div>
-<label class="switch" onclick="event.stopPropagation()">
-<input type="checkbox" id="${p.id}">
-<span class="slider"><span class="knob"></span></span>
-</label>
-`;
-deleteRowsEl.appendChild(div);
-});
+function getApi(){
+if(window.parent&&window.parent!==window&&typeof window.parent.runShellFromIframe==='function'){
+return {type:'iframe',exec:window.parent.runShellFromIframe};
 }
-
-function toggle(id){
-const el=document.getElementById(id);
-if(el){
-el.checked=!el.checked;
-document.getElementById('row-'+id).classList.toggle('active',el.checked);
-}
-}
-
-function log(msg,type){
-const entry=document.createElement('div');
-entry.className='log-entry';
-const time=document.createElement('span');
-time.className='log-time';
-const now=new Date();
-time.textContent=`${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
-const content=document.createElement('div');
-content.className='log-content';
-const icon=document.createElement('span');
-icon.className='material-icons log-icon '+type;
-if(type==='ok')icon.textContent='check';
-else if(type==='err')icon.textContent='close';
-else if(type==='cmd')icon.textContent='chevron_right';
-else icon.textContent='info';
-const text=document.createElement('span');
-text.className='log-text';
-text.textContent=msg;
-content.appendChild(icon);
-content.appendChild(text);
-entry.appendChild(time);
-entry.appendChild(content);
-logEl.appendChild(entry);
-logEl.scrollTop=logEl.scrollHeight;
-}
-
-function setStatus(text,loading){
-statusEl.innerHTML=loading?`<div class="spinner active" style="display:inline-block;width:12px;height:12px;border-width:2px;margin-right:6px"></div>${text}`:text;
-spinner.classList.toggle('active',loading);
-}
-
-function selectAll(){
-props.forEach(p=>{
-const el=document.getElementById(p.id);
-if(el){
-el.checked=true;
-document.getElementById('row-'+p.id).classList.add('active');
-}
-});
-deleteProps.forEach(p=>{
-const el=document.getElementById(p.id);
-if(el){
-el.checked=true;
-document.getElementById('row-'+p.id).classList.add('active');
-}
-});
+const k=(typeof ksu!=='undefined'&&ksu.exec)?ksu:(window.parent&&window.parent.ksu)?window.parent.ksu:null;
+if(k&&typeof k.exec==='function')return {type:'ksu',exec:k.exec.bind(k)};
+return null;
 }
 
-function clearAll(){
-props.forEach(p=>{
-const el=document.getElementById(p.id);
-if(el){
-el.checked=false;
-document.getElementById('row-'+p.id).classList.remove('active');
+async function sh(cmd,timeoutMs){
+timeoutMs=timeoutMs||12000;
+const api=getApi();
+if(!api)throw new Error('KSU');
+if(api.type==='iframe'){
+const r=await Promise.race([
+api.exec(cmd),
+new Promise((_,rej)=>setTimeout(()=>rej(new Error('TIMEOUT')),timeoutMs))
+]);
+return (r||'').replace(/\r/g,'');
 }
-});
-deleteProps.forEach(p=>{
-const el=document.getElementById(p.id);
-if(el){
-el.checked=false;
-document.getElementById('row-'+p.id).classList.remove('active');
-}
-});
-duckProps.forEach(p=>{
-const el=document.getElementById(p.id);
-if(el){
-el.checked=false;
-document.getElementById('row-'+p.id).classList.remove('active');
-}
-});
-}
-
-async function sh(cmd){
-if(window.parent && window.parent !== window && typeof window.parent.runShellFromIframe === 'function'){
-try{
-const result=await window.parent.runShellFromIframe(cmd);
-return result.replace(/\r/g,'');
-}catch(e){
-throw new Error(e.message||'Shell failed');
-}
-}
-const ksuApi=(typeof ksu!=='undefined'&&ksu.exec)?ksu:(window.parent&&window.parent.ksu)?window.parent.ksu:null;
-if(!ksuApi||typeof ksuApi.exec!=='function')throw new Error('KSU API unavailable');
 return new Promise((res,rej)=>{
-const cb=`cb_${Date.now()}_${Math.random()*10000|0}`;
-window[cb]=(code,stdout,stderr)=>{
+const timer=setTimeout(()=>rej(new Error('TIMEOUT')),timeoutMs);
+const cb='c'+Date.now()+(Math.random()*1e4|0);
+window[cb]=(c,o,e)=>{
+clearTimeout(timer);
 delete window[cb];
-code===0?res((stdout||'').replace(/\r/g,'')):rej(new Error(stderr||stdout||'Failed'));
+if(c===0){res((o||'').replace(/\r/g,''));}
+else{rej(new Error(e||o||'exit:'+c));}
 };
-ksuApi.exec(cmd,'{}',cb);
+try{api.exec(cmd,'{}',cb);}catch(ex){clearTimeout(timer);delete window[cb];rej(ex);}
 });
 }
 
-async function propExists(prop){
+async function safeSh(cmd,timeoutMs){
+try{return await sh(cmd,timeoutMs);}catch(e){return '';}
+}
+
+function writeLog(line){
+const safe=line.replace(/'/g,"'\\''").replace(/`/g,'\\`');
+const ts=new Date().toISOString().replace('T',' ').substring(0,19);
+safeSh("printf '%s\\n' '"+ts+" | "+safe+"' >> "+LOG_FILE).catch(()=>{});
+}
+
+function log(line){writeLog(line);}
+
+function toast(msg,type){
+const el=document.getElementById('toast');
+document.getElementById('tTxt').textContent=msg;
+document.getElementById('tIcon').textContent=type==='ok'?'check_circle':type==='err'?'error':'info';
+el.className='toast '+(type||'info');
+el.classList.add('show');
+if(tT)clearTimeout(tT);
+tT=setTimeout(()=>el.classList.remove('show'),3200);
+}
+
+async function exists(p){
+try{return (await sh('getprop '+p+' 2>/dev/null',5000)).trim()!=='';}catch{return false;}
+}
+
+function showErrorState(msg){
+coreCount.textContent='0';
+coreLabel.textContent='ERROR';
+coreSub.textContent=msg||'Scan failed';
+coreIcon.textContent='error';
+coreIcon.style.color='var(--red)';
+statusText.textContent='Scan failed';
+statusPill.classList.add('error');
+fixBtn.disabled=true;
+toast(msg||'Scan failed','err');
+}
+
+function showAllClear(){
+scannerEl.classList.add('done','all-clear');
+coreIcon.textContent='verified';
+coreIcon.style.color='var(--green)';
+coreLabel.textContent='EVERYTHING IS SPOOFED';
+coreSub.textContent='No detectable props found on this device';
+statusText.textContent='All clear';
+statusPill.classList.add('done');
+fixBtn.disabled=true;
+fixBtn.classList.add('all-clear');
+fixBtn.innerHTML='<span class="material-icons">verified</span><span>All Clear</span>';
+log('Auto-scan complete. Zero detections. All clear.');
+}
+
+function showScanComplete(count){
+detectedProps=found;
+coreCount.textContent=count;
+coreLabel.textContent='SCAN COMPLETE';
+coreSub.textContent=count+' detection props found on device';
+coreIcon.textContent='check_circle';
+coreIcon.style.color='var(--green)';
+fixBtn.disabled=false;
+fixBtn.classList.remove('all-clear');
+fixBtn.innerHTML='<span class="material-icons">auto_fix_high</span><span>Fix Detection</span>';
+statusText.textContent='Scan complete';
+statusPill.classList.add('done');
+log('Auto-scan complete. Total found: '+count);
+setTimeout(()=>openModal(),700);
+}
+
+let found=[];
+
+async function autoScan(){
+found=[];
+log('=== AUTO-SCAN STARTED ===');
+coreLabel.textContent='SCANNING DEVICE';
+coreSub.textContent='Initializing scan...';
+coreCount.textContent='0';
+statusText.textContent='Scanning device';
+statusPill.classList.remove('done','error');
+scannerEl.classList.remove('done','all-clear');
+
 try{
-const result=await sh(`getprop ${prop} 2>/dev/null`);
-return result && result.trim() !== '';
-}catch{
-return false;
+await safeSh('mkdir -p '+LOG_DIR);
+await safeSh("printf '%s\\n' '--- PropSpoofer Log ---' > "+LOG_FILE);
+log('Log initialized at '+LOG_FILE);
+}catch(e){
+log('Log init warning');
+}
+
+try{
+coreSub.textContent='Reading system properties...';
+const allPropsOut=await sh('getprop',8000);
+const allLines=allPropsOut.split('\n');
+const propMap=new Map();
+
+for(const line of allLines){
+const m=line.match(/^\[([^\]]+)\]:\s*\[(.*)\]$/);
+if(m)propMap.set(m[1],m[2]);
+}
+
+coreSub.textContent='Checking known ROM props...';
+
+for(const p of deleteProps){
+if(propMap.has(p.prop)){
+found.push({prop:p.prop,label:p.label,category:'rom'});
+log('[FOUND] '+p.prop+' (rom)');
 }
 }
 
-async function execute(){
-const selected=props.filter(p=>document.getElementById(p.id).checked);
-const selectedDelete=deleteProps.filter(p=>document.getElementById(p.id).checked);
-const selectedDuck=duckProps.filter(p=>document.getElementById(p.id).checked);
-if(selected.length===0&&selectedDelete.length===0&&selectedDuck.length===0){
-log('No items selected','err');
+for(const p of duckList){
+if(propMap.has(p.prop)){
+found.push({prop:p.prop,label:p.label,category:'duck'});
+log('[FOUND] '+p.prop+' (duck)');
+}
+}
+
+coreSub.textContent='Scanning hook props...';
+const hookOut=await safeSh('getprop | grep -E "pphooks|pihook|pixelprops" | sed -E "s/^\\[(.*)\\]:.*/\\1/" 2>/dev/null || true',8000);
+const bad=['dalvik','init.svc','debug_pid','appimageformat','zygote','persist.sys'];
+const hookLines=hookOut.trim().split('\n').filter(l=>l.trim() && !bad.some(b=>l.includes(b)));
+for(const prop of hookLines){
+found.push({prop:prop,label:prop,category:'hook'});
+log('[FOUND] '+prop+' (hook)');
+}
+
+coreSub.textContent='Scanning ROM keywords...';
+const romOut=await safeSh('getprop | sed "s/^\\[//; s/\\]:.*//" | grep -i -E "('+romKeywords+')" 2>/dev/null || true',8000);
+const romLines=romOut.trim().split('\n').filter(l=>l.trim());
+for(const prop of romLines){
+const already=found.some(x=>x.prop===prop);
+if(!already){
+found.push({prop:prop,label:prop,category:'rom'});
+log('[FOUND] '+prop+' (rom-keyword)');
+}
+}
+
+detectedProps=found;
+coreCount.textContent=found.length;
+
+if(found.length===0){
+showAllClear();
 return;
 }
-setStatus('Applying...',true);
-logEl.innerHTML='';
 
-for(const p of selected){
-log(p.label,'cmd');
-try{
-await sh(p.cmd);
-log('OK','ok');
+showScanComplete(found.length);
+
 }catch(e){
-log('Failed','err');
+log('Scan error: '+(e.message||''));
+showErrorState(e.message==='TIMEOUT'?'Scan timed out. Try again.':'Scan failed: '+(e.message||''));
 }
 }
 
-for(const p of selectedDelete){
-const exists=await propExists(p.prop);
-if(!exists){
-log(`${p.label} (N/A)`,'info');
+function openModal(){
+document.getElementById('modal').classList.add('open');
+modalCats.reset=false;
+modalCats.duck=false;
+modalCats.pif=false;
+modalCats.detection=true;
+modalCats.romhide=false;
+
+document.getElementById('m-reset').classList.remove('on');
+document.getElementById('m-duck').classList.remove('on');
+document.getElementById('m-pif').classList.remove('on');
+document.getElementById('m-detection').classList.add('on');
+document.getElementById('m-romhide').classList.remove('on');
+
+updateProceedBtn();
+}
+
+function closeModal(){
+document.getElementById('modal').classList.remove('open');
+}
+
+function openInfoSheet(){
+document.getElementById('infoSheet').classList.add('open');
+}
+
+function closeInfoSheet(){
+document.getElementById('infoSheet').classList.remove('open');
+}
+
+function openPifWarning(){
+document.getElementById('pifWarning').classList.add('open');
+}
+
+function closePifWarning(){
+document.getElementById('pifWarning').classList.remove('open');
+}
+
+function toggleModalOpt(cat){
+modalCats[cat]=!modalCats[cat];
+document.getElementById('m-'+cat).classList.toggle('on',modalCats[cat]);
+if(cat==='pif'&&modalCats.pif){
+openPifWarning();
+}
+updateProceedBtn();
+}
+
+function updateProceedBtn(){
+const any=modalCats.reset||modalCats.duck||modalCats.pif||modalCats.detection||modalCats.romhide;
+document.getElementById('proceedBtn').disabled=!any;
+}
+
+async function proceed(){
+if(!modalCats.reset&&!modalCats.duck&&!modalCats.pif&&!modalCats.detection&&!modalCats.romhide){
+toast('Select at least one option','err');
+return;
+}
+closeModal();
+fixBtn.disabled=true;
+fixBtn.innerHTML='<span class="material-icons" style="animation:spin 1s linear infinite">refresh</span><span>Processing...</span>';
+statusText.textContent='Applying fixes';
+statusPill.classList.remove('done');
+
+log('=== EXECUTION STARTED ===');
+const startTime=Date.now();
+
+const jobs=[];
+
+if(modalCats.reset){
+jobs.push((async()=>{
+log('Category: Reset Props');
+for(const c of resetCmds){
+try{
+await sh(c);
+log('[OK] '+c.substring(0,80));
+}catch(e){
+log('[ERR] '+c.substring(0,80)+' | '+(e.message||''));
+}
+}
+log('Reset Props complete');
+})());
+}
+
+if(modalCats.duck){
+jobs.push((async()=>{
+log('Category: Duck Props');
+for(const p of duckList){
+const ex=await exists(p.prop);
+if(!ex){
+log('[SKIP] '+p.prop+' (missing)');
 continue;
 }
-log(`Delete ${p.label}`,'cmd');
 try{
-await sh(`su -c resetprop -n --delete ${p.prop}`);
-log('Deleted','ok');
+await sh('su -c resetprop -n --delete '+p.prop);
+log('[DEL] '+p.prop);
 }catch(e){
-log('Failed','err');
+log('[ERR] '+p.prop+' | '+(e.message||''));
 }
+}
+log('Duck Props complete');
+})());
 }
 
-for(const p of selectedDuck){
-const exists=await propExists(p.prop);
-if(!exists){
-log(`${p.label} (N/A)`,'info');
+if(modalCats.pif){
+jobs.push((async()=>{
+log('Category: PIF Props');
+for(const p of deleteProps){
+if(!pifList.includes(p.prop))continue;
+const ex=await exists(p.prop);
+if(!ex){
+log('[SKIP] '+p.prop+' (missing)');
 continue;
 }
-log(`Delete ${p.label}`,'cmd');
 try{
-await sh(`su -c resetprop -n --delete ${p.prop}`);
-log('Deleted','ok');
+await sh('su -c resetprop -n --delete '+p.prop);
+log('[DEL] '+p.prop);
 }catch(e){
-log('Failed','err');
+log('[ERR] '+p.prop+' | '+(e.message||''));
 }
+}
+log('PIF Props complete');
+})());
 }
 
-log('Compacting prop database...','cmd');
+if(modalCats.detection){
+jobs.push((async()=>{
+log('Category: Detection Props');
+for(const p of detectedProps){
+try{
+await sh('su -c resetprop -n --delete '+p.prop);
+log('[DEL] '+p.prop);
+}catch(e){
+log('[ERR] '+p.prop+' | '+(e.message||''));
+}
+}
+log('Detection Props complete');
+})());
+}
+
+if(modalCats.romhide){
+jobs.push((async()=>{
+log('Category: ROM Hide');
+try{
+const script="getprop | sed 's/^\\[//; s/\\]:.*//' | grep -i -E '("+romKeywords+")' | while IFS= read -r prop; do [ -z \"$prop\" ] && continue; echo \"FOUND: $prop\"; if su -c resetprop -n --delete \"$prop\" 2>/dev/null; then echo \"DELETED: $prop\"; else echo \"FAILED: $prop\"; fi; done; echo \"ROM Hide Finished\"";
+const out=await sh(script,15000);
+const lines=out.split('\n');
+for(const line of lines){
+if(line.trim())log(line.trim());
+}
+}catch(e){
+log('ROM Hide error: '+(e.message||''));
+}
+})());
+}
+
+await Promise.all(jobs);
+
+log('Compacting prop database...');
 try{
 await sh('su -c resetprop --compact >/dev/null 2>&1 || true');
-log('Compacted','ok');
+log('Compacted successfully');
 }catch(e){
-log('Compact skipped','info');
+log('Compact warning: '+(e.message||''));
 }
 
-setStatus('Complete',false);
+const elapsed=((Date.now()-startTime)/1000).toFixed(1);
+log('=== EXECUTION COMPLETE ('+elapsed+'s) ===');
+
+scannerEl.classList.add('done');
+coreIcon.textContent='check_circle';
+coreLabel.textContent='CLEANED';
+coreSub.textContent='All selected props fixed';
+statusText.textContent='All fixed';
+statusPill.classList.add('done');
+
+fixBtn.classList.add('success');
+fixBtn.innerHTML='<span class="material-icons">check_circle</span><span>Done</span>';
+toast('All props applied and compacted','ok');
+
+setTimeout(async()=>{
+scannerEl.classList.remove('done','all-clear');
+coreIcon.textContent='radar';
+coreIcon.style.color='var(--accent)';
+coreLabel.textContent='SCANNING DEVICE';
+coreSub.textContent='Analyzing system properties...';
+fixBtn.disabled=false;
+fixBtn.classList.remove('success','all-clear');
+fixBtn.innerHTML='<span class="material-icons">auto_fix_high</span><span>Fix Detection</span>';
+statusText.textContent='Scanning device';
+statusPill.classList.remove('done');
+await autoScan();
+},3500);
 }
 
-render();
-
-const hasKsu=(typeof ksu!=='undefined'&&ksu.exec)||(window.parent&&window.parent.ksu&&window.parent.ksu.exec)||(window.parent&&typeof window.parent.runShellFromIframe==='function');
+hasKsu=!!getApi();
 if(!hasKsu){
-log('KSU API not available','err');
-setStatus('Error',false);
+toast('KSU API unavailable','err');
+showErrorState('KSU API not available');
+log('KSU API not available on startup');
+}else{
+autoScan();
 }
 </script>
 <script src="../TRANSLATIONS/meow.js"></script>
