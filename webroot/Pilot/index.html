@@ -4,776 +4,83 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>AutoPilot Manager</title>
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="stylesheet" href="../common.css"/>
 <style>
-:root{
-  --ios-bg: #0f1419;
-  --ios-surface: rgba(31, 34, 51, 0.85);
-  --ios-grouped: rgba(35, 38, 55, 0.7);
-  --ios-border: rgba(21, 146, 255, 0.2);
-  --ios-blue: #1592FF;
-  --ios-blue-pressed: #0d7ad9;
-  --ios-green: #30D158;
-  --ios-orange: #FF9F0A;
-  --ios-red: #FF453A;
-  --ios-text: #e6e6e6;
-  --ios-text-secondary: rgba(230, 230, 230, 0.6);
-  --ios-text-tertiary: rgba(230, 230, 230, 0.35);
-  --ios-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(21, 146, 255, 0.1);
-  --ios-spring: cubic-bezier(0.32, 0.72, 0, 1);
-}
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.mode-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--panel-2);cursor:pointer;font-size:14px;font-weight:600;text-align:center}
+.mode-btn.active{border-color:var(--accent);color:var(--accent)}
+.mode-btn .small{font-weight:400;color:var(--muted)}
+.item-subtitle{font-size:13px;color:var(--muted);margin-top:2px}
+.item-time{font-size:12px;color:var(--muted);margin-top:4px;font-variant-numeric:tabular-nums}
 
-*{
-  box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
-}
-
-body{
-  margin:0;
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background: 
-    radial-gradient(ellipse at 0% 0%, rgba(21, 146, 255, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 100% 100%, rgba(21, 146, 255, 0.08) 0%, transparent 50%),
-    linear-gradient(135deg, #1c1e2b 0%, #10121c 100%);
-  color:var(--ios-text);
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
-  padding:20px;
-}
-
-.container{
-  width: 100%;
-  max-width: 420px;
-  animation: slideUp 0.6s var(--ios-spring) forwards;
-  opacity: 0;
-}
-
-@keyframes slideUp {
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.card{
-  background: var(--ios-surface);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border-radius: 28px;
-  padding: 24px;
-  border: 1px solid var(--ios-border);
-  box-shadow: var(--ios-shadow);
-}
-
-h1{
-  margin: 0 0 24px;
-  text-align: center;
-  font-size: 22px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-}
-
-h1 .material-icons{
-  font-size: 24px;
-  background: linear-gradient(135deg, var(--ios-blue), #5AC8FA);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.section-header{
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--ios-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  margin: 0 0 12px 4px;
-}
-
-.ios-list{
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.ios-item{
-  position: relative;
-  padding: 16px;
-  border-radius: 14px;
-  background: var(--ios-grouped);
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: all 0.3s var(--ios-spring);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.ios-item-icon{
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255,255,255,0.1);
-  flex-shrink: 0;
-}
-
-.ios-item-icon.blue{
-  background: rgba(21, 146, 255, 0.15);
-  color: var(--ios-blue);
-}
-
-.ios-item-icon.orange{
-  background: rgba(255, 159, 10, 0.15);
-  color: var(--ios-orange);
-}
-
-.ios-item-icon.green{
-  background: rgba(48, 209, 88, 0.15);
-  color: var(--ios-green);
-}
-
-.ios-item-icon.red{
-  background: rgba(255, 69, 58, 0.15);
-  color: var(--ios-red);
-}
-
-.ios-item-content{
-  flex: 1;
-  min-width: 0;
-}
-
-.ios-item-title{
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0;
-}
-
-.ios-item-subtitle{
-  font-size: 13px;
-  color: var(--ios-text-secondary);
-  margin: 2px 0 0;
-}
-
-.ios-item-time{
-  font-size: 12px;
-  color: var(--ios-text-tertiary);
-  margin-top: 4px;
-  font-variant-numeric: tabular-nums;
-}
-
-.ios-toggle{
-  position: relative;
-  width: 51px;
-  height: 31px;
-  flex-shrink: 0;
-}
-
-.ios-toggle input{
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.ios-toggle-slider{
-  position: absolute;
-  cursor: pointer;
-  inset: 0;
-  background: rgba(255,255,255,0.1);
-  border-radius: 31px;
-  transition: .3s;
-}
-
-.ios-toggle-slider:before{
-  content: "";
-  position: absolute;
-  height: 27px;
-  width: 27px;
-  left: 2px;
-  bottom: 2px;
-  background: white;
-  border-radius: 50%;
-  transition: .3s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-input:checked + .ios-toggle-slider{
-  background: var(--ios-green);
-}
-
-input:checked + .ios-toggle-slider:before{
-  transform: translateX(20px);
-}
-
-.emergency-badge{
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
-.emergency-badge .material-icons{
-  font-size: 16px;
-  color: var(--ios-orange);
-}
-
-.emergency-badge.none{
-  color: var(--ios-text-tertiary);
-}
-
-.emergency-badge.none .material-icons{
-  color: var(--ios-text-tertiary);
-}
-
-.mode-grid{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.mode-btn{
-  position: relative;
-  padding: 20px 16px;
-  border-radius: 14px;
-  background: var(--ios-grouped);
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: all 0.3s var(--ios-spring);
-  text-align: center;
-}
-
-.mode-btn.active{
-  background: rgba(21, 146, 255, 0.15);
-  border: 1px solid rgba(21, 146, 255, 0.4);
-  box-shadow: 0 0 0 1px rgba(21, 146, 255, 0.2), 0 4px 20px rgba(21, 146, 255, 0.15);
-}
-
-.mode-btn.active::after{
-  content: 'check_circle';
-  font-family: 'Material Icons';
-  position: absolute;
-  right: 12px;
-  top: 12px;
-  color: var(--ios-blue);
-  font-size: 18px;
-}
-
-.mode-icon{
-  margin-bottom: 8px;
-}
-
-.mode-icon .material-icons{
-  font-size: 28px;
-  color: var(--ios-text-secondary);
-  transition: color 0.3s ease;
-}
-
-.mode-btn.active .mode-icon .material-icons{
-  color: var(--ios-blue);
-}
-
-.mode-label{
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.mode-desc{
-  margin-top: 16px;
-  padding: 16px;
-  border-radius: 14px;
-  background: var(--ios-grouped);
-  border: 1px solid var(--ios-border);
-}
-
-.mode-desc-header{
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.mode-desc-header .material-icons{
-  font-size: 18px;
-  color: var(--ios-blue);
-}
-
-.mode-desc-title{
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--ios-blue);
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-.mode-desc-text{
-  font-size: 14px;
-  color: var(--ios-text-secondary);
-  line-height: 1.5;
-  margin: 0;
-}
-
-#loader{
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(10px);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-#loader.show{
-  display: flex;
-  opacity: 1;
-}
-
-.loader-content{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-}
-
-.spinner{
-  width: 48px;
-  height: 48px;
-  border: 3px solid rgba(255,255,255,0.1);
-  border-top-color: var(--ios-blue);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-.loader-text{
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--ios-text-secondary);
-}
-
-@keyframes spin{ to { transform: rotate(360deg); } }
-
-.status-indicator{
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--ios-text-tertiary);
-  margin-right: 8px;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-.status-indicator.active{
-  background: var(--ios-green);
-  box-shadow: 0 0 8px var(--ios-green);
-}
-
-.status-indicator.stale{
-  background: var(--ios-orange);
-  animation: none;
-}
-
-.status-indicator.dead{
-  background: var(--ios-red);
-  animation: none;
-}
-
-@keyframes pulse{
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
 </style>
 </head>
 <body>
 
 <div id="loader">
-  <div class="loader-content">
-    <div class="spinner"></div>
-    <div class="loader-text">Processing...</div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+    <div class="spinner-lg"></div>
+    <div class="loader-text muted" style="font-weight:600">Processing...</div>
   </div>
 </div>
 
-<div class="container">
+<div class="wrap wrap-narrow">
+  <h1>AutoPilot Manager</h1>
+
+  <h2>System Status</h2>
+  <div class="list-item">
+    <div class="grow">
+      <div style="font-weight:600">Automation Service</div>
+      <div class="item-subtitle" id="statusSubtitle">Checking...</div>
+    </div>
+    <label class="switch">
+      <input type="checkbox" id="autopilotToggle" onchange="toggleAutopilot()">
+      <span class="track"></span>
+    </label>
+  </div>
+
+  <div class="list-item">
+    <div class="grow">
+      <div style="font-weight:600">Daemon Heartbeat</div>
+      <div class="item-subtitle" id="heartbeatSubtitle">Checking...</div>
+      <div class="item-time" id="heartbeatTime">--</div>
+    </div>
+    <span class="chip" id="heartbeatChip">--</span>
+  </div>
+
+  <div class="list-item">
+    <div class="grow">
+      <div style="font-weight:600">Last GitHub Check</div>
+      <div class="item-subtitle" id="githubSubtitle">Checking...</div>
+      <div class="item-time" id="githubTime">--</div>
+    </div>
+  </div>
+
+  <div class="list-item">
+    <div class="grow">
+      <div style="font-weight:600">Emergency Level</div>
+      <div class="item-subtitle">Master Control</div>
+    </div>
+    <span class="chip chip-muted" id="emergencyBadge"><span id="emergencyText">None</span></span>
+  </div>
+
+  <h2>Execution Mode</h2>
+  <div class="mode-grid">
+    <div class="mode-btn" id="fullMode" onclick="setMode('full')">
+      <div>Xtreme Mode</div>
+    </div>
+    <div class="mode-btn" id="keyboxMode" onclick="setMode('keybox')">
+      <div>Keybox Only Mode</div>
+    </div>
+  </div>
+
   <div class="card">
-    <h1>
-      <span class="material-icons">smart_toy</span>
-      AutoPilot Manager
-    </h1>
-
-    <div class="section-header">System Status</div>
-    <div class="ios-list">
-      <div class="ios-item">
-        <div class="ios-item-icon blue">
-          <span class="material-icons">power_settings_new</span>
-        </div>
-        <div class="ios-item-content">
-          <div class="ios-item-title">Automation Service</div>
-          <div class="ios-item-subtitle" id="statusSubtitle">Checking...</div>
-        </div>
-        <label class="ios-toggle">
-          <input type="checkbox" id="autopilotToggle" onchange="toggleAutopilot()">
-          <span class="ios-toggle-slider"></span>
-        </label>
-      </div>
-      
-      <div class="ios-item">
-        <div class="ios-item-icon green" id="heartbeatIcon">
-          <span class="material-icons">monitor_heart</span>
-        </div>
-        <div class="ios-item-content">
-          <div class="ios-item-title">Daemon Heartbeat</div>
-          <div class="ios-item-subtitle" id="heartbeatSubtitle">Checking...</div>
-          <div class="ios-item-time" id="heartbeatTime">--</div>
-        </div>
-      </div>
-      
-      <div class="ios-item">
-        <div class="ios-item-icon orange" id="githubIcon">
-          <span class="material-icons">cloud_sync</span>
-        </div>
-        <div class="ios-item-content">
-          <div class="ios-item-title">Last GitHub Check</div>
-          <div class="ios-item-subtitle" id="githubSubtitle">Checking...</div>
-          <div class="ios-item-time" id="githubTime">--</div>
-        </div>
-      </div>
-      
-      <div class="ios-item">
-        <div class="ios-item-icon orange">
-          <span class="material-icons">emergency</span>
-        </div>
-        <div class="ios-item-content">
-          <div class="ios-item-title">Emergency Level</div>
-          <div class="ios-item-subtitle">Master Control</div>
-        </div>
-        <div class="emergency-badge" id="emergencyBadge">
-          <span class="material-icons">warning</span>
-          <span id="emergencyText">None</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="section-header">Execution Mode</div>
-    <div class="mode-grid">
-      <div class="mode-btn" id="fullMode" onclick="setMode('full')">
-        <div class="mode-icon">
-          <span class="material-icons">auto_fix_high</span>
-        </div>
-        <div class="mode-label">Xtreme Mode</div>
-      </div>
-      <div class="mode-btn" id="keyboxMode" onclick="setMode('keybox')">
-        <div class="mode-icon">
-          <span class="material-icons">vpn_key</span>
-        </div>
-        <div class="mode-label">Keybox Only Mode</div>
-      </div>
-    </div>
-
-    <div class="mode-desc">
-      <div class="mode-desc-header">
-        <span class="material-icons">info</span>
-        <span class="mode-desc-title" id="modeDescTitle">Select Mode</span>
-      </div>
-      <p class="mode-desc-text" id="modeDescText">Choose an execution mode to view details</p>
-    </div>
+    <div class="help-title" style="font-size:13px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.3px;margin-bottom:8px" id="modeDescTitle">Select Mode</div>
+    <p class="small" id="modeDescText" style="line-height:1.5">Choose an execution mode to view details</p>
   </div>
 </div>
 
-<script>
-const AUTOPILOT_FLAG = '/data/adb/Box-Brain/autopilot';
-const RUN_ACTION = '/data/adb/Box-Brain/run_action';
-const EMERGENCY_DIR = '/data/adb/Box-Brain';
-const DAEMON_SCRIPT = '/data/adb/modules/playintegrityfix/webroot/common_scripts/autopilot.sh';
-
-function runShell(cmd, cb) {
-  const k = window.parent?.ksu || window.ksu;
-  if (!k || !k.exec) {
-    popup('KernelSU API not available', 'error');
-    if (cb) cb('');
-    return;
-  }
-  const id = 'cb_' + Date.now();
-  let done = false;
-  const timeout = setTimeout(function() {
-    if (done) return;
-    done = true;
-    delete (window.parent || window)[id];
-    if (cb) cb('');
-  }, 3000);
-  (window.parent || window)[id] = function() {
-    if (done) return;
-    done = true;
-    clearTimeout(timeout);
-    delete (window.parent || window)[id];
-    const result = arguments.length === 1 ? arguments[0] : arguments[1] || '';
-    if (cb) cb(result);
-  };
-  k.exec('sh -c \'' + cmd.replace(/'/g, '\'\\\'\'') + '\'', '{}', id);
-}
-
-function popup(msg, type="info") {
-  try {
-    if (typeof window.toast === "function") { window.toast(String(msg)); return; }
-    if (window.kernelsu && typeof window.kernelsu.toast === "function") { window.kernelsu.toast(String(msg)); return; }
-    if (typeof ksu === "object" && typeof ksu.toast === "function") { ksu.toast(String(msg)); return; }
-  } catch {}
-
-  const n = document.createElement("div");
-  n.className = "webui-popup";
-  n.textContent = msg;
-  const colors = { 
-    error: { bg: "#FF453A", shadow: "rgba(255, 69, 58, 0.3)" }, 
-    success: { bg: "#30D158", shadow: "rgba(48, 209, 88, 0.3)" }, 
-    info: { bg: "#1592FF", shadow: "rgba(21, 146, 255, 0.3)" }, 
-    warn: { bg: "#FF9F0A", shadow: "rgba(255, 159, 10, 0.3)" }
-  };
-  const style = colors[type] || colors.info;
-
-  Object.assign(n.style, {
-    position:"fixed", 
-    top:"-100px", 
-    left:"50%", 
-    transform:"translateX(-50%)",
-    background: style.bg, 
-    color:"#fff", 
-    padding:"14px 24px",
-    borderRadius:"14px", 
-    fontWeight:"600", 
-    fontSize:"15px",
-    zIndex:"99999",
-    boxShadow:`0 8px 24px ${style.shadow}`,
-    transition:"all 0.4s cubic-bezier(0.32, 0.72, 0, 1)", 
-    opacity:"0",
-    backdropFilter: "blur(10px)",
-    border: "1px solid rgba(255,255,255,0.1)"
-  });
-  document.body.appendChild(n);
-  requestAnimationFrame(()=>{ n.style.top="60px"; n.style.opacity="1"; });
-  setTimeout(()=>{ 
-    n.style.top="-100px"; 
-    n.style.opacity="0"; 
-    setTimeout(()=>n.remove(), 400); 
-  }, 2800);
-}
-
-function showLoader(show, text = "Processing..."){
-  const loader = document.getElementById("loader");
-  const loaderText = loader.querySelector(".loader-text");
-  if(text) loaderText.textContent = text;
-
-  if(show){
-    loader.style.display = "flex";
-    requestAnimationFrame(() => loader.classList.add("show"));
-  } else {
-    loader.classList.remove("show");
-    setTimeout(() => loader.style.display = "none", 300);
-  }
-}
-
-function timeAgo(timestamp) {
-  if (!timestamp || timestamp === "0") return "Never";
-  
-  const now = Math.floor(Date.now() / 1000);
-  const diff = now - parseInt(timestamp);
-  
-  if (diff < 0) return "Just now";
-  if (diff < 60) return diff + " seconds ago";
-  if (diff < 3600) return Math.floor(diff / 60) + " minutes ago";
-  if (diff < 86400) return Math.floor(diff / 3600) + " hours ago";
-  if (diff < 604800) return Math.floor(diff / 86400) + " days ago";
-  if (diff < 2592000) return Math.floor(diff / 604800) + " weeks ago";
-  if (diff < 31536000) return Math.floor(diff / 2592000) + " months ago";
-  return Math.floor(diff / 31536000) + " years ago";
-}
-
-function formatExactTime(timestamp) {
-  if (!timestamp || timestamp === "0") return "--";
-  const date = new Date(parseInt(timestamp) * 1000);
-  return date.toLocaleString();
-}
-
-function getHeartbeatStatus(timestamp) {
-  if (!timestamp || timestamp === "0") return { status: 'dead', text: 'Not running' };
-  const now = Math.floor(Date.now() / 1000);
-  const diff = now - parseInt(timestamp);
-  
-  if (diff < 120) return { status: 'active', text: 'Healthy' };
-  if (diff < 300) return { status: 'stale', text: 'Slow response' };
-  return { status: 'dead', text: 'Not responding' };
-}
-
-function getHighestEmergencyFlag(cb) {
-  runShell('ls ' + EMERGENCY_DIR + '/emergency_[A-Z]* 2>/dev/null | sed "s/.*emergency_//" | sort -V | tail -1', function(result) {
-    const flag = result.trim();
-    if (flag && flag.match(/^[A-Z]+$/)) {
-      cb(flag);
-    } else {
-      cb(null);
-    }
-  });
-}
-
-function updateEmergencyUI(flag) {
-  const badge = document.getElementById('emergencyBadge');
-  const text = document.getElementById('emergencyText');
-  if (flag) {
-    text.textContent = flag;
-    badge.classList.remove('none');
-  } else {
-    text.textContent = 'None';
-    badge.classList.add('none');
-  }
-}
-
-function updateAutopilotUI(enabled) {
-  document.getElementById('autopilotToggle').checked = enabled;
-  const subtitle = document.getElementById('statusSubtitle');
-  subtitle.textContent = enabled ? 'Active and running' : 'Disabled';
-}
-
-function updateModeUI(mode) {
-  const fullBtn = document.getElementById('fullMode');
-  const keyboxBtn = document.getElementById('keyboxMode');
-  const descTitle = document.getElementById('modeDescTitle');
-  const descText = document.getElementById('modeDescText');
-  
-  if (mode === 'full') {
-    fullBtn.classList.add('active');
-    keyboxBtn.classList.remove('active');
-    descTitle.textContent = 'Xtreme Mode Active';
-    descText.textContent = 'Executes complete automation: Keybox injection, fingerprint spoofing, target configuration, and system patching.';
-  } else {
-    fullBtn.classList.remove('active');
-    keyboxBtn.classList.add('active');
-    descTitle.textContent = 'Keybox Only Mode';
-    descText.textContent = 'Performs single keybox injection only. Minimal footprint for attestation bypass.';
-  }
-}
-
-function updateHeartbeatUI(timestamp) {
-  const subtitle = document.getElementById('heartbeatSubtitle');
-  const timeEl = document.getElementById('heartbeatTime');
-  const icon = document.getElementById('heartbeatIcon');
-  
-  const status = getHeartbeatStatus(timestamp);
-  
-  subtitle.textContent = status.text;
-  timeEl.textContent = timeAgo(timestamp) + ' • ' + formatExactTime(timestamp);
-  
-  icon.className = 'ios-item-icon';
-  if (status.status === 'active') {
-    icon.classList.add('green');
-  } else if (status.status === 'stale') {
-    icon.classList.add('orange');
-  } else {
-    icon.classList.add('red');
-  }
-}
-
-function updateGithubUI(timestamp) {
-  const subtitle = document.getElementById('githubSubtitle');
-  const timeEl = document.getElementById('githubTime');
-  
-  if (!timestamp || timestamp === "0") {
-    subtitle.textContent = 'Not checked yet';
-    timeEl.textContent = '--';
-    return;
-  }
-  
-  subtitle.textContent = 'Last checked';
-  timeEl.textContent = timeAgo(timestamp) + ' • ' + formatExactTime(timestamp);
-}
-
-function checkAutopilot() {
-  runShell('[ -f ' + AUTOPILOT_FLAG + ' ] && echo "1" || echo "0"', function(result) {
-    updateAutopilotUI(result.trim() === '1');
-  });
-}
-
-function checkMode() {
-  runShell('[ -f ' + RUN_ACTION + ' ] && echo "1" || echo "0"', function(result) {
-    updateModeUI(result.trim() === '1' ? 'full' : 'keybox');
-  });
-}
-
-function checkEmergency() {
-  getHighestEmergencyFlag(function(flag) {
-    updateEmergencyUI(flag);
-  });
-}
-
-function checkTimestamps() {
-  runShell('cat /data/adb/Box-Brain/daemon_heartbeat 2>/dev/null || echo "0"', function(beat) {
-    updateHeartbeatUI(beat.trim());
-  });
-  
-  runShell('cat /data/adb/Box-Brain/last_github_check 2>/dev/null || echo "0"', function(check) {
-    updateGithubUI(check.trim());
-  });
-}
-
-function toggleAutopilot() {
-  const enabled = document.getElementById('autopilotToggle').checked;
-  showLoader(true, enabled ? 'Enabling...' : 'Disabling...');
-  if (enabled) {
-    runShell('mkdir -p /data/adb/Box-Brain && touch ' + AUTOPILOT_FLAG, function() {
-      runShell('sh ' + DAEMON_SCRIPT + ' &', function() {
-        showLoader(false);
-        popup('AutoPilot enabled', 'success');
-        updateAutopilotUI(true);
-        setTimeout(checkTimestamps, 1000);
-      });
-    });
-  } else {
-    runShell('rm -f ' + AUTOPILOT_FLAG, function() {
-      showLoader(false);
-      popup('AutoPilot disabled', 'info');
-      updateAutopilotUI(false);
-    });
-  }
-}
-
-function setMode(mode) {
-  const currentIsFull = document.getElementById('fullMode').classList.contains('active');
-  const targetIsFull = mode === 'full';
-  if (currentIsFull === targetIsFull) return;
-  
-  showLoader(true, 'Switching mode...');
-  if (targetIsFull) {
-    runShell('touch ' + RUN_ACTION, function() {
-      showLoader(false);
-      popup('Xtreme Mode activated', 'success');
-      updateModeUI('full');
-    });
-  } else {
-    runShell('rm -f ' + RUN_ACTION, function() {
-      showLoader(false);
-      popup('Keybox Only mode activated', 'success');
-      updateModeUI('keybox');
-    });
-  }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  checkAutopilot();
-  checkMode();
-  checkEmergency();
-  checkTimestamps();
-  
-  setInterval(checkTimestamps, 30000);
-  setInterval(checkEmergency, 60000);
-});
-</script>
+<script src="script.js"></script>
 <script src="../TRANSLATIONS/meow.js"></script>
 <script>
 (function(){

@@ -1,508 +1,130 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>PlayIntegrityFork Controls</title>
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="stylesheet" href="../common.css"/>
 <style>
-:root{
- --bg:#1f2233;
- --fg:#e6e6e6;
- --accent:#4da3ff;
- --accent-glow:rgba(77,163,255,0.3);
- --panel-bg:#232637cc;
- --card-bg:#232637ee;
- --border-radius:20px;
- --shadow:rgba(0,0,0,0.4);
- --transition:0.3s;
- --success:#4dff88;
- --danger:#ff4d4d;
- --text2:#9aa3ff;
-}
-*{box-sizing:border-box}
-body{
- margin:0;min-height:100vh;
- display:flex;align-items:center;justify-content:center;
- font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui;
- background:radial-gradient(circle at 30% 20%,#1c2045 0%,#0e1020 100%);
- color:var(--fg);
- -webkit-font-smoothing:antialiased;
- padding:20px;
-}
-.card{
- width:380px;max-width:100%;
- background:var(--panel-bg);
- backdrop-filter:blur(20px);
- border-radius:var(--border-radius);
- padding:28px;
- box-shadow:0 25px 60px var(--shadow),0 0 0 1px rgba(255,255,255,0.06);
- position:relative;overflow:hidden;
- animation:cardEntry 0.6s cubic-bezier(0.2,0.8,0.2,1);
-}
-@keyframes cardEntry{
- from{opacity:0;transform:translateY(30px) scale(0.96)}
- to{opacity:1;transform:translateY(0) scale(1)}
-}
-.card::before{
- content:"";
- position:absolute;inset:0;
- background:radial-gradient(circle at 50% 0%,var(--accent) 0%,transparent 70%);
- filter:blur(40px);opacity:0.15;pointer-events:none;z-index:0;
- animation:glowPulse 8s ease-in-out infinite;
-}
-@keyframes glowPulse{0%,100%{opacity:0.12}50%{opacity:0.25}}
-h1{
- position:relative;z-index:2;
- margin:0 0 8px 0;text-align:center;
- font-size:22px;font-weight:700;
- color:var(--fg);
- display:flex;align-items:center;justify-content:center;gap:10px;
-}
-.subtitle{
- text-align:center;color:var(--text2);
- font-size:13px;font-weight:500;margin-bottom:24px;
- position:relative;z-index:2;
-}
-.row{
- position:relative;z-index:2;
- display:flex;align-items:center;justify-content:space-between;
- gap:14px;padding:16px;border-radius:16px;
- background:rgba(255,255,255,0.03);
- border:1px solid rgba(255,255,255,0.06);
- margin-bottom:10px;
- transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
- cursor:pointer;
-}
-.row:hover{
- background:rgba(255,255,255,0.06);
- transform:translateY(-2px);
- box-shadow:0 8px 24px rgba(0,0,0,0.3);
- border-color:rgba(77,163,255,0.2);
-}
-.row:active{transform:scale(0.98)}
-.row.active{
- background:rgba(77,163,255,0.1);
- border-color:rgba(77,163,255,0.4);
- box-shadow:0 0 20px rgba(77,163,255,0.15);
-}
-.row.active .icon-wrap{
- background:var(--accent);
- box-shadow:0 4px 16px var(--accent-glow);
-}
-.row.active .icon-wrap .material-icons{color:white}
-.row.active .title{color:var(--accent)}
-.row.active .status-dot{
- background:var(--success);
- box-shadow:0 0 12px var(--success);
-}
-.icon-wrap{
- width:44px;height:44px;border-radius:12px;
- background:rgba(255,255,255,0.08);
- display:flex;align-items:center;justify-content:center;
- transition:all 0.3s;flex-shrink:0;
-}
-.icon-wrap .material-icons{
- font-size:42px;color:var(--text2);
- transition:all 0.3s;
-}
-.content{flex:1;min-width:0}
-.title{
- font-size:15px;font-weight:600;
- color:var(--fg);margin-bottom:3px;
- transition:color 0.3s;
-}
-.subtitle-text{
- font-size:12px;color:var(--text2);
- font-weight:500;line-height:1.3;
-}
-.status-dot{
- width:8px;height:8px;border-radius:50%;
- background:rgba(255,255,255,0.2);
- transition:all 0.3s;flex-shrink:0;
-}
-.switch{
- position:relative;width:54px;height:30px;flex-shrink:0;
- pointer-events:none;
-}
-.switch input{position:absolute;opacity:0;width:0;height:0}
-.slider{
- position:absolute;inset:0;border-radius:999px;
- background:rgba(255,255,255,0.1);
- transition:all var(--transition);
- box-shadow:inset 0 2px 4px rgba(0,0,0,0.2);
-}
-.knob{
- position:absolute;left:3px;top:3px;
- width:24px;height:24px;border-radius:50%;
- background:linear-gradient(145deg,#fff,#e0e0e0);
- transition:transform 0.25s cubic-bezier(0.2,0.8,0.2,1);
- box-shadow:0 2px 8px rgba(0,0,0,0.3);
-}
-.switch input:checked + .slider{
- background:var(--accent);
- box-shadow:0 0 20px var(--accent-glow);
-}
-.switch input:checked + .slider .knob{transform:translateX(24px)}
-.switch input:disabled + .slider{
- background:rgba(255,255,255,0.05);
- opacity:0.5;
-}
-.warning-line{
- margin:0 0 20px 0;padding:14px 16px;border-radius:14px;
- background:linear-gradient(135deg,rgba(255,77,77,0.12),rgba(255,170,77,0.06));
- border:1px solid rgba(255,77,77,0.2);
- color:#ffb3b3;font-weight:600;font-size:13px;
- display:none;align-items:center;gap:10px;
- animation:shake 0.5s ease;
-}
-.warning-line.show{display:flex}
-@keyframes shake{
- 0%,100%{transform:translateX(0)}
- 25%{transform:translateX(-5px)}
- 75%{transform:translateX(5px)}
-}
-.warning-line .material-icons{font-size:18px;color:var(--danger)}
-.action-btn{
- margin-top:20px;padding:16px;
- background:rgba(77,163,255,0.1);
- border:1px solid rgba(77,163,255,0.3);
- border-radius:16px;
- display:flex;align-items:center;justify-content:center;
- gap:10px;cursor:pointer;
- transition:all 0.25s;
- position:relative;z-index:2;
-}
-.action-btn:hover{
- background:rgba(77,163,255,0.2);
- transform:translateY(-2px);
- box-shadow:0 8px 24px rgba(77,163,255,0.2);
-}
-.action-btn:active{transform:scale(0.98)}
-.action-btn .material-icons{
- font-size:20px;color:var(--accent);
- animation:spin 4s linear infinite;
- animation-play-state:paused;
-}
-.action-btn:hover .material-icons{animation-play-state:running}
-@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-.action-btn span:last-child{
- font-size:15px;font-weight:600;color:var(--accent);
-}
-.footer{
- margin-top:20px;text-align:center;
- color:var(--text2);font-size:12px;opacity:0.7;
- position:relative;z-index:2;
-}
-.toast{
- position:fixed;left:50%;bottom:30px;
- transform:translateX(-50%) translateY(20px);
- background:rgba(30,33,60,0.95);
- backdrop-filter:blur(20px);
- color:var(--fg);padding:14px 28px;border-radius:100px;
- box-shadow:0 10px 40px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.1);
- opacity:0;pointer-events:none;
- transition:all 0.35s cubic-bezier(0.4,0,0.2,1);
- z-index:9999;font-weight:600;font-size:15px;
- display:flex;align-items:center;gap:10px;
-}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast .material-icons{font-size:20px;color:var(--success)}
-@media(max-width:420px){
- .card{width:100%;padding:22px}
- .row{padding:14px}
- .icon-wrap{width:40px;height:40px}
-}
+.row-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;background:var(--panel-2);cursor:pointer}
+.row-toggle.active{border-color:var(--accent)}
+.row-toggle .title{font-size:15px;font-weight:600}
+.row-toggle.active .title{color:var(--accent)}
+.row-toggle .subtitle-text{font-size:12px;color:var(--muted);margin-top:2px}
+.status-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.2);flex:none}
+.row-toggle.active .status-dot{background:var(--ok)}
+.warning-line{display:none;margin-bottom:12px;padding:12px;border:1px solid var(--err);border-radius:var(--radius-sm);color:var(--err);font-size:13px;font-weight:600}
+.warning-line.show{display:block}
 </style>
 </head>
 <body>
- <div class="card">
-   <h1><span class="material-icons">verified_user</span>Play Integrity Box</h1>
-   <div class="subtitle">Droidguard Spoofer</div>
-   
-   <div id="warningLine" class="warning-line">
-     <span class="material-icons">error_outline</span>
-     <span id="warningText"></span>
-   </div>
+<div class="wrap wrap-narrow">
+  <div class="card">
+    <h1 style="text-align:center">Play Integrity Box</h1>
+    <p class="muted small" style="text-align:center;margin:-6px 0 16px">Droidguard Spoofer</p>
 
-   <div id="rows">
-     <div class="row" id="row-spoofPixel" onclick="toggle('spoofPixel')">
-       <div class="icon-wrap"><span class="material-icons">shop</span></div>
-       <div class="content">
-         <div class="title">Pixelify Playstore</div>
-         <div class="subtitle-text">Pixel-exclusive properties</div>
-       </div>
-       <div class="status-dot"></div>
-       <label class="switch" onclick="event.stopPropagation()">
-         <input id="spoofPixel" type="checkbox">
-         <span class="slider"><span class="knob"></span></span>
-       </label>
-     </div>
+    <div id="warningLine" class="warning-line">
+      <span id="warningText"></span>
+    </div>
 
-     <div class="row" id="row-spoofVendingFinger" onclick="toggle('spoofVendingFinger')">
-       <div class="icon-wrap"><span class="material-icons">apps</span></div>
-       <div class="content">
-         <div class="title">Pixel Fingerprint</div>
-         <div class="subtitle-text">Latest canary imprint</div>
-       </div>
-       <div class="status-dot"></div>
-       <label class="switch" onclick="event.stopPropagation()">
-         <input id="spoofVendingFinger" type="checkbox">
-         <span class="slider"><span class="knob"></span></span>
-       </label>
-     </div>
+    <div id="rows">
+      <div class="row-toggle" id="row-spoofPixel" onclick="toggle('spoofPixel')">
+        <div class="grow">
+          <div class="title">Pixelify Playstore</div>
+          <div class="subtitle-text">Pixel-exclusive properties</div>
+        </div>
+        <div class="status-dot"></div>
+        <label class="switch" onclick="event.stopPropagation()">
+          <input id="spoofPixel" type="checkbox">
+          <span class="track"></span>
+        </label>
+      </div>
 
-     <div class="row" id="row-spoofBuild" onclick="toggle('spoofBuild')">
-       <div class="icon-wrap"><span class="material-icons">api</span></div>
-       <div class="content">
-         <div class="title">Build Spoof</div>
-         <div class="subtitle-text">System build Properties</div>
-       </div>
-       <div class="status-dot"></div>
-       <label class="switch" onclick="event.stopPropagation()">
-         <input id="spoofBuild" type="checkbox">
-         <span class="slider"><span class="knob"></span></span>
-       </label>
-     </div>
+      <div class="row-toggle" id="row-spoofVendingFinger" onclick="toggle('spoofVendingFinger')">
+        <div class="grow">
+          <div class="title">Pixel Fingerprint</div>
+          <div class="subtitle-text">Latest canary imprint</div>
+        </div>
+        <div class="status-dot"></div>
+        <label class="switch" onclick="event.stopPropagation()">
+          <input id="spoofVendingFinger" type="checkbox">
+          <span class="track"></span>
+        </label>
+      </div>
 
-     <div class="row" id="row-spoofProps" onclick="toggle('spoofProps')">
-       <div class="icon-wrap"><span class="material-icons">android</span></div>
-       <div class="content">
-         <div class="title">GMS Spoof</div>
-         <div class="subtitle-text">GMS properties</div>
-       </div>
-       <div class="status-dot"></div>
-       <label class="switch" onclick="event.stopPropagation()">
-         <input id="spoofProps" type="checkbox">
-         <span class="slider"><span class="knob"></span></span>
-       </label>
-     </div>
+      <div class="row-toggle" id="row-spoofBuild" onclick="toggle('spoofBuild')">
+        <div class="grow">
+          <div class="title">Build Spoof</div>
+          <div class="subtitle-text">System build Properties</div>
+        </div>
+        <div class="status-dot"></div>
+        <label class="switch" onclick="event.stopPropagation()">
+          <input id="spoofBuild" type="checkbox">
+          <span class="track"></span>
+        </label>
+      </div>
 
-     <div class="row" id="row-spoofProvider" onclick="toggle('spoofProvider')">
-       <div class="icon-wrap"><span class="material-icons">dynamic_form</span></div>
-       <div class="content">
-         <div class="title">Attestation API</div>
-         <div class="subtitle-text">Breaks Google Wallet</div>
-       </div>
-       <div class="status-dot"></div>
-       <label class="switch" onclick="event.stopPropagation()">
-         <input id="spoofProvider" type="checkbox">
-         <span class="slider"><span class="knob"></span></span>
-       </label>
-     </div>
+      <div class="row-toggle" id="row-spoofProps" onclick="toggle('spoofProps')">
+        <div class="grow">
+          <div class="title">GMS Spoof</div>
+          <div class="subtitle-text">GMS properties</div>
+        </div>
+        <div class="status-dot"></div>
+        <label class="switch" onclick="event.stopPropagation()">
+          <input id="spoofProps" type="checkbox">
+          <span class="track"></span>
+        </label>
+      </div>
 
-     <div class="row" id="row-spoofSignature" onclick="toggle('spoofSignature')">
-       <div class="icon-wrap"><span class="material-icons">verified_user</span></div>
-       <div class="content">
-         <div class="title">ROM Signature</div>
-         <div class="subtitle-text">OEM-signed mask</div>
-       </div>
-       <div class="status-dot"></div>
-       <label class="switch" onclick="event.stopPropagation()">
-         <input id="spoofSignature" type="checkbox">
-         <span class="slider"><span class="knob"></span></span>
-       </label>
-     </div>
+      <div class="row-toggle" id="row-spoofProvider" onclick="toggle('spoofProvider')">
+        <div class="grow">
+          <div class="title">Attestation API</div>
+          <div class="subtitle-text">Breaks Google Wallet</div>
+        </div>
+        <div class="status-dot"></div>
+        <label class="switch" onclick="event.stopPropagation()">
+          <input id="spoofProvider" type="checkbox">
+          <span class="track"></span>
+        </label>
+      </div>
 
-     <div class="row" id="row-spoofVendingSdk" onclick="toggle('spoofVendingSdk')">
-       <div class="icon-wrap"><span class="material-icons">key_off</span></div>
-       <div class="content">
-         <div class="title">A10 Downgrade SDK</div>
-         <div class="subtitle-text">Use if keybox is banned</div>
-       </div>
-       <div class="status-dot"></div>
-       <label class="switch" onclick="event.stopPropagation()">
-         <input id="spoofVendingSdk" type="checkbox">
-         <span class="slider"><span class="knob"></span></span>
-       </label>
-     </div>
-   </div>
+      <div class="row-toggle" id="row-spoofSignature" onclick="toggle('spoofSignature')">
+        <div class="grow">
+          <div class="title">ROM Signature</div>
+          <div class="subtitle-text">OEM-signed mask</div>
+        </div>
+        <div class="status-dot"></div>
+        <label class="switch" onclick="event.stopPropagation()">
+          <input id="spoofSignature" type="checkbox">
+          <span class="track"></span>
+        </label>
+      </div>
 
-   <div class="action-btn" onclick="restartServices()">
-     <span class="material-icons">refresh</span>
-     <span>Restart Services</span>
-   </div>
+      <div class="row-toggle" id="row-spoofVendingSdk" onclick="toggle('spoofVendingSdk')">
+        <div class="grow">
+          <div class="title">A10 Downgrade SDK</div>
+          <div class="subtitle-text">Use if keybox is banned</div>
+        </div>
+        <div class="status-dot"></div>
+        <label class="switch" onclick="event.stopPropagation()">
+          <input id="spoofVendingSdk" type="checkbox">
+          <span class="track"></span>
+        </label>
+      </div>
+    </div>
 
-   <div class="footer">© IntegrityBox • 2026</div>
- </div>
+    <button class="btn btn-primary btn-block" onclick="restartServices()" style="margin-top:16px">
+      <span class="spinner"></span>
+      Restart Services
+    </button>
+  </div>
 
- <div id="toast" class="toast">
-   <span class="material-icons">check_circle</span>
-   <span id="toastText">Saved</span>
- </div>
+  <p class="muted small" style="text-align:center;margin-top:8px">© IntegrityBox • 2026</p>
+</div>
 
-<script>
-const PROP_CANDIDATES = [
- "/data/adb/modules/playintegrityfix/custom.pif.prop",
- "/data/adb/custom.pif.prop"
-];
+<div id="toast" class="toast"><span id="toastText">Saved</span></div>
 
-const KEYS = ["spoofBuild","spoofProps","spoofProvider","spoofSignature","spoofVendingFinger","spoofVendingSdk","spoofPixel"];
-const ZYGISK_PATH = "/data/adb/modules/playintegrityfix/zygisk";
-
-let propFile = null;
-let zygiskExists = false;
-
-function showToast(msg){
- document.getElementById('toastText').textContent = msg;
- document.getElementById('toast').classList.add('show');
- setTimeout(()=>document.getElementById('toast').classList.remove('show'), 1400);
-}
-
-function showWarning(text){
- const line = document.getElementById('warningLine');
- if(!text){
-   line.classList.remove('show');
-   return;
- }
- document.getElementById('warningText').textContent = text;
- line.classList.add('show');
-}
-
-function setDisabled(key, disabled){
- const input = document.getElementById(key);
- const row = document.getElementById('row-'+key);
- if(input) input.disabled = disabled;
- if(row){
-   row.style.opacity = disabled ? '0.4' : '1';
-   row.style.pointerEvents = disabled ? 'none' : 'auto';
- }
-}
-
-function updateVisuals(key, isActive){
- document.getElementById('row-'+key).classList.toggle('active', isActive);
- document.getElementById(key).checked = isActive;
-}
-
-async function toggle(key){
- if(!propFile || !zygiskExists){
-   showWarning("zygiskless mode has been enabled");
-   return;
- }
- const input = document.getElementById(key);
- if(input.disabled) return;
- 
- const newVal = input.checked ? '0' : '1';
- input.checked = !input.checked;
- 
- if(key === 'spoofVendingSdk' && newVal === '1'){
-   await writeKey(propFile, key, newVal);
-   const others = KEYS.filter(k => k !== key && k !== 'spoofBuild' && k !== 'spoofProps');
-   for(const k of others){
-     await writeKey(propFile, k, '0');
-     updateVisuals(k, false);
-   }
-   showToast('A10 mode enabled, others disabled');
- } else {
-   await writeKey(propFile, key, newVal);
-   showToast(newVal === '1' ? 'Enabled' : 'Disabled');
- }
- 
- await restartGMS();
- updateVisuals(key, newVal === '1');
-}
-
-async function sh(cmd){
- try{
-   if(typeof ksu?.exec === 'function'){
-     const maybe = ksu.exec(cmd);
-     if(maybe && typeof maybe.then === 'function') return (await maybe).toString().trim();
-     if(typeof maybe === 'string') return maybe.toString().trim();
-     return await new Promise((resolve) => {
-       const cb = `cb_${Date.now()}_${Math.random()*10000|0}`;
-       window[cb] = (code, stdout, stderr) => {
-         delete window[cb];
-         resolve(code === 0 ? (stdout||'').toString().trim() : ((stdout||'')+(stderr||'')).toString().trim());
-       };
-       ksu.exec(cmd, "{}", cb);
-     });
-   }
-   return '';
- }catch(e){return ''}
-}
-
-async function findPropFile(){
- for(const p of PROP_CANDIDATES){
-   const out = await sh(`sh -c 'if [ -f "${p}" ]; then echo found; else echo missing; fi'`);
-   if(out.trim() === 'found') return p;
- }
- return null;
-}
-
-async function checkZygisk(){
- const out = await sh(`sh -c 'if [ -d "${ZYGISK_PATH}" ]; then echo exists; else echo missing; fi'`);
- return out.trim() === 'exists';
-}
-
-async function hasAdvancedSettings(file){
- if(!file) return false;
- const out = await sh(`sh -c 'grep -q "^spoofProvider=" "${file}" && echo 1 || echo 0'`);
- return out.trim() === '1';
-}
-
-async function readKey(file, key){
- if(!file) return '';
- const cmd = `sh -c 'grep -m1 "^${key}=" "${file}" | cut -d"=" -f2- || echo ""'`;
- const out = await sh(cmd);
- return (out ?? '').toString().trim();
-}
-
-async function writeKey(file, key, value){
- if(!file) return false;
- const cmd = `sh -c 'if grep -q "^${key}=" "${file}"; then sed -i "s/^${key}=.*/${key}=${value}/" "${file}"; else printf "\\n${key}=${value}\\n" >> "${file}"; fi'`;
- await sh(cmd);
- return true;
-}
-
-async function restartGMS(){
- await sh(`sh -c 'am force-stop com.google.android.gms.unstable 2>/dev/null || true; am force-stop com.android.vending 2>/dev/null || true'`);
-}
-
-async function restartServices(){
- await restartGMS();
- showToast('Services restarted');
-}
-
-async function init(){
- propFile = await findPropFile();
- zygiskExists = await checkZygisk();
- 
- if(!zygiskExists){
-   showWarning("zygiskless mode has been enabled");
-   KEYS.forEach(k => setDisabled(k, true));
-   return;
- }
- 
- if(!propFile){
-   showWarning("Change IntegrityBox profile first");
-   KEYS.forEach(k => setDisabled(k, true));
-   return;
- }
-
- const adv = await hasAdvancedSettings(propFile);
- if(!adv){
-   showWarning("Change your current profile brother");
-   KEYS.forEach(k => setDisabled(k, true));
-   return;
- }
-
- showWarning('');
-
- for(const key of KEYS){
-   const val = await readKey(propFile, key);
-   updateVisuals(key, val === '1');
- }
- 
- KEYS.forEach(key => {
-   const input = document.getElementById(key);
-   input.addEventListener('change', () => toggle(key));
- });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
- init().catch(() => showWarning("Check KSU availability"));
-});
-</script>
+<script src="script.js"></script>
 <script src="../TRANSLATIONS/meow.js"></script>
 <script>
 (function(){

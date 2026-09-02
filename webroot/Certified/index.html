@@ -4,204 +4,22 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>App Data Cleaner</title>
-
-<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
-
-<style>
-:root{
-  --bg:#1f2233;
-  --fg:#e6e6e6;
-  --muted:#97aac0;
-  --accent:#1592FF;
-
-  --panel-bg:#232637E6;
-  --card-border:#ffffff0D;
-  --btn-bg:#2a2f4a;
-  --btn-hover:#343a5c;
-
-  --radius:16px;
-}
-
-*{box-sizing:border-box;margin:0;padding:0}
-
-body{
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Arial,sans-serif;
-  background:linear-gradient(135deg,#1f2233,#14172b);
-  color:var(--fg);
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.card{
-  width:360px;
-  background:var(--panel-bg);
-  border:1px solid var(--card-border);
-  border-radius:22px;
-  padding:24px;
-}
-
-.h{
-  text-align:center;
-  font-size:20px;
-  font-weight:700;
-  color:var(--accent);
-  margin-bottom:12px;
-}
-
-.note{
-  font-size:14px;
-  color:var(--muted);
-  line-height:1.4;
-  margin-bottom:20px;
-  text-align:center;
-}
-
-.btn{
-  width:100%;
-  height:52px;
-  border-radius:14px;
-  border:1px solid var(--card-border);
-  background:var(--btn-bg);
-  color:var(--fg);
-  font-size:15px;
-  font-weight:600;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  cursor:pointer;
-}
-
-.btn:disabled{
-  opacity:.6;
-  cursor:not-allowed;
-}
-
-.btn:hover:not(:disabled){
-  background:var(--btn-hover);
-}
-
-.warn{
-  margin-top:6px;
-  font-size:10px;
-  font-weight:600;
-  color:#ff5c5c;
-  text-align:center;
-}
-
-@keyframes spin{
-  to{transform:rotate(360deg)}
-}
-
-.footer{
-  margin-top:16px;
-  text-align:center;
-  font-size:12px;
-  color:var(--muted);
-}
-
-.webui-popup{
-  position:fixed;
-  top:-60px;
-  left:50%;
-  transform:translateX(-50%);
-  padding:.7rem 1rem;
-  border-radius:8px;
-  font-weight:600;
-  background:#1565c0;
-  color:#fff;
-  transition:top .3s,opacity .3s;
-  opacity:0;
-  z-index:9999;
-}
-</style>
+<link rel="stylesheet" href="../common.css"/>
 </head>
-
 <body>
+<div class="wrap wrap-narrow">
+  <h1>App Data Cleaner</h1>
 
-<div class="card">
-  <div class="h">Fix Device Not Certified</div>
-
-  <div class="note">
-    This will clear data for Play Store and Google Play Services.
-    You will need to sign in your gmail account again.
+  <div class="card">
+    <p class="muted small" style="margin-bottom:14px">
+      Clears Play Store & Google Play Services data so they re-verify against
+      the spoofed device profile. Sign back in afterwards.
+    </p>
+    <div id="status" class="muted small" style="display:none;margin-bottom:12px"></div>
+    <button id="clean" class="btn btn-primary btn-block">Clear App Data</button>
   </div>
-  
-  <button id="clearBtn" class="btn">
-    <span class="material-symbols-outlined">delete_forever</span>
-    <span id="btnText">Clear App Data</span>
-  </button>
-  
-  <div class="warn">
-    Only click if you're passing DEVICE or STRONG integrity
-  </div>
-
-  <div class="footer">IntegrityBox © 2025</div>
 </div>
 
-<script>
-const btn = document.getElementById("clearBtn");
-const btnText = document.getElementById("btnText");
-
-function popup(msg, type="info") {
-  try {
-    if (typeof window.toast === "function") { window.toast(String(msg)); return; }
-    if (window.kernelsu && typeof window.kernelsu.toast === "function") { window.kernelsu.toast(String(msg)); return; }
-    if (typeof ksu === "object" && typeof ksu.toast === "function") { ksu.toast(String(msg)); return; }
-  } catch {}
-
-  // fallback DOM popup
-  const n = document.createElement("div");
-  n.className = "webui-popup";
-  n.textContent = msg;
-  const colors = { error:"#f44336", success:"#4caf50", info:"#1565c0", warn:"#ff8f00" };
-  const bg = colors[type] || "#0099FF";
-  Object.assign(n.style, {
-    position:"fixed",top:"-70px",left:"50%",transform:"translateX(-50%)",
-    background:bg,color:"#fff",padding:"0.8rem 1.2rem",borderRadius:"8px",
-    boxShadow:"0 6px 18px rgba(0,0,0,0.35)",fontWeight:"600",zIndex:"99999",
-    transition:"top 0.36s,opacity 0.36s",opacity:"0"
-  });
-  document.body.appendChild(n);
-  requestAnimationFrame(()=>{ n.style.top="20px"; n.style.opacity="1"; });
-  setTimeout(()=>{ n.style.top="-70px"; n.style.opacity="0"; setTimeout(()=>n.remove(),420); },2500);
-}
-
-function runShell(cmd){
-  return new Promise((res,rej)=>{
-    if(!ksu?.exec) return rej("KSU unavailable");
-    const cb="cb_"+Date.now();
-    window[cb]=(c,o,e)=>{
-      delete window[cb];
-      c===0?res(o):rej(e||o);
-    };
-    ksu.exec(cmd,"{}",cb);
-  });
-}
-
-btn.onclick = async () => {
-  btn.disabled = true;
-  btnText.innerHTML = `ACTION COMPLETE ✅`;
-
-  popup("Go, Login your account", "success");
-
-  // run action
-  runShell(`
-    pm clear com.android.vending &&
-    pm clear com.google.android.gms
-  `).catch(() => {
-    popup("Command failed", "error");
-  });
-
-  // reset UI after 1m delay
-  setTimeout(() => {
-    btnText.textContent = "Clear App Data";
-    btn.disabled = false;
-  }, 60000);
-};
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>

@@ -4,741 +4,88 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>IntegrityBox Profile</title>
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
+<link rel="stylesheet" href="../common.css"/>
 <style>
-:root{
-  --bg:#0e1020;
-  --fg:#e6e6e6;
-  --accent:#4da3ff;
-  --accent-glow:rgba(77,163,255,0.3);
-  --accent2:#5AC8FA;
-  --panel-bg:#232637cc;
-  --card-bg:#232637ee;
-  --border-radius:20px;
-  --shadow:rgba(0,0,0,0.4);
-  --text2:#9aa3ff;
-  --spring:cubic-bezier(0.2,0.8,0.2,1);
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
-body{
-  margin:0;min-height:100vh;min-height:100dvh;
-  display:flex;align-items:center;justify-content:center;
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui;
-  background:radial-gradient(circle at 30% 20%,#1c2045 0%,#0e1020 100%);
-  color:var(--fg);
-  -webkit-font-smoothing:antialiased;
-  padding:20px;
-  overflow-x:hidden;
-}
-.container{
-  width:100%;max-width:420px;
-  animation:cardEntry 0.6s var(--spring) forwards;
-  opacity:0;transform:translateY(30px) scale(0.96);
-}
-@keyframes cardEntry{
-  from{opacity:0;transform:translateY(30px) scale(0.96)}
-  to{opacity:1;transform:translateY(0) scale(1)}
-}
-.card{
-  background:var(--panel-bg);
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px);
-  border-radius:var(--border-radius);
-  padding:28px;
-  box-shadow:0 25px 60px var(--shadow),0 0 0 1px rgba(255,255,255,0.06);
-  position:relative;overflow:hidden;
-  border:1px solid transparent;
-}
-.card::before{
-  content:"";
-  position:absolute;inset:0;
-  background:radial-gradient(circle at 50% 0%,var(--accent) 0%,transparent 70%);
-  filter:blur(40px);opacity:0.15;pointer-events:none;z-index:0;
-  animation:glowPulse 8s ease-in-out infinite;
-}
-@keyframes glowPulse{0%,100%{opacity:0.12}50%{opacity:0.25}}
-h1{
-  position:relative;z-index:2;
-  margin:0 0 8px 0;text-align:center;
-  font-size:22px;font-weight:700;
-  color:var(--fg);
-  display:flex;align-items:center;justify-content:center;gap:10px;
-  letter-spacing:-0.02em;
-}
-h1 .material-icons{
-  font-size:38px;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-}
-.subtitle{
-  text-align:center;color:var(--text2);
-  font-size:13px;font-weight:500;margin-bottom:24px;
-  position:relative;z-index:2;
-}
-.rows{
-  position:relative;z-index:2;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-}
-.item{
-  position:relative;z-index:2;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:10px;
-  padding:18px 12px;
-  border-radius:16px;
-  background:rgba(255,255,255,0.03);
-  border:1px solid rgba(255,255,255,0.06);
-  cursor:pointer;
-  transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
-  overflow:hidden;
-  text-align:center;
-}
-.item:hover{
-  background:rgba(255,255,255,0.06);
-  transform:translateY(-2px);
-  box-shadow:0 8px 24px rgba(0,0,0,0.3);
-  border-color:rgba(77,163,255,0.2);
-}
-.item:active{transform:scale(0.98)}
-.item.active{
-  background:rgba(77,163,255,0.1);
-  border-color:rgba(77,163,255,0.4);
-  box-shadow:0 0 20px rgba(77,163,255,0.15);
-}
-.item.active::after{
-  content:'check_circle';
-  font-family:'Material Icons';
-  position:absolute;
-  top:10px;
-  right:10px;
-  color:var(--accent);
-  font-size:25px;
-  animation:checkIn 0.4s var(--spring) forwards;
-}
-@keyframes checkIn{
-  from{opacity:0;transform:scale(0)}
-  to{opacity:1;transform:scale(1)}
-}
-.item.active .title{color:var(--accent)}
-.item.active .title .material-icons{
-  background:var(--accent);color:white;
-  box-shadow:0 4px 16px var(--accent-glow);
-}
-.item.pixelify.active{
-  background:rgba(90,200,250,0.1);
-  border-color:rgba(90,200,250,0.4);
-  box-shadow:0 0 20px rgba(90,200,250,0.15);
-}
-.item.pixelify.active::after{color:var(--accent2)}
-.item.pixelify.active .title{color:var(--accent2)}
-.item.pixelify.active .title .material-icons{
-  background:var(--accent2);color:white;
-  box-shadow:0 4px 16px rgba(90,200,250,0.3);
-}
-.title{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:8px;
-  font-weight:600;
-  font-size:13px;
-  letter-spacing:-0.01em;
-  color:var(--fg);
-  transition:color 0.3s;
-}
-.title .material-icons{
-  font-size:35px;
-  width:60px;
-  height:60px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:12px;
-  background:rgba(255,255,255,0.08);
-  color:var(--text2);
-  transition:all 0.3s;
-  flex-shrink:0;
-}
-.subtitle{
-  font-size:11px;
-  color:var(--text2);
-  font-weight:500;
-  line-height:1.3;
-  text-align:center;
-  margin:0;
-}
-.note{
-  position:relative;
-  z-index:2;
-  margin-top:20px;
-  padding:16px;
-  border-radius:16px;
-  background:rgba(77,163,255,0.06);
-  border:1px solid rgba(77,163,255,0.15);
-  font-size:13px;
-  line-height:1.5;
-  color:var(--text2);
-}
-.note b{
-  color:var(--accent);
-  font-weight:600;
-  display:block;
-  margin-bottom:8px;
-  font-size:14px;
-}
-.note ul{
-  margin:0;
-  padding-left:16px;
-  list-style:none;
-}
-.note li{
-  position:relative;
-  margin-bottom:6px;
-  padding-left:12px;
-}
-.note li::before{
-  content:'•';
-  position:absolute;
-  left:0;
-  color:var(--accent);
-  font-weight:bold;
-}
-.actions{
-  position:relative;
-  z-index:2;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  margin-top:20px;
-}
-.btn{
-  position:relative;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:8px;
-  padding:16px 10px;
-  border-radius:16px;
-  background:rgba(77,163,255,0.08);
-  border:1px solid rgba(77,163,255,0.2);
-  cursor:pointer;
-  transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
-  text-align:center;
-  font-size:12px;
-  font-weight:600;
-  color:var(--fg);
-}
-.btn:hover{
-  background:rgba(77,163,255,0.15);
-  transform:translateY(-2px);
-  box-shadow:0 8px 24px rgba(77,163,255,0.15);
-  border-color:rgba(77,163,255,0.35);
-}
-.btn:active{transform:scale(0.98)}
-.btn .material-icons{
-  font-size:24px;
-  width:44px;
-  height:44px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:12px;
-  background:rgba(77,163,255,0.12);
-  color:var(--accent);
-  transition:all 0.3s;
-  flex-shrink:0;
-}
-.btn:hover .material-icons{
-  background:var(--accent);
-  color:white;
-  box-shadow:0 4px 16px var(--accent-glow);
-}
-.btn-danger{
-  background:rgba(255,77,77,0.1);
-  border-color:rgba(255,77,77,0.3);
-}
-.btn-danger .material-icons{
-  background:rgba(255,77,77,0.15);
-  color:#ff4d4d;
-}
-.btn-danger:hover{
-  background:rgba(255,77,77,0.2);
-  border-color:rgba(255,77,77,0.4);
-  box-shadow:0 8px 24px rgba(255,77,77,0.15);
-}
-.btn-danger:hover .material-icons{
-  background:#ff4d4d;
-  color:white;
-  box-shadow:0 4px 16px rgba(255,77,77,0.3);
-}
-.btn-success{
-  background:rgba(48,209,88,0.1);
-  border-color:rgba(48,209,88,0.3);
-}
-.btn-success .material-icons{
-  background:rgba(48,209,88,0.15);
-  color:#30d158;
-}
-.btn-success:hover{
-  background:rgba(48,209,88,0.2);
-  border-color:rgba(48,209,88,0.4);
-  box-shadow:0 8px 24px rgba(48,209,88,0.15);
-}
-.btn-success:hover .material-icons{
-  background:#30d158;
-  color:white;
-  box-shadow:0 4px 16px rgba(48,209,88,0.3);
-}
-.info-btn{
-  grid-column:1 / -1;
-  flex-direction:row;
-  justify-content:center;
-  gap:10px;
-  padding:16px;
-  background:rgba(77,163,255,0.08);
-  border:1px solid rgba(77,163,255,0.2);
-}
-.info-btn .material-icons{
-  width:auto;
-  height:auto;
-  background:transparent;
-  font-size:24px;
-  color:var(--accent);
-}
-.info-btn:hover{
-  background:rgba(77,163,255,0.15);
-  border-color:rgba(77,163,255,0.35);
-  box-shadow:0 8px 24px rgba(77,163,255,0.15);
-}
-.info-btn:hover .material-icons{
-  background:transparent;
-  color:var(--accent);
-  box-shadow:none;
-}
-.footer{
-  position:relative;
-  z-index:2;
-  text-align:center;
-  margin-top:20px;
-  font-size:12px;
-  color:var(--text2);
-  font-weight:500;
-  letter-spacing:0.02em;
-}
-.info-modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.7);
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:1000;
-  opacity:0;
-  transition:opacity 0.3s ease;
-  padding:20px;
-}
-.info-modal.show{
-  opacity:1;
-}
-.info-content{
-  background:var(--panel-bg);
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px);
-  border-radius:var(--border-radius);
-  padding:24px;
-  width:100%;
-  max-width:360px;
-  border:1px solid rgba(77,163,255,0.2);
-  box-shadow:0 25px 60px var(--shadow);
-  transform:scale(0.9);
-  transition:transform 0.3s var(--spring);
-}
-.info-modal.show .info-content{
-  transform:scale(1);
-}
-.info-header{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:20px;
-  font-size:18px;
-  font-weight:700;
-  color:var(--fg);
-}
-.info-header .material-icons{
-  font-size:35px;
-  color:var(--accent);
-}
-.info-close{
-  margin-left:auto;
-  cursor:pointer;
-  color:var(--text2);
-  transition:color 0.2s;
-  font-size:31px;
-}
-.info-close:hover{
-  color:var(--fg);
-}
-.info-body{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  max-height:60vh;
-  overflow-y:auto;
-}
-.info-section-title{
-  font-size:11px;
-  font-weight:700;
-  color:var(--text2);
-  text-transform:uppercase;
-  letter-spacing:0.08em;
-  margin-bottom:4px;
-}
-.info-row{
-  display:flex;
-  align-items:flex-start;
-  gap:12px;
-  padding:12px;
-  border-radius:12px;
-  background:rgba(255,255,255,0.03);
-  border:1px solid rgba(255,255,255,0.06);
-  font-size:12px;
-  color:var(--text2);
-  line-height:1.4;
-}
-.info-row .material-icons{
-  font-size:31px;
-  flex-shrink:0;
-  margin-top:1px;
-}
-.info-row b{
-  color:var(--fg);
-  font-weight:600;
-}
-#loader{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,0.8);
-  backdrop-filter:blur(10px);
-  -webkit-backdrop-filter:blur(10px);
-  display:none;
-  align-items:center;justify-content:center;
-  z-index:999;opacity:0;
-  transition:opacity 0.3s ease;
-}
-#loader.show{
-  display:flex;opacity:1;
-}
-.loader-content{
-  display:flex;flex-direction:column;
-  align-items:center;gap:16px;
-}
-.spinner{
-  width:48px;height:48px;
-  border:3px solid rgba(255,255,255,0.1);
-  border-top-color:var(--accent);
-  border-radius:50%;
-  animation:spin 0.8s linear infinite;
-  box-shadow:0 0 20px rgba(77,163,255,0.3);
-}
-.loader-text{
-  font-size:15px;font-weight:600;
-  color:var(--text2);
-  animation:pulse 1.5s ease-in-out infinite;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes pulse{0%,100%{opacity:0.6}50%{opacity:1}}
-.webui-popup{pointer-events:none}
-@media(max-width:380px){
-  .card{padding:22px}
-  h1{font-size:20px}
-  .actions{grid-template-columns:1fr 1fr}
-  .item{padding:14px 10px}
-  .title{font-size:12px}
-  .title .material-icons{width:63px;height:63px;font-size:38px}
-  .btn{padding:14px 8px;font-size:11px}
-  .btn .material-icons{width:63px;height:63px;font-size:35px}
-  .info-content{padding:20px}
-}
+.rows{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.actions .btn.wide{grid-column:1/-1}
+
+.info-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);z-index:1000;padding:16px}
+.info-modal.show{display:flex}
+.info-modal .card{width:100%;max-width:420px;max-height:80vh;overflow-y:auto;margin:0}
+.info-row{padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--panel-2);font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:8px}
+.info-row b{color:var(--fg)}
+.section-label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px}
 </style>
 </head>
-
 <body>
 
 <div id="loader">
-<div class="loader-content">
-  <div class="spinner"></div>
-  <div class="loader-text">Applying Profile...</div>
-</div>
-</div>
-
-<div class="container">
-<div class="card">
-
-
-
-<h1>
-<span class="material-icons">shop</span>
-Play Integrity Profile
-</h1>
-
-<div class="rows" id="profiles"></div>
-
-<div class="note">
-<b>Notes</b>
-<ul>
-<li>You can pass play integrity on ROM signed with test-key using IntegrityBox</li>
-<li>Profile switching has a 30s cooldown</li>
-<li>GMS & Play Store will restart automatically</li>
-<li>Old Play Store versions may help passing integrity</li>
-<li>Make sure you've disabled the ROM side spoofing</li>
-<li>Not all ROMs can pass play integrity</li>
-</ul>
+  <div class="loader-content">
+    <div class="spinner-lg"></div>
+    <div id="loaderText">Applying Profile...</div>
+  </div>
 </div>
 
-<div class="actions">
-<div class="btn btn-danger" onclick="clearData()">
-  <span class="material-icons">delete_outline</span>
-  Clear GMS Data
-</div>
-<div class="btn btn-success" onclick="openAPKMirror()">
-  <span class="material-icons">download</span>
-  Get Play Store
-</div>
-<div class="btn info-btn" onclick="showProfileInfo()">
-  <span class="material-icons">info</span>
-  Which profile should i use?
-</div>
-</div>
+<div class="wrap wrap-narrow">
+  <div class="card">
+    <h1 style="text-align:center">Play Integrity Profile</h1>
 
+    <div class="rows" id="profiles"></div>
+
+    <div class="note">
+      <b>Notes</b>
+      <ul>
+        <li>You can pass play integrity on ROM signed with test-key using IntegrityBox</li>
+        <li>Profile switching has a 30s cooldown</li>
+        <li>GMS &amp; Play Store will restart automatically</li>
+        <li>Old Play Store versions may help passing integrity</li>
+        <li>Make sure you've disabled the ROM side spoofing</li>
+        <li>Not all ROMs can pass play integrity</li>
+      </ul>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-danger" onclick="clearData()">Clear GMS Data</button>
+      <button class="btn" onclick="openAPKMirror()">Get Play Store</button>
+      <button class="btn wide" onclick="showProfileInfo()">Which profile should i use?</button>
+    </div>
+  </div>
+
+  <p class="muted small" style="text-align:center;margin-top:8px">© IntegrityBox • 2026</p>
+</div>
 
 <div class="info-modal" id="infoModal" onclick="hideProfileInfo(event)">
-<div class="info-content" onclick="event.stopPropagation()">
-  <div class="info-header">
-    <span class="material-icons">info</span>
-    <span>About</span>
-    <span class="material-icons info-close" onclick="hideProfileInfo()">close</span>
-  </div>
-  <div class="info-body">
-    <div class="info-section-title">Profiles</div>
+  <div class="card" onclick="event.stopPropagation()">
+    <div class="row" style="justify-content:space-between;margin-bottom:12px">
+      <h2 style="margin:0">About</h2>
+      <button class="btn" onclick="hideProfileInfo()" style="min-height:32px;padding:0 12px">Close</button>
+    </div>
+    <div class="section-label" style="margin-top:0">Profiles</div>
     <div class="info-row">
-      <span class="material-icons" style="color:var(--accent2)">phone_android</span>
-      <div><b>Pixelify</b> - Build, device, fingerprint, and system properties will be spoofed to match a certified device profile recognized by the Play Store. Google services will interpret the device as a Google Pixel device.</div>
+      <b>Pixelify</b> - Build, device, fingerprint, and system properties will be spoofed to match a certified device profile recognized by the Play Store. Google services will interpret the device as a Google Pixel device.
     </div>
     <div class="info-row">
-      <span class="material-icons" style="color:var(--accent)">rocket_launch</span>
-      <div><b>Supreme</b> - This only spoofs your device fingerprint for the Play Store. Helpful if your device fingerprint got banned by google or broken/completely rekt due to your custom ROM maintainer’s skill issue. Your device will be recognized as a certified Google Pixel device.</div>
+      <b>Supreme</b> - This only spoofs your device fingerprint for the Play Store. Helpful if your device fingerprint got banned by google or broken/completely rekt due to your custom ROM maintainer's skill issue. Your device will be recognized as a certified Google Pixel device.
     </div>
     <div class="info-row">
-      <span class="material-icons" style="color:var(--accent)">auto_fix_high</span>
-      <div><b>Legacy</b> - Best suited for Android 12 and below. Works fine as long as your current device fingerprint hasn’t been blacklisted or rekt by your custom ROM maintainer.</div>
+      <b>Legacy</b> - Best suited for Android 12 and below. Works fine as long as your current device fingerprint hasn't been blacklisted or rekt by your custom ROM maintainer.
     </div>
     <div class="info-row">
-      <span class="material-icons" style="color:var(--accent)">bolt</span>
-      <div><b>Meta</b> - Experimental feature (luck based). You can try this is nothing works for you</div>
+      <b>Meta</b> - Experimental feature (luck based). You can try this is nothing works for you
     </div>
-    <div class="info-section-title" style="margin-top:16px">Actions</div>
+    <div class="section-label">Actions</div>
     <div class="info-row">
-      <span class="material-icons" style="color:var(--danger)">delete_outline</span>
-      <div><b>Clear GMS Data</b> - Clears Play Store & Google Play Services data to fix device certification issues. Just make sure you're passing DEVICE or STRONG integrity</div>
+      <b>Clear GMS Data</b> - Clears Play Store &amp; Google Play Services data to fix device certification issues. Just make sure you're passing DEVICE or STRONG integrity
     </div>
     <div class="info-row">
-      <span class="material-icons" style="color:#30d158">download</span>
-      <div><b>Get Play Store</b> - Opens APK Mirror to download an older Play Store version that may help pass integrity. You can try downgrading your playstore version with this version using CorePatch lsposed module</div>
+      <b>Get Play Store</b> - Opens APK Mirror to download an older Play Store version that may help pass integrity. You can try downgrading your playstore version with this version using CorePatch lsposed module
     </div>
   </div>
 </div>
-</div>
 
-<div class="footer">© IntegrityBox • 2026</div>
-</div>
-</div>
-
-<script>
-const PXL_FILE="/data/adb/Box-Brain/pixelify";
-const ADV_FILE="/data/adb/Box-Brain/advanced";
-const LEGACY_FILE="/data/adb/Box-Brain/legacy";
-const WIPE_FILE="/data/adb/Box-Brain/wipe";
-const OSMOSIS="/data/adb/modules/playintegrityfix/osm0sis.sh";
-
-const COOLDOWN = 30000;
-let lastSwitch = 0;
-
-const profiles = [
-{ name:"Pixelify", icon:"phone_android", desc:"Pixel-style spoofing for Google Tensor devices", file:PXL_FILE, class:"pixelify" },
-{ name:"Supreme", icon:"rocket_launch", desc:"Recommended for A13+ ROMs", file:ADV_FILE },
-{ name:"Legacy",  icon:"auto_fix_high", desc:"Recommended for A12 and below", file:LEGACY_FILE },
-{ name:"Meta",    icon:"bolt", desc:"Experimental feature (luck based)", file:WIPE_FILE }
-];
-
-function popup(msg, type="info") {
-try {
-  if (typeof window.toast === "function") { window.toast(String(msg)); return; }
-  if (window.kernelsu && typeof window.kernelsu.toast === "function") { window.kernelsu.toast(String(msg)); return; }
-  if (typeof ksu === "object" && typeof ksu.toast === "function") { ksu.toast(String(msg)); return; }
-} catch {}
-
-const n = document.createElement("div");
-n.className = "webui-popup";
-n.textContent = msg;
-const colors = { 
-  error: { bg: "#FF453A", shadow: "rgba(255, 69, 58, 0.3)" }, 
-  success: { bg: "#30D158", shadow: "rgba(48, 209, 88, 0.3)" }, 
-  info: { bg: "#0A84FF", shadow: "rgba(10, 132, 255, 0.3)" }, 
-  warn: { bg: "#FF9F0A", shadow: "rgba(255, 159, 10, 0.3)" }
-};
-const style = colors[type] || colors.info;
-
-Object.assign(n.style, {
-  position:"fixed", 
-  top:"-100px", 
-  left:"50%", 
-  transform:"translateX(-50%)",
-  background: style.bg, 
-  color:"#fff", 
-  padding:"14px 24px",
-  borderRadius:"14px", 
-  fontWeight:"600", 
-  fontSize:"15px",
-  zIndex:"99999",
-  boxShadow:`0 8px 24px ${style.shadow}`,
-  transition:"all 0.4s cubic-bezier(0.32, 0.72, 0, 1)", 
-  opacity:"0",
-  backdropFilter: "blur(10px)",
-  border: "1px solid rgba(255,255,255,0.1)"
-});
-
-document.body.appendChild(n);
-requestAnimationFrame(()=>{ n.style.top="60px"; n.style.opacity="1"; });
-setTimeout(()=>{ 
-  n.style.top="-100px"; 
-  n.style.opacity="0"; 
-  setTimeout(()=>n.remove(), 400); 
-}, 2800);
-}
-
-function showLoader(show, text = "Applying Profile..."){
-const loader = document.getElementById("loader");
-const loaderText = loader.querySelector(".loader-text");
-if(text) loaderText.textContent = text;
-
-if(show){
-  loader.style.display = "flex";
-  requestAnimationFrame(() => loader.classList.add("show"));
-} else {
-  loader.classList.remove("show");
-  setTimeout(() => loader.style.display = "none", 300);
-}
-}
-
-function sh(cmd){
-try { return ksu.exec(cmd); } catch { return ""; }
-}
-
-async function getActive(){
-for(const p of profiles){
-  const r = sh(`test -f "${p.file}" && echo yes`);
-  if(String(r).trim()==="yes") return p.file;
-}
-return null;
-}
-
-async function switchProfile(p){
-if(Date.now() - lastSwitch < COOLDOWN){
-  popup("Please wait before switching again", "warn");
-  return;
-}
-lastSwitch = Date.now();
-
-showLoader(true, `Activating ${p.name}...`);
-popup(`Applying ${p.name} profile...`, "info");
-
-requestAnimationFrame(() => {
-  setTimeout(() => {
-
-    sh(`
-      rm -f "${PXL_FILE}" "${ADV_FILE}" "${LEGACY_FILE}" "${WIPE_FILE}" &&
-      touch "${p.file}" &&
-      chmod 0644 "${p.file}" &&
-      sh "${OSMOSIS}" &&
-      pkill -f com.google.android.gms &&
-      pkill -f com.android.vending
-    `);
-
-    showLoader(false);
-    popup(`${p.name} profile activated`, "success");
-    render();
-
-  }, 0);
-});
-}
-
-async function render(){
-const active = await getActive();
-const root = document.getElementById("profiles");
-root.innerHTML = "";
-
-profiles.forEach((p, index)=>{
-  const d = document.createElement("div");
-  const isActive = active === p.file;
-  const extraClass = p.class || "";
-  d.className = "item" + (isActive ? " active" : "") + (extraClass ? " " + extraClass : "");
-  d.style.animationDelay = `${index * 0.1}s`;
-  d.innerHTML = `
-    <div class="title">
-      <span class="material-icons">${p.icon}</span>
-      <span>${p.name}</span>
-    </div>
-  `;
-  d.onclick = () => switchProfile(p);
-  root.appendChild(d);
-});
-}
-
-function clearData(){
-showLoader(true, "Clearing app data...");
-popup("Clearing Play Store & GMS data...","info");
-
-requestAnimationFrame(() => {
-  setTimeout(() => {
-    try{
-      sh(`pm clear com.android.vending && pm clear com.google.android.gms`);
-      popup("Data cleared successfully","success");
-    }catch{
-      popup("Command failed","error");
-    }
-    showLoader(false);
-  },0);
-});
-}
-
-function openAPKMirror(){
-sh(`nohup am start -a android.intent.action.VIEW -d "https://www.apkmirror.com/apk/google-inc/google-play-store/google-play-store-40-0-13-release/google-play-store-40-0-13-23-0-pr-612537281-android-apk-download/download/?key=11b745de637f14dc60ab90c02234ed466e71cdf3&forcebaseapk=true" > /dev/null 2>&1 &`);
-popup("Opening APK Mirror...","info");
-}
-
-function showProfileInfo(){
-  const modal = document.getElementById("infoModal");
-  modal.style.display = "flex";
-  requestAnimationFrame(() => modal.classList.add("show"));
-}
-
-function hideProfileInfo(e){
-  if(e && e.target !== e.currentTarget && !e.target.classList.contains("info-close")) return;
-  const modal = document.getElementById("infoModal");
-  modal.classList.remove("show");
-  setTimeout(() => modal.style.display = "none", 300);
-}
-
-document.addEventListener("DOMContentLoaded", render);
-</script>
+<script src="script.js"></script>
 <script src="../TRANSLATIONS/meow.js"></script>
 <script>
 (function(){

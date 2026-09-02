@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>About</title>
+<link rel="stylesheet" href="../common.css"/>
+</head>
+<body>
+<div class="wrap wrap-narrow">
+  <h1>Play Integrity Box</h1>
+
+  <div class="card">
+    <div class="row" style="margin-bottom:10px">
+      <span class="chip chip-ok" id="ver">…</span>
+      <span class="muted small">Hated By Many, Defeated By None</span>
+    </div>
+    <p class="muted small" style="margin-bottom:14px">
+      A Magisk/KernelSU/APatch module that passes Play Integrity checks by
+      spoofing device integrity signals — keybox, fingerprint, boot props and
+      more — using Tricky Store, PlayIntegrityFork and friends.
+    </p>
+    <div class="row">
+      <button class="btn" onclick="openLink('https://github.com/MeowDump/Integrity-Box')">GitHub</button>
+      <button class="btn" onclick="openLink('https://t.me/MeowDump')">Telegram</button>
+      <button class="btn" onclick="openLink('https://t.me/MeowRedirect')">Updates</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Credits</h2>
+    <ul class="small muted" style="padding-left:18px;line-height:1.8">
+      <li><b>MeowDump</b> — Integrity Box</li>
+      <li><b>osm0sis</b> — Play Integrity Fork (GPL-3.0)</li>
+      <li><b>5ec1cff</b> — Tricky Store</li>
+      <li><b>LSPosed Team</b> — Shamiko (adapted code)</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+function openLink(url) {
+  const cmd = "nohup am start -a android.intent.action.VIEW -d '" + url + "'";
+  if (typeof ksu !== "undefined" && ksu.exec) { ksu.exec(cmd, "{}", ""); return; }
+  try { window.open(url, "_blank"); } catch (e) {}
+}
+</script>
+</body>
+</html>

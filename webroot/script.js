@@ -7,14 +7,14 @@ const messageMap = {
   "pixel": { start: "Spoof your device to app", type: "info" },
   "piffork": { start: "All changes will be applied immediately", type: "info" },
   "propspoofer": { start: "These will be applied till reboot", type: "info" },
-  "flags": { start: "These requires Reboot / Action", type: "info" },
+  "flags": { start: "These require Reboot / Action", type: "info" },
   "profile": { start: "Good Luck old friend 🌚", type: "info" },
   "ctrl": { start: "For those using ROM inbuilt spoofing", type: "info" },
   "support": { start: "Become a Supporter", type: "info" },
   "report": { start: "What's wrong buddy?", type: "info" },
   "assistant": { start: "Let me guide you to the right path", type: "info" },
   "status": { start: "Informs you about keybox & fingerprint validity", type: "info" },
-  "repair": { success: "These doesn't require reboot", type: "info" },
+  "repair": { success: "These don't require a reboot", type: "info" },
   "spoofing": { start: "These are for custom ROM users", type: "info" },
   "pilot": { start: "Updates keybox & fp automatically whether a new key is available", type: "info" },
   "downloader": { start: "Some useful stuff you may need", type: "info" },
@@ -257,29 +257,29 @@ async function updateDashboard() {
 
       if (!exp) {
         expiryEl.textContent = "Unknown";
-        expiryEl.className = "status-indicator disabled";
+        expiryEl.className = "chip disabled";
       } else {
         const expDate = new Date(exp.trim().replace(/[^0-9-]/g, "") + "T00:00:00");
         if (isNaN(expDate.getTime())) {
           expiryEl.textContent = "Unknown";
-          expiryEl.className = "status-indicator disabled";
+          expiryEl.className = "chip disabled";
         } else {
           const now = new Date();
           const diff = Math.max(0, Math.floor((expDate - now) / 86400000));
 
           if (diff < 3) {
-            expiryEl.className = "status-indicator disabled";
+            expiryEl.className = "chip disabled";
           } else if (diff < 7) {
-            expiryEl.className = "status-indicator aqua";
+            expiryEl.className = "chip aqua";
           } else {
-            expiryEl.className = "status-indicator enabled";
+            expiryEl.className = "chip enabled";
           }
           expiryEl.textContent = `${diff} days`;
         }
       }
     } catch {
       expiryEl.textContent = "Unknown";
-      expiryEl.className = "status-indicator disabled";
+      expiryEl.className = "chip disabled";
     }
   }
 
@@ -292,17 +292,17 @@ async function updateDashboard() {
         const result = await fetchKeyboxStatus();
         el.textContent = result.label;
         if (result.status === 'STRONG') {
-          el.className = "status-indicator play";
+          el.className = "chip play";
         } else if (result.status === 'DEVICE') {
-          el.className = "status-indicator play";
+          el.className = "chip play";
         } else if (result.status === 'BANNED') {
-          el.className = "status-indicator disabled";
+          el.className = "chip disabled";
         } else {
-          el.className = "status-indicator disabled";
+          el.className = "chip disabled";
         }
       } catch {
         el.textContent = "Offline";
-        el.className = "status-indicator disabled";
+        el.className = "chip disabled";
       }
       continue;
     }
@@ -314,12 +314,12 @@ async function updateDashboard() {
 
         case "status-profile":
           el.textContent = out;
-          el.className = "status-indicator play";
+          el.className = "chip play";
           break;
 
         case "status-selinux":
           el.textContent = out;
-          el.className = `status-indicator ${
+          el.className = `chip ${
             out === "Enforcing" ? "play" : out === "Permissive" ? "disabled" : "aqua"
           }`;
           break;
@@ -327,13 +327,13 @@ async function updateDashboard() {
         case "status-target":
           const count = parseInt(out) || 0;
           el.textContent = `${out} apps`;
-          el.className = `status-indicator ${count === 0 || count > 50 ? "disabled" : "enabled"}`;
+          el.className = `chip ${count === 0 || count > 50 ? "disabled" : "enabled"}`;
           break;
           
         case "status-pixel":
         case "status-patch":
           el.textContent = out;
-          el.className = "status-indicator enabled";
+          el.className = "chip enabled";
           break;
 
         case "status-LineageProp":
@@ -344,16 +344,16 @@ async function updateDashboard() {
           } else {
             el.textContent = "Spoofed";
           }
-          el.className = "status-indicator play";
+          el.className = "chip play";
           break;
 
         default:
           el.textContent = out;
-          el.className = `status-indicator ${out === "Unknown" ? "disabled" : "aqua"}`;
+          el.className = `chip ${out === "Unknown" ? "disabled" : "aqua"}`;
       }
     } catch {
       el.textContent = "Unknown";
-      el.className = "status-indicator disabled";
+      el.className = "chip disabled";
     }
   }
 }
@@ -429,4 +429,12 @@ document.addEventListener("DOMContentLoaded", () => {
   enableFullScreen();
   attachButtonListeners();
   updateDashboard();
+  if (document.fonts && document.fonts.check("16px 'Material Symbols Outlined'")) {
+    document.documentElement.classList.add("fonts-loaded");
+  } else if (document.fonts) {
+    document.fonts.load("16px 'Material Symbols Outlined'").then(() => {
+      if (document.fonts.check("16px 'Material Symbols Outlined'"))
+        document.documentElement.classList.add("fonts-loaded");
+    }).catch(() => {});
+  }
 });

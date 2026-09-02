@@ -1,427 +1,45 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Hide My Files</title>
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
+<link rel="stylesheet" href="../common.css"/>
 <style>
-:root{
-  --bg:#1f2233;--fg:#e6e6e6;--muted:#97aac0;
-  --accent:#1592FF;--card:#232637E6;--border:#ffffff14;
-  --radius:18px;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  background:radial-gradient(circle at top,#262a4a,#14172b 70%);
-  font-family:Inter,system-ui;
-  color:var(--fg);
-  display:flex;
-  justify-content:center;
-  min-height:100vh;
-}
-.app{width:100%;max-width:600px;padding:20px}
 
-.header{text-align:center;margin-bottom:16px}
-.header h1{
-  color:var(--accent);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  font-size:2.1rem;
-}
-.header p{font-size:13px;color:var(--muted)}
-
-.custom-path{
-  display:flex;
-  gap:6px;
-  margin-bottom:14px;
-  align-items: center;
-}
-
-.custom-path input{
-  flex:1;
-  padding:12px 14px;
-  border-radius:14px;
-  border:1px solid var(--border);
-  background:var(--card);
-  color:var(--fg);
-  font-size:14px;
-}
-
-.custom-path button{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:0 16px;
-  border:none;
-  border-radius:14px;
-  background:linear-gradient(135deg,#1592ff,#47a8ff);
-  color:#fff;
-  font-weight:600;
-  font-size:18px;
-  cursor:pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
-  height:100%;
-}
-
-.custom-path button:hover{
-  transform: scale(1.05);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
-}
-
-.custom-path button .material-icons{
-  font-size:22px;
-}
-
-.item{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:18px;
-  margin-bottom:14px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-.row{display:flex;justify-content:space-between;align-items:center}
-.path{font-size:14px;display:flex;align-items:center;gap:6px;word-break:break-all}
-.meta{
-  font-size:12px;
-  color:var(--muted);
-  display:flex;
-  gap:6px;
-  flex-wrap:wrap;
-}
-
-.badge{
-  display:inline-flex;
-  align-items:center;
-  gap:4px;
-  padding:3px 8px;
-  border-radius:999px;
-  font-size:11px;
-  font-weight:600;
-  color:#fff;
-}
-.badge.warn{background:#ff9800}
-.badge.danger{background:#f44336}
-
-.toggle{
-  width:50px;height:28px;border-radius:14px;
-  background:#444;position:relative;cursor:pointer
-}
-.toggle.active{background:var(--accent)}
-.toggle::after{
-  content:"";width:24px;height:24px;border-radius:50%;
-  background:#fff;position:absolute;top:2px;left:2px;
-  transition:.25s
-}
-.toggle.active::after{left:24px}
-
-/* Trash icon */
-.trash{
-  color:#f44336;
-  cursor:pointer;
-  font-size:22px;
-  transition: transform 0.2s;
-}
-.trash:hover{
-  transform: scale(1.2);
-}
-
+.path{font-size:14px;word-break:break-all}
+.meta{font-size:12px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .mode{display:flex;gap:10px;margin-top:6px}
-.mode button{
-  flex:1;padding:9px;border-radius:14px;
-  border:1px solid var(--border);
-  background:transparent;color:var(--fg);cursor:pointer;
-  display:flex;gap:6px;justify-content:center;align-items:center
-}
-.mode button.active{background:var(--accent);border-color:transparent}
+.mode button{flex:1}
+.mode button.active{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
 .mode button[disabled]{opacity:.4;pointer-events:none}
-
-.actions{display:flex;gap:14px;margin-top:18px}
-.actions button{
-  flex:1;padding:15px;border-radius:20px;border:none;
-  font-weight:700;cursor:pointer;
-  display:flex;gap:8px;justify-content:center;align-items:center
-}
-.run{background:linear-gradient(135deg,#1592ff,#47a8ff);color:#fff}
-.unhide{background:#3a3f5c;color:#fff}
-
-.progress{
-  height:6px;background:#0003;border-radius:6px;
-  overflow:hidden;margin:14px 0
-}
-.bar{
-  height:100%;width:0%;
-  background:linear-gradient(90deg,#1592ff,#5bb3ff,#1592ff);
-}
+.progress{height:6px;background:var(--panel-2);border-radius:6px;overflow:hidden;margin:14px 0}
+.progress .bar{height:100%;width:0%;background:var(--accent);transition:width .3s}
+.add-row{display:flex;gap:8px;margin-bottom:14px}
+.add-row input{flex:1}
+.add-row button{flex:none}
 </style>
 </head>
-
 <body>
-<div class="app">
-  <div class="header">
-    <h1><span class="material-icons">folder_off</span> Hide Suspicious Files</h1>
-    <p>Powered by IntegrityBox</p>
-  </div>
+<div class="wrap">
+  <h1>Hide Suspicious Files</h1>
+  <p class="muted small" style="margin-bottom:14px">Powered by IntegrityBox</p>
 
-  <div class="custom-path">
-    <input id="customPath" placeholder="Enter custom path to hide">
-    <button onclick="addCustomPath()" title="Add custom path">
-      <span class="material-icons">add</span>
-    </button>
+  <div class="add-row">
+    <input id="customPath" placeholder="Enter custom path to hide"/>
+    <button class="btn btn-primary" onclick="addCustomPath()" title="Add custom path">Add</button>
   </div>
 
   <div class="progress"><div id="bar" class="bar"></div></div>
-  <div id="list">Loading…</div>
+  <div id="list" class="muted">Loading…</div>
 
-  <div class="actions">
-    <button class="run" onclick="runCleaner()">
-      <span class="material-icons">visibility_off</span> HIDE
-    </button>
-    <button class="unhide" onclick="unhide()">
-      <span class="material-icons">visibility</span> UNHIDE
-    </button>
+  <div class="row" style="margin-top:18px">
+    <button class="btn btn-primary grow" onclick="runCleaner()"><span class="spinner"></span>HIDE</button>
+    <button class="btn grow" onclick="unhide()">UNHIDE</button>
   </div>
 </div>
 
-<script>
-const SIZE_LIMIT_MB = 512;
-
-const BASE="/data/adb/Vault/.hidefiles";
-const LOG="/data/adb/Vault/webui.log";
-const VAULT="/data/adb/Vault";
-
-let PREDEFINED={
-  MT2:"/sdcard/MT2",TWRP:"/sdcard/TWRP",Fox:"/sdcard/Fox",
-  PBRP:"/sdcard/PBRP",Magisk:"/sdcard/Magisk",SHRP:"/sdcard/SHRP",
-  Migrate:"/sdcard/Migrate",CustomROM:"/vendor/bin/install-recovery.sh",
-  SwiftBackup:"/sdcard/SwiftBackup",AppManager:"/sdcard/AppManager",
-  TMP:"/sdcard/InfinityResource",KernelSU:"/sdcard/.ksu",FolkPatch:"/sdcard/Download/FolkPatch",
-  DataBackup:"/sdcard/DataBackup",OTA:"/system/addon.d"
-};
-
-let CUSTOM={}, TARGETS={...PREDEFINED};
-const sh=cmd=>parent.runShellFromIframe(cmd);
-const bar=document.getElementById("bar");
-
-const exists=async p=>(await sh(`[ -e "${p}" ] && echo 1 || echo 0`)).trim()=="1";
-
-async function getSizeSafe(p){
-  return (await sh(`du -sh "${p}" 2>/dev/null | awk '{print $1}'`)).trim()||"0B";
-}
-function sizeToMB(s){
-  const v=parseFloat(s)||0;
-  if(s.endsWith("G")) return v*1024;
-  if(s.endsWith("M")) return v;
-  if(s.endsWith("K")) return v/1024;
-  return 0;
-}
-
-async function loadConf(k){
-  try{
-    const o=await sh(`. ${BASE}/${k}.conf 2>/dev/null; echo "$ENABLED|$MODE"`);
-    const [e,m]=o.trim().split("|");
-    return {e:e==="1",m:m||"move"};
-  }catch{return {e:false,m:"move"}}
-}
-async function saveConf(k,e,m){
-  await sh(`mkdir -p ${BASE};
-    echo "ENABLED=${e?1:0}" > ${BASE}/${k}.conf;
-    echo "MODE=${m}" >> ${BASE}/${k}.conf`);
-}
-
-// Custom Paths Persistence
-async function loadCustomPaths(){
-  try{
-    const out = await sh(`cat ${BASE}/custom.conf 2>/dev/null`);
-    CUSTOM={};
-    out.trim().split("\n").forEach(line=>{
-      if(line){
-        const [name,path]=line.split("|");
-        CUSTOM[name]=path;
-      }
-    });
-    TARGETS={...PREDEFINED,...CUSTOM};
-  }catch{}
-}
-
-async function saveCustomPaths(){
-  const lines = Object.entries(CUSTOM).map(([k,v])=>`${k}|${v}`);
-  await sh(`mkdir -p ${BASE}; echo "${lines.join("\n")}" > ${BASE}/custom.conf`);
-}
-
-// Add Custom Path
-async function addCustomPath(){
-  const p = customPath.value.trim();
-  if(!p) return;
-
-  // Only allow /sdcard/ or /storage/emulated/0/
-  if(!p.startsWith("/sdcard/") && !p.startsWith("/storage/emulated/0/")){
-    alert("Only paths under /sdcard/ or /storage/emulated/0/ are allowed");
-    return;
-  }
-
-  // Check if path exists
-  if(!(await exists(p))){
-    alert("Path does not exist");
-    return;
-  }
-
-  const name = p.split("/").pop();
-  CUSTOM[name] = p;
-  TARGETS = {...PREDEFINED, ...CUSTOM};
-  await saveCustomPaths(); // persist
-  customPath.value = "";
-  render();
-}
-
-// Render
-async function render(){
-  list.innerHTML="";
-  for(const k in TARGETS){
-    const p=TARGETS[k];
-    if(!await exists(p)) continue;
-
-    const size=await getSizeSafe(p);
-    const large=sizeToMB(size)>SIZE_LIMIT_MB;
-    const recovery=p==="/vendor/bin/install-recovery.sh"||p==="/system/addon.d";
-    const cfg=await loadConf(k);
-
-    const el=document.createElement("div");
-    el.className="item";
-    el.innerHTML=`
-      <div class="row" style="align-items:center;justify-content:space-between">
-        <div class="path"><span class="material-icons">folder</span>${p}</div>
-        <div style="display:flex;gap:8px;align-items:center">
-          ${CUSTOM[k] ? `<span class="material-icons trash" title="Remove">delete</span>` : ""}
-          <div class="toggle ${cfg.e?"active":""}"></div>
-        </div>
-      </div>
-
-      <div class="meta">
-        <span>Size: ${size}</span>
-        ${large?`
-          <span class="badge warn">
-            <span class="material-icons" style="font-size:14px">block</span>
-            Too big to spoof
-          </span>`:""}
-        ${recovery?`
-          <span class="badge danger">
-            <span class="material-icons" style="font-size:14px">build</span>
-            Remove manually from recovery
-          </span>`:""}
-      </div>
-
-      <div class="mode">
-        <button data-m="move"
-          ${large||recovery?"disabled":""}
-          class="${cfg.m==="move"&&!large&&!recovery?"active":""}">
-          <span class="material-icons">visibility_off</span> Spoof
-        </button>
-        <button data-m="rename"
-          class="${cfg.m==="rename"||large||recovery?"active":""}"
-          ${recovery?"disabled":""}>
-          <span class="material-icons">deblur</span> Mask
-        </button>
-      </div>
-    `;
-
-    const t=el.querySelector(".toggle");
-    const btns=[...el.querySelectorAll(".mode button")];
-
-    t.onclick=()=>{
-      t.classList.toggle("active");
-      saveConf(k,t.classList.contains("active"),
-        btns.find(b=>b.classList.contains("active"))?.dataset.m||"rename");
-    };
-
-    btns.forEach(b=>{
-      if(b.disabled) return;
-      b.onclick=()=>{
-        btns.forEach(x=>x.classList.remove("active"));
-        b.classList.add("active");
-        saveConf(k,t.classList.contains("active"),b.dataset.m);
-      };
-    });
-
-    // Trash icon for custom paths
-    const trash = el.querySelector(".trash");
-    if(trash){
-      trash.onclick = async () => {
-        delete CUSTOM[k];
-        TARGETS = {...PREDEFINED,...CUSTOM};
-        await saveCustomPaths();
-        render();
-      };
-    }
-
-    list.appendChild(el);
-  }
-}
-
-// Run Cleaner
-async function runCleaner(){
-  const keys = Object.keys(TARGETS);
-  let done = 0;
-  await sh(`mkdir -p ${BASE}/.unhide ${VAULT}; echo "[$(date)] RUN" >> ${LOG}`);
-  for (const k of keys){
-    const p = TARGETS[k];
-    const conf = `${BASE}/${k}.conf`;
-    await sh(`
-      if [ ! -f "${conf}" ]; then echo "[SKIP] ${p} (no config)" >> ${LOG};
-      else . "${conf}";
-        if [ "$ENABLED" != "1" ]; then echo "[SKIP] ${p} (disabled)" >> ${LOG};
-        elif [ ! -e "${p}" ]; then echo "[SKIP] ${p} (missing)" >> ${LOG};
-        else TS=$(date +%s);
-          if [ -d "${p}" ]; then [ -z "$(ls -A "${p}" 2>/dev/null)" ] && EMPTY=1 || EMPTY=0;
-          else [ ! -s "${p}" ] && EMPTY=1 || EMPTY=0; fi;
-          if [ "$EMPTY" = "1" ]; then
-            mv "${p}" "${BASE}/.unhide/$(basename "${p}").$TS";
-            echo "mv \"${BASE}/.unhide/$(basename "${p}").$TS\" \"${p}\"" >> ${BASE}/last_action.sh;
-            echo "[EMPTY] ${p}" >> ${LOG};
-          else
-            if [ "$MODE" = "move" ]; then
-              dst="${VAULT}/$(basename "${p}")"; [ -e "$dst" ] && dst="$dst.$TS"; mv "${p}" "$dst";
-              echo "mv \"$dst\" \"${p}\"" >> ${BASE}/last_action.sh;
-              echo "[MOVE] ${p} -> Vault" >> ${LOG};
-            else
-              newname=$(tr -dc a-zA-Z0-9 </dev/urandom | head -c12)
-              mv "${p}" "${p}.$newname";
-              echo "mv \"${p}.$newname\" \"${p}\"" >> ${BASE}/last_action.sh;
-              echo "[RENAME] ${p}" >> ${LOG};
-            fi
-          fi
-        fi
-      fi
-    `);
-    done++;
-    bar.style.width = Math.round(done / keys.length * 100) + "%";
-  }
-  render();
-  popup("Cleaner completed","success");
-}
-
-// Unhide
-async function unhide(){
-  await sh(`[ -f ${BASE}/last_action.sh ] && sh ${BASE}/last_action.sh`);
-  await sh(`echo "[$(date)] UNHIDE" >> "${LOG}"`);
-  bar.style.width="0%";
-  render();
-  popup("Unhide completed!","info");
-}
-
-// Load Custom Paths & Render
-(async()=>{
-  await loadCustomPaths();
-  render();
-})();
-</script>
+<script src="script.js"></script>
 <script src="../TRANSLATIONS/meow.js"></script>
 <script>
 (function(){

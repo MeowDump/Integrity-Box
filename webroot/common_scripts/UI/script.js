@@ -2,49 +2,23 @@ const MODDIR = `/data/adb/modules/playintegrityfix/webroot/common_scripts`;
 const PROP = `/data/adb/modules/playintegrityfix/module.prop`;
 const BOXBRAIN = `/data/adb/Box-Brain`;
 
-const modalBackdrop = document.getElementById("modal-backdrop");
-const modalTitle = document.getElementById("modal-title");
-const modalOutput = document.getElementById("modal-output");
-const modalClose = document.getElementById("modal-close");
-
 const messageMap = {
-  "kill": { success: "DroidGuard has been restarted", type: "info" },
   "user": { start: "Blacklist Unnecessary Apps", type: "info" },
-  "stop": { success: "Switched to Blacklist Mode", type: "info" },
-  "start": { success: "Switched to Whitelist Mode", type: "info" },
-  "xml": { start: "Scanning xml files..", type: "info" },
   "pixel": { start: "Spoof your device to app", type: "info" },
-  "patch": { start: "Opening configuration..", type: "info" },
-  "aosp": { success: "Switched to AOSP Keybox", type: "info" },
-  "resetprop.sh": { success: "Done, Reopen detector to check", type: "info" },
-  "selinux": { success: "Spoofed to Enforcing", type: "info" },
   "piffork": { start: "All changes will be applied immediately", type: "info" },
   "propspoofer": { start: "These will be applied till reboot", type: "info" },
-  "nogms": { success: "Reboot to apply changes", type: "info" },
-  "yesgms": { start: "Reboot to apply changes", type: "info" },
-  "key.sh": { success: "Keybox has been updated", type: "info" },
   "flags": { start: "These requires Reboot / Action", type: "info" },
-  "profile": { start: "Good Luck old friend", type: "info" },
+  "profile": { start: "Good Luck old friend 🌚", type: "info" },
   "ctrl": { start: "For those using ROM inbuilt spoofing", type: "info" },
-  "force_override.sh": { start: "Done", type: "info" },
-  "pif": { start: "You can update fingerprint without internet", type: "info" },
-  "vending": { start: "This will clear data of Play Services & Store", type: "info" },
-  "zygisknext": { start: "Whatever you say cutie", type: "info" },
-  "cache": { start: "This will delete temporary unnecessary files", type: "info" },
-  "hide": { start: "This will hide basic sus paths", type: "info" },
-  "scanner": { start: " Click on Run Scan", success: "Detection Complete", type: "info" },
   "support": { start: "Become a Supporter", type: "info" },
   "report": { start: "What's wrong buddy?", type: "info" },
   "assistant": { start: "Let me guide you to the right path", type: "info" },
   "status": { start: "Informs you about keybox & fingerprint validity", type: "info" },
-  "hma.sh": { success: "Done", type: "info" },
-  "ulock": { success: "Done", type: "info" },
-  "faq": { start: "Coming Soon", type: "info" },
-  "nuke": { start: "Coming Soon", type: "info" },
   "repair": { success: "These doesn't require reboot", type: "info" },
   "spoofing": { start: "These are for custom ROM users", type: "info" },
   "pilot": { start: "Updates keybox & fp automatically whether a new key is available", type: "info" },
   "downloader": { start: "Some useful stuff you may need", type: "info" },
+  "hide": { start: "This will hide basic sus paths", type: "info" },
   "hash": { start: "Paste your boot hash buddy", success: "Boot hash operation complete", type: "success" }
 };
 
@@ -58,16 +32,17 @@ function popup(msg, type="info") {
   const n = document.createElement("div");
   n.className = "webui-popup";
   n.textContent = msg;
-  const colors = { error: "#ff4757", success: "#00ff88", info: "#4da3ff", warn: "#ffaa4d" };
-  const bg = colors[type] || "#4da3ff";
-  const textColor = type === "success" ? "#0a1f0f" : "#fff";
-  Object.assign(n.style, { background: bg + "dd", color: textColor });
+  const colors = { error:"#f44336", success:"#4caf50", info:"#1565c0", warn:"#ff8f00" };
+  const bg = colors[type] || "#0099FF";
+  Object.assign(n.style, {
+    position:"fixed",top:"-70px",left:"50%",transform:"translateX(-50%)",
+    background:bg,color:"#fff",padding:"0.8rem 1.2rem",borderRadius:"8px",
+    boxShadow:"0 6px 18px rgba(0,0,0,0.35)",fontWeight:"600",zIndex:"99999",
+    transition:"top 0.36s,opacity 0.36s",opacity:"0"
+  });
   document.body.appendChild(n);
-  requestAnimationFrame(() => { n.style.top = "24px"; n.style.opacity = "1"; });
-  setTimeout(() => {
-    n.style.top = "-100px"; n.style.opacity = "0";
-    setTimeout(() => n.remove(), 400);
-  }, 2800);
+  requestAnimationFrame(()=>{ n.style.top="20px"; n.style.opacity="1"; });
+  setTimeout(()=>{ n.style.top="-70px"; n.style.opacity="0"; setTimeout(()=>n.remove(),420); },2500);
 }
 
 async function runShell(cmd) {
@@ -106,7 +81,9 @@ async function checkGestureConfig() {
 
 function openIframe(url) {
   if (document.getElementById("active-iframe")) return;
+  
   const config = { gestureRight: false, backButton: false };
+  
   checkGestureConfig().then(cfg => {
     Object.assign(config, cfg);
     createIframeUI(url, config);
@@ -119,51 +96,108 @@ function createIframeUI(url, config) {
   const iframe = document.createElement("iframe");
   iframe.src = url;
   iframe.id = "active-iframe";
+
   Object.assign(iframe.style, {
-    position: "fixed", top: "0", left: "0",
-    width: "100vw", height: "100vh",
-    border: "none", zIndex: 9998, background: "#060913"
+    position: "fixed",
+    top: "0",
+    left: "0",
+    width: "100vw",
+    height: "100vh",
+    border: "none",
+    zIndex: 9998,
+    background: "black"
   });
+
   document.body.appendChild(iframe);
 
   const isRight = config.gestureRight;
+  const edgeWidth = "30px";
+  
   const edge = document.createElement("div");
   Object.assign(edge.style, {
-    position: "fixed", top: "0",
+    position: "fixed",
+    top: "0",
     [isRight ? "right" : "left"]: "0",
-    width: "36px", height: "100vh",
-    zIndex: "99999999", background: "transparent",
-    pointerEvents: "auto", touchAction: "none"
+    width: edgeWidth,
+    height: "100vh",
+    zIndex: "99999999",
+    background: "transparent",
+    pointerEvents: "auto",
+    touchAction: "none"
   });
+
   document.body.appendChild(edge);
 
   let backBtn = null;
   if (config.backButton) {
     backBtn = document.createElement("div");
-    backBtn.className = "iframe-back-btn";
-    backBtn.innerHTML = "&#8592;";
-    backBtn.style[isRight ? "left" : "right"] = "18px";
-    backBtn.addEventListener("click", () => closeIframe());
-    backBtn.addEventListener("touchstart", () => { backBtn.style.transform = "scale(0.9)"; });
-    backBtn.addEventListener("touchend", () => { backBtn.style.transform = "scale(1)"; });
+    backBtn.innerHTML = "←";
+    Object.assign(backBtn.style, {
+      position: "fixed",
+      top: "20px",
+      [isRight ? "left" : "right"]: "20px",
+      width: "44px",
+      height: "44px",
+      borderRadius: "50%",
+      background: "rgba(30,30,30,0.8)",
+      backdropFilter: "blur(10px)",
+      color: "#fff",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: "24px",
+      fontWeight: "bold",
+      zIndex: "99999999",
+      cursor: "pointer",
+      pointerEvents: "auto",
+      border: "1px solid rgba(255,255,255,0.1)",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+      transition: "transform 0.2s ease, background 0.2s ease"
+    });
+    
+    backBtn.addEventListener("click", () => {
+      closeIframe();
+    });
+    
+    backBtn.addEventListener("touchstart", () => {
+      backBtn.style.transform = "scale(0.95)";
+      backBtn.style.background = "rgba(50,50,50,0.9)";
+    });
+    
+    backBtn.addEventListener("touchend", () => {
+      backBtn.style.transform = "scale(1)";
+      backBtn.style.background = "rgba(30,30,30,0.8)";
+    });
+    
     document.body.appendChild(backBtn);
   }
 
-  let startX = 0, startTime = 0;
+  let startX = 0;
+  let startTime = 0;
+
   const onStart = (e) => {
     const t = e.touches?.[0] || e;
-    startX = t.clientX; startTime = Date.now();
+    startX = t.clientX;
+    startTime = Date.now();
   };
+
   const onEnd = (e) => {
     const t = e.changedTouches?.[0] || e;
     const diff = isRight ? startX - t.clientX : t.clientX - startX;
     const dt = Date.now() - startTime;
-    if ((diff > 40 && dt < 300) || Math.abs(diff) < 10) closeIframe();
+    const swipe = diff > 40 && dt < 300;
+
+    if (swipe || Math.abs(diff) < 10) {
+      closeIframe();
+    }
   };
+
   const closeIframe = () => {
-    iframe.remove(); edge.remove();
+    iframe.remove();
+    edge.remove();
     if (backBtn) backBtn.remove();
   };
+
   edge.addEventListener("touchstart", onStart, { passive: true });
   edge.addEventListener("touchend", onEnd);
   edge.addEventListener("mousedown", onStart);
@@ -186,62 +220,25 @@ async function fetchKeyboxStatus() {
     const response = await fetch(url, { cache: 'no-store' });
     if (!response.ok) throw new Error('HTTP ' + response.status);
     const text = await response.text();
-    if (text.includes('\uD83D\uDFE2\uD83D\uDFE2\uD83D\uDFE2')) return { status: 'STRONG', label: 'Strong' };
-    if (text.includes('\uD83D\uDFE2\uD83D\uDFE2\uD83D\uDD34')) return { status: 'DEVICE', label: 'Device' };
-    if (text.includes('\uD83D\uDD34\uD83D\uDD34\uD83D\uDD34')) return { status: 'BANNED', label: 'Banned' };
+    if (text.includes('🟢🟢🟢')) return { status: 'STRONG', label: 'Strong' };
+    if (text.includes('🟢🟢🔴')) return { status: 'DEVICE', label: 'Device' };
+    if (text.includes('🔴🔴🔴')) return { status: 'BANNED', label: 'Banned' };
     return { status: 'UNKNOWN', label: 'Unknown' };
   } catch (e) {
     return { status: 'OFFLINE', label: 'Offline' };
   }
 }
 
-function setStatus(id, text) {
-  const valEl = document.getElementById("status-" + id);
-  if (valEl) valEl.textContent = text;
-}
-
-function setPillClass(id, className) {
-  const el = document.getElementById("status-" + id);
-  if (!el) return;
-  el.className = "status-pill " + className;
-}
-
 async function updateDashboard() {
-  const expiryEl = document.getElementById("status-expiry");
-  if (expiryEl) {
-    try {
-      const file = "/data/adb/modules/playintegrityfix/custom.pif.prop";
-      const exp = await readExpiry(file);
-      if (!exp) {
-        setStatus("expiry", "Unknown");
-        setPillClass("expiry", "blue");
-      } else {
-        const expDate = new Date(exp.trim().replace(/[^0-9-]/g, "") + "T00:00:00");
-        if (isNaN(expDate.getTime())) {
-          setStatus("expiry", "Unknown");
-          setPillClass("expiry", "blue");
-        } else {
-          const now = new Date();
-          const diff = Math.max(0, Math.floor((expDate - now) / 86400000));
-          setStatus("expiry", diff + " days");
-          if (diff > 30) setPillClass("expiry", "green");
-          else if (diff > 7) setPillClass("expiry", "blue");
-          else setPillClass("expiry", "orange");
-        }
-      }
-    } catch {
-      setStatus("expiry", "Unknown");
-      setPillClass("expiry", "blue");
-    }
-  }
-
   const statusItems = {
-    "selinux": "getenforce || echo Unknown",
-    "target": "[ -f /data/adb/tricky_store/target.txt ] && grep -cve '^$' /data/adb/tricky_store/target.txt || echo 0",
-    "pixel": "[ -f /data/adb/modules/playintegrityfix/custom.pif.prop ] && awk -F= '/^MODEL=/{print $2}' /data/adb/modules/playintegrityfix/custom.pif.prop || echo None",
-    "patch": "getprop ro.build.version.security_patch || echo Unknown",
-    "profile": `if [ -f ${BOXBRAIN}/advanced ]; then echo 'Supreme'; elif [ -f ${BOXBRAIN}/pixelify ]; then echo 'Pixelify'; elif [ -f ${BOXBRAIN}/legacy ]; then echo 'Legacy'; elif [ -f ${BOXBRAIN}/wipe ]; then echo 'Meta'; else echo 'None'; fi`,
-    "LineageProp": `
+    "status-selinux": "getenforce || echo Unknown",
+    "status-target": "[ -f /data/adb/tricky_store/target.txt ] && grep -cve '^$' /data/adb/tricky_store/target.txt || echo 0",
+    "status-pixel": "[ -f /data/adb/modules/playintegrityfix/custom.pif.prop ] && awk -F= '/^MODEL=/{print $2}' /data/adb/modules/playintegrityfix/custom.pif.prop || echo None",
+    "status-patch": "getprop ro.build.version.security_patch || echo Unknown",
+    "status-integrity": "__FETCH_KEYBOX__",
+    "status-profile": `if [ -f ${BOXBRAIN}/advanced ]; then echo 'Supreme'; elif [ -f ${BOXBRAIN}/pixelify ]; then echo 'Pixelify'; elif [ -f ${BOXBRAIN}/legacy ]; then echo 'Legacy'; elif [ -f ${BOXBRAIN}/wipe ]; then echo 'Meta'; else echo 'None'; fi`,
+
+    "status-LineageProp": `
       if [ -f ${BOXBRAIN}/safemode ]; then
         echo OTA
       elif getprop | grep -iq 'lineage'; then
@@ -251,193 +248,193 @@ async function updateDashboard() {
       fi
     `
   };
-
-  const purpleIds = ["integrity", "profile", "LineageProp", "selinux"];
-  const blueIds = ["pixel", "expiry", "patch", "target"];
-
-  for (const [id, cmd] of Object.entries(statusItems)) {
-    const valEl = document.getElementById("status-" + id);
-    if (!valEl) continue;
-
+  
+  const expiryEl = document.getElementById("status-expiry");
+  if (expiryEl) {
     try {
-      let out = (await runShell(cmd)).trim();
-      if (!out) out = "Unknown";
-      setStatus(id, out);
-      if (purpleIds.includes(id)) setPillClass(id, "purple");
-      else if (blueIds.includes(id)) setPillClass(id, "blue");
+      const file = "/data/adb/modules/playintegrityfix/custom.pif.prop";
+      const exp = await readExpiry(file);
+
+      if (!exp) {
+        expiryEl.textContent = "Unknown";
+        expiryEl.className = "chip disabled";
+      } else {
+        const expDate = new Date(exp.trim().replace(/[^0-9-]/g, "") + "T00:00:00");
+        if (isNaN(expDate.getTime())) {
+          expiryEl.textContent = "Unknown";
+          expiryEl.className = "chip disabled";
+        } else {
+          const now = new Date();
+          const diff = Math.max(0, Math.floor((expDate - now) / 86400000));
+
+          if (diff < 3) {
+            expiryEl.className = "chip disabled";
+          } else if (diff < 7) {
+            expiryEl.className = "chip aqua";
+          } else {
+            expiryEl.className = "chip enabled";
+          }
+          expiryEl.textContent = `${diff} days`;
+        }
+      }
     } catch {
-      setStatus(id, "Unknown");
-      if (purpleIds.includes(id)) setPillClass(id, "purple");
-      else if (blueIds.includes(id)) setPillClass(id, "blue");
+      expiryEl.textContent = "Unknown";
+      expiryEl.className = "chip disabled";
     }
   }
 
+  for (const [id, cmd] of Object.entries(statusItems)) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+
+    if (id === "status-integrity") {
+      try {
+        const result = await fetchKeyboxStatus();
+        el.textContent = result.label;
+        if (result.status === 'STRONG') {
+          el.className = "chip play";
+        } else if (result.status === 'DEVICE') {
+          el.className = "chip play";
+        } else if (result.status === 'BANNED') {
+          el.className = "chip disabled";
+        } else {
+          el.className = "chip disabled";
+        }
+      } catch {
+        el.textContent = "Offline";
+        el.className = "chip disabled";
+      }
+      continue;
+    }
   try {
-    const result = await fetchKeyboxStatus();
-    setStatus("integrity", result.label);
-    if (result.status === 'STRONG') setPillClass("integrity", "green");
-    else if (result.status === 'BANNED') setPillClass("integrity", "red");
-    else if (result.status === 'DEVICE') setPillClass("integrity", "orange");
-    else setPillClass("integrity", "purple");
-  } catch {
-    setStatus("integrity", "Offline");
-    setPillClass("integrity", "purple");
+    let out = (await runShell(cmd)).trim();
+    if (!out) out = "Unknown";
+
+    switch (id) {
+
+        case "status-profile":
+          el.textContent = out;
+          el.className = "chip play";
+          break;
+
+        case "status-selinux":
+          el.textContent = out;
+          el.className = `chip ${
+            out === "Enforcing" ? "play" : out === "Permissive" ? "disabled" : "aqua"
+          }`;
+          break;
+
+        case "status-target":
+          const count = parseInt(out) || 0;
+          el.textContent = `${out} apps`;
+          el.className = `chip ${count === 0 || count > 50 ? "disabled" : "enabled"}`;
+          break;
+          
+        case "status-pixel":
+        case "status-patch":
+          el.textContent = out;
+          el.className = "chip enabled";
+          break;
+
+        case "status-LineageProp":
+          if (out === "OTA") {
+            el.textContent = "OTA";
+          } else if (out === "FOUND") {
+            el.textContent = "90% Spoofed";
+          } else {
+            el.textContent = "Spoofed";
+          }
+          el.className = "chip play";
+          break;
+
+        default:
+          el.textContent = out;
+          el.className = `chip ${out === "Unknown" ? "disabled" : "aqua"}`;
+      }
+    } catch {
+      el.textContent = "Unknown";
+      el.className = "chip disabled";
+    }
   }
 }
 
 function attachButtonListeners() {
-  const btns = Array.from(document.querySelectorAll(".list-row:not(.list-row-static)"));
+  const btns = Array.from(document.querySelectorAll(".btn"));
+  
   btns.forEach(btn => {
     if (btn._attached) return;
     btn._attached = true;
+    
     btn.addEventListener("click", async () => {
       const script = btn.dataset.script;
       const type = btn.dataset.type;
 
-      btn.style.pointerEvents = "none";
-      btn.style.opacity = "0.5";
+      btn.classList.add("loading");
 
       try {
-        if (["scanner","hash","user","flags","cache","nuke","piffork","propspoofer","pif","vending","downloader","keymint",
-             "support","report","profile","assistant","repair","pilot","faq","spoofing","status","tee","xml","pixel","hide","patch","ctrl"].includes(type)) {
+        if (["hash","user","flags","repair","profile","pixel","hide",
+             "support","report","assistant","pilot","spoofing","ctrl","piffork","propspoofer","downloader"].includes(type)) {
 
           const pathMap = {
-            ctrl: "./Control/index.html",
-            hash: "./BootHash/index.html",
-            flags: "./Flags/index.html",
-            piffork: "./PlayIntegrityFork/index.html",
-            propspoofer: "./PropSpoofer/index.html",
-            support: "./Support/index.html",
-            report: "./Report/index.html",
-            user: "./TrickyStore/index.html",
-            pixel: "./Pixel/index.html",
-            hide: "./HideMyFiles/index.html",
-            profile: "./Profile/index.html",
-            assistant: "./Assistant/index.html",
-            repair: "./RepairMode/index.html",
-            pilot: "./Pilot/index.html",
-            spoofing: "./Spoofing/index.html",
-            downloader: "./Downloader/index.html"
+            ctrl:"./Control/index.html",
+            hash:"./BootHash/index.html",
+            flags:"./Flags/index.html",
+            piffork:"./PlayIntegrityFork/index.html",
+            propspoofer:"./PropSpoofer/index.html",
+            support:"./Support/index.html",
+            report:"./Report/index.html",
+            user:"./TrickyStore/index.html",
+            pixel:"./Pixel/index.html",
+            hide:"./HideMyFiles/index.html",
+            profile:"./Profile/index.html",
+            assistant:"./Assistant/index.html",
+            repair:"./RepairMode/index.html",
+            pilot:"./Pilot/index.html",
+            spoofing:"./Spoofing/index.html",
+            downloader:"./Downloader/index.html"
           };
 
           const toastKey = (type || script || "").trim().replace(/\.sh$/, "");
           const msg = messageMap[toastKey];
-          popup(msg?.start || "Opening...", msg?.type || "info");
+
+          if (msg?.start) {
+            popup(msg.start, msg.type);
+          } else {
+            popup("Opening…", "info");
+          }
+
           return openIframe(pathMap[type]);
         }
 
         if (script) {
           if (messageMap[script]?.start)
             popup(messageMap[script].start, messageMap[script].type);
+
           await runShell(`sh ${MODDIR}/${script}`);
           if (messageMap[script]?.success)
             popup(messageMap[script].success, messageMap[script].type);
         }
+
       } catch (e) {
-        popup("Error: " + e.message, "error");
+        popup(`Error: ${e.message}`, "error");
       } finally {
-        btn.style.pointerEvents = "";
-        btn.style.opacity = "";
+        btn.classList.remove("loading");
         setTimeout(updateDashboard, 500);
       }
     });
   });
 }
 
-function initDashboardCollapse() {
-  const dashboard = document.getElementById("dashboard");
-  const toggle = document.getElementById("collapse-toggle");
-  if (!toggle || !dashboard) return;
-
-  toggle.addEventListener("click", () => {
-    dashboard.classList.toggle("collapsed");
-  });
-}
-
-function initTabs() {
-  const navItems = document.querySelectorAll(".nav-item");
-  const panels = document.querySelectorAll(".tab-panel");
-  const tabs = Array.from(navItems).map(n => n.dataset.tab);
-  let currentIndex = 0;
-
-  function switchTab(index) {
-    if (index < 0 || index >= tabs.length) return;
-    const direction = index > currentIndex ? "right" : "left";
-    const currentPanel = document.getElementById("tab-" + tabs[currentIndex]);
-    const nextPanel = document.getElementById("tab-" + tabs[index]);
-
-    currentPanel.classList.remove("active");
-    currentPanel.classList.add(direction === "right" ? "exit-left" : "exit-right");
-
-    nextPanel.classList.remove("exit-left", "exit-right");
-    nextPanel.classList.add("active", direction === "right" ? "enter-right" : "enter-left");
-
-    requestAnimationFrame(() => {
-      nextPanel.classList.remove("enter-right", "enter-left");
-    });
-
-    navItems.forEach(n => n.classList.remove("active"));
-    navItems[index].classList.add("active");
-    currentIndex = index;
-  }
-
-  navItems.forEach((item, idx) => {
-    item.addEventListener("click", () => switchTab(idx));
-  });
-
-  let touchStartX = 0;
-  let touchStartY = 0;
-  let touchStartTime = 0;
-
-  const app = document.querySelector(".app");
-  app.addEventListener("touchstart", (e) => {
-    const t = e.touches[0];
-    touchStartX = t.clientX;
-    touchStartY = t.clientY;
-    touchStartTime = Date.now();
-  }, { passive: true });
-
-  app.addEventListener("touchend", (e) => {
-    const t = e.changedTouches[0];
-    const dx = t.clientX - touchStartX;
-    const dy = t.clientY - touchStartY;
-    const dt = Date.now() - touchStartTime;
-
-    if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx) * 1.5 || dt > 350) return;
-
-    if (dx < 0 && currentIndex < tabs.length - 1) {
-      switchTab(currentIndex + 1);
-    } else if (dx > 0 && currentIndex > 0) {
-      switchTab(currentIndex - 1);
-    }
-  }, { passive: true });
-}
-
-function initModal() {
-  modalClose.addEventListener("click", () => {
-    modalBackdrop.classList.add("hidden");
-  });
-  modalBackdrop.addEventListener("click", (e) => {
-    if (e.target === modalBackdrop) modalBackdrop.classList.add("hidden");
-  });
-}
-
-function hideIntro() {
-  const intro = document.getElementById("intro-overlay");
-  if (intro) {
-    setTimeout(() => {
-      intro.classList.add("hidden");
-      setTimeout(() => intro.remove(), 800);
-    }, 1200);
-  }
-}
-
 document.addEventListener("DOMContentLoaded", () => {
   enableFullScreen();
-  initDashboardCollapse();
-  initTabs();
   attachButtonListeners();
-  initModal();
-  hideIntro();
   updateDashboard();
+  if (document.fonts && document.fonts.check("16px 'Material Symbols Outlined'")) {
+    document.documentElement.classList.add("fonts-loaded");
+  } else if (document.fonts) {
+    document.fonts.load("16px 'Material Symbols Outlined'").then(() => {
+      if (document.fonts.check("16px 'Material Symbols Outlined'"))
+        document.documentElement.classList.add("fonts-loaded");
+    }).catch(() => {});
+  }
 });

@@ -1,568 +1,77 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Security Patch 2026</title>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet">
+<link rel="stylesheet" href="../common.css"/>
 <style>
-:root{
-  --bg:radial-gradient(circle at top, #1c2045, #0e1020);
-  --card:#1b1e33cc;
-  --card-border:#ffffff14;
-  --accent:#4da3ff;
-  --accent-glow:rgba(77,163,255,0.3);
-  --success:#4dff88;
-  --danger:#ff4d4d;
-  --text-primary:#e9ecff;
-  --text-secondary:#9aa3ff;
-  --text-muted:#6b7280;
-  --hover:rgba(255,255,255,0.05);
-  --radius:20px;
-  --radius-sm:12px;
-}
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
-html,body{
-  min-height:100vh;
-  background:var(--bg);
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-  color:var(--text-primary);
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  padding:40px 16px;
-}
-.container{
-  width:100%;
-  max-width:380px;
-  background:var(--card);
-  backdrop-filter:blur(20px);
-  border:1px solid var(--card-border);
-  border-radius:var(--radius);
-  padding:24px;
-  box-shadow:0 20px 60px rgba(0,0,0,0.5);
-}
-.header{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  margin-bottom:24px;
-}
-.header-icon{
-  width:40px;
-  height:40px;
-  background:linear-gradient(135deg,var(--accent),#0d7ad9);
-  border-radius:var(--radius-sm);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  box-shadow:0 4px 20px var(--accent-glow);
-}
-.header-icon span{
-  font-size:22px;
-  color:white;
-}
-.title{
-  font-size:22px;
-  font-weight:700;
-  letter-spacing:-0.5px;
-}
-.subtitle{
-  text-align:center;
-  color:var(--text-secondary);
-  font-size:13px;
-  margin-bottom:24px;
-  font-weight:500;
-}
-.preview-card{
-  background:rgba(0,0,0,0.2);
-  border-radius:var(--radius-sm);
-  padding:16px;
-  margin-bottom:24px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:12px;
-  border:1px solid var(--card-border);
-  transition:all 0.3s ease;
-}
-.preview-card.active{
-  border-color:var(--accent);
-  background:rgba(77,163,255,0.1);
-}
-.preview-date{
-  font-size:28px;
-  font-weight:700;
-  color:var(--accent);
-  font-variant-numeric:tabular-nums;
-}
-.preview-label{
-  font-size:12px;
-  color:var(--text-secondary);
-  text-transform:uppercase;
-  letter-spacing:1px;
-}
-.section{
-  margin-bottom:20px;
-}
-.section-header{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  margin-bottom:12px;
-  color:var(--text-secondary);
-  font-size:12px;
-  font-weight:600;
-  text-transform:uppercase;
-  letter-spacing:0.5px;
-}
-.section-header span{
-  font-size:16px;
-}
-.month-scroll{
-  display:flex;
-  gap:8px;
-  overflow-x:auto;
-  padding-bottom:8px;
-  scrollbar-width:none;
-}
-.month-scroll::-webkit-scrollbar{
-  display:none;
-}
-.month-item{
-  flex-shrink:0;
-  padding:10px 16px;
-  background:rgba(255,255,255,0.03);
-  border:1px solid var(--card-border);
-  border-radius:var(--radius-sm);
-  cursor:pointer;
-  transition:all 0.2s ease;
-  font-size:13px;
-  font-weight:500;
-  color:var(--text-secondary);
-}
-.month-item:hover{
-  background:var(--hover);
-  border-color:rgba(255,255,255,0.2);
-}
-.month-item.active{
-  background:var(--accent);
-  border-color:var(--accent);
-  color:white;
-  box-shadow:0 4px 16px var(--accent-glow);
-  font-weight:600;
-}
-.date-grid{
-  display:grid;
-  grid-template-columns:repeat(7,1fr);
-  gap:6px;
-}
-.date-item{
-  aspect-ratio:1;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:rgba(255,255,255,0.03);
-  border:1px solid transparent;
-  border-radius:var(--radius-sm);
-  cursor:pointer;
-  font-size:14px;
-  font-weight:500;
-  transition:all 0.15s ease;
-  color:var(--text-primary);
-}
-.date-item:hover:not(.disabled){
-  background:var(--hover);
-  border-color:rgba(255,255,255,0.1);
-  transform:translateY(-2px);
-}
-.date-item:active:not(.disabled){
-  transform:scale(0.95);
-}
-.date-item.active{
-  background:var(--accent);
-  border-color:var(--accent);
-  color:white;
-  box-shadow:0 4px 12px var(--accent-glow);
-  font-weight:700;
-}
-.date-item.disabled{
-  opacity:0.25;
-  cursor:not-allowed;
-  background:transparent;
-}
-.date-item.empty{
-  background:transparent;
-  cursor:default;
-  pointer-events:none;
-}
-.weekday-header{
-  display:grid;
-  grid-template-columns:repeat(7,1fr);
-  gap:6px;
-  margin-bottom:8px;
-}
-.weekday{
-  text-align:center;
-  font-size:11px;
-  color:var(--text-muted);
-  font-weight:600;
-  text-transform:uppercase;
-}
-.action-btn{
-  width:100%;
-  margin-top:24px;
-  padding:14px;
-  background:linear-gradient(135deg,var(--accent),#0d7ad9);
-  border:none;
-  border-radius:var(--radius);
-  color:white;
-  font-size:16px;
-  font-weight:600;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  transition:all 0.2s ease;
-  box-shadow:0 4px 20px var(--accent-glow);
-}
-.action-btn:hover{
-  transform:translateY(-2px);
-  box-shadow:0 6px 24px rgba(77,163,255,0.4);
-}
-.action-btn:active{
-  transform:translateY(0);
-}
-.action-btn span{
-  font-size:20px;
-}
-.status{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
-  margin-top:16px;
-  font-size:12px;
-  color:var(--text-secondary);
-}
-.status-dot{
-  width:6px;
-  height:6px;
-  background:var(--success);
-  border-radius:50%;
-  box-shadow:0 0 8px var(--success);
-}
-.status-dot.warning{
-  background:var(--danger);
-  box-shadow:0 0 8px var(--danger);
-}
-.toast{
-  position:fixed;
-  left:50%;
-  bottom:30px;
-  transform:translateX(-50%) translateY(20px);
-  background:rgba(30,33,60,0.95);
-  backdrop-filter:blur(20px);
-  color:var(--text-primary);
-  padding:14px 28px;
-  border-radius:100px;
-  box-shadow:0 10px 40px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.1);
-  opacity:0;
-  pointer-events:none;
-  transition:all 0.35s cubic-bezier(0.4,0,0.2,1);
-  z-index:9999;
-  font-weight:600;
-  font-size:15px;
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-.toast.show{
-  opacity:1;
-  transform:translateX(-50%) translateY(0);
-}
-.toast .material-symbols-rounded{
-  font-size:20px;
-  color:var(--success);
-}
+.page{max-width:420px;margin:0 auto}
+.header{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.subtitle{color:var(--muted);font-size:13px;margin-bottom:16px}
+.preview-card{background:var(--panel-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-bottom:18px;display:flex;align-items:center;justify-content:center;gap:12px}
+.preview-card.active{border-color:var(--accent)}
+.preview-date{font-size:26px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+.preview-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.section{margin-bottom:18px}
+.section-header{color:var(--muted);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.month-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+.month-scroll::-webkit-scrollbar{display:none}
+.month-item{flex-shrink:0;padding:8px 14px;background:var(--panel-2);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-weight:500;color:var(--muted)}
+.month-item.active{background:var(--accent);border-color:var(--accent);color:var(--accent-fg);font-weight:600}
+.date-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.date-item{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:var(--panel-2);border:1px solid transparent;border-radius:var(--radius-sm);cursor:pointer;font-size:14px;font-weight:500;color:var(--fg)}
+.date-item.active{background:var(--accent);border-color:var(--accent);color:var(--accent-fg);font-weight:700}
+.date-item.disabled{opacity:.25;cursor:not-allowed;background:transparent}
+.date-item.empty{background:transparent;cursor:default;pointer-events:none}
+.weekday-header{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:8px}
+.weekday{text-align:center;font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase}
+.status{display:flex;align-items:center;gap:6px;margin-top:14px;font-size:12px;color:var(--muted)}
+.status-dot{width:6px;height:6px;background:var(--ok);border-radius:50%;flex:none}
+.status-dot.warning{background:var(--err)}
 </style>
 </head>
 <body>
-
-<div class="container">
-  <div class="header">
-    <div class="header-icon">
-      <span class="material-symbols-rounded">calendar_month</span>
-    </div>
-    <div class="title">Integrity Patch</div>
-  </div>
-  
+<div class="wrap wrap-narrow page">
+  <div class="header"><h1 style="margin:0">Integrity Patch</h1></div>
   <div class="subtitle">Select security patch date for 2026</div>
-  
-  <div class="preview-card" id="previewCard">
-    <span class="material-symbols-rounded" style="color:var(--accent);font-size:24px;">event</span>
-    <div>
-      <div class="preview-label">Selected Date</div>
-      <div class="preview-date" id="previewDate">--/--</div>
-    </div>
-  </div>
 
-  <div class="section">
-    <div class="section-header">
-      <span class="material-symbols-rounded">calendar_view_month</span>
-      Month
+  <div class="card">
+    <div class="preview-card" id="previewCard">
+      <div>
+        <div class="preview-label">Selected Date</div>
+        <div class="preview-date" id="previewDate">--/--</div>
+      </div>
     </div>
-    <div class="month-scroll" id="monthScroll"></div>
-  </div>
 
-  <div class="section">
-    <div class="section-header">
-      <span class="material-symbols-rounded">calendar_view_day</span>
-      Date
+    <div class="section">
+      <div class="section-header">Month</div>
+      <div class="month-scroll" id="monthScroll"></div>
     </div>
-    <div class="weekday-header">
-      <div class="weekday">S</div>
-      <div class="weekday">M</div>
-      <div class="weekday">T</div>
-      <div class="weekday">W</div>
-      <div class="weekday">T</div>
-      <div class="weekday">F</div>
-      <div class="weekday">S</div>
-    </div>
-    <div class="date-grid" id="dateGrid"></div>
-  </div>
 
-  <button class="action-btn" onclick="save()">
-    <span class="material-symbols-rounded">check_circle</span>
-    Apply Patch
-  </button>
-  
-  <div class="status" id="status">
-    <div class="status-dot" id="statusDot"></div>
-    <span id="statusText">Initializing...</span>
+    <div class="section">
+      <div class="section-header">Date</div>
+      <div class="weekday-header">
+        <div class="weekday">S</div>
+        <div class="weekday">M</div>
+        <div class="weekday">T</div>
+        <div class="weekday">W</div>
+        <div class="weekday">T</div>
+        <div class="weekday">F</div>
+        <div class="weekday">S</div>
+      </div>
+      <div class="date-grid" id="dateGrid"></div>
+    </div>
+
+    <button class="btn btn-primary btn-block" onclick="save()"><span class="spinner"></span>Apply Patch</button>
+
+    <div class="status" id="status">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">Initializing...</span>
+    </div>
   </div>
 </div>
 
-<div id="toast" class="toast">
-  <span class="material-symbols-rounded">check_circle</span>
-  <span id="toastText">Saved</span>
-</div>
-
-<script>
-const months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-const today=new Date();
-const todayY=today.getFullYear();
-const todayM=today.getMonth()+1;
-const todayD=today.getDate();
-
-let selMonth=null, selDate=null;
-
-const monthScroll=document.getElementById("monthScroll");
-const dateGrid=document.getElementById("dateGrid");
-const previewDate=document.getElementById("previewDate");
-const previewCard=document.getElementById("previewCard");
-const statusText=document.getElementById("statusText");
-const statusDot=document.getElementById("statusDot");
-
-const PATCH_FILE="/data/adb/tricky_store/security_patch.txt";
-const CUSTOM_DIR="/data/adb/Box-Brain/Custom-Patch";
-
-function showToast(msg){
-  document.getElementById('toastText').textContent=msg;
-  document.getElementById('toast').classList.add('show');
-  setTimeout(()=>document.getElementById('toast').classList.remove('show'),1400);
-}
-
-async function sh(cmd){
-  try{
-    if(typeof ksu?.exec==='function'){
-      const maybe=ksu.exec(cmd);
-      if(maybe && typeof maybe.then==='function') return (await maybe).toString().trim();
-      if(typeof maybe==='string') return maybe.toString().trim();
-      return await new Promise((resolve)=>{
-        const cb=`cb_${Date.now()}_${Math.random()*10000|0}`;
-        window[cb]=(code,stdout,stderr)=>{
-          delete window[cb];
-          resolve(code===0?(stdout||'').toString().trim():((stdout||'')+(stderr||'')).toString().trim());
-        };
-        ksu.exec(cmd,"{}",cb);
-      });
-    }
-    return '';
-  }catch(e){return ''}
-}
-
-function initMonths(){
-  months.forEach((m,i)=>{
-    const el=document.createElement("div");
-    el.className="month-item";
-    el.textContent=m;
-    el.onclick=()=>{
-      selMonth=i+1;
-      [...monthScroll.children].forEach(x=>x.classList.remove("active"));
-      el.classList.add("active");
-      refreshDates();
-      updatePreview();
-    };
-    monthScroll.appendChild(el);
-  });
-}
-
-function getDaysInMonth(month,year){
-  return new Date(year,month,0).getDate();
-}
-
-function getFirstDayOfMonth(month,year){
-  return new Date(year,month-1,1).getDay();
-}
-
-function refreshDates(){
-  dateGrid.innerHTML="";
-  if(!selMonth) return;
-  
-  const daysInMonth=getDaysInMonth(selMonth,2026);
-  const firstDay=getFirstDayOfMonth(selMonth,2026);
-  
-  for(let i=0;i<firstDay;i++){
-    const empty=document.createElement("div");
-    empty.className="date-item empty";
-    dateGrid.appendChild(empty);
-  }
-  
-  for(let d=1;d<=daysInMonth;d++){
-    const el=document.createElement("div");
-    el.className="date-item";
-    el.textContent=d;
-    
-    const isFuture=todayY===2026 && (selMonth>todayM || (selMonth===todayM && d>todayD));
-    if(isFuture){
-      el.classList.add("disabled");
-    }
-    
-    el.onclick=()=>{
-      if(el.classList.contains("disabled")){
-        showToast("Future dates are not allowed");
-        return;
-      }
-      selDate=d;
-      [...dateGrid.children].forEach(x=>x.classList.remove("active"));
-      el.classList.add("active");
-      updatePreview();
-    };
-    
-    if(selDate===d && !isFuture){
-      el.classList.add("active");
-    }
-    
-    dateGrid.appendChild(el);
-  }
-}
-
-function updatePreview(){
-  if(selMonth && selDate){
-    const mm=String(selMonth).padStart(2,"0");
-    const dd=String(selDate).padStart(2,"0");
-    previewDate.textContent=`2026-${mm}-${dd}`;
-    previewCard.classList.add("active");
-  } else {
-    previewDate.textContent="--/--";
-    previewCard.classList.remove("active");
-  }
-}
-
-function selectMonth(month){
-  selMonth=month;
-  const items=monthScroll.children;
-  for(let i=0;i<items.length;i++){
-    items[i].classList.toggle("active",i+1===month);
-  }
-  refreshDates();
-}
-
-function selectDate(date){
-  selDate=date;
-  const items=dateGrid.querySelectorAll(".date-item:not(.empty)");
-  items.forEach((el)=>{
-    const d=parseInt(el.textContent);
-    if(d===date && !el.classList.contains("disabled")){
-      el.classList.add("active");
-    } else {
-      el.classList.remove("active");
-    }
-  });
-  updatePreview();
-}
-
-async function loadExistingDate(){
-  statusText.textContent="Reading patch file...";
-  
-  const out=await sh(`cat ${PATCH_FILE} 2>/dev/null || echo "FILE_NOT_FOUND"`);
-  const output=out.trim();
-  
-  if(output==="FILE_NOT_FOUND" || !output){
-    statusText.textContent="No existing patch found";
-    statusDot.classList.add("warning");
-    refreshDates();
-    return;
-  }
-  
-  const match=output.match(/all=(\d{4})-(\d{2})-(\d{2})/);
-  if(match){
-    const year=parseInt(match[1]);
-    const month=parseInt(match[2]);
-    const day=parseInt(match[3]);
-    
-    if(year===2026 && month>=1 && month<=12 && day>=1 && day<=31){
-      selectMonth(month);
-      setTimeout(()=>{
-        selectDate(day);
-        statusText.textContent=`Loaded: ${match[1]}-${match[2]}-${match[3]}`;
-        statusDot.classList.remove("warning");
-      },100);
-      return;
-    }
-  }
-  
-  statusText.textContent="Invalid patch format";
-  statusDot.classList.add("warning");
-  refreshDates();
-}
-
-async function save(){
-  if(!selMonth || !selDate){
-    showToast("Please select month and date");
-    return;
-  }
-  if(todayY===2026 && (selMonth>todayM || (selMonth===todayM && selDate>todayD))){
-    showToast("Future date blocked");
-    return;
-  }
-  const mm=String(selMonth).padStart(2,"0");
-  const dd=String(selDate).padStart(2,"0");
-  const dateStr=`2026-${mm}-${dd}`;
-  
-  const cmd=`mkdir -p ${CUSTOM_DIR} && rm -f ${CUSTOM_DIR}/* && echo 'all=${dateStr}' > ${PATCH_FILE} && touch ${CUSTOM_DIR}/${dateStr}`;
-  
-  await sh(cmd);
-  showToast(`Saved ${dateStr}`);
-  statusText.textContent=`Active: ${dateStr}`;
-  statusDot.classList.remove("warning");
-}
-
-document.addEventListener('DOMContentLoaded',()=>{
-  initMonths();
-  loadExistingDate().catch(()=>{
-    statusText.textContent="Failed to initialize";
-    statusDot.classList.add("warning");
-  });
-});
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>

@@ -1,1215 +1,237 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Play Integrity Manager</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #0a0c1a;
-            --bg-gradient-start: #0f1424;
-            --bg-gradient-end: #070810;
-            --surface: rgba(30, 35, 60, 0.6);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --text-primary: #ffffff;
-            --text-secondary: #a0a8d0;
-            --text-tertiary: #6b7aa8;
-            --accent: #4da3ff;
-            --success: #4dff88;
-            --warning: #ffb84d;
-            --danger: #ff4d6d;
-        }
-
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg) 50%, var(--bg-gradient-end) 100%);
-            color: var(--text-primary);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            min-height: 100vh;
-            padding-bottom: 100px;
-            line-height: 1.5;
-            overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 480px;
-            margin: 0 auto;
-            padding: 24px 20px;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 32px;
-            padding: 16px 4px;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .brand-icon {
-            width: 52px;
-            height: 52px;
-            background: linear-gradient(135deg, rgba(77, 163, 255, 0.9) 0%, rgba(0, 100, 255, 0.8) 100%);
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 16px rgba(77, 163, 255, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .brand-icon span {
-            color: white;
-            font-size: 28px;
-        }
-
-        .brand-text h1 {
-            font-size: 1.4rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #fff 0%, var(--text-secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .brand-text p {
-            font-size: 0.85rem;
-            color: var(--text-tertiary);
-            margin-top: 4px;
-        }
-
-        .status-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 18px;
-            background: var(--surface);
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            border: 1px solid var(--glass-border);
-        }
-
-        .status-indicator {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--success);
-        }
-
-        .status-indicator.offline {
-            background: var(--danger);
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin: 32px 0 16px 0;
-            padding: 0 4px;
-        }
-
-        .section-title {
-            font-size: 1.15rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .section-title span {
-            color: var(--accent);
-            font-size: 1.3rem;
-        }
-
-        .info-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--surface);
-            border: 1px solid var(--glass-border);
-            color: var(--text-secondary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .glass-card {
-            background: var(--surface);
-            border-radius: 24px;
-            overflow: hidden;
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-        }
-
-        .verdict-list { padding: 12px 0; }
-
-        .verdict-item {
-            display: flex;
-            align-items: center;
-            padding: 18px 24px;
-            position: relative;
-        }
-
-        .verdict-item:not(:last-child)::after {
-            content: '';
-            position: absolute;
-            left: 80px;
-            right: 24px;
-            bottom: 0;
-            height: 1px;
-            background: var(--glass-border);
-        }
-
-        .verdict-icon-wrap {
-            width: 44px;
-            height: 44px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 18px;
-        }
-
-        .verdict-item.pass .verdict-icon-wrap {
-            background: rgba(77, 255, 136, 0.15);
-            color: var(--success);
-            border: 1px solid rgba(77, 255, 136, 0.2);
-        }
-
-        .verdict-item.fail .verdict-icon-wrap {
-            background: rgba(255, 77, 109, 0.15);
-            color: var(--danger);
-            border: 1px solid rgba(255, 77, 109, 0.2);
-        }
-
-        .verdict-item.loading .verdict-icon-wrap {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-tertiary);
-            border: 1px solid var(--glass-border);
-        }
-
-        .verdict-content { flex: 1; }
-
-        .verdict-name {
-            font-size: 1.05rem;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .verdict-desc {
-            font-size: 0.85rem;
-            color: var(--text-tertiary);
-        }
-
-        .verdict-status-pill {
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-size: 0.8rem;
-            font-weight: 700;
-        }
-
-        .verdict-item.pass .verdict-status-pill {
-            background: rgba(77, 255, 136, 0.1);
-            color: var(--success);
-            border: 1px solid rgba(77, 255, 136, 0.2);
-        }
-
-        .verdict-item.fail .verdict-status-pill {
-            background: rgba(255, 77, 109, 0.1);
-            color: var(--danger);
-            border: 1px solid rgba(255, 77, 109, 0.2);
-        }
-
-        .verdict-item.loading .verdict-status-pill {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-tertiary);
-            border: 1px solid var(--glass-border);
-        }
-
-        .identity-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1px;
-            background: var(--glass-border);
-            border-radius: 24px;
-            overflow: hidden;
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-        }
-
-        .identity-item {
-            background: var(--surface);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .identity-item.full-width { grid-column: 1 / -1; }
-
-        .identity-label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-tertiary);
-            text-transform: uppercase;
-        }
-
-        .identity-value {
-            font-size: 1rem;
-            font-weight: 600;
-            word-break: break-word;
-        }
-
-        .identity-value.mono {
-            font-family: monospace;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            background: rgba(0, 0, 0, 0.3);
-            padding: 12px;
-            border-radius: 10px;
-            border: 1px solid var(--glass-border);
-        }
-
-        .validity-section {
-            margin: 20px;
-            padding: 28px;
-            background: linear-gradient(135deg, rgba(77, 163, 255, 0.1) 0%, rgba(77, 163, 255, 0.02) 100%);
-            border-radius: 16px;
-            border: 1px solid rgba(77, 163, 255, 0.15);
-        }
-
-        .validity-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 24px;
-        }
-
-        .validity-title {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--accent);
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-
-        .validity-days {
-            font-size: 3rem;
-            font-weight: 800;
-            color: var(--accent);
-        }
-
-        .validity-days.critical { color: var(--danger); }
-        .validity-days.warning { color: var(--warning); }
-
-        .progress-container {
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            height: 100%;
-            border-radius: 4px;
-            background: linear-gradient(90deg, var(--accent) 0%, #6bc5ff 100%);
-        }
-
-        .progress-bar.critical {
-            background: linear-gradient(90deg, var(--danger) 0%, #ff6b8a 100%);
-        }
-
-        .progress-bar.warning {
-            background: linear-gradient(90deg, var(--warning) 0%, #ffd166 100%);
-        }
-
-        .validity-dates {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 16px;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            padding: 0 20px 20px 20px;
-        }
-
-        .stat-pill {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 16px;
-            padding: 16px 8px;
-            text-align: center;
-            border: 1px solid var(--glass-border);
-        }
-
-        .stat-value {
-            font-size: 1rem;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-
-        .stat-label {
-            font-size: 0.7rem;
-            color: var(--text-tertiary);
-            text-transform: uppercase;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
-
-        .badge-success {
-            background: rgba(77, 255, 136, 0.15);
-            color: var(--success);
-            border: 1px solid rgba(77, 255, 136, 0.2);
-        }
-
-        .badge-warning {
-            background: rgba(255, 184, 77, 0.15);
-            color: var(--warning);
-            border: 1px solid rgba(255, 184, 77, 0.2);
-        }
-
-        .tee-card {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            padding: 24px;
-            background: var(--surface);
-            border-radius: 24px;
-            border: 1px solid var(--glass-border);
-            margin-bottom: 20px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-        }
-
-        .tee-card.healthy { border-top: 3px solid var(--success); }
-        .tee-card.broken { border-top: 3px solid var(--danger); }
-
-        .tee-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-        }
-
-        .tee-card.healthy .tee-icon {
-            background: rgba(77, 255, 136, 0.15);
-            color: var(--success);
-            border: 1px solid rgba(77, 255, 136, 0.2);
-        }
-
-        .tee-card.broken .tee-icon {
-            background: rgba(255, 77, 109, 0.15);
-            color: var(--danger);
-            border: 1px solid rgba(255, 77, 109, 0.2);
-        }
-
-        .tee-content { flex: 1; }
-
-        .tee-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .tee-card.healthy .tee-title { color: var(--success); }
-        .tee-card.broken .tee-title { color: var(--danger); }
-
-        .tee-desc {
-            font-size: 0.9rem;
-            color: var(--text-tertiary);
-        }
-
-        .tee-badge {
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-size: 0.8rem;
-            font-weight: 700;
-        }
-
-        .tee-card.healthy .tee-badge {
-            background: rgba(77, 255, 136, 0.1);
-            color: var(--success);
-            border: 1px solid rgba(77, 255, 136, 0.2);
-        }
-
-        .tee-card.broken .tee-badge {
-            background: rgba(255, 77, 109, 0.1);
-            color: var(--danger);
-            border: 1px solid rgba(255, 77, 109, 0.2);
-        }
-
-        .activity-list {
-            background: var(--surface);
-            border-radius: 24px;
-            overflow: hidden;
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-        }
-
-        .activity-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 20px 24px;
-        }
-
-        .activity-item:not(:last-child) {
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .activity-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .activity-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: rgba(77, 163, 255, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent);
-            font-size: 20px;
-            border: 1px solid rgba(77, 163, 255, 0.2);
-        }
-
-        .activity-label {
-            font-size: 0.95rem;
-            font-weight: 600;
-        }
-
-        .activity-sub {
-            font-size: 0.8rem;
-            color: var(--text-tertiary);
-            margin-top: 4px;
-        }
-
-        .activity-value {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            font-family: monospace;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 6px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--glass-border);
-        }
-
-        .refresh-btn {
-            position: fixed;
-            bottom: 28px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 18px 36px;
-            background: linear-gradient(135deg, var(--accent) 0%, #0064ff 100%);
-            border: none;
-            border-radius: 50px;
-            color: #fff;
-            font-size: 1.05rem;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 20px rgba(77, 163, 255, 0.4);
-            z-index: 100;
-        }
-
-        .refresh-btn .spinner {
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .offline-banner {
-            background: rgba(255, 77, 109, 0.1);
-            border: 1px solid rgba(255, 77, 109, 0.2);
-            color: var(--danger);
-            padding: 16px 20px;
-            border-radius: 16px;
-            display: none;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
-            font-size: 0.95rem;
-            font-weight: 600;
-        }
-
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.8);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 20px;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal-box {
-            background: #1a1f35;
-            border-radius: 24px;
-            padding: 28px;
-            width: 100%;
-            max-width: 400px;
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-        }
-
-        .modal-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 16px;
-            text-align: center;
-        }
-
-        .modal-text {
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: var(--text-secondary);
-            margin-bottom: 24px;
-        }
-
-        .modal-text strong {
-            color: var(--accent);
-            font-weight: 600;
-        }
-
-        .modal-text code {
-            background: rgba(0, 0, 0, 0.4);
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-family: monospace;
-            font-size: 0.85rem;
-            color: var(--accent);
-        }
-
-        .modal-close {
-            width: 100%;
-            padding: 14px;
-            background: var(--accent);
-            border: none;
-            border-radius: 12px;
-            color: #fff;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .hidden { display: none !important; }
-
-        @media (max-width: 480px) {
-            .stats-row { grid-template-columns: repeat(2, 1fr); }
-            .validity-days { font-size: 2.5rem; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Play Integrity Manager</title>
+<link rel="stylesheet" href="../common.css"/>
+<style>
+.status-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border:1px solid var(--border);border-radius:99px;font-size:13px;font-weight:600;color:var(--muted)}
+.status-indicator{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+.status-indicator.offline{background:var(--err)}
+.offline-banner{display:none;padding:12px;border:1px solid var(--err);border-radius:var(--radius-sm);color:var(--err);font-size:13px;font-weight:600;margin-bottom:14px}.offline-banner.show{display:block}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin:18px 0 10px}
+.section-title{font-size:16px;font-weight:600}
+.info-btn{min-height:32px;padding:0 12px;font-size:13px}
+.verdict-item{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;background:var(--panel-2)}
+.verdict-item .verdict-name{font-size:15px;font-weight:600}
+.verdict-item .verdict-desc{font-size:12px;color:var(--muted);margin-top:2px}
+.identity-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.identity-item{padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--panel-2)}
+.identity-item.full-width{grid-column:1/-1}
+.identity-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
+.identity-value{font-size:14px;font-weight:600;word-break:break-word}
+.identity-value.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;color:var(--muted);background:var(--bg);padding:10px;border-radius:var(--radius-sm);border:1px solid var(--border);font-weight:400}
+.validity-days{font-size:28px;font-weight:700;color:var(--accent)}
+.validity-days.critical{color:var(--err)}
+.validity-days.warning{color:var(--warn)}
+.progress-container{height:6px;background:var(--panel-2);border-radius:3px;overflow:hidden;margin-top:10px}
+.progress-bar{height:100%;border-radius:3px;background:var(--accent)}
+.progress-bar.critical{background:var(--err)}
+.progress-bar.warning{background:var(--warn)}
+.validity-dates{display:flex;justify-content:space-between;margin-top:10px;font-size:12px;color:var(--muted)}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.stat-pill{background:var(--panel-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 8px;text-align:center}
+.stat-value{font-size:14px;font-weight:700;margin-bottom:4px}
+.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase}
+.tee-card{display:flex;align-items:center;gap:14px;padding:14px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:14px;background:var(--panel)}
+.tee-card.healthy{border-left:3px solid var(--ok)}
+.tee-card.broken{border-left:3px solid var(--err)}
+.tee-title{font-size:15px;font-weight:700;margin-bottom:2px}
+.tee-card.healthy .tee-title{color:var(--ok)}
+.tee-card.broken .tee-title{color:var(--err)}
+.tee-desc{font-size:13px;color:var(--muted)}
+.refresh-btn{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:100}
+.hidden{display:none!important}
+
+.modal-overlay.active{display:flex}
+
+.modal-text{font-size:14px;line-height:1.6;color:var(--muted)}
+.modal-text strong{color:var(--accent);font-weight:600}
+.modal-text code{background:var(--bg);padding:2px 6px;border-radius:4px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;color:var(--accent)}
+@media(max-width:480px){.stats-row{grid-template-columns:repeat(2,1fr)}}
+</style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="brand">
-                <div class="brand-icon">
-                    <span class="material-icons-round">security</span>
-                </div>
-                <div class="brand-text">
-                    <h1>Play Integrity Manager</h1>
-                    <p>Powered By IntegrityBox</p>
-                </div>
-            </div>
-            <div class="status-badge">
-                <div class="status-indicator" id="netStatusDot"></div>
-                <span id="netStatusText">Checking</span>
-            </div>
-        </header>
+<div class="wrap" style="max-width:480px">
+  <div class="row" style="justify-content:space-between;margin-bottom:18px">
+    <div>
+      <h1 style="margin-bottom:2px">Play Integrity Manager</h1>
+      <div class="muted small">Powered By IntegrityBox</div>
+    </div>
+    <div class="status-badge">
+      <div class="status-indicator" id="netStatusDot"></div>
+      <span id="netStatusText">Checking</span>
+    </div>
+  </div>
 
-        <div class="offline-banner" id="offlineBanner">
-            <span class="material-icons-round" style="font-size: 22px;">wifi_off</span>
-            <span>Internet unavailable. Keybox status cannot be verified.</span>
+  <div class="card offline-banner" id="offlineBanner">
+    Internet unavailable. Keybox status cannot be verified.
+  </div>
+
+  <div class="section-header hidden" id="verdictSectionHeader">
+    <div class="section-title">Integrity Status</div>
+    <button class="btn info-btn" onclick="showInfo('verdicts')">Info</button>
+  </div>
+
+  <div class="card hidden" id="keyboxPanel" style="margin-bottom:14px">
+    <div id="verdictList">
+      <div class="verdict-item" id="vStrong">
+        <div class="grow">
+          <div class="verdict-name">Strong Integrity</div>
+          <div class="verdict-desc">Hardware attestation</div>
         </div>
-
-        <div class="section-header hidden" id="verdictSectionHeader">
-            <div class="section-title">
-                <span class="material-icons-round">verified</span>
-                Integrity Status
-            </div>
-            <button class="info-btn" onclick="showInfo('verdicts')">
-                <span class="material-icons-round" style="font-size: 20px;">info</span>
-            </button>
+        <span class="chip chip-muted">...</span>
+      </div>
+      <div class="verdict-item" id="vDevice">
+        <div class="grow">
+          <div class="verdict-name">Device Integrity</div>
+          <div class="verdict-desc">Play Protect certified</div>
         </div>
-
-        <div class="glass-card hidden" id="keyboxPanel">
-            <div class="verdict-list" id="verdictList">
-                <div class="verdict-item loading" id="vStrong">
-                    <div class="verdict-icon-wrap">
-                        <span class="material-icons-round">shield</span>
-                    </div>
-                    <div class="verdict-content">
-                        <div class="verdict-name">Strong Integrity</div>
-                        <div class="verdict-desc">Hardware attestation</div>
-                    </div>
-                    <div class="verdict-status-pill">...</div>
-                </div>
-                <div class="verdict-item loading" id="vDevice">
-                    <div class="verdict-icon-wrap">
-                        <span class="material-icons-round">smartphone</span>
-                    </div>
-                    <div class="verdict-content">
-                        <div class="verdict-name">Device Integrity</div>
-                        <div class="verdict-desc">Play Protect certified</div>
-                    </div>
-                    <div class="verdict-status-pill">...</div>
-                </div>
-                <div class="verdict-item loading" id="vBasic">
-                    <div class="verdict-icon-wrap">
-                        <span class="material-icons-round">lock</span>
-                    </div>
-                    <div class="verdict-content">
-                        <div class="verdict-name">Basic Integrity</div>
-                        <div class="verdict-desc">System compatibility</div>
-                    </div>
-                    <div class="verdict-status-pill">...</div>
-                </div>
-            </div>
-            <div style="padding: 16px 24px; background: rgba(255,255,255,0.02); border-top: 1px solid var(--glass-border);">
-                <div style="font-size: 0.85rem; color: var(--text-tertiary); display: flex; align-items: center; gap: 8px;">
-                    <span class="material-icons-round" style="font-size: 16px;">update</span>
-                    <span id="keyboxUpdated">Waiting for sync...</span>
-                </div>
-            </div>
+        <span class="chip chip-muted">...</span>
+      </div>
+      <div class="verdict-item" id="vBasic">
+        <div class="grow">
+          <div class="verdict-name">Basic Integrity</div>
+          <div class="verdict-desc">System compatibility</div>
         </div>
+        <span class="chip chip-muted">...</span>
+      </div>
+    </div>
+    <div class="muted small" style="margin-top:10px">
+      <span id="keyboxUpdated">Waiting for sync...</span>
+    </div>
+  </div>
 
-        <div class="section-header">
-            <div class="section-title">
-                <span class="material-icons-round">fingerprint</span>
-                Device Identity
-            </div>
-            <button class="info-btn" onclick="showInfo('fingerprint')">
-                <span class="material-icons-round" style="font-size: 20px;">info</span>
-            </button>
+  <div class="section-header">
+    <div class="section-title">Device Identity</div>
+    <button class="btn info-btn" onclick="showInfo('fingerprint')">Info</button>
+  </div>
+
+  <div class="identity-grid" id="fpPanel" style="margin-bottom:14px">
+    <div class="identity-item">
+      <div class="identity-label">Manufacturer</div>
+      <div class="identity-value" id="fpManufacturer">-</div>
+    </div>
+    <div class="identity-item">
+      <div class="identity-label">Model</div>
+      <div class="identity-value" id="fpModel">-</div>
+    </div>
+    <div class="identity-item">
+      <div class="identity-label">Device</div>
+      <div class="identity-value" id="fpDevice">-</div>
+    </div>
+    <div class="identity-item">
+      <div class="identity-label">Release</div>
+      <div class="identity-value" id="fpRelease">-</div>
+    </div>
+    <div class="identity-item full-width">
+      <div class="identity-label">Fingerprint</div>
+      <div class="identity-value mono" id="fpFingerprint">-</div>
+    </div>
+    <div class="identity-item">
+      <div class="identity-label">Security Patch</div>
+      <div class="identity-value" id="fpSecurityPatch">-</div>
+    </div>
+    <div class="identity-item">
+      <div class="identity-label">SDK Level</div>
+      <div class="identity-value" id="fpSdk">-</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="validitySection">
+      <div class="row" style="justify-content:space-between;align-items:flex-start">
+        <div>
+          <div class="section-title">Validity Period</div>
+          <div class="muted small" style="margin-top:4px" id="validityRange">-</div>
         </div>
-
-        <div class="identity-grid" id="fpPanel">
-            <div class="identity-item">
-                <div class="identity-label">Manufacturer</div>
-                <div class="identity-value" id="fpManufacturer">-</div>
-            </div>
-            <div class="identity-item">
-                <div class="identity-label">Model</div>
-                <div class="identity-value" id="fpModel">-</div>
-            </div>
-            <div class="identity-item">
-                <div class="identity-label">Device</div>
-                <div class="identity-value" id="fpDevice">-</div>
-            </div>
-            <div class="identity-item">
-                <div class="identity-label">Release</div>
-                <div class="identity-value" id="fpRelease">-</div>
-            </div>
-            <div class="identity-item full-width">
-                <div class="identity-label">Fingerprint</div>
-                <div class="identity-value mono" id="fpFingerprint">-</div>
-            </div>
-            <div class="identity-item">
-                <div class="identity-label">Security Patch</div>
-                <div class="identity-value" id="fpSecurityPatch">-</div>
-            </div>
-            <div class="identity-item">
-                <div class="identity-label">SDK Level</div>
-                <div class="identity-value" id="fpSdk">-</div>
-            </div>
-        </div>
-
-        <div class="glass-card" style="margin-top: 20px;">
-            <div class="validity-section" id="validitySection">
-                <div class="validity-header">
-                    <div>
-                        <div class="validity-title">Validity Period</div>
-                        <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 6px; font-weight: 500;" id="validityRange">-</div>
-                    </div>
-                    <div class="validity-days" id="expiryDays">-</div>
-                </div>
-                <div class="progress-container">
-                    <div class="progress-bar" id="expiryBar" style="width: 0%;"></div>
-                </div>
-                <div class="validity-dates">
-                    <span>
-                        <span class="material-icons-round" style="font-size: 16px;">calendar_today</span>
-                        <span id="fpCreated">Created: -</span>
-                    </span>
-                    <span>
-                        <span class="material-icons-round" style="font-size: 16px;">edit</span>
-                        <span id="fpModified">Modified: -</span>
-                    </span>
-                </div>
-            </div>
-
-            <div class="stats-row">
-                <div class="stat-pill">
-                    <div class="stat-value" id="daysLeft">-</div>
-                    <div class="stat-label">Days Left</div>
-                </div>
-                <div class="stat-pill">
-                    <div class="stat-value"><span class="badge badge-success" id="selinuxStatus">-</span></div>
-                    <div class="stat-label">SELinux</div>
-                </div>
-                <div class="stat-pill">
-                    <div class="stat-value" id="playStoreVer" style="font-size: 0.85rem;">-</div>
-                    <div class="stat-label">Play Store</div>
-                </div>
-                <div class="stat-pill">
-                    <div class="stat-value" id="playServicesVer" style="font-size: 0.85rem;">-</div>
-                    <div class="stat-label">Play Services</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="tee-card hidden" id="teePanel">
-            <div class="tee-icon">
-                <span class="material-icons-round">memory</span>
-            </div>
-            <div class="tee-content">
-                <div class="tee-title" id="teeTitle">Checking...</div>
-                <div class="tee-desc" id="teeDesc">Trusted Execution Environment</div>
-            </div>
-            <div class="tee-badge" id="teeBadge">...</div>
-        </div>
-
-        <div class="section-header">
-            <div class="section-title">
-                <span class="material-icons-round">schedule</span>
-                Activity Log
-            </div>
-        </div>
-
-        <div class="activity-list">
-            <div class="activity-item">
-                <div class="activity-left">
-                    <div class="activity-icon">
-                        <span class="material-icons-round">cloud_sync</span>
-                    </div>
-                    <div class="activity-info">
-                        <div class="activity-label">Keybox Sync</div>
-                        <div class="activity-sub">Last server check</div>
-                    </div>
-                </div>
-                <div class="activity-value" id="lastKeyboxSync">-</div>
-            </div>
-            <div class="activity-item">
-                <div class="activity-left">
-                    <div class="activity-icon">
-                        <span class="material-icons-round">fingerprint</span>
-                    </div>
-                    <div class="activity-info">
-                        <div class="activity-label">Fingerprint Read</div>
-                        <div class="activity-sub">PIF configuration</div>
-                    </div>
-                </div>
-                <div class="activity-value" id="lastFpRead">-</div>
-            </div>
-        </div>
+        <div class="validity-days" id="expiryDays">-</div>
+      </div>
+      <div class="progress-container">
+        <div class="progress-bar" id="expiryBar" style="width: 0%;"></div>
+      </div>
+      <div class="validity-dates">
+        <span id="fpCreated">Created: -</span>
+        <span id="fpModified">Modified: -</span>
+      </div>
     </div>
 
-    <button class="refresh-btn" id="refreshBtn" onclick="init()">
-        <span class="material-icons-round">sync</span>
-        <span id="refreshText">Refresh</span>
-    </button>
-
-    <div class="modal-overlay" id="infoModal" onclick="hideModal()">
-        <div class="modal-box" onclick="event.stopPropagation()">
-            <div class="modal-title" id="modalTitle">Information</div>
-            <div class="modal-text" id="modalText"></div>
-            <button class="modal-close" onclick="hideModal()">Close</button>
-        </div>
+    <div class="stats-row">
+      <div class="stat-pill">
+        <div class="stat-value" id="daysLeft">-</div>
+        <div class="stat-label">Days Left</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-value"><span class="chip chip-muted" id="selinuxStatus">-</span></div>
+        <div class="stat-label">SELinux</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-value small" id="playStoreVer">-</div>
+        <div class="stat-label">Play Store</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-value small" id="playServicesVer">-</div>
+        <div class="stat-label">Play Services</div>
+      </div>
     </div>
+  </div>
 
-    <script>
-        const CONFIG = {
-            keyboxUrl: 'https://raw.githubusercontent.com/MeowDump/Integrity-Box/refs/heads/main/keybox/key-status',
-            fingerprintPath: '/data/adb/modules/playintegrityfix/pixel.txt',
-            teePath: '/data/adb/tricky_store/tee_status',
-            keyboxLocalPath: '/data/adb/tricky_store/keybox.xml'
-        };
+  <div class="tee-card hidden" id="teePanel">
+    <div class="grow">
+      <div class="tee-title" id="teeTitle">Checking...</div>
+      <div class="tee-desc" id="teeDesc">Trusted Execution Environment</div>
+    </div>
+    <div id="teeBadge" class="chip chip-muted">...</div>
+  </div>
 
-        const infoTexts = {
-            verdicts: `<div style="background: rgba(27, 30, 51, 0.8); backdrop-filter: blur(14px); border-radius: 16px; padding: 20px; margin: 16px 0; border: 1px solid rgba(255, 255, 255, 0.08);"><div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;"><span class="material-icons-round" style="color: #4da3ff; font-size: 20px;">info</span><span style="color: #9aa3ff; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">About Verdicts</span></div><div style="color: #e9ecff; font-size: 14px; line-height: 1.6;">These results represent <strong style="color: #4da3ff;">keybox validity</strong> indicating whether the current keybox meets integrity requirements or not. These indicators does not represents your device Play Integrity API request results</div><div style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px;"><div style="display: flex; align-items: center; gap: 10px; background: rgba(77, 255, 136, 0.1); border-radius: 10px; padding: 12px 14px; border-left: 3px solid #4dff88;"><span class="material-icons-round" style="color: #4dff88; font-size: 18px;">verified</span><div><div style="color: #4dff88; font-size: 12px; font-weight: 700;">MEETS_STRONG_INTEGRITY</div><div style="color: #9aa3ff; font-size: 11px;">Keybox is valid</div></div></div><div style="display: flex; align-items: center; gap: 10px; background: rgba(255, 170, 77, 0.1); border-radius: 10px; padding: 12px 14px; border-left: 3px solid #ffaa4d;"><span class="material-icons-round" style="color: #ffaa4d; font-size: 18px;">shield</span><div><div style="color: #ffaa4d; font-size: 12px; font-weight: 700;">MEETS_DEVICE_INTEGRITY</div><div style="color: #9aa3ff; font-size: 11px;">Keybox is soft banned</div></div></div><div style="display: flex; align-items: center; gap: 10px; background: rgba(255, 77, 77, 0.1); border-radius: 10px; padding: 12px 14px; border-left: 3px solid #ff4d4d;"><span class="material-icons-round" style="color: #ff4d4d; font-size: 18px;">error</span><div><div style="color: #ff4d4d; font-size: 12px; font-weight: 700;">BASIC / NO_INTEGRITY</div><div style="color: #9aa3ff; font-size: 11px;">Keybox is revoked</div></div></div></div></div>`,
-    
-            fingerprint: `<strong>Device Fingerprint</strong><br><br>
-                Spoofs your device identity to match a certified device profile.<br><br>
-                <strong>Validity Period</strong> - Estimated expiry calculated from canary release dates. Once expired, integrity checks will fail.<br><br>
-                Config: <code>pixel.txt</code>`
-        };
+  <div class="section-header">
+    <div class="section-title">Activity Log</div>
+  </div>
 
-        const DOM = {};
-        
-        function cacheDOM() {
-            const ids = [
-                'netStatusDot', 'netStatusText', 'offlineBanner', 'verdictSectionHeader',
-                'keyboxPanel', 'vStrong', 'vDevice', 'vBasic', 'keyboxUpdated',
-                'fpManufacturer', 'fpModel', 'fpDevice', 'fpRelease', 'fpFingerprint',
-                'fpSecurityPatch', 'fpSdk', 'validityRange', 'expiryDays', 'expiryBar',
-                'fpCreated', 'fpModified', 'daysLeft', 'selinuxStatus', 'playStoreVer',
-                'playServicesVer', 'teePanel', 'teeTitle', 'teeDesc', 'teeBadge',
-                'lastKeyboxSync', 'lastFpRead', 'refreshBtn', 'refreshText',
-                'infoModal', 'modalTitle', 'modalText'
-            ];
-            ids.forEach(id => DOM[id] = document.getElementById(id));
-        }
+  <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <div class="grow">
+        <div class="verdict-name">Keybox Sync</div>
+        <div class="muted small">Last server check</div>
+      </div>
+      <span class="chip chip-muted mono" id="lastKeyboxSync">-</span>
+    </div>
+    <div class="row" style="justify-content:space-between;margin-top:10px">
+      <div class="grow">
+        <div class="verdict-name">Fingerprint Read</div>
+        <div class="muted small">PIF configuration</div>
+      </div>
+      <span class="chip chip-muted mono" id="lastFpRead">-</span>
+    </div>
+  </div>
+</div>
 
-        async function exec(cmd) {
-            return new Promise((resolve, reject) => {
-                if (window.parent && window.parent.runShellFromIframe) {
-                    window.parent.runShellFromIframe(cmd).then(resolve).catch(reject);
-                    return;
-                }
-                if (typeof ksu !== 'undefined' && ksu.exec) {
-                    const cb = 'cb_' + Date.now();
-                    window[cb] = (code, stdout, stderr) => {
-                        delete window[cb];
-                        code === 0 ? resolve(stdout.trim()) : reject(stderr || stdout);
-                    };
-                    ksu.exec(cmd, '{}', cb);
-                } else {
-                    reject(new Error('KSU API not available'));
-                }
-            });
-        }
+<button class="btn btn-primary refresh-btn" id="refreshBtn" onclick="init()">
+  <span class="spinner"></span>
+  <span id="refreshText">Refresh</span>
+</button>
 
-        async function checkInternet() {
-            try {
-                const controller = new AbortController();
-                const timeout = setTimeout(() => controller.abort(), 3000);
-                await fetch('https://www.google.com/favicon.ico', { 
-                    mode: 'no-cors',
-                    cache: 'no-store',
-                    signal: controller.signal
-                });
-                clearTimeout(timeout);
-                return true;
-            } catch {
-                return false;
-            }
-        }
+<div class="modal-overlay" id="infoModal" onclick="hideModal()">
+  <div class="card" onclick="event.stopPropagation()">
+    <h2 style="margin-top:0" id="modalTitle">Information</h2>
+    <div class="modal-text" id="modalText" style="margin-bottom:16px"></div>
+    <button class="btn btn-primary btn-block" onclick="hideModal()">Close</button>
+  </div>
+</div>
 
-        async function fetchKeyboxStatus() {
-            const response = await fetch(CONFIG.keyboxUrl, { cache: 'no-store' });
-            if (!response.ok) throw new Error('HTTP ' + response.status);
-            const text = await response.text();
-            if (text.includes('🟢🟢🟢')) return 'STRONG';
-            if (text.includes('🟢🟢🔴')) return 'DEVICE';
-            if (text.includes('🔴🔴🔴')) return 'BANNED';
-            return 'UNKNOWN';
-        }
-
-        async function getFileStats(path) {
-            try {
-                const result = await exec(`stat -c '%Y %W %y' "${path}" 2>/dev/null || echo "0 0 0"`);
-                const parts = result.split(' ');
-                if (parts.length >= 3 && parts[0] !== '0') {
-                    const modified = parseInt(parts[0]) * 1000;
-                    const created = parts[1] !== '0' ? parseInt(parts[1]) * 1000 : modified;
-                    return { modified, created };
-                }
-            } catch (e) {}
-            return null;
-        }
-
-        async function parseFingerprint() {
-            try {
-                const content = await exec(`cat "${CONFIG.fingerprintPath}" 2>/dev/null || echo ""`);
-                if (!content) return null;
-
-                const lines = content.split('\n');
-                const data = {};
-
-                lines.forEach(line => {
-                    if (line.includes('=') && !line.startsWith('#')) {
-                        const [key, ...valParts] = line.split('=');
-                        if (key && valParts.length > 0) {
-                            data[key.trim()] = valParts.join('=').trim();
-                        }
-                    }
-                    if (line.includes('Released On')) {
-                        const match = line.match(/Released On:\s*(\d{4}-\d{2}-\d{2})/);
-                        if (match) data.releasedOn = match[1];
-                    }
-                    if (line.includes('Estimated Expiry')) {
-                        const match = line.match(/Estimated Expiry:\s*(\d{4}-\d{2}-\d{2})/);
-                        if (match) data.estimatedExpiry = match[1];
-                    }
-                });
-
-                const stats = await getFileStats(CONFIG.fingerprintPath);
-                if (stats) {
-                    data.fileCreated = stats.created;
-                    data.fileModified = stats.modified;
-                }
-
-                return data;
-            } catch (e) {
-                return null;
-            }
-        }
-
-        async function parseTEE() {
-            try {
-                const content = await exec(`cat "${CONFIG.teePath}" 2>/dev/null || echo ""`);
-                return {
-                    exists: true,
-                    broken: content.includes('teeBroken=true'),
-                    content: content
-                };
-            } catch (e) {
-                return null;
-            }
-        }
-
-        async function getPlayStoreVersion() {
-            try {
-                return await exec("dumpsys package com.android.vending | grep versionName | head -n1 | awk -F'=' '{print $2}' | cut -d'-' -f1 | cut -d' ' -f1");
-            } catch (e) {
-                return 'Unknown';
-            }
-        }
-
-        async function getPlayServicesVersion() {
-            try {
-                return await exec("dumpsys package com.google.android.gms | grep versionName | head -n1 | awk -F'=' '{print $2}' | cut -d'-' -f1 | cut -d' ' -f1");
-            } catch (e) {
-                return 'Unknown';
-            }
-        }
-
-        async function getSELinuxStatus() {
-            try {
-                return await exec("getenforce");
-            } catch (e) {
-                return 'Unknown';
-            }
-        }
-
-        function formatDateShort(date) {
-            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        }
-
-        function formatDateFull(date) {
-            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-        }
-
-        function updateVerdicts(status) {
-            const items = [
-                { id: 'vStrong', name: 'Strong', desc: 'Hardware attestation' },
-                { id: 'vDevice', name: 'Device', desc: 'Play Protect certified' },
-                { id: 'vBasic', name: 'Basic', desc: 'System compatibility' }
-            ];
-
-            const stateMap = {
-                'STRONG': ['pass', 'pass', 'pass'],
-                'DEVICE': ['fail', 'pass', 'pass'],
-                'BASIC': ['fail', 'fail', 'pass'],
-                'BANNED': ['fail', 'fail', 'fail'],
-                'UNKNOWN': ['fail', 'fail', 'fail']
-            };
-
-            const statusMap = {
-                'pass': 'Pass',
-                'fail': 'Failed',
-                'warn': 'Limited'
-            };
-
-            const states_arr = stateMap[status] || stateMap['UNKNOWN'];
-
-            items.forEach((item, i) => {
-                const el = DOM[item.id];
-                const state = states_arr[i];
-                el.className = 'verdict-item ' + state;
-                el.querySelector('.verdict-status-pill').textContent = statusMap[state] || 'Unknown';
-            });
-        }
-
-        function updateFingerprint(fp) {
-            if (!fp) return;
-
-            DOM.fpManufacturer.textContent = fp.MANUFACTURER || '-';
-            DOM.fpModel.textContent = fp.MODEL || '-';
-            DOM.fpDevice.textContent = fp.DEVICE || '-';
-            DOM.fpRelease.textContent = fp.RELEASE || '-';
-            DOM.fpFingerprint.textContent = fp.FINGERPRINT || '-';
-            DOM.fpSecurityPatch.textContent = fp.SECURITY_PATCH || '-';
-            DOM.fpSdk.textContent = fp.DEVICE_INITIAL_SDK_INT || fp['*.api_level'] || '-';
-
-            const expiry = fp.estimatedExpiry || '2026-03-26';
-            const released = fp.releasedOn || '2026-02-12';
-            const today = new Date();
-            const expiryDate = new Date(expiry);
-            const releasedDate = new Date(released);
-
-            const totalDays = Math.ceil((expiryDate - releasedDate) / (1000 * 60 * 60 * 24));
-            const daysLeft = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
-            const percent = Math.max(0, Math.min(100, (daysLeft / totalDays) * 100));
-
-            const daysEl = DOM.expiryDays;
-            daysEl.textContent = daysLeft > 0 ? daysLeft + 'd' : 'EXP';
-            daysEl.className = 'validity-days ' + (daysLeft < 7 ? 'critical' : daysLeft < 14 ? 'warning' : '');
-
-            const bar = DOM.expiryBar;
-            bar.style.width = percent + '%';
-            bar.className = 'progress-bar ' + (daysLeft < 7 ? 'critical' : daysLeft < 14 ? 'warning' : '');
-
-            DOM.validityRange.textContent = formatDateShort(releasedDate) + ' - ' + formatDateShort(expiryDate);
-
-            if (fp.fileCreated) {
-                DOM.fpCreated.textContent = formatDateFull(new Date(fp.fileCreated));
-            } else if (fp.releasedOn) {
-                DOM.fpCreated.textContent = formatDateFull(new Date(fp.releasedOn));
-            }
-
-            if (fp.fileModified) {
-                const modDate = new Date(fp.fileModified);
-                DOM.fpModified.textContent = formatDateFull(modDate);
-                DOM.lastFpRead.textContent = modDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            }
-
-            DOM.daysLeft.textContent = daysLeft > 0 ? daysLeft : '0';
-        }
-
-        function updateTEE(tee) {
-            if (tee === null || tee === undefined) {
-                DOM.teePanel.classList.add('hidden');
-                return;
-            }
-
-            DOM.teePanel.classList.remove('hidden');
-            const panel = DOM.teePanel;
-            const title = DOM.teeTitle;
-            const desc = DOM.teeDesc;
-            const badge = DOM.teeBadge;
-
-            if (tee.broken) {
-                panel.className = 'tee-card broken';
-                title.textContent = 'TEE Broken';
-                desc.textContent = 'Not a problem';
-                badge.textContent = 'its ok bro';
-            } else {
-                panel.className = 'tee-card healthy';
-                title.textContent = 'TEE Healthy';
-                desc.textContent = 'Environment secure';
-                badge.textContent = 'Secure';
-            }
-        }
-
-        async function updateSystemInfo() {
-            const selinux = await getSELinuxStatus();
-            const selBadge = DOM.selinuxStatus;
-            selBadge.textContent = selinux === 'Enforcing' ? 'OK' : 'OFF';
-            selBadge.className = 'badge ' + (selinux === 'Enforcing' ? 'badge-success' : 'badge-warning');
-
-            DOM.playStoreVer.textContent = await getPlayStoreVersion();
-            DOM.playServicesVer.textContent = await getPlayServicesVersion();
-        }
-
-        async function init() {
-            const btn = DOM.refreshBtn;
-            btn.disabled = true;
-            btn.innerHTML = '<div class="spinner"></div><span>Loading...</span>';
-
-            const hasInternet = await checkInternet();
-
-            if (hasInternet) {
-                DOM.netStatusDot.className = 'status-indicator';
-                DOM.netStatusText.textContent = 'Online';
-                DOM.offlineBanner.style.display = 'none';
-                DOM.keyboxPanel.classList.remove('hidden');
-                DOM.verdictSectionHeader.classList.remove('hidden');
-
-                try {
-                    const keyboxStatus = await fetchKeyboxStatus();
-                    updateVerdicts(keyboxStatus);
-                    DOM.lastKeyboxSync.textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-                    const keyboxStats = await getFileStats(CONFIG.keyboxLocalPath);
-                    if (keyboxStats) {
-                        DOM.keyboxUpdated.textContent = 'Updated ' + formatDateShort(new Date(keyboxStats.modified));
-                    } else {
-                        DOM.keyboxUpdated.textContent = 'Updated ' + formatDateShort(new Date());
-                    }
-                } catch (e) {
-                    updateVerdicts('UNKNOWN');
-                    DOM.keyboxUpdated.textContent = 'Sync failed';
-                }
-            } else {
-                DOM.netStatusDot.className = 'status-indicator offline';
-                DOM.netStatusText.textContent = 'Offline';
-                DOM.offlineBanner.style.display = 'flex';
-                DOM.keyboxPanel.classList.add('hidden');
-                DOM.verdictSectionHeader.classList.add('hidden');
-            }
-
-            const fp = await parseFingerprint();
-            if (fp) updateFingerprint(fp);
-
-            const tee = await parseTEE();
-            updateTEE(tee);
-
-            await updateSystemInfo();
-
-            btn.disabled = false;
-            btn.innerHTML = '<span class="material-icons-round">sync</span><span>Refresh</span>';
-        }
-
-        function showInfo(type) {
-            DOM.modalTitle.textContent = type === 'verdicts' ? 'Integrity Verdicts' : 'Device Fingerprint';
-            DOM.modalText.innerHTML = infoTexts[type];
-            DOM.infoModal.classList.add('active');
-        }
-
-        function hideModal() {
-            DOM.infoModal.classList.remove('active');
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            cacheDOM();
-            init();
-        });
-    </script>
+<script src="script.js"></script>
+<script src="../TRANSLATIONS/meow.js"></script>
+<script>
+(function(){
+  var lang = localStorage.getItem('ibLang') || 'en';
+  if (lang !== 'en') {
+    var s = document.createElement('script');
+    s.src = '../TRANSLATIONS/' + lang + '.js';
+    s.onload = function(){ if(window.i18nBoot) window.i18nBoot(); };
+    document.head.appendChild(s);
+  }
+})();
+</script>
 </body>
 </html>

@@ -107,11 +107,32 @@ function walk(d) {
             if (p !== "webroot/common_scripts") walk(p);
         } else if (e.name.endsWith(".html")) {
             const html = fs.readFileSync(p, "utf8");
+            // 1. inline scripts parse
             const blocks = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]);
             blocks.forEach((s, i) => {
                 try { new Function(s); }
                 catch (err) { console.log(`  ${p} script#${i}: ${err.message}`); badCount++; }
             });
+            // 2. element IDs referenced by external script.js all exist
+            const sj = path.join(path.dirname(p), "script.js");
+            if (fs.existsSync(sj)) {
+                const js = fs.readFileSync(sj, "utf8");
+                const ids = [...new Set([...js.matchAll(/getElementById\(\s*["']([^"']+)["']\s*\)/g)].map(m => m[1]))];
+                const dynamic = ["active-iframe", "toast"];
+                const missing = ids.filter(id => !dynamic.includes(id) && !html.includes(`id="${id}"`));
+                if (missing.length) { console.log(`  ${p}: missing element IDs: ${missing.join(", ")}`); badCount++; }
+            }
+            // 3. no external resources (fonts.googleapis icon links are content, not loads; block everything else)
+            const loads = [...html.matchAll(/<(?:link|script)\s[^>]*(?:href|src)="(https?:\/\/[^"]+)"/g)].map(m => m[1]);
+            const badLoads = loads.filter(u => !u.includes("fonts.googleapis.com"));
+            if (badLoads.length) { console.log(`  ${p}: external resource loads: ${badLoads.join(", ")}`); badCount++; }
+            // 4. no infinite decorative animations (ib-spin for loaders is allowed)
+            const styleM = html.match(/<style>([\s\S]*?)<\/style>/);
+            if (styleM) {
+                const anims = [...styleM[1].matchAll(/animation:\s*([^;}]+)/g)].map(m => m[1].trim());
+                const badAnims = anims.filter(a => a.includes("infinite") && !a.includes("ib-spin"));
+                if (badAnims.length) { console.log(`  ${p}: infinite animations: ${badAnims.join(", ")}`); badCount++; }
+            }
         }
     }
 }

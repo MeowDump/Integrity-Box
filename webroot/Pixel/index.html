@@ -4,288 +4,46 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>Device Spoofer</title>
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="stylesheet" href="../common.css"/>
 <style>
-:root{
-  --bg:#0e1020;
-  --fg:#e9ecff;
-  --accent:#4da3ff;
-  --accent-glow:rgba(77,163,255,0.3);
-  --panel-bg:#1b1e33cc;
-  --card-bg:#1b1e33cc;
-  --border-radius:20px;
-  --shadow:rgba(0,0,0,0.4);
-  --success:#4dff88;
-  --danger:#ff4d4d;
-  --warning:#ffaa4d;
-  --text2:#9aa3ff;
-  --muted:#636366;
-  --spring:cubic-bezier(0.2,0.8,0.2,1);
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
-body{
-  margin:0;min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui;
-  background:radial-gradient(circle at 30% 20%,#1c2045 0%,#0e1020 100%);color:var(--fg);
-  -webkit-font-smoothing:antialiased;padding:20px;
-}
-.container{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:1.25rem}
+.status-chip{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border:1px solid var(--border);border-radius:99px;font-size:13px;font-weight:600;color:var(--muted)}
+.status-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--err)}
+.status-chip.active{color:var(--fg)}
+.status-chip.active .dot{background:var(--ok)}
+.row-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0}
+.row-toggle .title{font-size:15px;font-weight:600}
+.warning-banner{display:none;padding:12px;border:1px solid var(--err);border-radius:var(--radius-sm);color:var(--err);font-size:13px;font-weight:600;margin-bottom:12px}
+.warning-banner.show{display:block}
+.apps-list{display:flex;flex-direction:column;max-height:52vh;overflow-y:auto}
 
-.header{text-align:center;padding:0.5rem 0}
-.header .title{
-  font-size:1.9rem;font-weight:800;display:flex;align-items:center;justify-content:center;gap:10px;
-  letter-spacing:-0.5px;background:linear-gradient(135deg,var(--accent),#5AC8FA);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-}
-.header .title .material-icons{font-size:2rem;background:inherit;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.header .subtitle{font-size:0.85rem;color:var(--text2);font-weight:500;margin-top:4px}
-
-.status-bar{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
-.status-chip{
-  display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;
-  background:var(--card-bg);border:1px solid rgba(255,255,255,0.06);font-size:0.8rem;
-  font-weight:600;color:var(--text2);transition:all 0.3s ease;backdrop-filter:blur(10px);
-}
-.status-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--danger);box-shadow:0 0 8px var(--danger);transition:all 0.3s ease}
-.status-chip.active{color:var(--fg);border-color:rgba(255,255,255,0.12);background:rgba(255,255,255,0.07)}
-.status-chip.active .dot{background:var(--success);box-shadow:0 0 8px var(--success)}
-.status-chip .material-icons{font-size:1rem;color:var(--accent)}
-
-.card{
-  background:var(--panel-bg);backdrop-filter:blur(20px);border-radius:var(--border-radius);
-  padding:24px;box-shadow:0 25px 60px var(--shadow),0 0 0 1px rgba(255,255,255,0.06);
-  position:relative;overflow:hidden;display:flex;flex-direction:column;gap:10px;
-}
-.card::before{
-  content:"";position:absolute;inset:0;
-  background:radial-gradient(circle at 50% 0%,var(--accent) 0%,transparent 70%);
-  filter:blur(40px);opacity:0.12;pointer-events:none;z-index:0;animation:glowPulse 8s ease-in-out infinite;
-}
-@keyframes glowPulse{0%,100%{opacity:0.1}50%{opacity:0.2}}
-
-.section-label{
-  position:relative;z-index:2;font-size:12px;font-weight:600;color:var(--text2);
-  text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;padding-left:4px;
-}
-
-/* Master Row */
-.row{
-  position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;
-  gap:14px;padding:20px;border-radius:16px;background:rgba(255,255,255,0.03);
-  border:1px solid rgba(255,255,255,0.06);transition:all 0.25s cubic-bezier(0.4,0,0.2,1);cursor:pointer;
-}
-.row:hover{background:rgba(255,255,255,0.06);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.3);border-color:rgba(77,163,255,0.2)}
-.row:active{transform:scale(0.98)}
-.row.on{background:rgba(77,163,255,0.1);border-color:rgba(77,163,255,0.4);box-shadow:0 0 20px rgba(77,163,255,0.15)}
-.row.on .icon-wrap{background:var(--accent);box-shadow:0 4px 16px var(--accent-glow)}
-.row.on .icon-wrap .material-icons{color:white}
-.row.on .title{color:var(--accent)}
-.row.on .status-dot{background:var(--success);box-shadow:0 0 12px var(--success)}
-.icon-wrap{
-  width:52px;height:52px;border-radius:16px;background:rgba(255,255,255,0.08);
-  display:flex;align-items:center;justify-content:center;transition:all 0.3s;flex-shrink:0;
-}
-.icon-wrap .material-icons{font-size:28px;color:var(--text2);transition:all 0.3s}
-.content{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
-.title{font-size:17px;font-weight:700;color:var(--fg);transition:color 0.3s}
-.status-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all 0.3s;flex-shrink:0}
-
-.switch{position:relative;width:58px;height:32px;flex-shrink:0;pointer-events:none}
-.switch input{position:absolute;opacity:0;width:0;height:0}
-.slider{position:absolute;inset:0;border-radius:999px;background:rgba(255,255,255,0.1);transition:all 0.3s;box-shadow:inset 0 2px 4px rgba(0,0,0,0.2)}
-.knob{position:absolute;left:3px;top:3px;width:26px;height:26px;border-radius:50%;background:linear-gradient(145deg,#fff,#e0e0e0);transition:transform 0.25s var(--spring);box-shadow:0 2px 8px rgba(0,0,0,0.3)}
-.switch input:checked+.slider{background:var(--accent);box-shadow:0 0 20px var(--accent-glow)}
-.switch input:checked+.slider .knob{transform:translateX(26px)}
-
-/* Info Button */
-.info-btn{
-  width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.05);
-  border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:all 0.2s ease;position:relative;z-index:3;flex-shrink:0;
-}
-.info-btn:hover{background:rgba(77,163,255,0.15);border-color:rgba(77,163,255,0.3)}
-.info-btn .material-icons{font-size:18px;color:var(--text2)}
-.info-tooltip{
-  position:absolute;bottom:calc(100% + 12px);right:-10px;background:var(--card-bg);
-  border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:18px 22px;font-size:13px;
-  color:var(--text2);line-height:1.7;white-space:normal;width:300px;opacity:0;
-  pointer-events:none;transform:translateY(6px);transition:all 0.25s ease;z-index:100;
-  box-shadow:0 10px 40px rgba(0,0,0,0.5);
-}
-.info-tooltip.show{opacity:1;transform:translateY(0);pointer-events:auto}
-.info-tooltip::after{
-  content:"";position:absolute;top:100%;right:20px;border:8px solid transparent;border-top-color:var(--card-bg);
-}
-.info-tooltip strong{color:var(--fg);display:block;margin-bottom:8px;font-size:14px}
-
-/* Warning */
-.warning-banner{
-  display:none;align-items:center;gap:12px;padding:14px 18px;border-radius:16px;
-  background:linear-gradient(135deg,rgba(255,71,87,0.12),rgba(255,165,2,0.06));
-  border:1px solid rgba(255,71,87,0.2);color:#ffb3b3;font-weight:600;font-size:0.9rem;
-  animation:shake 0.5s ease;position:relative;z-index:2;
-}
-.warning-banner.show{display:flex}
-.warning-banner .material-icons{font-size:22px;color:var(--danger)}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
-
-/* Apps Header */
-.apps-header{
-  display:flex;align-items:center;justify-content:center;position:relative;z-index:2;padding:8px 4px 6px;flex-wrap:wrap;gap:12px;
-}
-.apps-title{font-weight:700;font-size:1.1rem;display:flex;align-items:center;gap:8px}
-.apps-title .material-icons{font-size:1.3rem;color:var(--accent)}
-.badge{
-  display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;
-  padding:0 8px;border-radius:999px;background:var(--accent);color:#fff;font-size:0.8rem;
-  font-weight:700;margin-left:6px;
-}
-.header-actions{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;width:100%}
-.btn-text{
-  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);color:var(--fg);
-  padding:8px 16px;border-radius:12px;font-size:0.82rem;font-weight:600;cursor:pointer;
-  transition:all 0.2s ease;font-family:inherit;display:flex;align-items:center;gap:6px;
-}
-.btn-text:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.15);transform:translateY(-1px)}
-.btn-text:active{transform:scale(0.96)}
-.btn-text .material-icons{font-size:1.1rem}
-.btn-text.active{background:rgba(77,163,255,0.15);border-color:rgba(77,163,255,0.3);color:var(--accent)}
-
-.search-wrap{position:relative;z-index:2;margin:6px 0 10px}
-.search-wrap .material-icons{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text2);font-size:1.1rem;pointer-events:none}
-.search{
-  width:100%;padding:14px 14px 14px 44px;border-radius:14px;border:1px solid rgba(255,255,255,0.08);
-  background:rgba(0,0,0,0.3);color:var(--fg);font-size:0.95rem;transition:all 0.3s ease;font-family:inherit;
-}
-.search:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(77,163,255,0.1),0 0 20px rgba(77,163,255,0.15);background:rgba(0,0,0,0.4)}
-.search::placeholder{color:rgba(232,234,246,0.35)}
-
-.list{display:flex;flex-direction:column;gap:8px;max-height:52vh;overflow-y:auto;padding-right:4px;position:relative;z-index:2}
-.list::-webkit-scrollbar{width:5px}
-.list::-webkit-scrollbar-track{background:transparent}
-.list::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--accent),#0066CC);border-radius:3px}
-
-.item{
-  display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:16px;
-  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
-  transition:all 0.25s cubic-bezier(0.4,0,0.2,1);position:relative;z-index:2;cursor:pointer;
-}
-.item:hover{background:rgba(255,255,255,0.06);border-color:rgba(77,163,255,0.15);transform:translateX(4px);box-shadow:0 8px 24px rgba(0,0,0,0.2)}
-.item:active{transform:scale(0.995)}
-.item.on{background:rgba(77,163,255,0.08);border-color:rgba(77,163,255,0.3)}
-.item.on .app-icon{box-shadow:0 4px 16px rgba(77,163,255,0.2)}
-.app-icon{
-  width:44px;height:44px;border-radius:12px;background:rgba(0,0,0,0.3);object-fit:contain;
-  flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.25);transition:all 0.3s ease;
-}
-.app-icon.lazy{opacity:0;transform:scale(0.85)}
-.app-icon.loaded{opacity:1;transform:scale(1);transition:all 0.4s cubic-bezier(0.16,1,0.3,1)}
+.item.on{border-color:var(--accent)}
+.app-icon{width:40px;height:40px;border-radius:var(--radius-sm);object-fit:contain;flex-shrink:0;background:var(--panel)}
 .info{flex:1;min-width:0}
-.name{font-weight:700;font-size:1rem;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;color:var(--fg)}
-
-.item-toggle{
-  width:52px;height:28px;border-radius:999px;background:rgba(255,255,255,0.1);
-  position:relative;transition:all 0.3s;flex-shrink:0;box-shadow:inset 0 2px 4px rgba(0,0,0,0.2);
-}
-.item-toggle::before{
-  content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;
-  background:linear-gradient(145deg,#fff,#e0e0e0);transition:transform 0.25s var(--spring);box-shadow:0 2px 8px rgba(0,0,0,0.3);
-}
-.item-toggle.active{background:var(--accent);box-shadow:0 0 16px var(--accent-glow)}
-.item-toggle.active::before{transform:translateX(24px)}
-
-.empty-state{
-  display:none;flex-direction:column;align-items:center;justify-content:center;padding:50px 20px;
-  gap:12px;color:var(--text2);text-align:center;font-size:0.95rem;font-weight:500;position:relative;z-index:2;
-}
-.empty-state .material-icons{font-size:2.8rem;opacity:0.5}
+.name{font-weight:600;font-size:14px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.empty-state{display:none;flex-direction:column;align-items:center;padding:40px 16px;gap:8px;color:var(--muted);text-align:center;font-size:14px}
 .empty-state.show{display:flex}
-
-.locked-overlay{
-  display:none;position:absolute;inset:0;background:rgba(13,15,23,0.9);backdrop-filter:blur(12px);
-  border-radius:var(--border-radius);z-index:10;align-items:center;justify-content:center;
-  flex-direction:column;gap:12px;text-align:center;padding:30px;
-}
+.locked-overlay{display:none;position:absolute;inset:0;background:var(--bg);z-index:10;align-items:center;justify-content:center;flex-direction:column;gap:10px;text-align:center;padding:24px;border-radius:var(--radius)}
 .locked-overlay.show{display:flex}
-.locked-overlay .material-icons{font-size:48px;color:var(--danger);opacity:0.9}
-.locked-overlay .locked-text{font-size:1.1rem;font-weight:700;color:var(--fg)}
-.locked-overlay .locked-sub{font-size:0.85rem;color:var(--text2);max-width:320px;line-height:1.4}
+.locked-overlay .locked-text{font-size:16px;font-weight:700}
+.locked-overlay .locked-sub{font-size:13px;color:var(--muted);max-width:320px;line-height:1.4}
+.info-tooltip{display:none;margin-bottom:12px;padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;color:var(--muted);line-height:1.6}
+.info-tooltip.show{display:block}
 
-/* Modal */
-.modal-overlay{
-  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);
-  z-index:9998;align-items:center;justify-content:center;padding:20px;
-}
-.modal-overlay.show{display:flex}
-.modal{
-  background:var(--panel-bg);backdrop-filter:blur(20px);border-radius:var(--border-radius);
-  border:1px solid rgba(255,255,255,0.08);padding:24px;width:100%;max-width:420px;
-  box-shadow:0 25px 60px var(--shadow);position:relative;overflow:hidden;
-}
-.modal::before{
-  content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,var(--accent) 0%,transparent 70%);
-  filter:blur(40px);opacity:0.1;pointer-events:none;
-}
-.modal-title{
-  font-size:1.1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px;position:relative;z-index:2;
-}
-.modal-title .material-icons{font-size:1.4rem;color:var(--accent)}
-.modal-body{
-  font-size:0.9rem;color:var(--text2);line-height:1.6;margin-bottom:20px;position:relative;z-index:2;max-height:50vh;overflow-y:auto;
-}
-.modal-body .backup-item{
-  display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:12px;
-  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);margin-bottom:8px;cursor:pointer;transition:all 0.2s;
-}
-.modal-body .backup-item:hover{background:rgba(255,255,255,0.06);border-color:rgba(77,163,255,0.2)}
-.modal-body .backup-item .bname{font-weight:600;font-size:0.85rem;color:var(--fg)}
-.modal-body .backup-item .bsize{font-size:0.75rem;color:var(--muted);margin-top:2px}
-.modal-actions{
-  display:flex;gap:10px;position:relative;z-index:2;
-}
-.modal-actions .btn-text{flex:1;justify-content:center}
-
-.toast{
-  position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(20px);
-  background:rgba(30,33,60,0.96);backdrop-filter:blur(20px);color:var(--fg);padding:14px 28px;
-  border-radius:100px;box-shadow:0 10px 40px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.1);
-  opacity:0;pointer-events:none;transition:all 0.35s cubic-bezier(0.4,0,0.2,1);z-index:9999;
-  font-weight:600;font-size:15px;display:flex;align-items:center;gap:10px;
-}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast .material-icons{font-size:20px;color:var(--success)}
-.toast.error .material-icons{color:var(--danger)}
-
-.loading-row{
-  display:flex;align-items:center;justify-content:center;gap:10px;padding:40px;
-  color:var(--text2);font-size:0.9rem;font-weight:500;position:relative;z-index:2;
-}
-.loading-row .material-icons{animation:spin 1s linear infinite;font-size:1.2rem}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-@media(max-width:600px){
-  body{padding:16px}
-  .container{gap:1rem}
-  .header .title{font-size:1.6rem}
-  .card{padding:20px}
-  .row{padding:16px;gap:12px}
-  .icon-wrap{width:48px;height:48px}
-  .icon-wrap .material-icons{font-size:26px}
-  .item{padding:12px 14px;gap:12px}
-  .app-icon{width:40px;height:40px}
-  .header-actions{gap:6px}
-  .btn-text{padding:7px 12px;font-size:0.78rem}
-  .info-tooltip{width:260px;right:-5px}
-}
+.backup-item{display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;background:var(--panel-2);cursor:pointer}
+.backup-item .bname{font-weight:600;font-size:13px}
+.backup-item .bsize{font-size:11px;color:var(--muted);margin-top:2px;word-break:break-all}
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <div class="title"><span class="material-icons">android</span>Device Spoofer</div>
-    <div class="subtitle">Powered by Integrity Box</div>
+<div class="wrap">
+  <div class="row" style="justify-content:space-between;margin-bottom:14px">
+    <div>
+      <h1 style="margin-bottom:2px">Device Spoofer</h1>
+      <div class="muted small">Powered by Integrity Box</div>
+    </div>
   </div>
 
-  <div class="status-bar" id="statusBar">
+  <div class="row" style="flex-wrap:wrap;gap:8px;margin-bottom:14px" id="statusBar">
     <div class="status-chip" id="zygiskChip">
       <span class="dot"></span>
       <span class="text">Zygisk Missing</span>
@@ -295,474 +53,80 @@ body{
       <span class="text">Spoofing Off</span>
     </div>
     <div class="status-chip">
-      <span class="material-icons">apps</span>
       <span class="text" id="countChip">0 apps</span>
     </div>
   </div>
 
-  <!-- Master Control -->
   <div class="card" id="masterCard">
     <div class="warning-banner" id="warningBanner">
-      <span class="material-icons">error_outline</span>
-      <span>This feature depends on Zygisk. You're running in Zygisk-less mode, so per-app spoofing is unavailable.</span>
+      This feature depends on Zygisk. You're running in Zygisk-less mode, so per-app spoofing is unavailable.
     </div>
 
-    <div class="section-label">Master Control</div>
-    <div class="row" id="spoofAppsRow" onclick="toggleSpoofApps()">
-      <div class="icon-wrap"><span class="material-icons">dynamic_form</span></div>
-      <div class="content">
+    <div class="row-toggle" id="spoofAppsRow" onclick="toggleSpoofApps()">
+      <div>
         <div class="title">Spoof Apps</div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <div class="status-dot"></div>
-        <div class="info-btn" onclick="showInfo(event)">
-          <span class="material-icons">info</span>
-          <div class="info-tooltip" id="infoTooltip">
-            <strong>About Spoof Apps</strong>
-            Enable per-app pixel spoofing for selected apps. Apps in your list will receive spoofed build properties (model, fingerprint, device info) when they request them.<br><br>
-            <b>How to use:</b><br>
-            1. Enable the master toggle<br>
-            2. Select apps from the list below<br>
-            3. Clear data of target apps to apply changes<br><br>
-            <span style="color:var(--danger)">Requires Zygisk. Won't work in Zygisk-less mode.</span>
-          </div>
-        </div>
+      <div class="row" style="gap:10px">
+        <button class="btn" style="min-height:32px;padding:0 12px;font-size:13px" onclick="showInfo(event)">Info</button>
         <label class="switch" onclick="event.stopPropagation()">
           <input id="spoofAppsInput" type="checkbox">
-          <span class="slider"><span class="knob"></span></span>
+          <span class="track"></span>
         </label>
       </div>
     </div>
+
+    <div class="info-tooltip" id="infoTooltip">
+      <strong>About Spoof Apps</strong><br>
+      Enable per-app pixel spoofing for selected apps. Apps in your list will receive spoofed build properties (model, fingerprint, device info) when they request them.<br><br>
+      <b>How to use:</b><br>
+      1. Enable the master toggle<br>
+      2. Select apps from the list below<br>
+      3. Clear data of target apps to apply changes<br><br>
+      <span style="color:var(--err)">Requires Zygisk. Won't work in Zygisk-less mode.</span>
+    </div>
   </div>
 
-  <!-- App List -->
-  <div class="card" id="appsCard" style="position:relative;">
-    <div class="section-label">App List</div>
-    <div class="apps-header">
-      <div class="apps-title">
-        <span class="material-icons">list</span>
-        App List
-        <span class="badge" id="appsBadge">0</span>
-      </div>
-      <div class="header-actions">
-        <button class="btn-text" id="sysBtn" onclick="toggleSystemApps()">
-          <span class="material-icons">apps</span>
-          System Apps
-        </button>
-        <button class="btn-text" onclick="openBackupModal()">
-          <span class="material-icons">save</span>
-          Backup
-        </button>
-        <button class="btn-text" onclick="openRestoreModal()">
-          <span class="material-icons">restore</span>
-          Restore
-        </button>
-        <button class="btn-text" onclick="selectAllVisible()">
-          <span class="material-icons">done_all</span>
-          Select All
-        </button>
-        <button class="btn-text" onclick="deselectAllVisible()">
-          <span class="material-icons">remove_done</span>
-          Deselect All
-        </button>
+  <div class="card" id="appsCard" style="position:relative">
+    <div class="row" style="justify-content:space-between;margin-bottom:10px">
+      <div class="row" style="gap:8px">
+        <strong>App List</strong>
+        <span class="chip chip-muted" id="appsBadge">0</span>
       </div>
     </div>
-
-    <div class="search-wrap">
-      <span class="material-icons">search</span>
-      <input id="search" class="search" placeholder="Filter by app name..." />
+    <div class="row" style="flex-wrap:wrap;gap:8px;margin-bottom:10px">
+      <button class="btn" id="sysBtn" onclick="toggleSystemApps()" style="min-height:36px;padding:0 12px;font-size:13px">System Apps</button>
+      <button class="btn" onclick="openBackupModal()" style="min-height:36px;padding:0 12px;font-size:13px">Backup</button>
+      <button class="btn" onclick="openRestoreModal()" style="min-height:36px;padding:0 12px;font-size:13px">Restore</button>
+      <button class="btn" onclick="selectAllVisible()" style="min-height:36px;padding:0 12px;font-size:13px">Select All</button>
+      <button class="btn" onclick="deselectAllVisible()" style="min-height:36px;padding:0 12px;font-size:13px">Deselect All</button>
     </div>
 
-    <div class="loading-row" id="loadingRow">
-      <span class="material-icons">refresh</span>
-      Loading apps...
-    </div>
-    <div class="list" id="list" style="display:none;"></div>
+    <input id="search" type="search" placeholder="Filter by app name..." style="margin-bottom:12px"/>
+
+    <div class="muted small" id="loadingRow" style="text-align:center;padding:24px">Loading apps...</div>
+    <div class="apps-list" id="list" style="display:none;"></div>
     <div class="empty-state" id="emptyState">
-      <span class="material-icons">search_off</span>
       <div>No apps match your search</div>
     </div>
 
     <div class="locked-overlay" id="lockedOverlay">
-      <span class="material-icons">lock</span>
       <div class="locked-text">Feature Unavailable</div>
       <div class="locked-sub">Zygisk is required for per-app spoofing. Enable Zygisk in your root manager, ensure IntegrityBox is flashed, then reboot.</div>
     </div>
   </div>
 </div>
 
-<!-- Modal -->
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
-  <div class="modal">
-    <div class="modal-title" id="modalTitle"><span class="material-icons">save</span>Backups</div>
-    <div class="modal-body" id="modalBody"></div>
-    <div class="modal-actions" id="modalActions">
-      <button class="btn-text" onclick="closeModal()">Close</button>
+  <div class="card">
+    <h2 style="margin-top:0" id="modalTitle">Backups</h2>
+    <div id="modalBody" style="margin-bottom:16px"></div>
+    <div id="modalActions">
+      <button class="btn btn-block" onclick="closeModal()">Close</button>
     </div>
   </div>
 </div>
 
-<div id="toast" class="toast">
-  <span class="material-icons">check_circle</span>
-  <span id="toastText">Saved</span>
-</div>
-
-<script>
-const TARGET_FILE="/data/adb/modules/playintegrityfix/apps.txt";
-const PROP_FILE="/data/adb/modules/playintegrityfix/custom.pif.prop";
-const FLAG_FILE="/data/adb/Box-Brain/per-app-spoofing";
-const ZYGISK_PATH="/data/adb/modules/playintegrityfix/zygisk";
-const BACKUP_DIR="/sdcard/Download/DeviceSpoofer";
-
-function runShell(cmd,cb){
-  if(window.parent?.runShellFromIframe){
-    window.parent.runShellFromIframe(cmd).then(out=>cb?.(0,out,"")).catch(err=>cb?.(1,"",err));
-  }else if(window.ksu?.exec){
-    const id="cb_"+Date.now()+"_"+Math.floor(Math.random()*9999);
-    window[id]=(code,stdout,stderr)=>{try{delete window[id]}catch(e){};cb?.(code,stdout||"",stderr||"");};
-    ksu.exec(cmd,"{}",id);
-  }else cb?.(1,"","ksu/runShell not found");
-}
-
-function esc(s){return"'"+String(s).replace(/'/g,"'\\''")+"'";}
-
-function popup(msg,type){
-  if(!type)type="info";
-  try{
-    if(typeof window.toast==="function"){window.toast(String(msg));return;}
-    if(window.kernelsu&&typeof window.kernelsu.toast==="function"){window.kernelsu.toast(String(msg));return;}
-    if(typeof ksu==="object"&&typeof ksu.toast==="function"){ksu.toast(String(msg));return;}
-  }catch(e){}
-  const toast=document.getElementById("toast");
-  const toastText=document.getElementById("toastText");
-  toastText.textContent=msg;
-  toast.className="toast"+(type==="error"?" error":"");
-  requestAnimationFrame(()=>toast.classList.add("show"));
-  clearTimeout(toast._timer);
-  toast._timer=setTimeout(()=>toast.classList.remove("show"),2500);
-}
-
-function readLines(path,cb){
-  runShell("if [ -f "+esc(path)+" ]; then cat "+esc(path)+"; fi",(c,o)=>{
-    cb((o||"").split("\n").map(l=>l.trim()).filter(l=>l));
-  });
-}
-
-function writeLines(path,lines,cb){
-  if(lines.length===0){runShell("> "+esc(path),c=>cb?.(c===0));return;}
-  const args=lines.map(l=>esc(l)).join(" ");
-  runShell("mkdir -p $(dirname "+esc(path)+") && printf '%s\\n' "+args+" > "+esc(path),c=>cb?.(c===0));
-}
-
-async function readKey(file,key){
-  return new Promise(resolve=>{
-    const cmd="sh -c 'grep -m1 \"^"+key+"=\" \""+file+"\" | cut -d\"=\" -f2- || echo \"\"'";
-    runShell(cmd,(c,o)=>resolve((o||"").toString().trim()));
-  });
-}
-
-async function writeKey(file,key,value){
-  return new Promise(resolve=>{
-    const cmd="sh -c 'if grep -q \"^"+key+"=.*\" \""+file+"\" 2>/dev/null; then sed -i \"s/^"+key+"=.*/"+key+"="+value+"/\" \""+file+"\"; else printf \"\\n"+key+"="+value+"\\n\" >> \""+file+"\"; fi'";
-    runShell(cmd,c=>resolve(c===0));
-  });
-}
-
-async function checkZygisk(){
-  return new Promise(resolve=>{
-    runShell("sh -c 'if [ -d \""+ZYGISK_PATH+"\" ]; then echo exists; else echo missing; fi'",(c,o)=>resolve((o||"").trim()==="exists"));
-  });
-}
-
-let cachedApps=[];
-let zygiskExists=false;
-let spoofAppsEnabled=false;
-let showSystem=false;
-
-function fetchApps(system,cb){
-  const flag=system?"-s":"-3";
-  const cmd="pm list packages "+flag+" -f | while IFS= read -r line; do pkg=\"${line##*=}\"; apk=\"${line#package:}\"; apk=\"${apk%%=*}\"; label=\"$pkg\"; if command -v aapt >/dev/null 2>&1; then l=$(aapt d badging \"$apk\" 2>/dev/null | grep \"application-label:\" | head -1 | cut -d\"'\" -f2); [ -n \"$l\" ] && label=\"$l\"; fi; echo \"$pkg|$label\"; done";
-  runShell(cmd,(c,out)=>{
-    if(!out)return cb([]);
-    const apps=out.trim().split("\n").map(l=>{
-      const i=l.indexOf("|");
-      return{pkg:i>0?l.slice(0,i):l,label:i>0?l.slice(i+1):l,system:system};
-    }).filter(a=>a.pkg);
-    cb(apps);
-  });
-}
-
-function buildList(){
-  readLines(TARGET_FILE,tLines=>{
-    if(showSystem){
-      fetchApps(true,sysApps=>{
-        fetchApps(false,userApps=>{
-          cachedApps=[...userApps,...sysApps];
-          sortAndRender(cachedApps,tLines);
-          updateStatusBar(tLines.length);
-        });
-      });
-    }else{
-      fetchApps(false,apps=>{
-        cachedApps=apps;
-        sortAndRender(cachedApps,tLines);
-        updateStatusBar(tLines.length);
-      });
-    }
-  });
-}
-
-function sortAndRender(apps,targets){
-  const q=(document.getElementById("search").value||"").toLowerCase();
-  const list=document.getElementById("list");
-  const empty=document.getElementById("emptyState");
-  const loading=document.getElementById("loadingRow");
-  loading.style.display="none";
-  list.style.display="flex";
-  list.innerHTML="";
-  let visibleCount=0;
-
-  const filtered=apps.filter(a=>!q||a.pkg.toLowerCase().includes(q)||a.label.toLowerCase().includes(q));
-  filtered.sort((a,b)=>{
-    const ta=targets.includes(a.pkg);
-    const tb=targets.includes(b.pkg);
-    if(ta&&!tb)return-1;
-    if(!ta&&tb)return 1;
-    return a.label.localeCompare(b.label);
-  });
-
-  filtered.forEach(a=>{
-    visibleCount++;
-    const isTarget=targets.includes(a.pkg);
-    const item=document.createElement("div");
-    item.className="item"+(isTarget?" on":"");
-    item.setAttribute("data-pkg",a.pkg);
-    item.innerHTML='<img class="app-icon lazy" data-src="ksu://icon/'+a.pkg+'" alt=""><div class="info"><div class="name">'+(a.label||a.pkg)+'</div></div><div class="item-toggle '+(isTarget?"active":"")+'"></div>';
-    list.appendChild(item);
-  });
-
-  empty.classList.toggle("show",visibleCount===0);
-  attachListeners();
-  loadIcons();
-}
-
-function attachListeners(){
-  document.querySelectorAll(".item").forEach(item=>{
-    item.onclick=()=>{
-      if(!zygiskExists)return;
-      const pkg=item.getAttribute("data-pkg");
-      const isOn=item.classList.contains("on");
-      readLines(TARGET_FILE,lines=>{
-        let newTargets=[...lines];
-        if(isOn)newTargets=newTargets.filter(p=>p!==pkg);
-        else if(!newTargets.includes(pkg))newTargets.push(pkg);
-        writeLines(TARGET_FILE,newTargets,ok=>{
-          popup(ok?(isOn?"Removed from targets":"Added to targets"):"Write failed",!ok?"error":"");
-          buildList();
-        });
-      });
-    };
-  });
-}
-
-document.getElementById("search").addEventListener("input",buildList);
-
-function loadIcons(){
-  const imgs=document.querySelectorAll("img.app-icon[data-src]");
-  if(!("IntersectionObserver"in window)){
-    imgs.forEach(img=>{img.src=img.dataset.src;img.classList.add("loaded");});
-    return;
-  }
-  const obs=new IntersectionObserver(entries=>{
-    entries.forEach(e=>{
-      if(!e.isIntersecting)return;
-      const img=e.target;
-      img.src=img.dataset.src;
-      img.onload=()=>{img.classList.remove("lazy");img.classList.add("loaded");};
-      img.onerror=()=>img.style.opacity="0";
-      obs.unobserve(img);
-    });
-  },{rootMargin:"50px"});
-  imgs.forEach(img=>obs.observe(img));
-}
-
-function toggleSystemApps(){
-  showSystem=!showSystem;
-  document.getElementById("sysBtn").classList.toggle("active",showSystem);
-  buildList();
-}
-
-function getVisiblePackages(){
-  const q=(document.getElementById("search").value||"").toLowerCase();
-  return cachedApps.filter(a=>!q||a.pkg.toLowerCase().includes(q)||a.label.toLowerCase().includes(q)).map(a=>a.pkg);
-}
-
-function selectAllVisible(){
-  if(!zygiskExists)return;
-  const visible=getVisiblePackages();
-  if(!visible.length)return;
-  readLines(TARGET_FILE,lines=>{
-    const newTargets=[...new Set([...lines,...visible])];
-    writeLines(TARGET_FILE,newTargets,ok=>{
-      popup(ok?"Added all visible apps":"Write failed",!ok?"error":"");
-      buildList();
-    });
-  });
-}
-
-function deselectAllVisible(){
-  if(!zygiskExists)return;
-  const visible=getVisiblePackages();
-  if(!visible.length)return;
-  readLines(TARGET_FILE,lines=>{
-    const newTargets=lines.filter(p=>!visible.includes(p));
-    writeLines(TARGET_FILE,newTargets,ok=>{
-      popup(ok?"Removed all visible apps":"Write failed",!ok?"error":"");
-      buildList();
-    });
-  });
-}
-
-async function toggleSpoofApps(){
-  if(!zygiskExists)return;
-  const newVal=spoofAppsEnabled?"0":"1";
-  await writeKey(PROP_FILE,"spoofApps",newVal);
-  if(newVal==="1")runShell("mkdir -p $(dirname "+esc(FLAG_FILE)+") && touch "+esc(FLAG_FILE),()=>{});
-  else runShell("rm -f "+esc(FLAG_FILE),()=>{});
-  spoofAppsEnabled=!spoofAppsEnabled;
-  updateSpoofAppsVisuals();
-  updateStatusBar();
-  popup(spoofAppsEnabled?"Spoof Apps enabled":"Spoof Apps disabled");
-}
-
-function updateSpoofAppsVisuals(){
-  const row=document.getElementById("spoofAppsRow");
-  const input=document.getElementById("spoofAppsInput");
-  row.classList.toggle("on",spoofAppsEnabled);
-  input.checked=spoofAppsEnabled;
-}
-
-function updateStatusBar(count){
-  const zygiskChip=document.getElementById("zygiskChip");
-  const spoofChip=document.getElementById("spoofChip");
-  const countChip=document.getElementById("countChip");
-  const badge=document.getElementById("appsBadge");
-
-  zygiskChip.classList.toggle("active",zygiskExists);
-  zygiskChip.querySelector(".text").textContent=zygiskExists?"Zygisk Active":"Zygisk Missing";
-
-  spoofChip.classList.toggle("active",spoofAppsEnabled);
-  spoofChip.querySelector(".text").textContent=spoofAppsEnabled?"Spoofing On":"Spoofing Off";
-
-  if(typeof count==="number"){
-    countChip.textContent=count+" app"+(count!==1?"s":"");
-    badge.textContent=count;
-  }else{
-    readLines(TARGET_FILE,lines=>{
-      const c=lines.length;
-      countChip.textContent=c+" app"+(c!==1?"s":"");
-      badge.textContent=c;
-    });
-  }
-}
-
-function lockUI(){
-  document.getElementById("lockedOverlay").classList.add("show");
-  document.getElementById("warningBanner").classList.add("show");
-  document.getElementById("search").disabled=true;
-  document.getElementById("spoofAppsRow").style.pointerEvents="none";
-  document.getElementById("spoofAppsRow").style.opacity="0.4";
-}
-
-function showInfo(e){
-  e.stopPropagation();
-  const tip=document.getElementById("infoTooltip");
-  tip.classList.toggle("show");
-  if(tip.classList.contains("show")){
-    setTimeout(()=>tip.classList.remove("show"),8000);
-  }
-}
-
-/* Backup / Restore */
-function openBackupModal(){
-  const now=new Date();
-  const name="apps_"+now.getFullYear()+(now.getMonth()+1).toString().padStart(2,"0")+now.getDate().toString().padStart(2,"0")+"_"+now.getHours().toString().padStart(2,"0")+now.getMinutes().toString().padStart(2,"0")+".txt";
-  const path=BACKUP_DIR+"/"+name;
-  runShell("mkdir -p "+esc(BACKUP_DIR)+" && cp "+esc(TARGET_FILE)+" "+esc(path)+" 2>/dev/null; echo $?",(c,o)=>{
-    if((o||"").trim()==="0"&&c===0){
-      popup("Backup saved to "+name,"success");
-    }else{
-      popup("Backup failed","error");
-    }
-  });
-}
-
-function openRestoreModal(){
-  runShell("ls -1 "+esc(BACKUP_DIR)+"/*.txt 2>/dev/null || echo ''",(c,out)=>{
-    const files=(out||"").trim().split("\n").filter(f=>f);
-    const overlay=document.getElementById("modalOverlay");
-    const title=document.getElementById("modalTitle");
-    const body=document.getElementById("modalBody");
-    const actions=document.getElementById("modalActions");
-
-    title.innerHTML='<span class="material-icons">restore</span>Restore Backup';
-    body.innerHTML="";
-    actions.innerHTML='<button class="btn-text" onclick="closeModal()">Close</button>';
-
-    if(!files.length||files[0]===""){
-      body.innerHTML='<div style="text-align:center;padding:20px;color:var(--text2)">No backups found</div>';
-    }else{
-      files.forEach(f=>{
-        const fname=f.replace(/^.*\//,"");
-        const div=document.createElement("div");
-        div.className="backup-item";
-        div.onclick=()=>restoreBackup(f);
-        div.innerHTML='<div><div class="bname">'+fname+'</div><div class="bsize">'+f+'</div></div><span class="material-icons" style="color:var(--accent);font-size:1.2rem">restore</span>';
-        body.appendChild(div);
-      });
-    }
-    overlay.classList.add("show");
-  });
-}
-
-function restoreBackup(path){
-  runShell("cp "+esc(path)+" "+esc(TARGET_FILE)+" 2>/dev/null; echo $?",(c,o)=>{
-    if((o||"").trim()==="0"&&c===0){
-      popup("Backup restored","success");
-      closeModal();
-      buildList();
-    }else{
-      popup("Restore failed","error");
-    }
-  });
-}
-
-function closeModal(){
-  document.getElementById("modalOverlay").classList.remove("show");
-}
-
-async function init(){
-  zygiskExists=await checkZygisk();
-  if(!zygiskExists){
-    lockUI();
-    updateStatusBar(0);
-    buildList();
-    return;
-  }
-  const val=await readKey(PROP_FILE,"spoofApps");
-  const flagExists=await new Promise(resolve=>{
-    runShell("if [ -f "+esc(FLAG_FILE)+" ]; then echo exists; else echo missing; fi",(c,o)=>resolve((o||"").trim()==="exists"));
-  });
-  spoofAppsEnabled=val==="1"||flagExists;
-  if(spoofAppsEnabled&&val!=="1")await writeKey(PROP_FILE,"spoofApps","1");
-  if(!spoofAppsEnabled&&flagExists)runShell("rm -f "+esc(FLAG_FILE),()=>{});
-  updateSpoofAppsVisuals();
-  updateStatusBar();
-  runShell("mkdir -p $(dirname "+esc(TARGET_FILE)+") && touch "+esc(TARGET_FILE),()=>buildList());
-}
-
-init();
-</script>
+<script src="script.js"></script>
 <script src="../TRANSLATIONS/meow.js"></script>
 <script>
 (function(){
