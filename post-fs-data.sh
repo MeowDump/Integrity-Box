@@ -2,16 +2,10 @@
 MODPATH="${0%/*}"
 . $MODPATH/common_func.sh
 
-BOX="/data/adb/Box-Brain"
 boot="/data/adb/service.d"
 placeholder="$MODPATH/webroot/common_scripts"
 mkdir -p "$BOX/Integrity-Box-Logs"
 mkdir -p "$boot"
-
-# Grant perms 
-if [ -f "$placeholder/autopilot.sh" ]; then
-    chmod 755 "$placeholder/autopilot.sh"
-fi
 
 # Handle Vending-specific prop
 if [ -f "$BOX/enablevending" ]; then
@@ -56,8 +50,6 @@ for _f in \
     "$placeholder/target.sh" \
     "$placeholder/gms.sh" \
     "$placeholder/webui.sh" \
-    "$placeholder/run_scan.sh" \
-    "$placeholder/scan_keybox.sh" \
     "$placeholder/resetprop.sh" \
     "$placeholder/Report.sh" \
     "$placeholder/force_override.sh" \

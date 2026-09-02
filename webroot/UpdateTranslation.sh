@@ -91,7 +91,7 @@ log "Download complete: $ZIP_PATH ($(get_size "$ZIP_PATH"))"
 
 # Clean extraction directory
 log "Preparing extraction directory: $EXTRACT_DIR"
-rm -rf "$EXTRACT_DIR"/*
+rm -rf "${EXTRACT_DIR:?}"/*
 mkdir -p "$EXTRACT_DIR"
 
 # Find unzip binary

@@ -1,11 +1,14 @@
+# shellcheck shell=sh
+# Sourced snippet (from post-fs-data.sh): no shebang on purpose
+
 # Skip on pixel mode
 if [ -e "/sdcard/zygisk" ] || [ -e "/data/adb/Box-Brain/zygisk" ]; then
     return 0
 fi
 
-if ! $SKIPPERSISTPROP; then
+if ! $SKIPDELPROP; then
     # Work around custom ROM PropImitationHooks conflict when their persist props don't exist
-    if [ -n "$(resetprop ro.aospa.version)" -o -n "$(resetprop net.pixelos.version)" -o -n "$(resetprop ro.afterlife.version)" -o -f /data/system/gms_certified_props.json ]; then
+    if [ -n "$(resetprop ro.aospa.version)" ] || [ -n "$(resetprop net.pixelos.version)" ] || [ -n "$(resetprop ro.afterlife.version)" ] || [ -f /data/system/gms_certified_props.json ]; then
         for PROP in persist.sys.pihooks.first_api_level persist.sys.pihooks.security_patch; do
             resetprop | grep -q "\[$PROP\]" || persistprop "$PROP" ""
         done

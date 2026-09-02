@@ -739,7 +739,7 @@ function toggleBankingMode(){
   bankingBusy=true;
 
   const input=document.getElementById("bankingInput");
-  const on=input.checked; console.log("checked =", input.checked);
+  const on=input.checked;
 
   showLoader(true,on?"Enabling Banking Mode...":"Disabling Banking Mode...");
 
@@ -749,7 +749,7 @@ function toggleBankingMode(){
     sh("settings put global adb_enabled 0");
     sh("settings put global development_settings_enabled 0");
     sh("touch "+BANKING_FLAG);
-    autoRemoveDex2oatFlags(()=>{
+    removeDex2oatFlags(()=>{
       showLoader(false);
       updateBankingUI(true);
       log("Banking Mode enabled","ok");
@@ -768,20 +768,11 @@ function toggleBankingMode(){
   }
 }
 
-function autoRemoveDex2oatFlags(cb){
-  const check=sh("getprop | grep -q '^\\[dalvik.vm.dex2oat-flags\\]' && echo EXISTS || echo NOT_FOUND");
-  if(String(check).trim()==="NOT_FOUND"){if(cb)cb();return}
-  const cmd = getResetpropDeleteCmd("dalvik.vm.dex2oat-flags", true);
-  sh(cmd);
-  log("Auto-removed Dex2OAT flags","ok");
-  if(cb)cb();
-}
-
-function removeDex2oatFlags(){
-  showLoader(true,"Checking Dex2OAT property...");
-  log("Checking Dex2OAT property...");
+function removeDex2oatFlags(cb){
+  if(!cb){showLoader(true,"Checking Dex2OAT property...");log("Checking Dex2OAT property...");}
   const check=sh("getprop | grep -q '^\\[dalvik.vm.dex2oat-flags\\]' && echo EXISTS || echo NOT_FOUND");
   if(String(check).trim()==="NOT_FOUND"){
+    if(cb){cb();return}
     showLoader(false);
     log("Property already clean","ok");
     popup("Cleaned","success");
@@ -789,6 +780,7 @@ function removeDex2oatFlags(){
   }
   const cmd = getResetpropDeleteCmd("dalvik.vm.dex2oat-flags", true);
   sh(cmd);
+  if(cb){log("Auto-removed Dex2OAT flags","ok");cb();return}
   showLoader(false);
   log("Dex2OAT property removed","ok");
   popup("Dex2OAT removed","success");

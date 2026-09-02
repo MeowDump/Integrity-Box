@@ -7,8 +7,6 @@ TARGET="$TARGET_DIR/target.txt"
 SKIP_FILE="/data/adb/Box-Brain/skip"
 BACKUP="$TARGET.bak"
 TMP="${TARGET}.new.$$"
-success=0
-made_backup=0
 orig_selinux="$(getenforce 2>/dev/null || echo Permissive)"
 
 mkdir -p "$TARGET_DIR" 2>/dev/null
@@ -16,7 +14,7 @@ if [ ! -f "$SKIP_FILE" ] && [ "$orig_selinux" = "Enforcing" ]; then
     setenforce 0
 fi
 
-[ -f "$TARGET" ] && mv -f "$TARGET" "$BACKUP" && made_backup=1 && log_step "BACKUP" "$BACKUP"
+[ -f "$TARGET" ] && mv -f "$TARGET" "$BACKUP" && log_step "BACKUP" "$BACKUP"
 
 teeBroken="false"
 TEE_STATUS="$TARGET_DIR/tee_status"
@@ -46,7 +44,7 @@ fi
 
 [ "$teeBroken" = "true" ] && sed -i 's/$/!/' "$TMP" && log_step "SUPPORT" "TEE Broken detected"
 
-mv -f "$TMP" "$TARGET" && success=1 && log_step "UPDATED" "Target Packages updated"
+mv -f "$TMP" "$TARGET" && log_step "UPDATED" "Target Packages updated"
 
 if [ ! -f "$SKIP_FILE" ] && [ "$orig_selinux" = "Enforcing" ]; then
     setenforce 1

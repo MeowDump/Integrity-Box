@@ -2,7 +2,6 @@
 F="/data/adb/tricky_store/keybox.xml"
 T="/data/adb/tricky_store/keybox.xml.tmp"
 L="/data/adb/Box-Brain/Integrity-Box-Logs/remove.log"
-X="dowhat,youlove,lovewhat,youdo"
 
 log() {
     echo "- $1" >> "$L"
@@ -32,26 +31,7 @@ touch "$L"
 
 Z="$(cat "$F")"
 
-Y=""
-FIRST=1
-IFS=','
-
-for LINE in $(echo "$Z"); do
-    for WORD in $X; do
-        LINE="${LINE//$WORD/}"
-    done
-    if [ "$FIRST" -eq 1 ]; then
-        Y="$LINE"
-        FIRST=0
-    else
-        Y="$Y
-$LINE"
-    fi
-done
-
-IFS="$OLD_IFS"
-
-printf "%s\n" "$Y" > "$T"
+printf "%s\n" "$Z" > "$T"
 mv "$T" "$F"
 
     log "Deleting known leftover files from my modules..."

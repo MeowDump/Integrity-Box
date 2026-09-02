@@ -1,7 +1,6 @@
 #!/system/bin/sh
 
 # Module and log directory paths
-MODDIR="${0%/*}"
 LOG_DIR="/data/adb/Box-Brain/Integrity-Box-Logs"
 INSTALL_LOG="$LOG_DIR/Installation.log"
 SCRIPT="$MODPATH/webroot/common_scripts"
@@ -9,7 +8,6 @@ MEOW="/data/adb/modules/playintegrityfix"
 SDK=$(getprop ro.system.build.version.sdk)
 FLAG="/data/adb/Box-Brain"
 TRICKY="/data/adb/tricky_store"
-TIMEOUT=15
 
 # Create log directory if it doesn't exist
 mkdir -p "$LOG_DIR" || true
@@ -34,7 +32,7 @@ check_integrity() {
     if [ -n "$ZIPFILE" ] && [ -f "$ZIPFILE" ]; then
         if [ -f "$MODPATH/verify.sh" ]; then
             if sh "$MODPATH/verify.sh"; then
-                debug " ✦ Module integrity verified." > /dev/null 2>&1
+                debug " ✦ Module integrity verified."
             else
                 debug " ✘ Module integrity check failed!"
                 exit 1
@@ -73,9 +71,7 @@ setup_environment() {
 }
 
 hizru() {
-    FLAG="/data/adb/Box-Brain"
     FLAG_FILE="$FLAG/skip"
-    LOG_DIR="/data/adb/Box-Brain/Integrity-Box-Logs"
     LOG_FILE="$LOG_DIR/skip.log"
 
     mkdir -p "$FLAG" "$LOG_DIR"
@@ -135,7 +131,7 @@ cleanup() {
 # Create necessary directories if missing
 prepare_directories() {
     debug " ✦ Preparing Required Directories  "
-    [ ! -d "/data/adb/modules/playintegrityfix" ] && mkdir -p "/data/adb/modules/playintegrityfix"
+    mkdir -p "/data/adb/modules/playintegrityfix"
     [ ! -f "$MODPATH/module.prop" ] && return 1
 }
 
@@ -231,9 +227,9 @@ if [ -d /data/adb/modules/playintegrity ]; then
     touch "/data/adb/modules/playintegrity/remove"
 fi
 
-# Write security patch file if missing 
-if [ ! -f $TRICKY/security_patch.txt ]; then
-cat <<EOF > $TRICKY/security_patch.txt
+# Write security patch file if missing
+if [ ! -f "$TRICKY/security_patch.txt" ]; then
+cat <<EOF > "$TRICKY/security_patch.txt"
 all=2026-08-05
 EOF
 fi
@@ -241,9 +237,8 @@ fi
 # Start the installation process
 install_module
 
-# Create scripts 
+# Create scripts
 boot="/data/adb/service.d"
-placeholder="$MODPATH/webroot/common_scripts"
 mkdir -p "$boot"
 
 cat <<'EOF' > "$boot/.box_cleanup.sh"
@@ -300,6 +295,10 @@ TARGET_FILE="/data/adb/tricky_store/target.txt"
 SCRIPT="/data/adb/modules/playintegrityfix/webroot/common_scripts/target.sh"
 LOG_FILE="/data/adb/Box-Brain/Integrity-Box-Logs/target.log"
 
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"
+}
+
 if [ ! -d "$MODULE1" ] && [ ! -d "$MODULE2" ] && [ ! -d "$MODULE3" ] && [ ! -d "$MODULE4" ] && [ ! -d "$MODULE5" ]; then
     exit 0
 fi
@@ -312,11 +311,6 @@ fi
 
 # Create log directory if needed
 mkdir -p "$(dirname "$LOG_FILE")"
-
-# Log function
-log() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"
-}
 
 # Function to check and execute
 execute_if_needed() {
@@ -375,9 +369,9 @@ note() {
     printf "%s | %s\n" "$TS" "$1" >> "$LOG_DIR/Lineage.log"
 }
 
-# Abort the script & delete flags wen safe mode is active 
+# Abort the script & delete flags wen safe mode is active
 if [ -f "/data/adb/Box-Brain/safemode" ]; then
-    note "$(date '+%Y-%m-%d %H:%M:%S') : Safemode active, script aborted." >> "/data/adb/Box-Brain/Integrity-Box-Logs/safemode.log"
+    echo "$(date '+%Y-%m-%d %H:%M:%S') : Safemode active, script aborted." >> "/data/adb/Box-Brain/Integrity-Box-Logs/safemode.log"
     rm -rf "/data/adb/Box-Brain/NoLineageProp"
     rm -rf "/data/adb/Box-Brain/nodebug"
     rm -rf "/data/adb/Box-Brain/tag"
@@ -693,9 +687,9 @@ if [ -e /sdcard/zygisk ] || [ -f /data/adb/Box-Brain/zygisk ]; then
 fi
 
 # Copy any disabled app files to updated module
-if [ -d $MEOW/system ]; then
+if [ -d "$MEOW/system" ]; then
     debug " ✦ Restoring disabled ROM apps configuration"
-    cp -afL $MEOW/system $MODPATH
+    cp -afL "$MEOW/system" "$MODPATH"
 fi
 
 # Warn if potentially conflicting modules are installed
@@ -715,7 +709,7 @@ rm -f /data/data/com.google.android.gms/cache/pif.prop /data/data/com.google.and
     /data/data/com.google.android.gms/cache/pif.json /data/data/com.google.android.gms/pif.json
 
 # Remove flag from /sdcard to avoid detection 
-[ -f /sdcard/zygisk ] || [ -d /sdcard/zygisk ] && rm -rf /sdcard/zygisk
+[ -e /sdcard/zygisk ] && rm -rf /sdcard/zygisk
 
 display_footer
 exit 0

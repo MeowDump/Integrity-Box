@@ -81,14 +81,19 @@ fi
 
 log "Resolved package name: $PKG_NAME"
 
+find_target_app() {
+    for APP in $APP_PATHS; do
+        if [ -d "$APP" ]; then
+            TARGET_APP="$APP"
+            log "$1: $APP"
+            return 0
+        fi
+    done
+    return 1
+}
+
 TARGET_APP=""
-for APP in $APP_PATHS; do
-    if [ -d "$APP" ]; then
-        TARGET_APP="$APP"
-        log "Found installed app data path: $APP"
-        break
-    fi
-done
+find_target_app "Found installed app data path"
 
 if [ -z "$TARGET_APP" ]; then
     log "App installed but data directory not found"
@@ -98,15 +103,9 @@ if [ -z "$TARGET_APP" ]; then
     sleep 5
     am force-stop "$PKG_NAME" >>"$LOG_FILE" 2>&1
     log "App launched and stopped, checking data directory..."
-    
-    for APP in $APP_PATHS; do
-        if [ -d "$APP" ]; then
-            TARGET_APP="$APP"
-            log "Data directory now available: $APP"
-            break
-        fi
-    done
-    
+
+    find_target_app "Data directory now available"
+
     if [ -z "$TARGET_APP" ]; then
         log "ERROR: Data directory still not created after launch"
         exit 1
@@ -159,8 +158,7 @@ log "Force stopping app: $PKG_NAME"
 am force-stop "$PKG_NAME" >>"$LOG_FILE" 2>&1
 sleep 1
 log "Launching activity: $ACTIVITY"
-am start --user 0 -a android.intent.action.VIEW -n "$ACTIVITY" >>"$LOG_FILE" 2>&1
-if [ $? -eq 0 ]; then
+if am start --user 0 -a android.intent.action.VIEW -n "$ACTIVITY" >>"$LOG_FILE" 2>&1; then
     log "App launched successfully"
 else
     log "ERROR: Failed to launch app"
@@ -169,6 +167,4 @@ fi
 restore_selinux
 log "Config copy completed successfully"
 log "••••••••••••• Finished •••••••••••••"
-log
-log
 exit 0

@@ -9,6 +9,8 @@ log() {
 
 FLAG_DIR="/data/adb/Box-Brain"
 
+BUILD_PROPS="ro.build.id ro.build.display.id ro.build.version.incremental ro.build.flavor ro.build.tags ro.build.type"
+
 # sanitize a list of props with a sed expression
 sanitize_props() {
     local flag_file="$1"
@@ -58,32 +60,32 @@ fi
 # Strip kernel name strings
 sanitize_props "$FLAG_DIR/customkernel" "customKernel" \
     's/Blaze|blaze|BLAZE|custom|CUSTOM|kernel|KERNEL//g; s/-v[0-9]+//g; s/_{2,}/_/g; s/^_|_$//g' \
-    ro.build.id ro.build.display.id ro.build.version.incremental ro.build.flavor ro.build.tags ro.build.type
+    $BUILD_PROPS
 
 # Strip emoji-related strings
 sanitize_props "$FLAG_DIR/emoji" "emojiScan" \
     's/[😀-🿿]//g; s/[🀀-🃏]//g; s/[🄀-🇿]//g; s/emoji//gi; s/ Emoji//gi' \
-    ro.build.id ro.build.display.id ro.build.version.incremental ro.build.flavor ro.build.tags ro.build.type
+    $BUILD_PROPS
 
 # Strip Chinese characters
 sanitize_props "$FLAG_DIR/chinese" "chineseScan" \
     's/[一-龯]//g; s/[ぁ-ゔ]//g; s/[ァ-ヴ]//g; s/chinese//gi' \
-    ro.build.id ro.build.display.id ro.build.version.incremental ro.build.flavor ro.build.tags ro.build.type
+    $BUILD_PROPS
 
 # Strip script-related strings
 sanitize_props "$FLAG_DIR/script" "scriptScan" \
     's/script//gi; s/Script//gi; s/SCRIPT//gi' \
-    ro.build.id ro.build.display.id ro.build.version.incremental ro.build.flavor ro.build.tags ro.build.type
+    $BUILD_PROPS
 
 # Strip Telegram-related strings
 sanitize_props "$FLAG_DIR/telegram" "telegramScan" \
     's/telegram//gi; s/Telegram//gi; s/TELEGRAM//gi; s/t\.me//gi; s/@//g' \
-    ro.build.id ro.build.display.id ro.build.version.incremental ro.build.flavor ro.build.tags ro.build.type
+    $BUILD_PROPS
 
 # Strip mention-related strings
 sanitize_props "$FLAG_DIR/mention" "mentionScan" \
     's/mention//gi; s/Mention//gi; s/@//g; s/@[a-zA-Z0-9_]*//g' \
-    ro.build.id ro.build.display.id ro.build.version.incremental ro.build.flavor ro.build.tags ro.build.type
+    $BUILD_PROPS
 
 # Sanitize boot-derived props
 if [ -f "$FLAG_DIR/cmdline" ]; then
@@ -107,7 +109,6 @@ sanitize_props "$FLAG_DIR/board" "board" \
 if [ -f "$FLAG_DIR/scanall" ]; then
     SUSPICIOUS="Lineage|lineage|LINEAGE|custom|CUSTOM|kernel|KERNEL|telegram|TELEGRAM|emoji|script|chinese|mention"
     
-    local PROP VAL CLEAN
     for PROP in $(resetprop -Z 2>/dev/null | grep "^ro.boot\." | cut -d' ' -f1); do
         VAL=$(resetprop "$PROP" 2>/dev/null)
         [ -z "$VAL" ] && continue

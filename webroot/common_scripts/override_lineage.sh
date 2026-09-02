@@ -1,20 +1,15 @@
 #!/system/bin/sh
 
-# Universal resetprop detection
-RP=""
-for p in $(which resetprop 2>/dev/null) /data/adb/ksu/bin/resetprop /data/adb/ap/bin/resetprop /data/adb/magisk/resetprop /sbin/resetprop /system/xbin/resetprop /system/bin/resetprop; do
-    if [ -f "$p" ]; then
-        RP="$p"
-        break
-    fi
-done
+MODPATH="/data/adb/modules/playintegrityfix"
+. $MODPATH/common_func.sh
+
+RP="$(find_resetprop)" || {
+    echo "[ERROR] resetprop not found"
+    exit 1
+}
 
 resetprop_set(){
     $RP -n "$1" "$2"
-}
-
-resetprop_delete(){
-    $RP -d "$1"
 }
 
 OVERRIDE="/data/adb/modules/playintegrityfix/webroot/common_scripts/force_override.sh"
@@ -31,7 +26,7 @@ echo " "
 PROP_FILE="/data/adb/modules/playintegrityfix/system.prop"
 LOG_FILE="/data/adb/Box-Brain/Integrity-Box-Logs/prop_debug.log"
 
-echo "[prop spoof debug log]" > "$LOG_FILE"
+echo "[prop spoof debug log]" >> "$LOG_FILE"
 echo "[INFO] Script started at $(date)" >> "$LOG_FILE"
 
 if [ ! -f "$PROP_FILE" ]; then
@@ -82,7 +77,7 @@ while IFS= read -r line || [ -n "$line" ]; do
 done < "$PROP_FILE"
 
 # Compact arenas to fix holes from other modules/sources
-$RP -c >/dev/null 2>&1 || true
+$RP -c >/dev/null 2>&1
 
 if [ -f "$OVERRIDE" ]; then
     sh "$OVERRIDE"

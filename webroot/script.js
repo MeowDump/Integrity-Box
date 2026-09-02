@@ -2,53 +2,25 @@ const MODDIR = `/data/adb/modules/playintegrityfix/webroot/common_scripts`;
 const PROP = `/data/adb/modules/playintegrityfix/module.prop`;
 const BOXBRAIN = `/data/adb/Box-Brain`;
 
-const modalBackdrop = document.getElementById("modal-backdrop");
-const modalTitle = document.getElementById("modal-title");
-const modalOutput = document.getElementById("modal-output");
-const modalClose = document.getElementById("modal-close");
-
 const messageMap = {
-  "kill": { success: "DroidGuard has been restarted", type: "info" },
   "user": { start: "Blacklist Unnecessary Apps", type: "info" },
-  "stop": { success: "Switched to Blacklist Mode", type: "info" },
-  "start": { success: "Switched to Whitelist Mode", type: "info" },
-  "xml": { start: "Scanning xml files..", type: "info" },
   "pixel": { start: "Spoof your device to app", type: "info" },
-  "patch": { start: "Opening configuration..", type: "info" },
-  "aosp": { success: "Switched to AOSP Keybox", type: "info" },
-  "resetprop.sh": { success: "Done, Reopen detector to check", type: "info" },
-  "selinux": { success: "Spoofed to Enforcing", type: "info" },
   "piffork": { start: "All changes will be applied immediately", type: "info" },
   "propspoofer": { start: "These will be applied till reboot", type: "info" },
-  "nogms": { success: "Reboot to apply changes", type: "info" },
-  "yesgms": { start: "Reboot to apply changes", type: "info" },
-  "key.sh": { success: "Keybox has been updated ✅", type: "info" },
   "flags": { start: "These requires Reboot / Action", type: "info" },
   "profile": { start: "Good Luck old friend 🌚", type: "info" },
   "ctrl": { start: "For those using ROM inbuilt spoofing", type: "info" },
-  "force_override.sh": { start: "Done 👍", type: "info" },
-  "pif": { start: "You can update fingerprint without internet", type: "info" },
-  "vending": { start: "This will clear data of Play Services & Store", type: "info" },
-  "zygisknext": { start: "Whatever you say cutie 😉", type: "info" },
-  "cache": { start: "This will delete temporary unnecessary files", type: "info" },
-  "hide": { start: "This will hide basic sus paths", type: "info" },
-  "scanner": { start: " Click on Run Scan", success: "Detection Complete", type: "info" },
   "support": { start: "Become a Supporter", type: "info" },
   "report": { start: "What's wrong buddy?", type: "info" },
   "assistant": { start: "Let me guide you to the right path", type: "info" },
   "status": { start: "Informs you about keybox & fingerprint validity", type: "info" },
-  "hma.sh": { success: "Done ✅", type: "info" },
-  "ulock": { success: "Done", type: "info" },
-  "faq": { start: "Coming Soon", type: "info" },
-  "nuke": { start: "Coming Soon", type: "info" },
   "repair": { success: "These doesn't require reboot", type: "info" },
   "spoofing": { start: "These are for custom ROM users", type: "info" },
   "pilot": { start: "Updates keybox & fp automatically whether a new key is available", type: "info" },
   "downloader": { start: "Some useful stuff you may need", type: "info" },
+  "hide": { start: "This will hide basic sus paths", type: "info" },
   "hash": { start: "Paste your boot hash buddy", success: "Boot hash operation complete", type: "success" }
 };
-
-const inlineMessageMap = {};
 
 function popup(msg, type="info") {
   try {
@@ -259,7 +231,6 @@ async function fetchKeyboxStatus() {
 
 async function updateDashboard() {
   const statusItems = {
-    "status-playstore": "dumpsys package com.android.vending | grep versionName | head -n1 | awk -F'=' '{print $2}' | cut -d'-' -f1 | cut -d' ' -f1 | cut -d'.' -f1-3",
     "status-selinux": "getenforce || echo Unknown",
     "status-target": "[ -f /data/adb/tricky_store/target.txt ] && grep -cve '^$' /data/adb/tricky_store/target.txt || echo 0",
     "status-pixel": "[ -f /data/adb/modules/playintegrityfix/custom.pif.prop ] && awk -F= '/^MODEL=/{print $2}' /data/adb/modules/playintegrityfix/custom.pif.prop || echo None",
@@ -295,8 +266,6 @@ async function updateDashboard() {
         } else {
           const now = new Date();
           const diff = Math.max(0, Math.floor((expDate - now) / 86400000));
-
-          expiryEl.textContent = `${diff} days`;
 
           if (diff < 3) {
             expiryEl.className = "status-indicator disabled";
@@ -343,7 +312,6 @@ async function updateDashboard() {
 
     switch (id) {
 
-        case "status-playstore":
         case "status-profile":
           el.textContent = out;
           el.className = "status-indicator play";
@@ -362,25 +330,6 @@ async function updateDashboard() {
           el.className = `status-indicator ${count === 0 || count > 50 ? "disabled" : "enabled"}`;
           break;
           
-        case "status-integrity":
-          try {
-            const result = await fetchKeyboxStatus();
-            el.textContent = result.label;
-            if (result.status === 'STRONG') {
-              el.className = "status-indicator neutral";
-            } else if (result.status === 'DEVICE') {
-              el.className = "status-indicator peela";
-            } else if (result.status === 'BANNED') {
-              el.className = "status-indicator disabled";
-            } else {
-              el.className = "status-indicator disabled";
-            }
-          } catch {
-            el.textContent = "Offline";
-            el.className = "status-indicator disabled";
-          }
-          break;
-
         case "status-pixel":
         case "status-patch":
           el.textContent = out;
@@ -419,20 +368,12 @@ function attachButtonListeners() {
     btn.addEventListener("click", async () => {
       const script = btn.dataset.script;
       const type = btn.dataset.type;
-      const inline = btn.dataset.inline;
 
       btn.classList.add("loading");
 
       try {
-        if (inline) {
-          if (inlineMessageMap[inline]?.success) {
-            popup(inlineMessageMap[inline].success, inlineMessageMap[inline].type);
-          }
-          return;
-        }
-
-        if (["scanner","hash","user","flags","cache","nuke","piffork","propspoofer","pif","vending","downloader","keymint",
-             "support","report","profile","assistant","repair","pilot","faq","spoofing","status","tee","xml","pixel","hide","patch","ctrl"].includes(type)) {
+        if (["hash","user","flags","repair","profile","pixel","hide",
+             "support","report","assistant","pilot","spoofing","ctrl","piffork","propspoofer","downloader"].includes(type)) {
 
           const pathMap = {
             ctrl:"./Control/index.html",

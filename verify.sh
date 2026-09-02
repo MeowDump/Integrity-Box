@@ -10,6 +10,9 @@ if [ ! -f "$HASHFILE" ]; then
 fi
 
 while IFS='|' read -r RELPATH EXPECT_SHA256; do
+    # Skip blank lines and comments
+    case "$RELPATH" in ''|'#'*) continue ;; esac
+
     FILE="$UPDATE/$RELPATH"
     
     # Check if file exists

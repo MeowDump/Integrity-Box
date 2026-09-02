@@ -4,7 +4,6 @@ MODPATH="${0%/*}"
 
 # Module path and file references
 PIF="/data/adb/modules/playintegrityfix"
-ROOT_SOL=$(detect_root_solution)
 SCRIPT="$MODPATH/webroot/common_scripts"
 BOX="/data/adb/Box-Brain"
 LOG_DIR="$BOX/Integrity-Box-Logs"
@@ -14,7 +13,6 @@ PROP2="ro.build.tags=release-keys"
 PROP3="ro.build.type=user"
 LOG="$LOG_DIR/service.log"
 LOG2="$LOG_DIR/encrypt.log"
-#LOG3="$LOG_DIR/autopif.log"
 LOG4="$LOG_DIR/twrp.log"
 LOG5="$LOG_DIR/tag.log"
 LOG6="$LOG_DIR/build.log"
@@ -96,108 +94,64 @@ resetprop_if_diff "ro.boot.selinux" "enforcing"
 run_compact
 wait_for_boot
 
-# Spoof Encryption 
-{
-  echo "ENCRYPT CHECK ($(date))"
+# Toggle a system.prop spoof line
+spoof_prop_line() {
+  local FLAG="$1"
+  local LINE="$2"
+  local HEADER="$3"
 
-  if [ -f $BOX/encrypt ]; then
-    if grep -qxF "$PROP1" "$PROP"; then
+  echo "$HEADER CHECK ($(date))"
+
+  if [ -f "$BOX/$FLAG" ]; then
+    if grep -qxF "$LINE" "$PROP"; then
       echo "Prop already exists, no action needed"
     else
-      echo "$PROP1" >> "$PROP"
-      echo "Spoofed prop: $PROP1"
+      echo "$LINE" >> "$PROP"
+      echo "Spoofed prop: $LINE"
     fi
   else
-    if grep -qxF "$PROP1" "$PROP"; then
-      sed -i "\|^${PROP1}\$|d" "$PROP"
-      echo "Removed line: $PROP1"
+    if grep -qxF "$LINE" "$PROP"; then
+      sed -i "\|^${LINE}\$|d" "$PROP"
+      echo "Removed line: $LINE"
     else
       echo "Prop not present, no action needed"
     fi
   fi
 
   echo
-} >> "$LOG2" 2>&1
+}
 
-# Spoof Tag 
-{
-  echo "TAG CHECK ($(date))"
-
-  if [ -f $BOX/tag ]; then
-    if grep -qxF "$PROP2" "$PROP"; then
-      echo "Prop already exists, no action needed"
-    else
-      echo "$PROP2" >> "$PROP"
-      echo "Spoofed prop: $PROP2"
-    fi
-  else
-    if grep -qxF "$PROP2" "$PROP"; then
-      sed -i "\|^${PROP2}\$|d" "$PROP"
-      echo "Removed line: $PROP2"
-    else
-      echo "Prop not present, no action needed"
-    fi
-  fi
-
-  echo
-} >> "$LOG5" 2>&1
-
-# Spoof Build 
-{
-  echo "BUILD CHECK ($(date))"
-
-  if [ -f $BOX/build ]; then
-    if grep -qxF "$PROP3" "$PROP"; then
-      echo "Prop already exists, no action needed"
-    else
-      echo "$PROP3" >> "$PROP"
-      echo "Spoofed prop: $PROP3"
-    fi
-  else
-    if grep -qxF "$PROP3" "$PROP"; then
-      sed -i "\|^${PROP3}\$|d" "$PROP"
-      echo "Removed line: $PROP3"
-    else
-      echo "Prop not present, no action needed"
-    fi
-  fi
-
-  echo
-} >> "$LOG6" 2>&1
+# Spoof Encryption / Tag / Build
+spoof_prop_line "encrypt" "$PROP1" "ENCRYPT" >> "$LOG2" 2>&1
+spoof_prop_line "tag"     "$PROP2" "TAG"     >> "$LOG5" 2>&1
+spoof_prop_line "build"   "$PROP3" "BUILD"   >> "$LOG6" 2>&1
 
 # Rename twrp folder to avoid root detection
 {
   echo "TWRP/FOX RENAME ($(date))"
   echo
-  [ -f $BOX/twrp ] && hide_recovery_folders
+  [ -f "$BOX/twrp" ] && hide_recovery_folders
 } >> "$LOG4" 2>&1
 
-# Hide PIF
-if [ -f "$BOX/hidehook" ]; then
-   log "hidehook flag found, executing resetprop.sh..."
-   sh "$SCRIPT/resetprop.sh"
-   log "resetprop.sh executed successfully"
-else
-   log "hidehook flag not found, skipping resetprop.sh"
-fi
+# Run a flag-triggered script
+run_flagged_script() {
+  local FLAG="$1"
+  local SCRIPT_NAME="$2"
 
-# Hide custom ROM
-if [ -f "$BOX/spoof-custom-rom-boot" ]; then
-   log "spoof-custom-rom-boot flag found, executing prop.sh..."
-   sh "$SCRIPT/prop.sh"
-   log "prop.sh executed successfully"
-else
-   log "spoof-custom-rom-boot flag not found, skipping prop.sh"
-fi
+  if [ -f "$BOX/$FLAG" ]; then
+    log "$FLAG flag found, executing $SCRIPT_NAME..."
+    sh "$SCRIPT/$SCRIPT_NAME"
+    log "$SCRIPT_NAME executed successfully"
+  else
+    log "$FLAG flag not found, skipping $SCRIPT_NAME"
+  fi
+}
 
-# Hide sus files
-if [ -f "$BOX/nuke-sus-boot" ]; then
-   log "nuke-sus-boot flag found, executing susfiles.sh..."
-   sh "$SCRIPT/susfiles.sh"
-   log "susfiles.sh executed successfully"
-else
-   log "nuke-sus-boot flag not found, skipping susfiles.sh"
-fi
+run_flagged_script "hidehook"            "resetprop.sh"
+run_flagged_script "spoof-custom-rom-boot" "prop.sh"
+run_flagged_script "nuke-sus-boot"       "susfiles.sh"
+run_flagged_script "spoof-los-boot"      "override_lineage.sh"
+run_flagged_script "nuke-los-boot"       "force_override.sh"
 
 # Spoof selinux status
 if [ -f "$BOX/spoof-selinux-boot" ]; then
@@ -213,27 +167,7 @@ else
     log "spoof-selinux-boot flag not found, skipping"
 fi
 
-# Override lineage props
-if [ -f "$BOX/spoof-los-boot" ]; then
-   log "spoof-los-boot flag found, executing override_lineage.sh..."
-   sh "$SCRIPT/override_lineage.sh"
-   log "override_lineage.sh executed successfully"
-else
-   log "spoof-los-boot flag not found, skipping override_lineage.sh"
-fi
-
-# Nuke lineage props
-if [ -f "$BOX/nuke-los-boot" ]; then
-   log "nuke-los-boot flag found, executing force_override.sh..."
-   sh "$SCRIPT/force_override.sh"
-   log "force_override.sh executed successfully"
-else
-   log "nuke-los-boot flag not found, skipping force_override.sh"
-fi
-
-resetprop --compact >/dev/null 2>&1 || true
-
-# Stop daemon if needed 
+# Stop daemon if needed
 if [ -f "$BOX/rukja" ]; then
     exit 0
 fi
@@ -242,14 +176,14 @@ fi
 if [ -f "$BOX/autopilot" ]; then
     (
         while true; do
-            last=$(cat $BOX/daemon_heartbeat 2>/dev/null || echo "0")
+            last=$(cat "$BOX/daemon_heartbeat" 2>/dev/null || echo "0")
             now=$(date +%s)
-            
+
             if [ $((now - last)) -gt 180 ]; then
-                rm -rf $BOX/autorun.lockdir $BOX/.executing 2>/dev/null
+                rm -rf "$BOX/autorun.lockdir" "$BOX/.executing" 2>/dev/null
                 sh "$SCRIPT/autopilot.sh" >/dev/null 2>&1 &
             fi
-            
+
             sleep 60
         done
     ) &

@@ -40,11 +40,10 @@ mask_fingerprint() {
 
     # Last colon-separated part as tag
     local TAGS
-    if [[ "$FP" == *:* ]]; then
-        TAGS="${FP##*:}"
-    else
-        TAGS="unknown"
-    fi
+    case "$FP" in
+        *:*) TAGS="${FP##*:}" ;;
+        *)   TAGS="unknown" ;;
+    esac
 
     echo "${PREFIX}/***MASKED***/${TAGS}"
 }
@@ -207,7 +206,7 @@ echo "  \"playintegrityfix\": $PIF_JSON,"
 
 echo "  \"modules\": $MODULES_JSON,"
 
-echo "  \"user_apps\": [$(cat "$OUT_DIR/user_apps.tmp" | json_array)]"
+echo "  \"user_apps\": [$(json_array < "$OUT_DIR/user_apps.tmp")]"
 
 echo "}"
 } > "$OUT_FILE"

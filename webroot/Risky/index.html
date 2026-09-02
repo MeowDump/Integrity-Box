@@ -416,38 +416,6 @@ body {
   color: var(--status-spoofed);
 }
 
-/* Snackbar */
-.snackbar {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%) translateY(100px);
-  background: var(--md-sys-color-inverse-surface, #E6E0E9);
-  color: var(--md-sys-color-inverse-on-surface, #322F35);
-  padding: 14px 24px;
-  border-radius: var(--md-sys-shape-small);
-  font-size: 0.875rem;
-  font-weight: 400;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  box-shadow: var(--md-sys-elevation-3);
-  opacity: 0;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 1000;
-  min-width: 280px;
-  max-width: 90vw;
-}
-
-.snackbar.show {
-  transform: translateX(-50%) translateY(0);
-  opacity: 1;
-}
-
-.snackbar-icon {
-  color: var(--md-sys-color-inverse-primary, #D0BCFF);
-}
-
 /* Stats Summary */
 .stats-bar {
   display: flex;
@@ -567,17 +535,10 @@ body {
   </div>
 </div>
 
-<div class="snackbar" id="snackbar">
-  <span class="material-icons-round snackbar-icon">info</span>
-  <span id="snackbar-text"></span>
-</div>
-
 <script>
 const runBtn = document.getElementById("run-btn");
 const clearBtn = document.getElementById("clear-log");
 const outputLog = document.getElementById("output-log");
-const snackbar = document.getElementById("snackbar");
-const snackbarText = document.getElementById("snackbar-text");
 const progress = document.getElementById("progress");
 const progressDetail = document.getElementById("progress-detail");
 const stats = document.getElementById("stats");
@@ -670,9 +631,9 @@ function setEmptyState() {
 }
 
 async function safeRun(cmd, timeout = 1000) {
-  if (!window.parent.runShell) return "";
+  if (!window.parent.runShellFromIframe) return "";
   return Promise.race([
-    window.parent.runShell(cmd).catch(() => ""),
+    window.parent.runShellFromIframe(cmd).catch(() => ""),
     new Promise(res => setTimeout(() => res(""), timeout))
   ]);
 }

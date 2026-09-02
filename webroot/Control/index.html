@@ -853,10 +853,7 @@ function run(cmd,cb){
   k.exec("sh -c '"+cmd.replace(/'/g,"'\\''")+"'","{}",id);
 }
 
-function has(path,cb){run("[ -f "+path+" ] && echo 1 || echo 0",cb)}
-function readFile(path,cb){run("cat "+path+" 2>/dev/null || echo ''",cb)}
 function touch(path,on){if(on)run("mkdir -p "+DIR+" && touch "+path,function(){});else run("rm -f "+path,function(){});}
-function read(key,cb){run("grep -m1 '^"+key+"=' "+PROP+" | cut -d'=' -f2- || echo ''",cb)}
 function write(key,val,cb){
   run(
     "mkdir -p $(dirname "+PROP+") && touch "+PROP+" && " +
@@ -957,10 +954,6 @@ function showModeInfo(e){
   if(tip.classList.contains("show")){
     setTimeout(function(){tip.classList.remove("show")},4000);
   }
-}
-
-function getUpdateUrl(cb){
-  run("grep -m1 '^updateJson=' "+MOD_PROP+" | cut -d'=' -f2- || echo ''",cb);
 }
 
 function setUpdateUrl(url,cb){

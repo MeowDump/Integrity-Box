@@ -6,7 +6,13 @@ BOX_BRAIN="/data/adb/Box-Brain"
 MODPATH="/data/adb/modules/playintegrityfix"
 
 mkdir -p "$BOX_BRAIN/Integrity-Box-Logs" 2>/dev/null
-LOG_FILE="$BOX_BRAIN/Integrity-Box-Logs/autorun.log"
+
+if [ -f "$MODPATH/common_func.sh" ]; then
+    . "$MODPATH/common_func.sh"
+    LOG_FILE="$BOX_BRAIN/Integrity-Box-Logs/autorun.log"
+else
+    LOG_FILE="$BOX_BRAIN/Integrity-Box-Logs/autorun.log"
+fi
 
 log() {
     echo "[$(date '+%H:%M:%S')] $1" >> "$LOG_FILE"
@@ -17,13 +23,11 @@ log() {
 
 log "••••••• AUTORUN START PID: $$ •••••••"
 
-if [ -f "$MODPATH/common_func.sh" ]; then
-    . "$MODPATH/common_func.sh"
-    log "common_func.sh loaded"
-else
+if [ ! -f "$MODPATH/common_func.sh" ]; then
     log "FATAL: common_func.sh missing"
     exit 1
 fi
+log "common_func.sh loaded"
 
 if [ ! -f "$BOX_BRAIN/autopilot" ]; then
     log "autopilot disabled, exit"
@@ -34,12 +38,16 @@ LOCK_DIR="$BOX_BRAIN/autorun.lockdir"
 
 claim_lock() {
     rm -rf "$LOCK_DIR" 2>/dev/null
-    mkdir "$LOCK_DIR" 2>/dev/null
-    if [ $? -eq 0 ]; then
+    if mkdir "$LOCK_DIR" 2>/dev/null; then
         echo $$ > "$LOCK_DIR/pid"
         return 0
     fi
     return 1
+}
+
+take_lock() {
+    claim_lock || { log "Cannot claim lock"; exit 1; }
+    log "Lock acquired ($1)"
 }
 
 if mkdir "$LOCK_DIR" 2>/dev/null; then
@@ -61,20 +69,16 @@ else
                     log "Killing stale PID $old_pid"
                     kill -9 "$old_pid" 2>/dev/null
                     sleep 1
-                    claim_lock || { log "Cannot claim lock"; exit 1; }
-                    log "Lock acquired (stale reclaimed)"
+                    take_lock "stale reclaimed"
                 fi
             else
-                claim_lock || { log "Cannot claim lock"; exit 1; }
-                log "Lock acquired (foreign process)"
+                take_lock "foreign process"
             fi
         else
-            claim_lock || { log "Cannot claim lock"; exit 1; }
-            log "Lock acquired (dead process)"
+            take_lock "dead process"
         fi
     else
-        claim_lock || { log "Cannot claim lock"; exit 1; }
-        log "Lock acquired (no pid file)"
+        take_lock "no pid file"
     fi
 fi
 
@@ -84,7 +88,7 @@ cleanup() {
     exit 0
 }
 
-trap cleanup 15 2 1 0 2>/dev/null || true
+trap cleanup 15 2 1 0
 
 wakelock_acquire() {
     [ -w "/sys/power/wake_lock" ] && printf "integrity_autorun" > /sys/power/wake_lock 2>/dev/null
@@ -105,9 +109,7 @@ get_local_highest() {
                 if [ -z "$highest" ]; then
                     highest="$letter"
                 else
-                    if [ "$letter" \> "$highest" ]; then
-                        highest="$letter"
-                    fi
+                    highest=$(printf '%s\n%s\n' "$letter" "$highest" | LC_ALL=C sort | tail -n 1)
                 fi
                 ;;
         esac

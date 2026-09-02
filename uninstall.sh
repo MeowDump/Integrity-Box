@@ -1,5 +1,4 @@
 #!/system/bin/sh
-set -x
 
 # Log file & Logger
 LOGFILE="/data/local/tmp/uninstall.log"
@@ -12,8 +11,7 @@ log() {
 delete_file() {
     local FILE="$1"
     if [ -e "$FILE" ]; then
-        rm -rf "$FILE" >> "$LOGFILE" 2>&1
-        if [ $? -eq 0 ]; then
+        if rm -rf "$FILE" >> "$LOGFILE" 2>&1; then
             log "Deleted $FILE"
         else
             log "Failed to delete $FILE"
@@ -28,8 +26,7 @@ restore_backup() {
     local BACKUP="$1"
     local ORIGINAL="$2"
     if [ -e "$BACKUP" ]; then
-        mv "$BACKUP" "$ORIGINAL" >> "$LOGFILE" 2>&1
-        if [ $? -eq 0 ]; then
+        if mv "$BACKUP" "$ORIGINAL" >> "$LOGFILE" 2>&1; then
             log "Restored $ORIGINAL from backup"
         else
             log "Failed to restore $ORIGINAL from backup"
@@ -48,8 +45,7 @@ revert_prop_if_modified() {
     CURRENT="$(getprop "$PROP" 2>/dev/null)"
 
     if [ "$CURRENT" = "$MODIFIED" ]; then
-        resetprop -n "$PROP" "$DEFAULT" >> "$LOGFILE" 2>&1
-        if [ $? -eq 0 ]; then
+        if resetprop -n "$PROP" "$DEFAULT" >> "$LOGFILE" 2>&1; then
             log "Reverted $PROP to $DEFAULT (was $MODIFIED)"
         else
             log "Failed to revert $PROP (was $MODIFIED)"
@@ -80,6 +76,8 @@ delete_file /data/adb/service.d/hash.sh
 delete_file /data/adb/service.d/lineage.sh
 delete_file /data/adb/service.d/prop.sh
 delete_file /data/adb/service.d/shamiko.sh
+delete_file /data/adb/service.d/.box_cleanup.sh
+delete_file /data/adb/service.d/package.sh
 
 # Restore backups
 restore_backup "$TARGET_BACKUP" "$TARGET"

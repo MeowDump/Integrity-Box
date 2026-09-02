@@ -21,19 +21,8 @@ PRODUCT=$(get_prop "PRODUCT")
 MANUFACTURER=$(get_prop "MANUFACTURER")
 SECURITY_PATCH=$(get_prop "SECURITY_PATCH")
 
-# If any value is empty, skip silently
+# If no values are set at all, skip silently (individual empty fields keep current values)
 [ -z "$BRAND" ] && [ -z "$DEVICE" ] && [ -z "$PRODUCT" ] && [ -z "$MANUFACTURER" ] && [ -z "$SECURITY_PATCH" ] && exit 0
-
-# Build the new [device] section
-DEVICE_SECTION=""
-[ -n "$BRAND" ] && DEVICE_SECTION="${DEVICE_SECTION}brand = \"$BRAND\"
-"
-[ -n "$DEVICE" ] && DEVICE_SECTION="${DEVICE_SECTION}device = \"$DEVICE\"
-"
-[ -n "$PRODUCT" ] && DEVICE_SECTION="${DEVICE_SECTION}product = \"$PRODUCT\"
-"
-[ -n "$MANUFACTURURER" ] && DEVICE_SECTION="${DEVICE_SECTION}manufacturer = \"$MANUFACTURER\"
-"
 
 # Write new config
 awk -v brand="$BRAND" -v device="$DEVICE" -v product="$PRODUCT" \

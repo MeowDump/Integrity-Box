@@ -34,7 +34,7 @@ log() {
 }
 
 # Cleanup temp files on exit
-trap 'rm -f "$TEMP_FILE"' EXIT
+trap 'rm -f "$TEMP_FILE" "$TMP_HEX" "$CURRENT" "$NEXT"' EXIT
 
 # Create directories
 mkdir -p "$TRICKY_STORE" "$RECORD" "$RECORD/Integrity-Box-Logs" "$BACKUP_DIR"
@@ -128,15 +128,10 @@ _phase2_dns_override() {
         attempt=$((attempt + 1))
         log " 𒀭 DNS override attempt $attempt/2..."
 
-        if [ -n "$BB" ] && _try_download "$url" "$out" "bb_wget"; then
-            _restore_dns "$old_dns1" "$old_dns2"
-            return 0
-        fi
-        if _try_download "$url" "$out" "wget"; then
-            _restore_dns "$old_dns1" "$old_dns2"
-            return 0
-        fi
-        if _try_download "$url" "$out" "curl"; then
+        { [ -n "$BB" ] && _try_download "$url" "$out" "bb_wget"; } ||
+        _try_download "$url" "$out" "wget" ||
+        _try_download "$url" "$out" "curl" || true
+        if [ -s "$out" ]; then
             _restore_dns "$old_dns1" "$old_dns2"
             return 0
         fi
@@ -296,9 +291,10 @@ if [ -d "$OMK_DIR" ]; then
 fi
 
 # Backup TEE SIM keybox with timestamp
+SIM_KEYBACKUP="$SIM_KEY.bak"
 if [ -s "$SIM_KEY" ]; then
     cp -f "$SIM_KEY" "$SIM_KEYBACKUP"
-    log " ✪ TEE-SIM key backup created"
+    log " 𒀭 TEE-SIM key backup created"
 fi
 
 # Copy keybox to SIM path

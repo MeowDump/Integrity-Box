@@ -595,7 +595,6 @@ var MESSAGES={
   safemode:{on:"Safe mode active",off:"Safe mode disabled"},
   twrp:{on:"Custom recovery spoofed",off:"Custom recovery disabled"},
   keymint:{on:"OMK Pixel disabled",off:"OMK Pixel enabled"},
-  keymint:{on:"TEEsim modifications will be ignored",off:"TEEsim will be updated by default"},
   "spoof-selinux-boot":{on:"Please reboot your device",off:"Please reboot your device"},
   hidehook:{on:"Please reboot your device",off:"Please reboot your device"},
   encrypt:{on:"Encryption spoofed",off:"Encryption disabled"},
@@ -611,7 +610,6 @@ var MESSAGES={
 };
 
 var actionExecEnabled=false;
-var bootFlagChanged=false;
 
 function popup(msg,type){
   type=type||"info";
@@ -873,7 +871,6 @@ async function toggleBootFlag(id){
 }
 
 function showRebootHint(){
-  bootFlagChanged=true;
   var hint=document.getElementById("rebootHint");
   hint.classList.add("show");
 }

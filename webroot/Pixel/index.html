@@ -415,8 +415,8 @@ const ZYGISK_PATH="/data/adb/modules/playintegrityfix/zygisk";
 const BACKUP_DIR="/sdcard/Download/DeviceSpoofer";
 
 function runShell(cmd,cb){
-  if(window.parent?.runShell){
-    window.parent.runShell(cmd).then(out=>cb?.(0,out,"")).catch(err=>cb?.(1,"",err));
+  if(window.parent?.runShellFromIframe){
+    window.parent.runShellFromIframe(cmd).then(out=>cb?.(0,out,"")).catch(err=>cb?.(1,"",err));
   }else if(window.ksu?.exec){
     const id="cb_"+Date.now()+"_"+Math.floor(Math.random()*9999);
     window[id]=(code,stdout,stderr)=>{try{delete window[id]}catch(e){};cb?.(code,stdout||"",stderr||"");};

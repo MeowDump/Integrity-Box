@@ -1,13 +1,43 @@
-RECORD="/data/adb/Box-Brain/Integrity-Box-Logs"
-OUT="/storage/emulated/0/Download/IntegrityModules"
-BOX="/data/adb/Box-Brain"
-LOGZ="/data/adb/Box-Brain/Integrity-Box-Logs/integrity_downloader.log"
-LOG_FILE="/data/adb/Box-Brain/Integrity-Box-Logs/action.log"
-WIDTH=53
+# shellcheck shell=sh
+# Sourced library: no shebang on purpose (loaded via `. common_func.sh`)
 
-# Property Backend Setup
+RECORD="/data/adb/Box-Brain/Integrity-Box-Logs"
+BOX="/data/adb/Box-Brain"
+LOG_FILE="/data/adb/Box-Brain/Integrity-Box-Logs/action.log"
+
+# Default logger (scripts may override with their own log())
+log() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
+}
+
+# Locate the resetprop binary (scripts without common_func's backend setup use this)
+find_resetprop() {
+    for p in $(which resetprop 2>/dev/null) \
+             /data/adb/ksu/bin/resetprop \
+             /data/adb/ap/bin/resetprop \
+             /data/adb/magisk/resetprop \
+             /sbin/resetprop \
+             /system/xbin/resetprop \
+             /system/bin/resetprop; do
+        if [ -f "$p" ]; then
+            echo "$p"
+            return 0
+        fi
+    done
+    return 1
+}
+
+# Restart Google services (shared by action.sh and gms.sh)
+restart_gms() {
+    for proc in com.google.android.gms.unstable com.google.android.gms com.android.vending; do
+        kill_process "$proc"
+    done
+}
+
+# Property Backend Setup (consumed by scripts that source this file)
 RESETPROP="resetprop"
 PROP_DELETE="resetprop --delete"
+# shellcheck disable=SC2034  # used by service.sh after sourcing
 PROP_WAIT="resetprop -w"
 COMPACT_SUPPORTED=false
 
@@ -43,11 +73,6 @@ ROOT_SOL=$(detect_root_solution)
 check_compact_support() {
     resetprop --help 2>&1 | grep -q "compact"
 }
-
-# stub for boot-time
-if [ "$(getprop sys.boot_completed)" != "1" ]; then
-    ui_print() { return; }
-fi
 
 setup_resetprop() {
     case "$ROOT_SOL" in
@@ -97,50 +122,15 @@ run_compact() {
     $COMPACT_SUPPORTED && resetprop -c 2>/dev/null
 }
 
-# Logger function
-pif() {
-    echo "$1" | tee -a "$RECORD/PlayIntegrityScript.log"
-}
-
 recommended_settings() {
     touch "$BOX/migrate_force"
     touch "$BOX/run_migrate"
 }
 
-# Logger function
-denylog() {
-    echo "$1" | tee -a "$RECORD/denylist.log"
-}
-
-center() { printf "%*s\n" $(((${#1}+$WIDTH)/2)) "$1"; }
-
-banner() {
-  printf "%${WIDTH}s\n" | tr ' ' '='
-  center "INTEGRITY BOX DOWNLOADER"
-  printf "%${WIDTH}s\n" | tr ' ' '='
-}
-
-randomize_banner() {
-    local prop_file="/data/adb/modules/playintegrityfix/module.prop"
-    local base_url="https://raw.githubusercontent.com/MeowDump/MeowDump/refs/heads/main/Banner"
-    local random_num=$((RANDOM % 14 + 1))
-    local new_banner="${base_url}/mona${random_num}.png"
-    
-    sed -i "s|^banner=.*|banner=${new_banner}|" "$prop_file"
-}
-
-print_row() {
-  printf "%-22s %-12s %-20s\n" "$1" "$2" "$3"
-}
-
-sha_ok() {
-  if [ ! -f "$1" ]; then return 1; fi
-  echo "$2  $1" | sha256sum -c - >/dev/null 2>&1
-}
-
 get_size() {
   if [ -f "$1" ]; then du -h "$1" 2>/dev/null | awk '{print $1}'; else echo "-"; fi
 }
+
 
 # determine downloader binary
 detect_downloader() {
@@ -195,13 +185,17 @@ wait_for_network() {
     fi
 
     if [ -n "$DOWNLOADER" ]; then
-      if [ "$DL_MODE" = "curl" ]; then
-        /system/bin/curl -s --head --connect-timeout 5 https://raw.githubusercontent.com >/dev/null 2>&1 && return 0
-      elif [ "$DL_MODE" = "wget" ]; then
-        /system/bin/wget --spider --timeout=5 --tries=1 https://raw.githubusercontent.com >/dev/null 2>&1 && return 0
-      elif [ "$DL_MODE" = "busybox" ]; then
-        /data/adb/magisk/busybox wget --spider --timeout=5 --tries=1 https://raw.githubusercontent.com >/dev/null 2>&1 && return 0
-      fi
+      case "$DL_MODE" in
+        curl)
+          "$DOWNLOADER" -s --head --connect-timeout 5 https://raw.githubusercontent.com >/dev/null 2>&1 && return 0
+          ;;
+        wget)
+          "$DOWNLOADER" --spider --timeout=5 --tries=1 https://raw.githubusercontent.com >/dev/null 2>&1 && return 0
+          ;;
+        busybox)
+          "$DOWNLOADER" wget --spider --timeout=5 --tries=1 https://raw.githubusercontent.com >/dev/null 2>&1 && return 0
+          ;;
+      esac
     fi
 
     sleep $step
@@ -211,108 +205,8 @@ wait_for_network() {
   return 1
 }
 
-download() {
-  url="$1"
-  file="$2"
-  sum="$3"
-
-  tmp="$OUT/$file.tmp"
-  final="$OUT/$file"
-  rm -f "$tmp" "$final"
-
-  detect_downloader
-  if [ -z "$DOWNLOADER" ]; then
-    echo "ERROR: No downloader binary found" >>"$LOGZ"
-    return 1
-  fi
-
-  att=1
-  while [ $att -le 3 ]; do
-    echo "$(date +%F' '%T) Download attempt $att for $file using $DL_MODE" >>"$LOGZ"
-
-    if [ "$DL_MODE" = "curl" ]; then
-        "$DOWNLOADER" -L --fail --connect-timeout 10 --max-time 120 -o "$tmp" "$url" 2>>"$LOGZ"
-        rc=$?
-    elif [ "$DL_MODE" = "wget" ]; then
-        "$DOWNLOADER" --no-check-certificate -O "$tmp" "$url" 2>>"$LOGZ"
-        rc=$?
-    elif [ "$DL_MODE" = "busybox" ]; then
-        "$DOWNLOADER" wget --no-check-certificate -O "$tmp" "$url" 2>>"$LOGZ"
-        rc=$?
-    elif [ "$DL_MODE" = "toybox" ]; then
-        toybox wget -O "$tmp" "$url" 2>>"$LOGZ"
-        rc=$?
-    fi
-
-    if [ $rc -ne 0 ]; then
-      echo "WARN: downloader failed rc=$rc for $file" >>"$LOGZ"
-      rm -f "$tmp"
-      att=$((att+1))
-      sleep 1
-      continue
-    fi
-
-    # verify sha
-    if sha_ok "$tmp" "$sum"; then
-      mv "$tmp" "$final"
-      echo "$(date +%F' '%T) OK: $file saved to $final" >>"$LOGZ"
-      return 0
-    else
-      echo "WARN: SHA mismatch for $file" >>"$LOGZ"
-      rm -f "$tmp"
-      att=$((att+1))
-      sleep 1
-      continue
-    fi
-  done
-
-  echo "ERROR: Failed to download $file after retries" >>"$LOGZ"
-  rm -f "$tmp"
-  return 1
-}
-
-safe_mv() {
-  src="$1"
-  dst="$2"
-  mkdir -p "$(dirname "$dst")"
-  mv "$src" "$dst" 2>>"$LOGZ" || cp -f "$src" "$dst" 2>>"$LOGZ" && rm -f "$src"
-  return $?
-}
-
-# Configure DenyList
-add_if_missing() {
-    pkg="$1"; proc="$2"
-    entry="$pkg|${proc:-$pkg}"
-    if ! magisk --denylist ls | grep -q "$entry"; then
-        magisk --denylist add "$pkg" $proc
-        denylog "[AutoDeny] Added $entry"
-    fi
-}
-
-setval() { grep -q "^$2=" "$1" && sed -i "s/^$2=.*/$2=$3/" "$1" && log "$2 > $3" || log "$2 not found"; }
-
-lineage() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S') $*" | tee -a "$RECORD/lineage.log"
-#    echo "$(date '+%Y-%m-%d %H:%M:%S') $*"
-}
-
 chup() {
 echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$RECORD/pixel.log"
-}
-
-set_resetprop() {
-    local PROP="$1"
-    local VALUE="$2"
-
-    if prop_exists "$PROP"; then
-        if resetprop -n -p "$PROP" "$VALUE" 2>/dev/null; then
-            chup "Disabled spoof: $PROP > $VALUE"
-        else
-            chup "Failed to modify $PROP"
-        fi
-    else
-        chup "Skipped $PROP (not defined)"
-    fi
 }
 
 set_simpleprop() {
@@ -328,43 +222,6 @@ set_simpleprop() {
     else
         chup "Skipping $PROP, property does not exist"
     fi
-}
-
-# Helper to add packages
-add_pkg() {
-  pkg="$1"
-  if [ "$teeBroken" = "true" ]; then
-    echo "${pkg}!" >> "$TMP"
-  else
-    echo "$pkg" >> "$TMP"
-  fi
-}
-
-# Connectivity check
-megatron() {
-  max_attempts=5
-  attempt=1
-  delay=1
-  hosts="1.1.1.1 8.8.8.8 9.9.9.9 223.5.5.5 114.114.114.114"
-
-  while [ $attempt -le $max_attempts ]; do
-    echo " "
-    echo "🌐 Attempt $attempt of $max_attempts..."
-
-    for host in $hosts; do
-      if ping -c1 -W2 "$host" >/dev/null 2>&1; then
-        return 0
-      fi
-    done
-
-    echo "❌ No internet detected"
-    sleep $delay
-    attempt=$((attempt + 1))
-    [ $delay -lt 5 ] && delay=$((delay + 1))
-  done
-
-  echo "🚫 No internet detected after $max_attempts attempts."
-  return 1
 }
 
 # Print header
@@ -455,89 +312,14 @@ hide_recovery_folders() {
     done
 }
 
-run_temp_exec() {
-    local script="$1"
-
-    if [ ! -r "$script" ]; then
-        echo "Script $script not readable ❌"
-        return 1
-    fi
-
-    local orig_mode
-    orig_mode=$(stat -c "%a" "$script")
-    echo "Original permission: $orig_mode"
-
-    chmod +x "$script"
-    echo "Temporary +x granted, executing..."
-    "$script"
-
-    echo "Execution finished, reverting permission"
-    chmod "$orig_mode" "$script"
-}
-
-delete_if_exist() {
-    path="$1"
-    if [ -e "$path" ]; then
-        rm -rf "$path"
-        log "Deleted: $path"
-    fi
-}
-
 P() {
   for Q in /data/adb/modules/busybox-ndk/system/*/busybox \
            /data/adb/ksu/bin/busybox \
            /data/adb/ap/bin/busybox \
-           /data/adb/magisk/busybox; do
+           /data/adb/magisk/busybox \
+           /system/bin/busybox \
+           /system/xbin/busybox; do
     [ -x "$Q" ] && echo "$Q" && return
-  done
-}
-
-Z() {
-  b=0; s=0
-  while IFS= read -r -n1 c; do
-    case "$c" in
-      [A-Z]) v=$(printf '%d' "'$c"); v=$((v - 65));;
-      [a-z]) v=$(printf '%d' "'$c"); v=$((v - 71));;
-      [0-9]) v=$(printf '%d' "'$c"); v=$((v + 4));;
-      '+') v=62;;
-      '/') v=63;;
-      '=') break;;
-      *) continue;;
-    esac
-    b=$((b << 6 | v)); s=$((s + 6))
-    if [ "$s" -ge 8 ]; then
-      s=$((s - 8)); o=$(((b >> s) & 0xFF))
-      printf \\$(printf '%03o' "$o")
-    fi
-  done
-}
-
-P() {
-  for Q in /data/adb/modules/busybox-ndk/system/*/busybox \
-           /data/adb/ksu/bin/busybox \
-           /data/adb/ap/bin/busybox \
-           /data/adb/magisk/busybox; do
-    [ -x "$Q" ] && echo "$Q" && return
-  done
-}
-
-Z() {
-  b=0; s=0
-  while IFS= read -r -n1 c; do
-    case "$c" in
-      [A-Z]) v=$(printf '%d' "'$c"); v=$((v - 65));;
-      [a-z]) v=$(printf '%d' "'$c"); v=$((v - 71));;
-      [0-9]) v=$(printf '%d' "'$c"); v=$((v + 4));;
-      '+') v=62;;
-      '/') v=63;;
-      '=') break;;
-      *) continue;;
-    esac
-    b=$((b << 6 | v)); s=$((s + 6))
-    if [ "$s" -ge 8 ]; then
-      s=$((s - 8)); o=$(((b >> s) & 0xFF))
-      printf \\$(printf '%03o' "$o")
-    fi
   done
 }
 
@@ -545,25 +327,6 @@ Z() {
 writelog() {
     echo "$(date +'%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"
     /system/bin/log -t PATCH_OVERRIDE "$1"
-}
-
-# Function to check and set property if needed
-check_and_set_prop() {
-    local PROP=$1
-    local VALUE=$2
-
-    local CURRENT
-    CURRENT=$(getprop "$PROP")
-
-    if [ "$CURRENT" = "$VALUE" ]; then
-        writelog " $PROP is already set to $VALUE no change needed"
-    else
-        if resetprop "$PROP" "$VALUE"; then
-            writelog " Set $PROP to $VALUE (was: $CURRENT)"
-        else
-            writelog " Failed to set $PROP (current: $CURRENT)"
-        fi
-    fi
 }
 
 ensure_blacklist_entries() {
@@ -633,6 +396,7 @@ ensure_exec_permissions() {
 # license: GPL-3.0
 ##########################################
 
+# shellcheck disable=SC2034  # consumed by service.sh / post-fs-data.sh after sourcing
 SKIPDELPROP=false
 [ -f "$MODPATH/skipdelprop" ] && SKIPDELPROP=true
 
@@ -692,10 +456,11 @@ delprop_if_exist() {
 # persistprop <prop> <value>
 persistprop() {
     [ "$ROOT_SOL" = "kernelsu_legacy" ] || [ "$ROOT_SOL" = "apatch_legacy" ] || [ "$ROOT_SOL" = "unknown" ] && return 0
-    
+
     local NAME="$1"
     local NEWVALUE="$2"
-    local CURVALUE="$(resetprop "$NAME")"
+    local CURVALUE
+    CURVALUE="$(resetprop "$NAME")"
 
     if ! grep -q "$NAME" "$MODPATH/uninstall.sh" 2>/dev/null; then
         if [ "$CURVALUE" ]; then
@@ -707,10 +472,6 @@ persistprop() {
     resetprop -n -p "$NAME" "$NEWVALUE"
 }
 
-# Legacy wrappers
-check_reset_prop() { resetprop_if_diff "$@"; }
-contains_reset_prop() { resetprop_if_match "$@"; }
-
 # Hexpatch Fallback
 resetprop_hexpatch() {
     [ "$ROOT_SOL" != "magisk" ] && return 1
@@ -721,22 +482,28 @@ resetprop_hexpatch() {
 
     local NAME="$1"
     local NEWVALUE="$2"
-    local CURVALUE="$(resetprop "$NAME")"
+    local CURVALUE
+    CURVALUE="$(resetprop "$NAME")"
 
     [ ! "$NEWVALUE" ] || [ ! "$CURVALUE" ] && return 1
     [ "$NEWVALUE" = "$CURVALUE" ] && [ ! "$FORCE" ] && return 2
 
     local NEWLEN=${#NEWVALUE}
+    local PROPFILE
     if [ -f /dev/__properties__ ]; then
-        local PROPFILE=/dev/__properties__
+        PROPFILE=/dev/__properties__
     else
-        local PROPFILE="/dev/__properties__/$(resetprop -Z "$NAME")"
+        PROPFILE="/dev/__properties__/$(resetprop -Z "$NAME")"
     fi
     [ ! -f "$PROPFILE" ] && return 3
-    local NAMEOFFSET=$(strings -t d "$PROPFILE" | grep "$NAME" | head -1 | cut -d\  -f1)
+    local NAMEOFFSET
+    NAMEOFFSET=$(strings -t d "$PROPFILE" | grep "$NAME" | head -1 | cut -d\  -f1)
 
-    local NEWHEX="$(printf '%02x' "$NEWLEN")$(printf "$NEWVALUE" | od -A n -t x1 -v | tr -d ' \n')$(printf "%$((92-NEWLEN))s" | sed 's/ /00/g')"
+    local NEWHEX
+    NEWHEX="$(printf '%02x' "$NEWLEN")$(printf '%s' "$NEWVALUE" | od -A n -t x1 -v | tr -d ' \n')$(printf "%$((92-NEWLEN))s" | sed 's/ /00/g')"
+    # shellcheck disable=SC2059  # deliberate: format carries \xNN escapes that mksh echo -e expands to raw bytes
     echo -ne "\x00\x00" | dd obs=1 count=2 seek=$((NAMEOFFSET-96)) conv=notrunc of="$PROPFILE" 2>/dev/null
+    # shellcheck disable=SC2059  # deliberate: mksh echo -e interprets the \xNN sequences below
     echo -ne "$(printf "$NEWHEX" | sed -e 's/.\{2\}/&\\x/g' -e 's/^/\\x/' -e 's/\\x$//')" | dd obs=1 count=93 seek=$((NAMEOFFSET-93)) conv=notrunc of="$PROPFILE" 2>/dev/null
 }
 
