@@ -77,6 +77,21 @@ setup_resetprop() {
     esac
 }
 
+safemode_flags() {
+	
+    local dir="/data/adb/Box-Brain"
+	
+    [ -f "$dir/safemode" ] || return 0
+	
+
+	
+    for f in spoof-los-boot nuke-los-boot spoof-custom-rom-boot NoLineageProp nodebug build tag encrypt hidehook; do
+	
+        [ -f "$dir/$f" ] && rm -f "$dir/$f"
+	
+    done
+	
+}
 
 set_perm_if_needed() {
     _file="$1"
