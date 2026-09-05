@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>PlayIntegrityFork Controls</title>
+<title>Play Integrity Box</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
 :root{
@@ -18,6 +18,7 @@
  --transition:0.3s;
  --success:#4dff88;
  --danger:#ff4d4d;
+ --warning:#ffaa4d;
  --text2:#9aa3ff;
 }
 *{box-sizing:border-box}
@@ -55,19 +56,81 @@ body{
 h1{
  position:relative;z-index:2;
  margin:0 0 8px 0;text-align:center;
- font-size:22px;font-weight:700;
+ font-size:20px;font-weight:700;
  color:var(--fg);
  display:flex;align-items:center;justify-content:center;gap:10px;
+}
+h1 .material-icons{
+ font-size:20px;
+ background:linear-gradient(135deg,var(--accent),#5AC8FA);
+ -webkit-background-clip:text;
+ -webkit-text-fill-color:transparent;
 }
 .subtitle{
  text-align:center;color:var(--text2);
  font-size:13px;font-weight:500;margin-bottom:24px;
  position:relative;z-index:2;
 }
+.header-actions{
+ position:absolute;
+ top:28px;
+ right:28px;
+ display:flex;
+ gap:8px;
+ z-index:3;
+}
+.icon-btn{
+ width:36px;
+ height:36px;
+ border-radius:12px;
+ background:rgba(255,255,255,0.05);
+ border:1px solid rgba(255,255,255,0.08);
+ color:var(--text2);
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ cursor:pointer;
+ transition:all .2s ease;
+}
+.icon-btn:hover{
+ background:rgba(77,163,255,0.12);
+ border-color:rgba(77,163,255,0.25);
+ color:var(--accent);
+}
+.icon-btn:active{transform:scale(0.92)}
+.icon-btn .material-icons{font-size:18px}
+.section-label{
+ position:relative;z-index:2;
+ font-size:11px;
+ font-weight:600;
+ text-transform:uppercase;
+ letter-spacing:1.2px;
+ color:var(--text2);
+ margin-bottom:10px;
+ margin-top:4px;
+ padding-left:4px;
+ display:flex;
+ align-items:center;
+ gap:8px;
+}
+.section-label::before{
+ content:"";
+ width:3px;
+ height:14px;
+ border-radius:2px;
+ background:var(--accent);
+ display:inline-block;
+}
+.section-label.behaviour::before{background:var(--warning)}
+.section-label.behaviour{color:var(--warning)}
 .row{
  position:relative;z-index:2;
- display:flex;align-items:center;justify-content:space-between;
- gap:14px;padding:16px;border-radius:16px;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:14px;
+ padding:16px;
+ border-radius:16px;
  background:rgba(255,255,255,0.03);
  border:1px solid rgba(255,255,255,0.06);
  margin-bottom:10px;
@@ -103,7 +166,7 @@ h1{
  transition:all 0.3s;flex-shrink:0;
 }
 .icon-wrap .material-icons{
- font-size:42px;color:var(--text2);
+ font-size:32px;color:var(--text2);
  transition:all 0.3s;
 }
 .content{flex:1;min-width:0}
@@ -208,6 +271,141 @@ h1{
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast .material-icons{font-size:20px;color:var(--success)}
+
+.row-group{
+ background:rgba(255,255,255,0.03);
+ border:1px solid rgba(255,255,255,0.06);
+ border-radius:16px;
+ overflow:hidden;
+ margin-bottom:24px;
+}
+.row-group .row{
+ margin-bottom:0;
+ border-radius:0;
+ background:transparent;
+ border:none;
+ border-bottom:1px solid rgba(255,255,255,0.04);
+ box-shadow:none;
+}
+.row-group .row:last-child{border-bottom:none}
+.row-group .row:hover{
+ background:rgba(255,255,255,0.04);
+ transform:none;
+ box-shadow:none;
+}
+.row-group .row:active{transform:scale(0.995)}
+.row-group .row.active{
+ background:rgba(77,163,255,0.08);
+ border-color:transparent;
+ box-shadow:none;
+}
+.row-group.pif-group{border-left:3px solid rgba(77,163,255,0.35)}
+.row-group.behaviour-group{border-left:3px solid rgba(255,170,77,0.35)}
+
+.modal-overlay{
+ position:fixed;inset:0;
+ background:rgba(0,0,0,0.7);
+ backdrop-filter:blur(10px);
+ -webkit-backdrop-filter:blur(10px);
+ display:none;
+ align-items:flex-end;
+ justify-content:center;
+ z-index:1000;
+ opacity:0;
+ transition:opacity 0.3s ease;
+}
+.modal-overlay.show{
+ display:flex;opacity:1;
+}
+.modal-sheet{
+ width:100%;max-width:420px;
+ background:var(--panel-bg);
+ backdrop-filter:blur(30px);
+ border-radius:24px 24px 0 0;
+ padding:24px;
+ max-height:80vh;
+ overflow-y:auto;
+ transform:translateY(100%);
+ transition:transform 0.35s cubic-bezier(0.32,0.72,0,1);
+ box-shadow:0 -20px 60px rgba(0,0,0,0.5);
+ border:1px solid rgba(255,255,255,0.06);
+ border-bottom:none;
+}
+.modal-overlay.show .modal-sheet{
+ transform:translateY(0);
+}
+.modal-header{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ margin-bottom:20px;
+}
+.modal-title{
+ font-size:18px;font-weight:700;
+ color:var(--fg);
+ display:flex;align-items:center;gap:8px;
+}
+.modal-title .material-icons{
+ font-size:22px;color:var(--accent);
+}
+.modal-close{
+ width:32px;height:32px;
+ border-radius:50%;
+ background:rgba(255,255,255,0.06);
+ border:1px solid rgba(255,255,255,0.1);
+ color:var(--text2);
+ display:flex;align-items:center;justify-content:center;
+ cursor:pointer;
+ transition:all 0.2s;
+}
+.modal-close:hover{
+ background:rgba(255,255,255,0.1);
+ color:var(--fg);
+}
+.modal-close .material-icons{font-size:18px}
+.modal-divider{
+ height:1px;
+ background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);
+ margin:12px 0;
+}
+.info-item{
+ padding:12px 0;
+ border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.info-item:last-child{border-bottom:none}
+.info-item-title{
+ font-size:14px;font-weight:600;
+ color:var(--fg);margin-bottom:4px;
+ display:flex;align-items:center;gap:8px;
+}
+.info-item-title .material-icons{
+ font-size:18px;color:var(--accent);
+}
+.info-item-desc{
+ font-size:12px;color:var(--text2);
+ line-height:1.4;
+ padding-left:26px;
+}
+.info-item-flag{
+ font-size:10px;color:var(--text2);
+ opacity:0.6;
+ margin-top:4px;
+ padding-left:26px;
+ font-family:"SF Mono",monospace;
+}
+.info-section-title{
+ font-size:13px;
+ font-weight:700;
+ color:var(--accent);
+ text-transform:uppercase;
+ letter-spacing:0.08em;
+ margin:16px 0 8px 0;
+ padding-left:4px;
+}
+.info-section-title:first-child{
+ margin-top:0;
+}
+
 @media(max-width:420px){
  .card{width:100%;padding:22px}
  .row{padding:14px}
@@ -216,120 +414,181 @@ h1{
 </style>
 </head>
 <body>
- <div class="card">
-   <h1><span class="material-icons">verified_user</span>Play Integrity Box</h1>
-   <div class="subtitle">Droidguard Spoofer</div>
-   
-   <div id="warningLine" class="warning-line">
-     <span class="material-icons">error_outline</span>
-     <span id="warningText"></span>
+
+<div class="modal-overlay" id="infoModal" onclick="closeInfoModal(event)">
+ <div class="modal-sheet" onclick="event.stopPropagation()">
+   <div class="modal-header">
+     <div class="modal-title"><span class="material-icons">info</span>What do these do?</div>
+     <div class="modal-close" onclick="closeInfoModal()"><span class="material-icons">close</span></div>
    </div>
+   <div id="infoContent"></div>
+ </div>
+</div>
 
-   <div id="rows">
-     <div class="row" id="row-spoofPixel" onclick="toggle('spoofPixel')">
-       <div class="icon-wrap"><span class="material-icons">shop</span></div>
-       <div class="content">
-         <div class="title">Pixelify Playstore</div>
-         <div class="subtitle-text">Pixel-exclusive properties</div>
-       </div>
-       <div class="status-dot"></div>
-       <label class="switch" onclick="event.stopPropagation()">
-         <input id="spoofPixel" type="checkbox">
-         <span class="slider"><span class="knob"></span></span>
-       </label>
-     </div>
+<div class="card">
+ <div class="header-actions">
+   <button class="icon-btn" onclick="openInfoModal()"><span class="material-icons">info</span></button>
+ </div>
+ <h1><span class="material-icons">verified_user</span>Play Integrity Box</h1>
+ <div class="subtitle">Droidguard Spoofer</div>
 
-     <div class="row" id="row-spoofVendingFinger" onclick="toggle('spoofVendingFinger')">
-       <div class="icon-wrap"><span class="material-icons">apps</span></div>
-       <div class="content">
-         <div class="title">Pixel Fingerprint</div>
-         <div class="subtitle-text">Latest canary imprint</div>
-       </div>
-       <div class="status-dot"></div>
-       <label class="switch" onclick="event.stopPropagation()">
-         <input id="spoofVendingFinger" type="checkbox">
-         <span class="slider"><span class="knob"></span></span>
-       </label>
-     </div>
-
-     <div class="row" id="row-spoofBuild" onclick="toggle('spoofBuild')">
-       <div class="icon-wrap"><span class="material-icons">api</span></div>
-       <div class="content">
-         <div class="title">Build Spoof</div>
-         <div class="subtitle-text">System build Properties</div>
-       </div>
-       <div class="status-dot"></div>
-       <label class="switch" onclick="event.stopPropagation()">
-         <input id="spoofBuild" type="checkbox">
-         <span class="slider"><span class="knob"></span></span>
-       </label>
-     </div>
-
-     <div class="row" id="row-spoofProps" onclick="toggle('spoofProps')">
-       <div class="icon-wrap"><span class="material-icons">android</span></div>
-       <div class="content">
-         <div class="title">GMS Spoof</div>
-         <div class="subtitle-text">GMS properties</div>
-       </div>
-       <div class="status-dot"></div>
-       <label class="switch" onclick="event.stopPropagation()">
-         <input id="spoofProps" type="checkbox">
-         <span class="slider"><span class="knob"></span></span>
-       </label>
-     </div>
-
-     <div class="row" id="row-spoofProvider" onclick="toggle('spoofProvider')">
-       <div class="icon-wrap"><span class="material-icons">dynamic_form</span></div>
-       <div class="content">
-         <div class="title">Attestation API</div>
-         <div class="subtitle-text">Breaks Google Wallet</div>
-       </div>
-       <div class="status-dot"></div>
-       <label class="switch" onclick="event.stopPropagation()">
-         <input id="spoofProvider" type="checkbox">
-         <span class="slider"><span class="knob"></span></span>
-       </label>
-     </div>
-
-     <div class="row" id="row-spoofSignature" onclick="toggle('spoofSignature')">
-       <div class="icon-wrap"><span class="material-icons">verified_user</span></div>
-       <div class="content">
-         <div class="title">ROM Signature</div>
-         <div class="subtitle-text">OEM-signed mask</div>
-       </div>
-       <div class="status-dot"></div>
-       <label class="switch" onclick="event.stopPropagation()">
-         <input id="spoofSignature" type="checkbox">
-         <span class="slider"><span class="knob"></span></span>
-       </label>
-     </div>
-
-     <div class="row" id="row-spoofVendingSdk" onclick="toggle('spoofVendingSdk')">
-       <div class="icon-wrap"><span class="material-icons">key_off</span></div>
-       <div class="content">
-         <div class="title">A10 Downgrade SDK</div>
-         <div class="subtitle-text">Use if keybox is banned</div>
-       </div>
-       <div class="status-dot"></div>
-       <label class="switch" onclick="event.stopPropagation()">
-         <input id="spoofVendingSdk" type="checkbox">
-         <span class="slider"><span class="knob"></span></span>
-       </label>
-     </div>
-   </div>
-
-   <div class="action-btn" onclick="restartServices()">
-     <span class="material-icons">refresh</span>
-     <span>Restart Services</span>
-   </div>
-
-   <div class="footer">© IntegrityBox • 2026</div>
+ <div id="warningLine" class="warning-line">
+   <span class="material-icons">error_outline</span>
+   <span id="warningText"></span>
  </div>
 
- <div id="toast" class="toast">
-   <span class="material-icons">check_circle</span>
-   <span id="toastText">Saved</span>
+ <div class="section-label behaviour">Customize Integrity Behaviour</div>
+ <div id="behaviour-rows" class="row-group behaviour-group">
+   <div class="row" id="row-advanced" onclick="toggleBehaviour('advanced')">
+     <div class="icon-wrap"><span class="material-icons">tune</span></div>
+     <div class="content">
+       <div class="title">Advanced Mode</div>
+     </div>
+     <div class="status-dot"></div>
+     <label class="switch" onclick="event.stopPropagation()">
+       <input type="checkbox" id="advanced">
+       <span class="slider"><span class="knob"></span></span>
+     </label>
+   </div>
+   <div class="row" id="row-strong" onclick="toggleBehaviour('strong')">
+     <div class="icon-wrap"><span class="material-icons">check_circle</span></div>
+     <div class="content">
+       <div class="title">Strong Mode</div>
+     </div>
+     <div class="status-dot"></div>
+     <label class="switch" onclick="event.stopPropagation()">
+       <input type="checkbox" id="strong">
+       <span class="slider"><span class="knob"></span></span>
+     </label>
+   </div>
+   <div class="row" id="row-verbose" onclick="toggleBehaviour('verbose')">
+     <div class="icon-wrap"><span class="material-icons">build_circle</span></div>
+     <div class="content">
+       <div class="title">Verbose Mode</div>
+     </div>
+     <div class="status-dot"></div>
+     <label class="switch" onclick="event.stopPropagation()">
+       <input type="checkbox" id="verbose">
+       <span class="slider"><span class="knob"></span></span>
+     </label>
+   </div>
+   <div class="row" id="row-skip_json" onclick="toggleBehaviour('skip_json')">
+     <div class="icon-wrap"><span class="material-icons">code_off</span></div>
+     <div class="content">
+       <div class="title">Skip JSON</div>
+     </div>
+     <div class="status-dot"></div>
+     <label class="switch" onclick="event.stopPropagation()">
+       <input type="checkbox" id="skip_json">
+       <span class="slider"><span class="knob"></span></span>
+     </label>
+   </div>
+   <div class="row" id="row-skip_key" onclick="toggleBehaviour('skip_key')">
+     <div class="icon-wrap"><span class="material-icons">vpn_key_off</span></div>
+     <div class="content">
+       <div class="title">Skip Key</div>
+     </div>
+     <div class="status-dot"></div>
+     <label class="switch" onclick="event.stopPropagation()">
+       <input type="checkbox" id="skip_key">
+       <span class="slider"><span class="knob"></span></span>
+     </label>
+   </div>
  </div>
+
+ <div class="section-label">PIF Controls</div>
+ <div id="rows" class="row-group pif-group">
+   <div class="row" id="row-spoofPixel" onclick="toggle('spoofPixel')">
+     <div class="icon-wrap"><span class="material-icons">shop</span></div>
+     <div class="content">
+       <div class="title">Pixelify Playstore</div>
+     </div>
+     <div class="status-dot"></div>
+     <label class="switch" onclick="event.stopPropagation()">
+       <input id="spoofPixel" type="checkbox">
+       <span class="slider"><span class="knob"></span></span>
+     </label>
+   </div>
+   <div class="row" id="row-spoofVendingFinger" onclick="toggle('spoofVendingFinger')">
+     <div class="icon-wrap"><span class="material-icons">android</span></div>
+     <div class="content">
+       <div class="title">Pixel Fingerprint</div>
+     </div>
+     <div class="status-dot"></div>
+     <label class="switch" onclick="event.stopPropagation()">
+       <input id="spoofVendingFinger" type="checkbox">
+       <span class="slider"><span class="knob"></span></span>
+     </label>
+   </div>
+   <div class="row" id="row-spoofBuild" onclick="toggle('spoofBuild')">
+     <div class="icon-wrap"><span class="material-icons">phone_iphone</span></div>
+     <div class="content">
+       <div class="title">Build Spoof</div>
+     </div>
+     <div class="status-dot"></div>
+     <label class="switch" onclick="event.stopPropagation()">
+       <input id="spoofBuild" type="checkbox">
+       <span class="slider"><span class="knob"></span></span>
+     </label>
+   </div>
+   <div class="row" id="row-spoofProps" onclick="toggle('spoofProps')">
+     <div class="icon-wrap"><span class="material-icons">android</span></div>
+     <div class="content">
+       <div class="title">GMS Spoof</div>
+     </div>
+     <div class="status-dot"></div>
+     <label class="switch" onclick="event.stopPropagation()">
+       <input id="spoofProps" type="checkbox">
+       <span class="slider"><span class="knob"></span></span>
+     </label>
+   </div>
+   <div class="row" id="row-spoofProvider" onclick="toggle('spoofProvider')">
+     <div class="icon-wrap"><span class="material-icons">dynamic_form</span></div>
+     <div class="content">
+       <div class="title">Attestation API</div>
+     </div>
+     <div class="status-dot"></div>
+     <label class="switch" onclick="event.stopPropagation()">
+       <input id="spoofProvider" type="checkbox">
+       <span class="slider"><span class="knob"></span></span>
+     </label>
+   </div>
+   <div class="row" id="row-spoofSignature" onclick="toggle('spoofSignature')">
+     <div class="icon-wrap"><span class="material-icons">verified_user</span></div>
+     <div class="content">
+       <div class="title">ROM Signature</div>
+     </div>
+     <div class="status-dot"></div>
+     <label class="switch" onclick="event.stopPropagation()">
+       <input id="spoofSignature" type="checkbox">
+       <span class="slider"><span class="knob"></span></span>
+     </label>
+   </div>
+   <div class="row" id="row-spoofVendingSdk" onclick="toggle('spoofVendingSdk')">
+     <div class="icon-wrap"><span class="material-icons">engineering</span></div>
+     <div class="content">
+       <div class="title">A10 Downgrade SDK</div>
+     </div>
+     <div class="status-dot"></div>
+     <label class="switch" onclick="event.stopPropagation()">
+       <input id="spoofVendingSdk" type="checkbox">
+       <span class="slider"><span class="knob"></span></span>
+     </label>
+   </div>
+ </div>
+
+ <div class="action-btn" onclick="restartServices()">
+   <span class="material-icons">refresh</span>
+   <span>Restart Services</span>
+ </div>
+
+ <div class="footer">&copy; IntegrityBox &bull; 2026</div>
+</div>
+
+<div id="toast" class="toast">
+ <span class="material-icons">check_circle</span>
+ <span id="toastText">Saved</span>
+</div>
 
 <script>
 const PROP_CANDIDATES = [
@@ -339,6 +598,25 @@ const PROP_CANDIDATES = [
 
 const KEYS = ["spoofBuild","spoofProps","spoofProvider","spoofSignature","spoofVendingFinger","spoofVendingSdk","spoofPixel"];
 const ZYGISK_PATH = "/data/adb/modules/playintegrityfix/zygisk";
+const FLAG_DIR = "/data/adb/Box-Brain/PIF";
+
+const behaviourFlags = [
+ {id:"advanced",icon:"tune",title:"Advanced Mode",label:"behaviour",desc:"Enabling this will preserve spoofing settings otherwise they'll be reset automatically when you run action. Please do not disable this toggle."},
+ {id:"strong",icon:"security",title:"Strong Mode",label:"behaviour",desc:"Applies aggressive integrity checks and stronger property spoofing to bypass advanced detection methods."},
+ {id:"verbose",icon:"article",title:"Verbose Mode",label:"behaviour",desc:"Enables detailed logging of all PIF operations for debugging and troubleshooting purposes. Only enable if you know what you're doing."},
+ {id:"skip_json",icon:"code_off",title:"Skip JSON",label:"behaviour",desc:"Generates a valid meow.json file in your device's internal storage (/sdcard) whenever you trigger the Integrity Box action. The generated file can then be manually imported into your custom ROM's spoofing settings. Recommended for users running Integrity Box in ZYGISKLESS Mode. (ROM's inbuilt spoofing)."},
+ {id:"skip_key",icon:"vpn_key_off",title:"Skip Key",label:"behaviour",desc:"Generates a valid keybox.xml file in your device's internal storage (/sdcard) whenever you trigger the Integrity Box action. The generated file can then be manually imported into your custom ROM's spoofing settings. Recommended for users running Integrity Box in ZYGISKLESS Mode. (ROM's inbuilt spoofing)."}
+];
+
+const pifRows = [
+ {id:"spoofPixel",icon:"shop",title:"Pixelify Playstore",sub:"Spoofs latest canary Pixel-exclusive build properties to playstore. Keep this enabled if your android version is 13 or higher"},
+ {id:"spoofVendingFinger",icon:"apps",title:"Pixel Fingerprint",sub:"Latest canary imprint"},
+ {id:"spoofBuild",icon:"api",title:"Build Spoof",sub:"System build Properties"},
+ {id:"spoofProps",icon:"android",title:"GMS Spoof",sub:"GMS properties"},
+ {id:"spoofProvider",icon:"dynamic_form",title:"Attestation API",sub:"Breaks Google Wallet"},
+ {id:"spoofSignature",icon:"verified_user",title:"ROM Signature",sub:"OEM-signed mask"},
+ {id:"spoofVendingSdk",icon:"key_off",title:"A10 Downgrade SDK",sub:"Use if keybox is banned"}
+];
 
 let propFile = null;
 let zygiskExists = false;
@@ -381,10 +659,10 @@ async function toggle(key){
  }
  const input = document.getElementById(key);
  if(input.disabled) return;
- 
+
  const newVal = input.checked ? '0' : '1';
  input.checked = !input.checked;
- 
+
  if(key === 'spoofVendingSdk' && newVal === '1'){
    await writeKey(propFile, key, newVal);
    const others = KEYS.filter(k => k !== key && k !== 'spoofBuild' && k !== 'spoofProps');
@@ -397,9 +675,36 @@ async function toggle(key){
    await writeKey(propFile, key, newVal);
    showToast(newVal === '1' ? 'Enabled' : 'Disabled');
  }
- 
+
  await restartGMS();
  updateVisuals(key, newVal === '1');
+}
+
+async function toggleBehaviour(id){
+ const row = document.getElementById('row-' + id);
+ const input = document.getElementById(id);
+ if(row.classList.contains('spinning')) return;
+
+ const newVal = !input.checked;
+ input.checked = newVal;
+ row.classList.toggle('active', newVal);
+
+ row.classList.add('spinning');
+ try{
+   if(newVal){
+     await sh('mkdir -p "'+FLAG_DIR+'" && touch "'+FLAG_DIR+'/'+id+'"');
+     showToast(id + ' enabled');
+   }else{
+     await sh('rm -f "'+FLAG_DIR+'/'+id+'"');
+     showToast(id + ' disabled');
+   }
+ }catch(e){
+   showToast('Error: ' + (e.message || ''));
+   input.checked = !newVal;
+   row.classList.toggle('active', !newVal);
+ }finally{
+   row.classList.remove('spinning');
+ }
 }
 
 async function sh(cmd){
@@ -463,19 +768,96 @@ async function restartServices(){
  showToast('Services restarted');
 }
 
+async function refreshBehaviourStates(){
+ let cmd = '';
+ for(const f of behaviourFlags){
+   cmd += `if [ -f "${FLAG_DIR}/${f.id}" ];then echo "behaviour:${f.id}:1";else echo "behaviour:${f.id}:0";fi;`;
+ }
+ try{
+   const result = await sh(cmd);
+   if(result){
+     result.trim().split('\n').forEach(line => {
+       const parts = line.trim().split(':');
+       if(parts.length !== 3) return;
+       const [type, id, val] = parts.map(s => s.trim());
+       if(type === 'behaviour'){
+         const cb = document.getElementById(id);
+         const row = document.getElementById('row-' + id);
+         if(cb && row){
+           cb.checked = val === '1';
+           row.classList.toggle('active', val === '1');
+         }
+       }
+     });
+   }
+ }catch(e){}
+}
+
+function openInfoModal(){
+ const modal = document.getElementById("infoModal");
+ const content = document.getElementById("infoContent");
+ if(!content.innerHTML){
+   const behaviourTitle = document.createElement("div");
+   behaviourTitle.className = "info-section-title";
+   behaviourTitle.textContent = "Customize Integrity Behaviour";
+   content.appendChild(behaviourTitle);
+
+   behaviourFlags.forEach((item, i) => {
+     const div = document.createElement("div");
+     div.className = "info-item";
+     div.innerHTML = `<div class="info-item-title"><span class="material-icons">${item.icon}</span>${item.title}</div><div class="info-item-desc">${item.desc}</div><div class="info-item-flag">Flag: ${item.id}</div>`;
+     content.appendChild(div);
+     if(i < behaviourFlags.length - 1){
+       const d = document.createElement("div");
+       d.className = "modal-divider";
+       content.appendChild(d);
+     }
+   });
+
+   const pifTitle = document.createElement("div");
+   pifTitle.className = "info-section-title";
+   pifTitle.textContent = "PIF Controls";
+   pifTitle.style.marginTop = "20px";
+   content.appendChild(pifTitle);
+
+   pifRows.forEach((item, i) => {
+     const div = document.createElement("div");
+     div.className = "info-item";
+     div.innerHTML = `<div class="info-item-title"><span class="material-icons">${item.icon}</span>${item.title}</div><div class="info-item-desc">${item.sub}</div><div class="info-item-flag">Key: ${item.id}</div>`;
+     content.appendChild(div);
+     if(i < pifRows.length - 1){
+       const d = document.createElement("div");
+       d.className = "modal-divider";
+       content.appendChild(d);
+     }
+   });
+ }
+ modal.style.display = "flex";
+ requestAnimationFrame(() => modal.classList.add("show"));
+}
+
+function closeInfoModal(e){
+ if(e && e.target !== e.currentTarget) return;
+ const modal = document.getElementById("infoModal");
+ modal.classList.remove("show");
+ setTimeout(() => modal.style.display = "none", 350);
+}
+
 async function init(){
  propFile = await findPropFile();
  zygiskExists = await checkZygisk();
- 
+
  if(!zygiskExists){
    showWarning("zygiskless mode has been enabled");
    KEYS.forEach(k => setDisabled(k, true));
+   refreshBehaviourStates();
    return;
  }
- 
+
  if(!propFile){
    showWarning("Change IntegrityBox profile first");
    KEYS.forEach(k => setDisabled(k, true));
+   refreshBehaviourStates();
    return;
  }
 
@@ -483,6 +865,7 @@ async function init(){
  if(!adv){
    showWarning("Change your current profile brother");
    KEYS.forEach(k => setDisabled(k, true));
+   refreshBehaviourStates();
    return;
  }
 
@@ -492,11 +875,13 @@ async function init(){
    const val = await readKey(propFile, key);
    updateVisuals(key, val === '1');
  }
- 
+
  KEYS.forEach(key => {
    const input = document.getElementById(key);
    input.addEventListener('change', () => toggle(key));
  });
+
+ refreshBehaviourStates();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
