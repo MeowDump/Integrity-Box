@@ -1,539 +1,1026 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Target Box</title>
+<title>Bootloader Spoofer</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
 :root {
---bg: #0d0f17;
---fg: #e8eaf6;
---accent: #1592FF;
---accent-sec: #0066CC;
---panel-bg: rgba(20, 23, 38, 0.8);
---btn-hover: rgba(30, 35, 55, 0.9);
---border-color: rgba(255, 255, 255, 0.08);
---card-bg: rgba(25, 29, 45, 0.6);
---card-border: rgba(255, 255, 255, 0.05);
---shadow-color: rgba(0, 0, 0, 0.4);
---transition-speed: 0.3s;
---border-radius: 20px;
---glow-color: #1592FF;
---danger: #ff4757;
---warning: #ffa502;
+  --bg: #0e1020;
+  --bg-mid: #13162b;
+  --surface: rgba(27, 30, 51, 0.7);
+  --fg: #e9ecff;
+  --fg-secondary: #9aa3ff;
+  --fg-muted: #6a70a0;
+  --accent: #4da3ff;
+  --accent-soft: rgba(77, 163, 255, 0.1);
+  --accent-glow: rgba(77, 163, 255, 0.25);
+  --border: rgba(255, 255, 255, 0.06);
+  --border-light: rgba(255, 255, 255, 0.1);
+  --danger: #ff4d4d;
+  --danger-soft: rgba(255, 77, 77, 0.1);
+  --success: #4dff88;
+  --shadow: 0 20px 60px #00000088;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
 }
 
-* {
-box-sizing: border-box;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-margin: 0;
-padding: 2rem 0;
-background: 
-  radial-gradient(ellipse at 20% 80%, rgba(21, 146, 255, 0.15) 0%, transparent 50%),
-  radial-gradient(ellipse at 80% 20%, rgba(0, 102, 204, 0.15) 0%, transparent 50%),
-  linear-gradient(135deg, #0d0f17 0%, #151928 100%);
-color: var(--fg);
-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-overflow-x: hidden;
-min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: radial-gradient(circle at 50% 0%, #1c2045 0%, #0e1020 50%, #080a14 100%);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.ambient {
+  position: fixed;
+  top: -120px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 700px;
+  height: 450px;
+  background: radial-gradient(ellipse, rgba(77, 163, 255, 0.07) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .container {
-max-width: 900px;
-margin: 0 auto;
-padding: 1rem;
-display: flex;
-flex-direction: column;
-gap: 2rem;
+  position: relative;
+  z-index: 1;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 40px 20px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.header-left { display: flex; flex-direction: column; gap: 6px; }
+
 .header .title {
-font-size: 2.2rem;
-font-weight: 800;
-display: flex;
-align-items: center;
-gap: 0.8rem;
-background: linear-gradient(135deg, var(--accent) 0%, #4da6ff 100%);
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-background-clip: text;
-letter-spacing: -0.5px;
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--fg);
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .header .title .material-icons {
-font-size: 2.4rem;
-background: linear-gradient(135deg, var(--accent) 0%, #4da6ff 100%);
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
+  font-size: 1.8rem;
+  color: var(--accent);
+  filter: drop-shadow(0 0 12px var(--accent-glow));
 }
+
+.header .subtitle {
+  font-size: 0.85rem;
+  color: var(--fg-secondary);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.info-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  backdrop-filter: blur(10px);
+  color: var(--fg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  padding: 0;
+  margin-top: 2px;
+}
+
+.info-btn:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-glow);
+  box-shadow: 0 0 20px var(--accent-glow);
+  transform: scale(1.08);
+}
+
+.info-btn:active { transform: scale(0.95); }
+
+.info-btn .material-icons { font-size: 1.1rem; }
 
 .card {
-background: var(--card-bg);
-backdrop-filter: blur(20px);
-padding: 24px;
-border-radius: var(--border-radius);
-border: 1px solid var(--card-border);
-box-shadow: 
-  0 8px 32px var(--shadow-color),
-  inset 0 1px 0 rgba(255, 255, 255, 0.05);
-display: flex;
-flex-direction: column;
-gap: 16px;
-position: relative;
-overflow: hidden;
+  background: var(--surface);
+  backdrop-filter: blur(24px) saturate(1.3);
+  -webkit-backdrop-filter: blur(24px) saturate(1.3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 5px;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.04) inset,
+    var(--shadow),
+    0 4px 12px rgba(0,0,0,0.3);
+  position: relative;
+  overflow: hidden;
 }
 
-.card::before {
-content: "";
-position: absolute;
-inset: 0;
-background: 
-  radial-gradient(circle at 50% 0%, rgba(21, 146, 255, 0.1) 0%, transparent 50%),
-  radial-gradient(circle at 100% 100%, rgba(0, 102, 204, 0.08) 0%, transparent 40%);
-pointer-events: none;
+.card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(77,163,255,0.2), transparent);
+  pointer-events: none;
+}
+
+.card-inner {
+  background: rgba(255,255,255,0.015);
+  border-radius: calc(var(--radius-xl) - 4px);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.search-wrap { position: relative; }
+
+.search-wrap .material-icons {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.15rem;
+  color: var(--fg-muted);
+  pointer-events: none;
+  transition: color 0.2s ease;
 }
 
 .search {
-padding: 14px 20px;
-border-radius: 14px;
-border: 1px solid var(--border-color);
-background: rgba(0, 0, 0, 0.3);
-color: var(--fg);
-font-size: 0.95rem;
-transition: all 0.3s ease;
-position: relative;
+  width: 100%;
+  padding: 15px 44px 15px 48px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,0.28);
+  color: var(--fg);
+  font-size: 0.95rem;
+  font-weight: 500;
+  font-family: inherit;
+  transition: all 0.25s ease;
+  outline: none;
 }
+
+.search::placeholder { color: var(--fg-muted); }
 
 .search:focus {
-outline: none;
-border-color: var(--accent);
-box-shadow: 0 0 0 3px rgba(21, 146, 255, 0.1), 0 0 20px rgba(21, 146, 255, 0.2);
-background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(77,163,255,0.35);
+  background: rgba(0,0,0,0.38);
+  box-shadow: 0 0 0 4px var(--accent-soft), 0 0 30px rgba(77,163,255,0.08);
 }
 
-.search::placeholder {
-color: rgba(232, 234, 246, 0.4);
+.search:focus + .material-icons,
+.search-wrap:focus-within .material-icons {
+  color: var(--accent);
+}
+
+.search-clear {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.08);
+  color: var(--fg-muted);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s ease;
+}
+
+.search-clear:hover {
+  background: rgba(255,255,255,0.15);
+  color: var(--fg);
+}
+
+.search-clear .material-icons { font-size: 14px; }
+
+.search-clear.show { display: flex; }
+
+.stats {
+  display: flex;
+  gap: 10px;
+}
+
+.stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 8px;
+  background: rgba(255,255,255,0.025);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255,255,255,0.04);
+  transition: all 0.2s ease;
+}
+
+.stat:hover {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.07);
+}
+
+.stat-icon {
+  font-size: 1.3rem;
+  color: var(--accent);
+  opacity: 0.8;
+}
+
+.stat-num {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--fg);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.stat-label {
+  font-size: 0.65rem;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.04);
+  color: var(--fg-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toolbar-btn:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--fg);
+  border-color: var(--border-light);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+
+.toolbar-btn:active { transform: scale(0.96); }
+
+.toolbar-btn .material-icons { font-size: 1rem; }
+
+.list-wrap {
+  position: relative;
 }
 
 .list {
-display: flex;
-flex-direction: column;
-gap: 12px;
-max-height: 55vh;
-overflow-y: auto;
-padding-right: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 50vh;
+  overflow-y: auto;
+  padding: 4px 6px 4px 0;
 }
 
 .item {
-display: flex;
-align-items: center;
-gap: 16px;
-padding: 16px;
-border-radius: 16px;
-background: rgba(255, 255, 255, 0.03);
-border: 1px solid var(--card-border);
-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-position: relative;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 18px;
+  min-height: 82px;
+  border-radius: var(--radius-md);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.04);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  animation: itemEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+@keyframes itemEnter {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  border-radius: 0 4px 4px 0;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
 
 .item:hover {
-transform: translateY(-2px) scale(1.01);
-background: rgba(255, 255, 255, 0.06);
-box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-border-color: rgba(21, 146, 255, 0.15);
+  background: rgba(255,255,255,0.055);
+  border-color: rgba(255,255,255,0.07);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
 }
 
-.item.blacklisted {
-background: linear-gradient(135deg, rgba(255, 71, 87, 0.15) 0%, rgba(255, 71, 87, 0.05) 100%);
-border-color: rgba(255, 71, 87, 0.3);
+.item:active {
+  transform: scale(0.995) translateY(0);
 }
 
-.item.blacklisted .name {
-color: #ff6b7a;
+.item.targeted {
+  background: rgba(77,163,255,0.04);
+  border-color: rgba(77,163,255,0.1);
 }
+
+.item.targeted::before { opacity: 1; }
+
+.item.blacklisted .name { color: var(--fg-muted); }
+.item.blacklisted .pkg { display: none; }
+.item.blacklisted .app-icon { opacity: 0.25; filter: grayscale(0.8); }
 
 .info {
-display: flex;
-flex-direction: column;
-min-width: 0;
-flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-width: calc(100% - 120px);
+  flex: 1;
+  gap: 5px;
+  overflow: hidden;
 }
 
 .name {
-font-weight: 600;
-font-size: 0.9rem;
-white-space: nowrap;
-text-overflow: ellipsis;
-overflow: hidden;
-color: var(--fg);
-transition: color 0.3s ease;
+  font-weight: 600;
+  font-size: 0.92rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  color: var(--fg);
+  transition: color 0.2s ease;
 }
 
 .pkg {
-display: none;
+  font-size: 0.68rem;
+  color: var(--fg-muted);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  font-family: "SF Mono", "Roboto Mono", monospace;
+  letter-spacing: -0.01em;
+  opacity: 0.7;
+  max-width: 100%;
 }
 
 .actions {
-margin-left: auto;
-display: flex;
-gap: 12px;
-align-items: center;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-shrink: 0;
 }
 
-.toggle {
-width: 52px;
-height: 28px;
-border-radius: 999px;
-background: rgba(255, 255, 255, 0.1);
-position: relative;
-cursor: pointer;
-transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+.check-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.12);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
+  padding: 0;
+  position: relative;
 }
 
-.toggle::before {
-content: "";
-position: absolute;
-left: 4px;
-top: 4px;
-width: 20px;
-height: 20px;
-border-radius: 50%;
-background: linear-gradient(135deg, #fff 0%, #e0e0e0 100%);
-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+.check-btn::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  background: var(--accent-glow);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
 }
 
-.toggle.active {
-background: linear-gradient(135deg, var(--accent) 0%, var(--accent-sec) 100%);
-box-shadow: 0 0 20px rgba(21, 146, 255, 0.4);
+.check-btn .material-icons {
+  font-size: 17px;
+  color: transparent;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: scale(0.4) rotate(-10deg);
 }
 
-.toggle.active::before {
-transform: translateX(24px) scale(1.05);
+.check-btn.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: 0 0 16px var(--accent-glow);
 }
 
-.toggle.disabled {
-opacity: 0.3;
-cursor: not-allowed;
-background: rgba(255, 255, 255, 0.05);
+.check-btn.active .material-icons {
+  color: #fff;
+  transform: scale(1) rotate(0deg);
 }
 
-.icon-btn {
-width: 40px;
-height: 40px;
-border-radius: 12px;
-border: none;
-background: rgba(255, 255, 255, 0.05);
-display: flex;
-align-items: center;
-justify-content: center;
-cursor: pointer;
-position: relative;
-transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-overflow: hidden;
+.check-btn:hover:not(.disabled) { border-color: var(--accent); }
+.check-btn:hover:not(.disabled)::after { opacity: 1; }
+
+.check-btn.disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+  border-color: rgba(255,255,255,0.06);
 }
 
-.icon-btn::before {
-content: "";
-position: absolute;
-inset: 0;
-background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.1) 100%);
-opacity: 0;
-transition: opacity 0.3s ease;
+.check-btn.disabled:hover { border-color: rgba(255,255,255,0.06); }
+
+.black-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.02);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  padding: 0;
 }
 
-.icon-btn:hover::before {
-opacity: 1;
+.black-btn .material-icons {
+  font-size: 18px;
+  color: var(--fg-muted);
+  transition: all 0.2s ease;
 }
 
-.icon-btn:hover {
-transform: scale(1.1) rotate(-5deg);
-background: rgba(255, 71, 87, 0.2);
-box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+.black-btn:hover:not(.active) {
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.1);
 }
 
-.icon-btn.blacklisted {
-background: rgba(255, 71, 87, 0.2);
+.black-btn.active {
+  background: var(--danger-soft);
+  border-color: rgba(255,77,77,0.2);
 }
 
-.icon-btn .material-icons {
-font-size: 20px;
-color: rgba(255, 255, 255, 0.7);
-transition: all 0.3s ease;
-}
+.black-btn.active .material-icons { color: var(--danger); }
 
-.icon-btn:hover .material-icons {
-color: var(--danger);
-transform: scale(1.2);
-}
-
-.icon-btn.blacklisted .material-icons {
-color: var(--danger);
+.btn-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 2px;
 }
 
 .btn {
-position: relative;
-width: 100%;
-padding: 16px 24px;
-border-radius: 14px;
-border: 1px solid var(--card-border);
-background: linear-gradient(135deg, rgba(21, 146, 255, 0.1) 0%, rgba(0, 102, 204, 0.1) 100%);
-color: var(--fg);
-font-weight: 600;
-font-size: 0.95rem;
-cursor: pointer;
-overflow: hidden;
-display: flex;
-justify-content: center;
-align-items: center;
-gap: 8px;
-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-margin-top: 8px;
+  flex: 1;
+  max-width: 200px;
+  position: relative;
+  padding: 15px 24px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(77,163,255,0.1) 0%, rgba(77,163,255,0.02) 100%);
+  color: var(--fg);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  overflow: hidden;
 }
 
 .btn::before {
-content: "";
-position: absolute;
-inset: 0;
-background: linear-gradient(135deg, rgba(21, 146, 255, 0.2) 0%, rgba(0, 102, 204, 0.2) 100%);
-opacity: 0;
-transition: opacity 0.3s ease;
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(77,163,255,0.14) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
 
 .btn:hover {
-transform: translateY(-2px);
-box-shadow: 0 8px 30px rgba(21, 146, 255, 0.2);
-border-color: rgba(21, 146, 255, 0.3);
+  transform: translateY(-2px);
+  border-color: rgba(77,163,255,0.25);
+  box-shadow: 0 10px 30px rgba(77,163,255,0.1);
 }
 
-.btn:hover::before {
-opacity: 1;
-}
+.btn:hover::before { opacity: 1; }
 
-.btn:active {
-transform: scale(0.98);
-}
+.btn:active { transform: scale(0.97) translateY(0); }
 
 .btn.secondary {
-background: rgba(255, 255, 255, 0.03);
+  background: rgba(255,255,255,0.03);
+}
+
+.btn.secondary::before {
+  background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%);
 }
 
 .btn.secondary:hover {
-box-shadow: 0 8px 30px rgba(0, 102, 204, 0.2);
-border-color: rgba(0, 102, 204, 0.3);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  border-color: rgba(255,255,255,0.1);
 }
 
+.btn .material-icons { font-size: 1.1rem; position: relative; z-index: 1; }
+.btn span { position: relative; z-index: 1; }
+
 #snack {
-position: fixed;
-left: 50%;
-bottom: 100px;
-transform: translateX(-50%) translateY(20px);
-background: rgba(20, 23, 38, 0.95);
-color: #fff;
-padding: 16px 28px;
-border-radius: 16px;
-border: 1px solid rgba(21, 146, 255, 0.3);
-box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(21, 146, 255, 0.1);
-opacity: 0;
-pointer-events: none;
-transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-z-index: 9999;
-backdrop-filter: blur(10px);
-font-weight: 500;
-display: flex;
-align-items: center;
-gap: 10px;
+  position: fixed;
+  left: 50%;
+  bottom: 36px;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(14, 16, 32, 0.96);
+  color: var(--fg);
+  padding: 14px 26px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.04);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 9999;
+  backdrop-filter: blur(20px);
+  font-weight: 600;
+  font-size: 0.88rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 90vw;
+  overflow: hidden;
 }
 
 #snack.show {
-opacity: 1;
-pointer-events: auto;
-transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
 }
 
-#snack::before {
-content: "check_circle";
-font-family: "Material Icons";
-color: var(--accent);
-font-size: 20px;
+#snack .snack-icon {
+  font-family: "Material Icons";
+  font-size: 20px;
+  color: var(--accent);
 }
 
-#snack.error::before {
-content: "error";
-color: var(--danger);
+#snack.error .snack-icon { color: var(--danger); }
+#snack.error { border-color: rgba(255,77,77,0.2); }
+
+.snack-timer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: var(--accent);
+  width: 100%;
+  transform-origin: left;
 }
 
-#snack.error {
-border-color: rgba(255, 71, 87, 0.3);
-box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 71, 87, 0.1);
+#snack.error .snack-timer { background: var(--danger); }
+
+@keyframes snackTimer {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
 }
 
-.list::-webkit-scrollbar {
-width: 6px;
-}
-
-.list::-webkit-scrollbar-track {
-background: transparent;
-}
-
+.list::-webkit-scrollbar { width: 4px; }
+.list::-webkit-scrollbar-track { background: transparent; }
 .list::-webkit-scrollbar-thumb {
-background: linear-gradient(180deg, var(--accent) 0%, var(--accent-sec) 100%);
-border-radius: 3px;
+  background: rgba(77,163,255,0.2);
+  border-radius: 10px;
 }
 
 .app-icon {
-width: 44px;
-height: 44px;
-border-radius: 12px;
-background: rgba(0, 0, 0, 0.3);
-object-fit: contain;
-flex-shrink: 0;
-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-transition: transform 0.3s ease;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(0,0,0,0.25);
+  object-fit: contain;
+  flex-shrink: 0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  transition: opacity 0.2s ease, filter 0.2s ease;
 }
 
-.item:hover .app-icon {
-transform: scale(1.05);
+.skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.app-icon.lazy {
-opacity: 0;
-transform: scale(0.8);
+.skeleton-item {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 18px;
+  min-height: 82px;
+  border-radius: var(--radius-md);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.04);
+  overflow: hidden;
 }
 
-.app-icon.loaded {
-opacity: 1;
-transform: scale(1);
-transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+.skeleton-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+  flex-shrink: 0;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
 }
 
-@keyframes shimmer {
-0%, 100% { opacity: 0.5; }
-50% { opacity: 1; }
+.skeleton-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-@keyframes float {
-0%, 100% { transform: translateY(0); }
-50% { transform: translateY(-5px); }
+.skeleton-line {
+  height: 14px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.06);
+  animation: skeletonPulse 1.5s ease-in-out infinite;
 }
 
-@keyframes slideUp {
-from { opacity: 0; transform: translateY(20px); }
-to { opacity: 1; transform: translateY(0); }
+.skeleton-line.short { width: 60%; height: 10px; }
+.skeleton-actions {
+  display: flex;
+  gap: 10px;
+}
+.skeleton-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  animation: skeletonPulse 1.5s ease-in-out infinite;
 }
 
-@keyframes slideDown {
-from { opacity: 0; transform: translateY(-20px); }
-to { opacity: 1; transform: translateY(0); }
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
 }
 
-@keyframes fadeIn {
-from { opacity: 0; }
-to { opacity: 1; }
+.empty-state {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 20px;
+  text-align: center;
 }
 
-@keyframes shake {
-0%, 100% { transform: translateX(0); }
-25% { transform: translateX(-5px); }
-75% { transform: translateX(5px); }
+.empty-state.show { display: flex; }
+
+.empty-state .material-icons {
+  font-size: 3rem;
+  color: var(--fg-muted);
+  opacity: 0.5;
 }
 
-@keyframes pulse {
-0%, 100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.4); }
-50% { box-shadow: 0 0 0 8px rgba(255, 71, 87, 0); }
+.empty-state p {
+  color: var(--fg-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
 }
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal.show { display: flex; }
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.modal-card {
+  position: relative;
+  background: rgba(22, 25, 45, 0.95);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 440px;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow);
+  animation: modalIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.92) translateY(16px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 26px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-header .material-icons {
+  font-size: 1.5rem;
+  color: var(--accent);
+  filter: drop-shadow(0 0 6px var(--accent-glow));
+}
+
+.modal-header span:last-of-type {
+  flex: 1;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--fg);
+  letter-spacing: -0.01em;
+}
+
+.modal-close {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  color: var(--fg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.modal-close:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--fg);
+}
+
+.modal-close .material-icons { font-size: 1rem; }
+
+.modal-body {
+  padding: 22px 26px 26px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modal-section h4 {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-section h4 .material-icons { font-size: 1rem; }
+
+.modal-section p {
+  font-size: 0.85rem;
+  color: var(--fg-secondary);
+  line-height: 1.65;
+  margin: 0;
+}
+
+.modal-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: var(--fg-secondary);
+  line-height: 1.5;
+}
+
+.feature-item .material-icons {
+  font-size: 1.1rem;
+  color: var(--accent);
+  margin-top: 1px;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.confirm-body { padding: 26px; text-align: center; }
+.confirm-body p { color: var(--fg-secondary); font-size: 0.9rem; line-height: 1.6; margin-bottom: 24px; }
+.confirm-btns { display: flex; gap: 12px; justify-content: center; }
+.confirm-btns .btn { max-width: 140px; }
 
 @media (max-width: 600px) {
-.container { padding: 0.8rem; }
-.header .title { font-size: 1.8rem; }
-.card { padding: 16px; }
-.item { padding: 12px; gap: 12px; }
-.app-icon { width: 40px; height: 40px; }
-.btn { padding: 14px 20px; }
-}
-
-.select-all-bar {
-display: flex;
-justify-content: space-between;
-align-items: center;
-padding: 12px 16px;
-background: rgba(255, 255, 255, 0.03);
-border-radius: 12px;
-border: 1px solid var(--card-border);
-margin-bottom: 8px;
-}
-
-.select-all-bar span {
-font-weight: 600;
-font-size: 0.9rem;
-color: var(--fg);
-}
-
-.select-all-btn {
-padding: 8px 16px;
-border-radius: 10px;
-border: 1px solid var(--border-color);
-background: rgba(21, 146, 255, 0.15);
-color: var(--accent);
-font-weight: 600;
-font-size: 0.85rem;
-cursor: pointer;
-transition: all 0.3s ease;
-display: flex;
-align-items: center;
-gap: 6px;
-}
-
-.select-all-btn:hover {
-background: rgba(21, 146, 255, 0.25);
-border-color: var(--accent);
-transform: translateY(-1px);
-}
-
-.select-all-btn:active {
-transform: scale(0.98);
+  .container { padding: 24px 16px 40px; gap: 20px; }
+  .header .title { font-size: 1.6rem; }
+  .card-inner { padding: 18px; }
+  .item { padding: 14px 12px; gap: 12px; }
+  .app-icon { width: 44px; height: 44px; }
+  .btn { padding: 13px 18px; font-size: 0.87rem; max-width: 160px; }
+  .stat-num { font-size: 1.3rem; }
 }
 </style>
 </head>
 <body>
+<div class="ambient"></div>
+
 <div class="container">
   <div class="header">
-    <div class="title"><span class="material-icons">apps</span>Target Box</div>
+    <div class="header-left">
+      <div class="title"><span class="material-icons">apps</span>Bootloader Spoofer</div>
+      <div class="subtitle">Powered by Integrity Box</div>
+    </div>
+    <button class="info-btn" onclick="openInfo()">
+      <span class="material-icons">info</span>
+    </button>
   </div>
 
   <div class="card">
-    <input id="search" class="search" placeholder="Filter packages or labels..." />
-    
-    <div class="select-all-bar">
-      <span>Blacklist</span>
-      <button class="select-all-btn" onclick="selectAllBlacklist()">
-        <span class="material-icons" style="font-size: 16px;">select_all</span>
-        Select All
-      </button>
+    <div class="card-inner">
+      <div class="search-wrap">
+        <span class="material-icons">search</span>
+        <input id="search" class="search" placeholder="Search packages..." autocomplete="off" />
+        <button class="search-clear" id="searchClear" onclick="clearSearch()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <span class="material-icons stat-icon">apps</span>
+          <div class="stat-num" id="appCount">0</div>
+          <div class="stat-label">Apps</div>
+        </div>
+        <div class="stat">
+          <span class="material-icons stat-icon">check_circle</span>
+          <div class="stat-num" id="targetCount">0</div>
+          <div class="stat-label">Spoofed</div>
+        </div>
+        <div class="stat">
+          <span class="material-icons stat-icon">block</span>
+          <div class="stat-num" id="blackCount">0</div>
+          <div class="stat-label">Blocked</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <button class="toolbar-btn" onclick="confirmBulk('target')">
+          <span class="material-icons">check_circle</span>Spoof All
+        </button>
+        <button class="toolbar-btn" onclick="confirmBulk('blacklist')">
+          <span class="material-icons">block</span>Blacklist All
+        </button>
+      </div>
+
+      <div class="list-wrap">
+        <div class="skeleton-list" id="skeleton">
+          <div class="skeleton-item"><div class="skeleton-icon"></div><div class="skeleton-text"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div><div class="skeleton-actions"><div class="skeleton-btn"></div><div class="skeleton-btn"></div></div></div>
+          <div class="skeleton-item"><div class="skeleton-icon"></div><div class="skeleton-text"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div><div class="skeleton-actions"><div class="skeleton-btn"></div><div class="skeleton-btn"></div></div></div>
+          <div class="skeleton-item"><div class="skeleton-icon"></div><div class="skeleton-text"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div><div class="skeleton-actions"><div class="skeleton-btn"></div><div class="skeleton-btn"></div></div></div>
+          <div class="skeleton-item"><div class="skeleton-icon"></div><div class="skeleton-text"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div><div class="skeleton-actions"><div class="skeleton-btn"></div><div class="skeleton-btn"></div></div></div>
+          <div class="skeleton-item"><div class="skeleton-icon"></div><div class="skeleton-text"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div><div class="skeleton-actions"><div class="skeleton-btn"></div><div class="skeleton-btn"></div></div></div>
+          <div class="skeleton-item"><div class="skeleton-icon"></div><div class="skeleton-text"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div><div class="skeleton-actions"><div class="skeleton-btn"></div><div class="skeleton-btn"></div></div></div>
+        </div>
+        <div class="list" id="list"></div>
+        <div class="empty-state" id="emptyState">
+          <span class="material-icons">search_off</span>
+          <p>No apps match your search</p>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" onclick="backupTargets()">
+          <span class="material-icons">backup</span>
+          <span>Backup</span>
+        </button>
+        <button class="btn secondary" onclick="restoreTargets()">
+          <span class="material-icons">restore</span>
+          <span>Restore</span>
+        </button>
+      </div>
     </div>
-    
-    <div class="list" id="list"></div>
-    <button class="btn" onclick="backupTargets()">
-      <span class="material-icons">backup</span>Backup Targets
-    </button>
-    <button class="btn secondary" onclick="restoreTargets()">
-      <span class="material-icons">restore</span>Restore Targets
-    </button>
   </div>
 </div>
 
-<div id="snack"><span id="snackText"></span></div>
+<div id="snack"><span class="snack-icon">check_circle</span><span id="snackText"></span><div class="snack-timer"></div></div>
+
+<div id="infoModal" class="modal">
+  <div class="modal-backdrop" onclick="closeInfo()"></div>
+  <div class="modal-card">
+    <div class="modal-header">
+      <span class="material-icons">info</span>
+      <span>About Bootloader Spoofer</span>
+      <button class="modal-close" onclick="closeInfo()"><span class="material-icons">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <h4><span class="material-icons">check_circle</span>Spoofed</h4>
+        <p>Checked apps will be able to use the keybox to pass Play Integrity checks.</p>
+      </div>
+      <div class="modal-divider"></div>
+      <div class="modal-section">
+        <h4><span class="material-icons">block</span>Blacklist</h4>
+        <p>Blacklisted apps are excluded entirely. They are removed from spoofed and blocked from processing. Removing an app from the blacklist automatically restores it to spoofed.</p>
+      </div>
+      <div class="modal-divider"></div>
+    </div>
+  </div>
+</div>
+
+<div id="confirmModal" class="modal">
+  <div class="modal-backdrop" onclick="closeConfirm()"></div>
+  <div class="modal-card" style="max-width:360px;">
+    <div class="modal-header">
+      <span class="material-icons" id="confirmIcon">help</span>
+      <span id="confirmTitle">Confirm</span>
+      <button class="modal-close" onclick="closeConfirm()"><span class="material-icons">close</span></button>
+    </div>
+    <div class="confirm-body">
+      <p id="confirmText">Are you sure?</p>
+      <div class="confirm-btns">
+        <button class="btn secondary" onclick="closeConfirm()">Cancel</button>
+        <button class="btn" id="confirmAction">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 const TARGET_FILE="/data/adb/tricky_store/target.txt";
 const BLACK_FILE="/data/adb/Box-Brain/blacklist.txt";
 const BACKUP_FILE="/sdcard/Download/blacklist_backup.txt.bak";
+const TEESIM_CONFIG="/data/adb/teesim/config.json";
+const TEESIM_SCRIPT="/data/adb/modules/playintegrityfix/webroot/common_scripts/teesim.sh";
+
+let cachedApps = [];
+let targetSet = new Set();
+let blackSet = new Set();
+let initialSortDone = false;
+let searchDebounce = null;
+let pendingBulkAction = null;
 
 function runShell(cmd, cb){
 if(window.parent?.runShell){
@@ -546,27 +1033,26 @@ if(window.parent?.runShell){
 }
 
 function esc(s){return "'"+String(s).replace(/'/g,"'\\''")+"'";}
-function popup(msg, type="info") {
+
+function popup(msg, isError){
  try {
    if (typeof window.toast === "function") { window.toast(String(msg)); return; }
    if (window.kernelsu && typeof window.kernelsu.toast === "function") { window.kernelsu.toast(String(msg)); return; }
    if (typeof ksu === "object" && typeof ksu.toast === "function") { ksu.toast(String(msg)); return; }
- } catch {}
+ } catch(e) {}
 
- const n = document.createElement("div");
- n.className = "webui-popup";
- n.textContent = msg;
- const colors = { error:"#f44336", success:"#4caf50", info:"#1565c0", warn:"#ff8f00" };
- const bg = colors[type] || "#0099FF";
- Object.assign(n.style, {
-   position:"fixed",top:"-70px",left:"50%",transform:"translateX(-50%)",
-   background:bg,color:"#fff",padding:"0.8rem 1.2rem",borderRadius:"8px",
-   boxShadow:"0 6px 18px rgba(0,0,0,0.35)",fontWeight:"600",zIndex:"99999",
-   transition:"top 0.36s,opacity 0.36s",opacity:"0"
- });
- document.body.appendChild(n);
- requestAnimationFrame(()=>{ n.style.top="20px"; n.style.opacity="1"; });
- setTimeout(()=>{ n.style.top="-70px"; n.style.opacity="0"; setTimeout(()=>n.remove(),420); },2500);
+ const el = document.getElementById("snack");
+ const txt = document.getElementById("snackText");
+ const icon = el.querySelector(".snack-icon");
+ const timer = el.querySelector(".snack-timer");
+ txt.textContent = msg;
+ icon.textContent = isError ? "error" : "check_circle";
+ el.className = isError ? "error" : "";
+ el.classList.add("show");
+ timer.style.animation = "none";
+ timer.offsetHeight;
+ timer.style.animation = "snackTimer 2.2s linear forwards";
+ setTimeout(()=> el.classList.remove("show"), 2200);
 }
 
 function readLines(path, cb){
@@ -574,198 +1060,376 @@ runShell(`if [ -f ${esc(path)} ]; then cat ${esc(path)}; fi`, (c,o)=> cb((o||"")
 }
 
 function writeLines(path, lines, cb){
+if(lines.length === 0){
+  runShell(`> ${esc(path)}`, c=> cb?.(c===0));
+  return;
+}
 const args = lines.map(l=>esc(l)).join(" ");
 runShell(`mkdir -p $(dirname ${esc(path)}) && printf "%s\\n" ${args} > ${esc(path)}`, c=> cb?.(c===0));
 }
 
 function normalizeTargets(lines){ return lines.map(l=> l.endsWith("!") ? l.slice(0,-1) : l); }
 
-let cachedApps = [];
-function fetchInstalled(cb){
-runShell("pm list packages -3 -f", (c,out)=> {
-  if(!out) return cb([]);
-  const apps = out.trim().split("\n").map(l=>{
-    const m = l.match(/package:(.+)=(.+)$/);
-    return m ? {pkg:m[2],apk:m[1],label:m[2]} : null;
-  }).filter(Boolean);
-  cb(apps);
-});
+function runTeeSimIfExists(cb) {
+  runShell(`if [ -f ${esc(TEESIM_CONFIG)} ]; then ${esc(TEESIM_SCRIPT)}; echo "TEESIM_RAN"; else echo "TEESIM_SKIP"; fi`, (c,o,e) => {
+    if(cb) cb();
+  });
 }
 
-function buildList(){
-readLines(TARGET_FILE, tLines=>{
-  readLines(BLACK_FILE, bLines=>{
-    const targets = normalizeTargets(tLines), blacks = bLines;
-    fetchInstalled(apps=>{
-      cachedApps = apps;
-      render(apps, targets, blacks);
-    });
+function fetchInstalled(cb){
+const cmd = `pm list packages -3 -f | while read line; do
+  apk=$(echo "$line" | sed 's/package://;s/=.*//')
+  pkg=$(echo "$line" | sed 's/.*=//')
+  label="$pkg"
+  if command -v aapt >/dev/null 2>&1; then
+    lbl=$(aapt d badging "$apk" 2>/dev/null | grep "application-label:" | head -1 | awk -F"'" '{print $2}')
+    [ -n "$lbl" ] && label="$lbl"
+  fi
+  printf "%s\\t%s\\t%s\\n" "$pkg" "$label" "$apk"
+done`;
+
+runShell(cmd, (c,out)=>{
+  if(!out) return cb([]);
+  const apps = out.trim().split("\n").map(l=>{
+    const p = l.split("\t");
+    return p.length >= 2 ? {pkg:p[0], label:p[1]||p[0], apk:p[2]||""} : null;
+  }).filter(Boolean);
+
+  const userPkgs = new Set(apps.map(a => a.pkg));
+
+  runShell(`pm list packages | sed 's/package://'`, (c2, allOut)=>{
+    const allPkgs = new Set((allOut||"").split("\n").map(l=>l.trim()).filter(l=>l));
+    let cleaned = false;
+    for (const pkg of Array.from(targetSet)) {
+      if (!allPkgs.has(pkg)) {
+        targetSet.delete(pkg);
+        cleaned = true;
+      }
+    }
+    if (cleaned) {
+      writeLines(TARGET_FILE, Array.from(targetSet), ()=>{});
+    }
+    cb(apps);
   });
 });
 }
 
-function render(apps, targets, blacks){
-const q=(document.getElementById("search").value||"").toLowerCase();
-const list=document.getElementById("list"); list.innerHTML="";
-apps.forEach((a, idx)=>{
-  if(q && !a.pkg.toLowerCase().includes(q) && !a.label.toLowerCase().includes(q)) return;
-  const isTarget = targets.includes(a.pkg);
-  const isBlack = blacks.includes(a.pkg);
-  const item = document.createElement("div");
-  item.className="item"+(isBlack?" blacklisted":"");
-  item.innerHTML = `
-    <img class="app-icon lazy" data-src="ksu://icon/${a.pkg}" alt="">
+function sortAppsOnce(){
+  if(initialSortDone) return;
+  cachedApps.sort((a,b) => {
+    const aT = targetSet.has(a.pkg);
+    const bT = targetSet.has(b.pkg);
+    if(aT && !bT) return -1;
+    if(!aT && bT) return 1;
+    return 0;
+  });
+  initialSortDone = true;
+}
 
+function animateValue(el, start, end, duration){
+  const range = end - start;
+  const minTimer = 50;
+  let stepTime = Math.abs(Math.floor(duration / range));
+  stepTime = Math.max(stepTime, minTimer);
+  let startTime = new Date().getTime();
+  let endTime = startTime + duration;
+  let timer;
+
+  function run(){
+    let now = new Date().getTime();
+    let remaining = Math.max((endTime - now) / duration, 0);
+    let value = Math.round(end - (remaining * range));
+    el.textContent = value;
+    if(value == end) clearInterval(timer);
+  }
+
+  timer = setInterval(run, stepTime);
+  run();
+}
+
+function updateCounts(animate){
+  const appEl = document.getElementById("appCount");
+  const targetEl = document.getElementById("targetCount");
+  const blackEl = document.getElementById("blackCount");
+
+  if(animate){
+    animateValue(appEl, 0, cachedApps.length, 600);
+    animateValue(targetEl, 0, targetSet.size, 600);
+    animateValue(blackEl, 0, blackSet.size, 600);
+  } else {
+    appEl.textContent = cachedApps.length;
+    targetEl.textContent = targetSet.size;
+    blackEl.textContent = blackSet.size;
+  }
+}
+
+function updateRowVisuals(el, pkg){
+ const isTarget = targetSet.has(pkg);
+ const isBlack = blackSet.has(pkg);
+ const checkBtn = el.querySelector(".check-btn");
+ const blackBtn = el.querySelector(".black-btn");
+
+ el.classList.remove("targeted", "blacklisted");
+ if(isTarget) el.classList.add("targeted");
+ if(isBlack) el.classList.add("blacklisted");
+
+ if(isBlack){
+   checkBtn.classList.add("disabled");
+   checkBtn.classList.remove("active");
+   blackBtn.classList.add("active");
+   blackBtn.querySelector(".material-icons").textContent = "block";
+ } else {
+   checkBtn.classList.remove("disabled");
+   if(isTarget) checkBtn.classList.add("active");
+   else checkBtn.classList.remove("active");
+   blackBtn.classList.remove("active");
+   blackBtn.querySelector(".material-icons").textContent = "block_flipped";
+ }
+ updateCounts(false);
+}
+
+function render(){
+const q=(document.getElementById("search").value||"").toLowerCase().trim();
+const list=document.getElementById("list");
+const empty = document.getElementById("emptyState");
+const frag = document.createDocumentFragment();
+let visibleCount = 0;
+let visibleIdx = 0;
+
+cachedApps.forEach((a)=>{
+  if(q && !a.pkg.toLowerCase().includes(q) && !a.label.toLowerCase().includes(q)) return;
+  visibleCount++;
+  const isTarget = targetSet.has(a.pkg);
+  const isBlack = blackSet.has(a.pkg);
+  const showPkg = a.label !== a.pkg;
+
+  const item = document.createElement("div");
+  item.className = "item" + (isTarget ? " targeted" : "") + (isBlack ? " blacklisted" : "");
+  item.dataset.pkg = a.pkg;
+  item.style.animationDelay = (visibleIdx * 0.02) + "s";
+  item.innerHTML = `
+    <img class="app-icon" src="ksu://icon/${a.pkg}" alt="" onerror="this.style.opacity='0'">
     <div class="info">
       <div class="name">${a.label}</div>
+      ${showPkg ? `<div class="pkg">${a.pkg}</div>` : ''}
     </div>
-
     <div class="actions">
-      <div class="toggle ${isTarget?'active':''} ${isBlack?'disabled':''}"
-           data-pkg="${a.pkg}"></div>
-
-      <button class="icon-btn black ${isBlack?'blacklisted':''}" data-pkg="${a.pkg}">
-        <span class="material-icons">${isBlack ? "block" : "block_flipped"}</span>
+      <button class="check-btn ${isTarget ? 'active' : ''} ${isBlack ? 'disabled' : ''}" data-pkg="${a.pkg}">
+        <span class="material-icons">check</span>
+      </button>
+      <button class="black-btn ${isBlack ? 'active' : ''}" data-pkg="${a.pkg}">
+        <span class="material-icons">${isBlack ? 'block' : 'block_flipped'}</span>
       </button>
     </div>
   `;
-  list.appendChild(item);
+  frag.appendChild(item);
+  visibleIdx++;
 });
+
+list.innerHTML = "";
+
+if(visibleCount === 0 && q){
+  empty.classList.add("show");
+} else {
+  empty.classList.remove("show");
+  list.appendChild(frag);
+}
+
 attachListeners();
-loadIcons();
 }
 
 function attachListeners(){
-document.querySelectorAll(".toggle").forEach(btn=>{
+document.querySelectorAll(".check-btn").forEach(btn=>{
   btn.onclick = ()=>{
     if(btn.classList.contains("disabled")){ popup("Package is blacklisted", true); return; }
-    const pkg=btn.getAttribute("data-pkg");
-    readLines(TARGET_FILE, lines=>{
-      let normalized = normalizeTargets(lines);
-      if(btn.classList.contains("active")) normalized=normalized.filter(p=>p!==pkg);
-      else if(!normalized.includes(pkg)) normalized.push(pkg);
-      writeLines(TARGET_FILE, normalized, ok=>{ 
-        popup(ok? (btn.classList.contains("active")?"Removed from targets":"Added to targets"):"Write failed", !ok); 
-        buildList(); 
-      });
-    });
-  };
-});
+    const pkg = btn.dataset.pkg;
+    const isActive = btn.classList.contains("active");
+    const item = btn.closest(".item");
 
-document.querySelectorAll(".icon-btn.black").forEach(b=>{
-  b.onclick = ()=>{
-    const pkg=b.getAttribute("data-pkg");
-    readLines(BLACK_FILE, bLines=>{
-      readLines(TARGET_FILE, tLines=>{
-        let newBlacks = bLines;
-        let newTargets = normalizeTargets(tLines);
-        const isAdding = !newBlacks.includes(pkg);
-        
-        if(isAdding){
-          newBlacks.push(pkg);
-          newTargets = newTargets.filter(p => p !== pkg);
-        } else {
-          newBlacks = newBlacks.filter(p => p !== pkg);
-        }
-        
-        writeLines(BLACK_FILE, newBlacks, ok=>{
-          if(ok && isAdding){
-            writeLines(TARGET_FILE, newTargets, ok2=>{
-              popup(ok2 ? "Blacklisted & removed from targets" : "Blacklist updated, target removal failed", !ok2);
-              buildList();
-            });
-          } else {
-            popup(ok ? (isAdding ? "Blacklisted" : "Removed from blacklist") : "Write failed", !ok);
-            buildList();
-          }
-        });
-      });
-    });
-  };
-});
-}
-
-function selectAllBlacklist(){
-readLines(BLACK_FILE, bLines=>{
-  readLines(TARGET_FILE, tLines=>{
-    let newBlacks = [...bLines];
-    let newTargets = normalizeTargets(tLines);
-    let addedCount = 0;
-    
-    cachedApps.forEach(app => {
-      if(!newBlacks.includes(app.pkg)){
-        newBlacks.push(app.pkg);
-        newTargets = newTargets.filter(p => p !== app.pkg);
-        addedCount++;
-      }
-    });
-    
-    if(addedCount === 0){
-      popup("All apps already blacklisted", "info");
-      return;
+    if(isActive){
+      targetSet.delete(pkg);
+      item.classList.remove("targeted");
+      btn.classList.remove("active");
+    } else {
+      targetSet.add(pkg);
+      item.classList.add("targeted");
+      btn.classList.add("active");
     }
-    
-    writeLines(BLACK_FILE, newBlacks, ok=>{
-      if(ok){
-        writeLines(TARGET_FILE, newTargets, ok2=>{
-          popup(ok2 ? `Blacklisted ${addedCount} apps` : "Blacklist updated, target removal failed", !ok2);
-          buildList();
-        });
-      } else {
-        popup("Failed to update blacklist", true);
-      }
+
+    writeLines(TARGET_FILE, Array.from(targetSet), ok=>{
+      popup(ok ? (isActive ? "Removed from spoofed" : "Added to spoofed") : "Write failed", !ok);
+      if(ok) runTeeSimIfExists();
     });
-  });
+  };
+});
+
+document.querySelectorAll(".black-btn").forEach(btn=>{
+  btn.onclick = ()=>{
+    const pkg = btn.dataset.pkg;
+    const isActive = btn.classList.contains("active");
+    const item = btn.closest(".item");
+
+    if(isActive){
+      blackSet.delete(pkg);
+      targetSet.add(pkg);
+      item.classList.remove("blacklisted");
+      item.classList.add("targeted");
+    } else {
+      blackSet.add(pkg);
+      if(targetSet.has(pkg)) targetSet.delete(pkg);
+      item.classList.add("blacklisted");
+      item.classList.remove("targeted");
+    }
+
+    updateRowVisuals(item, pkg);
+
+    writeLines(BLACK_FILE, Array.from(blackSet), ok=>{
+      if(!ok){ popup("Write failed", true); return; }
+      writeLines(TARGET_FILE, Array.from(targetSet), ok2=>{
+        popup(ok2 ? (isActive ? "Unblacklisted & restored to spoofed" : "Blacklisted") : "Blacklist updated, spoofed sync failed", !ok2);
+        if(ok2) runTeeSimIfExists();
+      });
+    });
+  };
 });
 }
 
-document.getElementById("search").addEventListener("input", buildList);
-
-function loadIcons(){
-const imgs = document.querySelectorAll("img.app-icon[data-src]");
-
-if (!("IntersectionObserver" in window)) {
-  imgs.forEach(img => {
-    img.src = img.dataset.src;
-    img.classList.add("loaded");
-  });
-  return;
+function clearSearch(){
+  document.getElementById("search").value = "";
+  document.getElementById("searchClear").classList.remove("show");
+  render();
 }
 
-const obs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (!e.isIntersecting) return;
-    const img = e.target;
-    img.src = img.dataset.src;
-    img.onload = () => {
-      img.classList.remove("lazy");
-      img.classList.add("loaded");
-    };
-    img.onerror = () => img.style.opacity = "0";
-    obs.unobserve(img);
-  });
-}, { rootMargin: "50px" });
+document.getElementById("search").addEventListener("input", function(){
+  const clear = document.getElementById("searchClear");
+  if(this.value) clear.classList.add("show");
+  else clear.classList.remove("show");
 
-imgs.forEach(img => obs.observe(img));
+  if(searchDebounce) clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(render, 200);
+});
+
+document.addEventListener("keydown", function(e){
+  if(e.key === "Escape"){
+    closeInfo();
+    closeConfirm();
+    if(document.getElementById("search") === document.activeElement){
+      clearSearch();
+    }
+  }
+  if((e.key === "/" || (e.ctrlKey && e.key === "k")) && document.activeElement.tagName !== "INPUT"){
+    e.preventDefault();
+    document.getElementById("search").focus();
+  }
+});
+
+function confirmBulk(type){
+  pendingBulkAction = type;
+  const modal = document.getElementById("confirmModal");
+  const icon = document.getElementById("confirmIcon");
+  const title = document.getElementById("confirmTitle");
+  const text = document.getElementById("confirmText");
+  const action = document.getElementById("confirmAction");
+
+  if(type === "target"){
+    icon.textContent = "check_circle";
+    icon.style.color = "var(--accent)";
+    title.textContent = "Spoof All Apps";
+    text.textContent = "This will add all available apps to the spoofed list. Apps currently blacklisted will not be affected.";
+    action.onclick = ()=>{ closeConfirm(); doSelectAllTargets(); };
+  } else {
+    icon.textContent = "block";
+    icon.style.color = "var(--danger)";
+    title.textContent = "Blacklist All Apps";
+    text.textContent = "This will blacklist all apps and remove them from spoofed. Are you sure?";
+    action.onclick = ()=>{ closeConfirm(); doSelectAllBlacklist(); };
+  }
+
+  modal.classList.add("show");
+}
+
+function closeConfirm(){ document.getElementById("confirmModal").classList.remove("show"); pendingBulkAction = null; }
+
+function doSelectAllTargets(){
+let added = 0;
+cachedApps.forEach(a => {
+  if(!targetSet.has(a.pkg) && !blackSet.has(a.pkg)){
+    targetSet.add(a.pkg);
+    added++;
+  }
+});
+
+if(added === 0){ popup("All available apps already spoofed"); return; }
+
+render();
+writeLines(TARGET_FILE, Array.from(targetSet), ok=>{
+  popup(ok ? `Spoofed ${added} apps` : "Failed to update spoofed", !ok);
+  if(ok) runTeeSimIfExists();
+});
+}
+
+function doSelectAllBlacklist(){
+let added = 0;
+cachedApps.forEach(a => {
+  if(!blackSet.has(a.pkg)){
+    blackSet.add(a.pkg);
+    if(targetSet.has(a.pkg)) targetSet.delete(a.pkg);
+    added++;
+  }
+});
+
+if(added === 0){ popup("All apps already blacklisted"); return; }
+
+render();
+writeLines(BLACK_FILE, Array.from(blackSet), ok=>{
+  if(!ok){ popup("Failed to update blacklist", true); return; }
+  writeLines(TARGET_FILE, Array.from(targetSet), ok2=>{
+    popup(ok2 ? `Blacklisted ${added} apps` : "Blacklist updated, spoofed removal failed", !ok2);
+    if(ok2) runTeeSimIfExists();
+  });
+});
 }
 
 function backupTargets(){
-readLines(BLACK_FILE, lines=>{
-  writeLines(BACKUP_FILE, lines, ok=>popup(ok?"Backup saved to Download":"Backup failed", !ok));
-});
+  runShell(`mkdir -p $(dirname ${esc(BACKUP_FILE)}) && cp ${esc(BLACK_FILE)} ${esc(BACKUP_FILE)}`, (c,o,e)=>{
+    if(c === 0) popup("Backup saved to Download");
+    else popup("Backup failed: " + (e||"unknown"), true);
+  });
 }
 
 function restoreTargets(){
-readLines(BACKUP_FILE, lines=>{
-  writeLines(BLACK_FILE, lines, ok=>{
-    popup(ok?"Restored from backup":"Restore failed", !ok);
-    buildList();
+  runShell(`if [ -f ${esc(BACKUP_FILE)} ]; then cp ${esc(BACKUP_FILE)} ${esc(BLACK_FILE)}; echo "OK"; else echo "NOBACKUP"; fi`, (c,o,e)=>{
+    if(o && o.trim() === "OK"){
+      readLines(BLACK_FILE, lines=>{
+        blackSet = new Set(lines);
+        render();
+        popup(`Restored ${lines.length} apps from backup`);
+      });
+    } else {
+      popup("No backup found. Tap Backup first.", true);
+    }
   });
-});
 }
 
-async function init(){
-runShell(`mkdir -p $(dirname ${esc(TARGET_FILE)}) && touch ${esc(TARGET_FILE)} && mkdir -p $(dirname ${esc(BLACK_FILE)}) && touch ${esc(BLACK_FILE)}`, ()=>buildList());
+function openInfo(){ document.getElementById("infoModal").classList.add("show"); }
+function closeInfo(){ document.getElementById("infoModal").classList.remove("show"); }
+
+function init(){
+runShell(`mkdir -p $(dirname ${esc(TARGET_FILE)}) && touch ${esc(TARGET_FILE)} && mkdir -p $(dirname ${esc(BLACK_FILE)}) && touch ${esc(BLACK_FILE)}`, ()=>{
+  readLines(TARGET_FILE, tLines=>{
+    readLines(BLACK_FILE, bLines=>{
+      targetSet = new Set(normalizeTargets(tLines));
+      blackSet = new Set(bLines);
+      fetchInstalled(apps=>{
+        cachedApps = apps;
+        sortAppsOnce();
+        document.getElementById("skeleton").style.display = "none";
+        render();
+        updateCounts(true);
+      });
+    });
+  });
+});
 }
 
 init();
