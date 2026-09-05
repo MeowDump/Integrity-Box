@@ -13,6 +13,12 @@ if [ -f "$placeholder/autopilot.sh" ]; then
     chmod 755 "$placeholder/autopilot.sh"
 fi
 
+# Skip disabling built-in spoofing when zygiskless mode is enabled 
+if [ -f "$BOX/zygisk" ]; then
+    [ -f "$BOX/disablegms" ] && rm -f "$BOX/disablegms"
+    [ -f "$BOX/disablevending" ] && rm -f "$BOX/disablevending"
+fi
+
 # Handle Vending-specific prop
 if [ -f "$BOX/enablevending" ]; then
     set_simpleprop persist.sys.pixelprops.vending true
@@ -56,25 +62,16 @@ for _f in \
     "$placeholder/target.sh" \
     "$placeholder/gms.sh" \
     "$placeholder/webui.sh" \
-    "$placeholder/run_scan.sh" \
-    "$placeholder/scan_keybox.sh" \
     "$placeholder/resetprop.sh" \
     "$placeholder/Report.sh" \
     "$placeholder/force_override.sh" \
     "$placeholder/override_lineage.sh" \
     "$placeholder/keymint.sh" \
-    "$placeholder/hma.sh"
+    "$placeholder/extract_boot.sh"
 do
     set_perm_if_needed "$_f" 755
 done
 
-if [ -e "$BOX/ota" ]; then
-    rm -f "$MODPATH/system.prop"
-    rm -f "$BOX/NoLineageProp"
-    rm -rf "$BOX/override"
-    rm -rf "$BOX/ota"
-    touch "$BOX/safemode"
-fi
 
 ##########################################
 # adapted from Play Integrity Fork by @osm0sis
