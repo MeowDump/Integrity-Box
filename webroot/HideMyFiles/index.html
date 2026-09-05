@@ -1,192 +1,1022 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Hide My Files</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
 <style>
-:root{
-  --bg:#1f2233;--fg:#e6e6e6;--muted:#97aac0;
-  --accent:#1592FF;--card:#232637E6;--border:#ffffff14;
-  --radius:18px;
+:root {
+  --bg: #0e1020;
+  --surface: rgba(27, 30, 51, 0.7);
+  --fg: #e9ecff;
+  --fg-secondary: #9aa3ff;
+  --fg-muted: #6a70a0;
+  --accent: #4da3ff;
+  --accent-soft: rgba(77, 163, 255, 0.1);
+  --accent-glow: rgba(77, 163, 255, 0.25);
+  --border: rgba(255, 255, 255, 0.06);
+  --border-light: rgba(255, 255, 255, 0.1);
+  --danger: #ff4d4d;
+  --danger-soft: rgba(255, 77, 77, 0.1);
+  --warning: #ffaa4d;
+  --warning-soft: rgba(255, 170, 77, 0.1);
+  --shadow: 0 20px 60px #00000088;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
 }
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  background:radial-gradient(circle at top,#262a4a,#14172b 70%);
-  font-family:Inter,system-ui;
-  color:var(--fg);
-  display:flex;
-  justify-content:center;
-  min-height:100vh;
-}
-.app{width:100%;max-width:600px;padding:20px}
 
-.header{text-align:center;margin-bottom:16px}
-.header h1{
-  color:var(--accent);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  font-size:2.1rem;
-}
-.header p{font-size:13px;color:var(--muted)}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-.custom-path{
-  display:flex;
-  gap:6px;
-  margin-bottom:14px;
+body {
+  margin: 0;
+  padding: 0;
+  background: radial-gradient(circle at 50% 0%, #1c2045 0%, #0e1020 50%, #080a14 100%);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.ambient {
+  position: fixed;
+  top: -120px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 700px;
+  height: 450px;
+  background: radial-gradient(ellipse, rgba(77, 163, 255, 0.07) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 40px 20px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.header-left { display: flex; flex-direction: column; gap: 6px; }
+
+.header .title {
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--fg);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header .title .material-icons {
+  font-size: 1.8rem;
+  color: var(--accent);
+  filter: drop-shadow(0 0 12px var(--accent-glow));
+}
+
+.header .subtitle {
+  font-size: 0.85rem;
+  color: var(--fg-secondary);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.info-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  backdrop-filter: blur(10px);
+  color: var(--fg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  padding: 0;
+  margin-top: 2px;
+}
+
+.info-btn:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-glow);
+  box-shadow: 0 0 20px var(--accent-glow);
+  transform: scale(1.08);
+}
+
+.info-btn:active { transform: scale(0.95); }
+
+.info-btn .material-icons { font-size: 1.1rem; }
+
+.card {
+  background: var(--surface);
+  backdrop-filter: blur(24px) saturate(1.3);
+  -webkit-backdrop-filter: blur(24px) saturate(1.3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 5px;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.04) inset,
+    var(--shadow),
+    0 4px 12px rgba(0,0,0,0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(77,163,255,0.2), transparent);
+  pointer-events: none;
+}
+
+.card-inner {
+  background: rgba(255,255,255,0.015);
+  border-radius: calc(var(--radius-xl) - 4px);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.btn-row-top {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.btn {
+  flex: 1;
+  max-width: 200px;
+  position: relative;
+  padding: 15px 24px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(77,163,255,0.1) 0%, rgba(77,163,255,0.02) 100%);
+  color: var(--fg);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(77,163,255,0.14) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  border-color: rgba(77,163,255,0.25);
+  box-shadow: 0 10px 30px rgba(77,163,255,0.1);
+}
+
+.btn:hover::before { opacity: 1; }
+
+.btn:active { transform: scale(0.97) translateY(0); }
+
+.btn.secondary {
+  background: rgba(255,255,255,0.03);
+}
+
+.btn.secondary::before {
+  background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+}
+
+.btn.secondary:hover {
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  border-color: rgba(255,255,255,0.1);
+}
+
+.btn .material-icons { font-size: 1.1rem; position: relative; z-index: 1; }
+.btn span { position: relative; z-index: 1; }
+
+.progress-bar {
+  height: 4px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), #6ab8ff, var(--accent));
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.stats {
+  display: flex;
+  gap: 10px;
+}
+
+.stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 8px;
+  background: rgba(255,255,255,0.025);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255,255,255,0.04);
+  transition: all 0.2s ease;
+}
+
+.stat:hover {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.07);
+}
+
+.stat-icon {
+  font-size: 1.3rem;
+  color: var(--accent);
+  opacity: 0.8;
+}
+
+.stat-num {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--fg);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.stat-label {
+  font-size: 0.65rem;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.04);
+  color: var(--fg-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toolbar-btn:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--fg);
+  border-color: var(--border-light);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+
+.toolbar-btn:active { transform: scale(0.96); }
+
+.toolbar-btn .material-icons { font-size: 1rem; }
+
+.list-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 45vh;
+  overflow-y: auto;
+  padding: 4px 6px 4px 0;
+  min-height: 0;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.04);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  animation: itemEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  flex-shrink: 0;
+}
+
+@keyframes itemEnter {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  border-radius: 0 4px 4px 0;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.item:hover {
+  background: rgba(255,255,255,0.055);
+  border-color: rgba(255,255,255,0.07);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+
+.item:active { transform: scale(0.995) translateY(0); }
+
+.item.targeted {
+  background: rgba(77,163,255,0.04);
+  border-color: rgba(77,163,255,0.1);
+}
+
+.item.targeted::before { opacity: 1; }
+
+.item.warn-item {
+  background: rgba(255,170,77,0.04);
+  border-color: rgba(255,170,77,0.08);
+}
+
+.item.warn-item::before {
+  background: var(--warning);
+  box-shadow: 0 0 8px rgba(255,170,77,0.3);
+}
+
+.item.danger-item {
+  background: rgba(255,77,77,0.04);
+  border-color: rgba(255,77,77,0.08);
+}
+
+.item.danger-item::before {
+  background: var(--danger);
+  box-shadow: 0 0 8px rgba(255,77,77,0.3);
+}
+
+.item-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.item-path-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.item-path-wrap .material-icons {
+  font-size: 1.3rem;
+  color: var(--accent);
+  opacity: 0.8;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.item-path {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--fg);
+  word-break: break-all;
+  line-height: 1.4;
+}
+
+.item-meta {
+  font-size: 0.72rem;
+  color: var(--fg-muted);
+  font-family: "SF Mono", "Roboto Mono", monospace;
+  letter-spacing: -0.01em;
+  opacity: 0.8;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.meta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #fff;
+}
+
+.meta-badge.warn {
+  background: linear-gradient(135deg, #ff9800, #ffb74d);
+  box-shadow: 0 2px 8px rgba(255,152,0,0.2);
+}
+
+.meta-badge.danger {
+  background: linear-gradient(135deg, #f44336, #ef5350);
+  box-shadow: 0 2px 8px rgba(244,67,54,0.2);
+}
+
+.meta-badge .material-icons { font-size: 11px; }
+
+.item-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mode-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mode-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--fg-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.mode-pill:hover:not(.disabled) {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.1);
+}
+
+.mode-pill.active {
+  background: var(--accent-soft);
+  border-color: rgba(77,163,255,0.25);
+  color: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.mode-pill.warn-active {
+  background: var(--warning-soft);
+  border-color: rgba(255,170,77,0.2);
+  color: var(--warning);
+}
+
+.mode-pill.danger-active {
+  background: var(--danger-soft);
+  border-color: rgba(255,77,77,0.2);
+  color: var(--danger);
+}
+
+.mode-pill.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.mode-pill .material-icons { font-size: 15px; }
+
+.check-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.12);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
+  padding: 0;
+  position: relative;
+}
+
+.check-btn::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  background: var(--accent-glow);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.check-btn .material-icons {
+  font-size: 18px;
+  color: transparent;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: scale(0.4) rotate(-10deg);
+}
+
+.check-btn.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: 0 0 16px var(--accent-glow);
+}
+
+.check-btn.active .material-icons {
+  color: #fff;
+  transform: scale(1) rotate(0deg);
+}
+
+.check-btn:hover:not(.disabled) { border-color: var(--accent); }
+.check-btn:hover:not(.disabled)::after { opacity: 1; }
+
+.check-btn.disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+  border-color: rgba(255,255,255,0.06);
+}
+
+.check-btn.disabled:hover { border-color: rgba(255,255,255,0.06); }
+
+#snack {
+  position: fixed;
+  left: 50%;
+  bottom: 36px;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(14, 16, 32, 0.96);
+  color: var(--fg);
+  padding: 14px 26px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.04);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 9999;
+  backdrop-filter: blur(20px);
+  font-weight: 600;
+  font-size: 0.88rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 90vw;
+  overflow: hidden;
+}
+
+#snack.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+#snack .snack-icon {
+  font-family: "Material Icons";
+  font-size: 20px;
+  color: var(--accent);
+}
+
+#snack.error .snack-icon { color: var(--danger); }
+#snack.error { border-color: rgba(255,77,77,0.2); }
+
+.snack-timer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: var(--accent);
+  width: 100%;
+  transform-origin: left;
+}
+
+#snack.error .snack-timer { background: var(--danger); }
+
+@keyframes snackTimer {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+.list::-webkit-scrollbar { width: 4px; }
+.list::-webkit-scrollbar-track { background: transparent; }
+.list::-webkit-scrollbar-thumb {
+  background: rgba(77,163,255,0.2);
+  border-radius: 10px;
+}
+
+.skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.04);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.skeleton-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.skeleton-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.06);
+  flex-shrink: 0;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton-line {
+  height: 14px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.06);
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-line.short { width: 40%; height: 10px; }
+
+.skeleton-actions {
+  display: flex;
+  gap: 10px;
   align-items: center;
 }
 
-.custom-path input{
-  flex:1;
-  padding:12px 14px;
-  border-radius:14px;
-  border:1px solid var(--border);
-  background:var(--card);
-  color:var(--fg);
-  font-size:14px;
+.skeleton-pill {
+  height: 32px;
+  width: 100px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  animation: skeletonPulse 1.5s ease-in-out infinite;
 }
 
-.custom-path button{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:0 16px;
-  border:none;
-  border-radius:14px;
-  background:linear-gradient(135deg,#1592ff,#47a8ff);
-  color:#fff;
-  font-weight:600;
-  font-size:18px;
-  cursor:pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
-  height:100%;
+.skeleton-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  animation: skeletonPulse 1.5s ease-in-out infinite;
 }
 
-.custom-path button:hover{
-  transform: scale(1.05);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
 }
 
-.custom-path button .material-icons{
-  font-size:22px;
+.empty-state {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 20px;
+  text-align: center;
 }
 
-.item{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:18px;
-  margin-bottom:14px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
+.empty-state.show { display: flex; }
+
+.empty-state .material-icons {
+  font-size: 3rem;
+  color: var(--fg-muted);
+  opacity: 0.5;
 }
 
-.row{display:flex;justify-content:space-between;align-items:center}
-.path{font-size:14px;display:flex;align-items:center;gap:6px;word-break:break-all}
-.meta{
-  font-size:12px;
-  color:var(--muted);
-  display:flex;
-  gap:6px;
-  flex-wrap:wrap;
+.empty-state p {
+  color: var(--fg-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
-.badge{
-  display:inline-flex;
-  align-items:center;
-  gap:4px;
-  padding:3px 8px;
-  border-radius:999px;
-  font-size:11px;
-  font-weight:600;
-  color:#fff;
-}
-.badge.warn{background:#ff9800}
-.badge.danger{background:#f44336}
-
-.toggle{
-  width:50px;height:28px;border-radius:14px;
-  background:#444;position:relative;cursor:pointer
-}
-.toggle.active{background:var(--accent)}
-.toggle::after{
-  content:"";width:24px;height:24px;border-radius:50%;
-  background:#fff;position:absolute;top:2px;left:2px;
-  transition:.25s
-}
-.toggle.active::after{left:24px}
-
-/* Trash icon */
-.trash{
-  color:#f44336;
-  cursor:pointer;
-  font-size:22px;
-  transition: transform 0.2s;
-}
-.trash:hover{
-  transform: scale(1.2);
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 
-.mode{display:flex;gap:10px;margin-top:6px}
-.mode button{
-  flex:1;padding:9px;border-radius:14px;
-  border:1px solid var(--border);
-  background:transparent;color:var(--fg);cursor:pointer;
-  display:flex;gap:6px;justify-content:center;align-items:center
-}
-.mode button.active{background:var(--accent);border-color:transparent}
-.mode button[disabled]{opacity:.4;pointer-events:none}
+.modal.show { display: flex; }
 
-.actions{display:flex;gap:14px;margin-top:18px}
-.actions button{
-  flex:1;padding:15px;border-radius:20px;border:none;
-  font-weight:700;cursor:pointer;
-  display:flex;gap:8px;justify-content:center;align-items:center
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
-.run{background:linear-gradient(135deg,#1592ff,#47a8ff);color:#fff}
-.unhide{background:#3a3f5c;color:#fff}
 
-.progress{
-  height:6px;background:#0003;border-radius:6px;
-  overflow:hidden;margin:14px 0
+.modal-card {
+  position: relative;
+  background: rgba(22, 25, 45, 0.95);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 440px;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow);
+  animation: modalIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.bar{
-  height:100%;width:0%;
-  background:linear-gradient(90deg,#1592ff,#5bb3ff,#1592ff);
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.92) translateY(16px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 26px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-header .material-icons {
+  font-size: 1.5rem;
+  color: var(--accent);
+  filter: drop-shadow(0 0 6px var(--accent-glow));
+}
+
+.modal-header span:last-of-type {
+  flex: 1;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--fg);
+  letter-spacing: -0.01em;
+}
+
+.modal-close {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  color: var(--fg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.modal-close:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--fg);
+}
+
+.modal-close .material-icons { font-size: 1rem; }
+
+.modal-body {
+  padding: 22px 26px 26px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modal-section h4 {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-section h4 .material-icons { font-size: 1rem; }
+
+.modal-section p {
+  font-size: 0.85rem;
+  color: var(--fg-secondary);
+  line-height: 1.65;
+  margin: 0;
+}
+
+.modal-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+
+@media (max-width: 600px) {
+  .container { padding: 24px 16px 40px; gap: 20px; }
+  .header .title { font-size: 1.6rem; }
+  .card-inner { padding: 18px; }
+  .item { padding: 14px 12px; gap: 10px; }
+  .btn { padding: 13px 18px; font-size: 0.87rem; max-width: 160px; }
+  .stat-num { font-size: 1.3rem; }
+  .mode-pill { font-size: 0.72rem; padding: 6px 12px; }
+  .item-path { font-size: 0.85rem; }
+  .list { max-height: 40vh; }
+  .toolbar-btn { padding: 8px 14px; font-size: 0.72rem; }
 }
 </style>
 </head>
-
 <body>
-<div class="app">
+<div class="ambient"></div>
+
+<div class="container">
   <div class="header">
-    <h1><span class="material-icons">folder_off</span> Hide Suspicious Files</h1>
-    <p>Powered by IntegrityBox</p>
-  </div>
-
-  <div class="custom-path">
-    <input id="customPath" placeholder="Enter custom path to hide">
-    <button onclick="addCustomPath()" title="Add custom path">
-      <span class="material-icons">add</span>
+    <div class="header-left">
+      <div class="title"><span class="material-icons">folder_off</span>Hide My Files</div>
+      <div class="subtitle">Powered by IntegrityBox</div>
+    </div>
+    <button class="info-btn" onclick="openInfo()">
+      <span class="material-icons">info</span>
     </button>
   </div>
 
-  <div class="progress"><div id="bar" class="bar"></div></div>
-  <div id="list">Loading…</div>
+  <div class="card">
+    <div class="card-inner">
+      <div class="btn-row-top">
+        <button class="btn" onclick="runCleaner()">
+          <span class="material-icons">visibility_off</span>
+          <span>HIDE</span>
+        </button>
+        <button class="btn secondary" onclick="unhide()">
+          <span class="material-icons">visibility</span>
+          <span>UNHIDE</span>
+        </button>
+      </div>
 
-  <div class="actions">
-    <button class="run" onclick="runCleaner()">
-      <span class="material-icons">visibility_off</span> HIDE
-    </button>
-    <button class="unhide" onclick="unhide()">
-      <span class="material-icons">visibility</span> UNHIDE
-    </button>
+      <div class="progress-bar">
+        <div id="progressFill" class="progress-fill"></div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <span class="material-icons stat-icon">folder</span>
+          <div class="stat-num" id="statDetected">0</div>
+          <div class="stat-label">Detected</div>
+        </div>
+        <div class="stat">
+          <span class="material-icons stat-icon">check_circle</span>
+          <div class="stat-num" id="statSelected">0</div>
+          <div class="stat-label">Selected</div>
+        </div>
+        <div class="stat">
+          <span class="material-icons stat-icon">warning</span>
+          <div class="stat-num" id="statWarn">0</div>
+          <div class="stat-label">Warnings</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <button class="toolbar-btn" onclick="selectAll()">
+          <span class="material-icons">select_all</span>Select All
+        </button>
+        <button class="toolbar-btn" onclick="deselectAll()">
+          <span class="material-icons">deselect</span>Deselect All
+        </button>
+        <button class="toolbar-btn" onclick="selectAllMove()">
+          <span class="material-icons">visibility_off</span>All Move
+        </button>
+        <button class="toolbar-btn" onclick="selectAllRename()">
+          <span class="material-icons">deblur</span>All Rename
+        </button>
+      </div>
+
+      <div class="list-wrap">
+        <div class="skeleton-list" id="skeleton">
+          <div class="skeleton-item">
+            <div class="skeleton-header">
+              <div class="skeleton-icon"></div>
+              <div class="skeleton-text"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div>
+            </div>
+            <div class="skeleton-actions"><div class="skeleton-pill"></div><div class="skeleton-pill"></div><div class="skeleton-btn"></div></div>
+          </div>
+          <div class="skeleton-item">
+            <div class="skeleton-header">
+              <div class="skeleton-icon"></div>
+              <div class="skeleton-text"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div>
+            </div>
+            <div class="skeleton-actions"><div class="skeleton-pill"></div><div class="skeleton-pill"></div><div class="skeleton-btn"></div></div>
+          </div>
+          <div class="skeleton-item">
+            <div class="skeleton-header">
+              <div class="skeleton-icon"></div>
+              <div class="skeleton-text"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div>
+            </div>
+            <div class="skeleton-actions"><div class="skeleton-pill"></div><div class="skeleton-pill"></div><div class="skeleton-btn"></div></div>
+          </div>
+        </div>
+        <div class="list" id="list"></div>
+        <div class="empty-state" id="emptyState">
+          <span class="material-icons">check_circle</span>
+          <p>No suspicious files detected</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="snack"><span class="snack-icon">check_circle</span><span id="snackText"></span><div class="snack-timer"></div></div>
+
+<div id="infoModal" class="modal">
+  <div class="modal-backdrop" onclick="closeInfo()"></div>
+  <div class="modal-card">
+    <div class="modal-header">
+      <span class="material-icons">info</span>
+      <span>About Hide My Files</span>
+      <button class="modal-close" onclick="closeInfo()"><span class="material-icons">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <h4><span class="material-icons">visibility_off</span>Move to Vault</h4>
+        <p>Moves the selected file or folder to a hidden vault directory. The original path will appear completely empty or missing to any app that checks for it.</p>
+      </div>
+      <div class="modal-divider"></div>
+      <div class="modal-section">
+        <h4><span class="material-icons">deblur</span>Rename / Mask</h4>
+        <p>Renames the file or folder with a random 12-character string. The content stays in the same location but is unrecognizable by name.</p>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -198,17 +1028,17 @@ const LOG="/data/adb/Vault/webui.log";
 const VAULT="/data/adb/Vault";
 
 let PREDEFINED={
-  MT2:"/sdcard/MT2",TWRP:"/sdcard/TWRP",Fox:"/sdcard/Fox",
-  PBRP:"/sdcard/PBRP",Magisk:"/sdcard/Magisk",SHRP:"/sdcard/SHRP",
-  Migrate:"/sdcard/Migrate",CustomROM:"/vendor/bin/install-recovery.sh",
-  SwiftBackup:"/sdcard/SwiftBackup",AppManager:"/sdcard/AppManager",
+  MT2:"/sdcard/MT2",Log:"/sdcard/MeowLog",TWRP:"/sdcard/TWRP",Fox:"/sdcard/Fox",JQ:"/data/local/tmp/jq_extract",
+  PBRP:"/sdcard/PBRP",Magisk:"/sdcard/Magisk",SHRP:"/sdcard/SHRP",Gulag:"/data/local/tmp/DisabledAllGoogleServices",
+  Migrate:"/sdcard/Migrate",CustomROM:"/vendor/bin/install-recovery.sh",Rec:"/data/recovery",
+  SwiftBackup:"/sdcard/SwiftBackup",AppManager:"/sdcard/AppManager",Boot:"/sdcard/BootImages",
   TMP:"/sdcard/InfinityResource",KernelSU:"/sdcard/.ksu",FolkPatch:"/sdcard/Download/FolkPatch",
   DataBackup:"/sdcard/DataBackup",OTA:"/system/addon.d"
 };
 
-let CUSTOM={}, TARGETS={...PREDEFINED};
+let TARGETS={...PREDEFINED};
+let detectedItems = [];
 const sh=cmd=>parent.runShellFromIframe(cmd);
-const bar=document.getElementById("bar");
 
 const exists=async p=>(await sh(`[ -e "${p}" ] && echo 1 || echo 0`)).trim()=="1";
 
@@ -236,139 +1066,281 @@ async function saveConf(k,e,m){
     echo "MODE=${m}" >> ${BASE}/${k}.conf`);
 }
 
-// Custom Paths Persistence
-async function loadCustomPaths(){
-  try{
-    const out = await sh(`cat ${BASE}/custom.conf 2>/dev/null`);
-    CUSTOM={};
-    out.trim().split("\n").forEach(line=>{
-      if(line){
-        const [name,path]=line.split("|");
-        CUSTOM[name]=path;
-      }
-    });
-    TARGETS={...PREDEFINED,...CUSTOM};
-  }catch{}
+function popup(msg, isError){
+ try {
+   if (typeof window.toast === "function") { window.toast(String(msg)); return; }
+   if (window.kernelsu && typeof window.kernelsu.toast === "function") { window.kernelsu.toast(String(msg)); return; }
+   if (typeof ksu === "object" && typeof ksu.toast === "function") { ksu.toast(String(msg)); return; }
+ } catch(e) {}
+
+ const el = document.getElementById("snack");
+ const txt = document.getElementById("snackText");
+ const icon = el.querySelector(".snack-icon");
+ const timer = el.querySelector(".snack-timer");
+ txt.textContent = msg;
+ icon.textContent = isError ? "error" : "check_circle";
+ el.className = isError ? "error" : "";
+ el.classList.add("show");
+ timer.style.animation = "none";
+ timer.offsetHeight;
+ timer.style.animation = "snackTimer 2.2s linear forwards";
+ setTimeout(()=> el.classList.remove("show"), 2200);
 }
 
-async function saveCustomPaths(){
-  const lines = Object.entries(CUSTOM).map(([k,v])=>`${k}|${v}`);
-  await sh(`mkdir -p ${BASE}; echo "${lines.join("\n")}" > ${BASE}/custom.conf`);
-}
+function animateValue(el, start, end, duration){
+  const range = end - start;
+  const minTimer = 50;
+  let stepTime = Math.abs(Math.floor(duration / range));
+  stepTime = Math.max(stepTime, minTimer);
+  let startTime = new Date().getTime();
+  let endTime = startTime + duration;
+  let timer;
 
-// Add Custom Path
-async function addCustomPath(){
-  const p = customPath.value.trim();
-  if(!p) return;
-
-  // Only allow /sdcard/ or /storage/emulated/0/
-  if(!p.startsWith("/sdcard/") && !p.startsWith("/storage/emulated/0/")){
-    alert("Only paths under /sdcard/ or /storage/emulated/0/ are allowed");
-    return;
+  function run(){
+    let now = new Date().getTime();
+    let remaining = Math.max((endTime - now) / duration, 0);
+    let value = Math.round(end - (remaining * range));
+    el.textContent = value;
+    if(value == end) clearInterval(timer);
   }
 
-  // Check if path exists
-  if(!(await exists(p))){
-    alert("Path does not exist");
-    return;
-  }
-
-  const name = p.split("/").pop();
-  CUSTOM[name] = p;
-  TARGETS = {...PREDEFINED, ...CUSTOM};
-  await saveCustomPaths(); // persist
-  customPath.value = "";
-  render();
+  timer = setInterval(run, stepTime);
+  run();
 }
 
-// Render
+function updateCounts(animate){
+  const detectedEl = document.getElementById("statDetected");
+  const selectedEl = document.getElementById("statSelected");
+  const warnEl = document.getElementById("statWarn");
+
+  let selectedCount = 0, warnCount = 0;
+  for(const k in TARGETS){
+    const p = TARGETS[k];
+    if(!existsSync(p)) continue;
+    const large = sizeToMB(getSizeCached(k)) > SIZE_LIMIT_MB;
+    const recovery = p==="/vendor/bin/install-recovery.sh"||p==="/system/addon.d";
+    if(recovery || large) warnCount++;
+  }
+
+  document.querySelectorAll('.check-btn.active').forEach(() => selectedCount++);
+
+  if(animate){
+    animateValue(detectedEl, 0, detectedItems.length, 600);
+    animateValue(selectedEl, 0, selectedCount, 600);
+    animateValue(warnEl, 0, warnCount, 600);
+  } else {
+    detectedEl.textContent = detectedItems.length;
+    selectedEl.textContent = selectedCount;
+    warnEl.textContent = warnCount;
+  }
+}
+
+let sizeCache = {};
+function getSizeCached(k){ return sizeCache[k] || "0B"; }
+function existsSync(p){ return detectedItems.some(item => TARGETS[item] === p); }
+
+function updateRowVisuals(el, k){
+  const cfg = el.dataset;
+  const isActive = cfg.enabled === "1";
+  const isMove = cfg.mode === "move";
+  const isLarge = cfg.large === "1";
+  const isRecovery = cfg.recovery === "1";
+  const checkBtn = el.querySelector(".check-btn");
+  const movePill = el.querySelector(".mode-pill[data-mode='move']");
+  const maskPill = el.querySelector(".mode-pill[data-mode='rename']");
+
+  el.classList.remove("targeted", "warn-item", "danger-item");
+  if(isActive && !isLarge && !isRecovery) el.classList.add("targeted");
+  if(isLarge) el.classList.add("warn-item");
+  if(isRecovery) el.classList.add("danger-item");
+
+  if(isLarge || isRecovery){
+    checkBtn.classList.add("disabled");
+    checkBtn.classList.remove("active");
+  } else {
+    checkBtn.classList.remove("disabled");
+    if(isActive) checkBtn.classList.add("active");
+    else checkBtn.classList.remove("active");
+  }
+
+  if(isMove && !isLarge && !isRecovery){
+    movePill.classList.add("active");
+    movePill.classList.remove("warn-active","danger-active","disabled");
+    maskPill.classList.remove("active","warn-active","danger-active");
+  } else if(isLarge){
+    movePill.classList.add("warn-active","disabled");
+    movePill.classList.remove("active","danger-active");
+    maskPill.classList.add("active");
+    maskPill.classList.remove("warn-active","danger-active","disabled");
+  } else if(isRecovery){
+    movePill.classList.add("danger-active","disabled");
+    movePill.classList.remove("active","warn-active");
+    maskPill.classList.add("danger-active","disabled");
+    maskPill.classList.remove("active","warn-active");
+  } else {
+    movePill.classList.remove("active","warn-active","danger-active","disabled");
+    maskPill.classList.add("active");
+    maskPill.classList.remove("warn-active","danger-active","disabled");
+  }
+}
+
+function selectAll(){
+  document.querySelectorAll('.check-btn:not(.disabled)').forEach(btn => {
+    if(!btn.classList.contains('active')) btn.click();
+  });
+  popup("All detected items selected");
+}
+
+function deselectAll(){
+  document.querySelectorAll('.check-btn.active').forEach(btn => btn.click());
+  popup("All items deselected");
+}
+
+function selectAllMove(){
+  let count = 0;
+  document.querySelectorAll('.item').forEach(el => {
+    const k = el.dataset.key;
+    const isLarge = el.dataset.large === "1";
+    const isRecovery = el.dataset.recovery === "1";
+    if(isLarge || isRecovery) return;
+    el.dataset.mode = "move";
+    updateRowVisuals(el, k);
+    saveConf(k, el.dataset.enabled === "1", "move");
+    count++;
+  });
+  popup(count > 0 ? "All items set to Move to Vault" : "No items available for Move");
+}
+
+function selectAllRename(){
+  let count = 0;
+  document.querySelectorAll('.item').forEach(el => {
+    const k = el.dataset.key;
+    const isRecovery = el.dataset.recovery === "1";
+    if(isRecovery) return;
+    el.dataset.mode = "rename";
+    updateRowVisuals(el, k);
+    saveConf(k, el.dataset.enabled === "1", "rename");
+    count++;
+  });
+  popup(count > 0 ? "All items set to Rename / Mask" : "No items available for Rename");
+}
+
 async function render(){
   list.innerHTML="";
+  detectedItems = [];
+  let hasItems = false;
+  let idx = 0;
+
   for(const k in TARGETS){
     const p=TARGETS[k];
     if(!await exists(p)) continue;
+    hasItems = true;
+    detectedItems.push(k);
 
     const size=await getSizeSafe(p);
+    sizeCache[k] = size;
     const large=sizeToMB(size)>SIZE_LIMIT_MB;
     const recovery=p==="/vendor/bin/install-recovery.sh"||p==="/system/addon.d";
-    const cfg=await loadConf(k);
+    let cfg=await loadConf(k);
+
+    if(cfg.e === false && !large && !recovery){
+      cfg.e = true;
+      await saveConf(k, true, cfg.m);
+    }
 
     const el=document.createElement("div");
     el.className="item";
+    el.dataset.key = k;
+    el.dataset.enabled = cfg.e ? "1" : "0";
+    el.dataset.mode = cfg.m;
+    el.dataset.large = large ? "1" : "0";
+    el.dataset.recovery = recovery ? "1" : "0";
+    el.style.animationDelay = (idx * 0.04) + "s";
+    idx++;
+
+    const moveLabel = large ? "Too Big" : (recovery ? "Blocked" : "Move to Vault");
+    const maskLabel = recovery ? "Blocked" : "Rename / Mask";
+
     el.innerHTML=`
-      <div class="row" style="align-items:center;justify-content:space-between">
-        <div class="path"><span class="material-icons">folder</span>${p}</div>
-        <div style="display:flex;gap:8px;align-items:center">
-          ${CUSTOM[k] ? `<span class="material-icons trash" title="Remove">delete</span>` : ""}
-          <div class="toggle ${cfg.e?"active":""}"></div>
+      <div class="item-header">
+        <div class="item-path-wrap">
+          <span class="material-icons">folder</span>
+          <div style="min-width:0;flex:1">
+            <div class="item-path">${p}</div>
+            <div class="item-meta">
+              <span>Size: ${size}</span>
+              ${large?`<span class="meta-badge warn"><span class="material-icons" style="font-size:11px">block</span>Too big to move</span>`:""}
+              ${recovery?`<span class="meta-badge danger"><span class="material-icons" style="font-size:11px">build</span>Remove it from recovery</span>`:""}
+            </div>
+          </div>
         </div>
-      </div>
-
-      <div class="meta">
-        <span>Size: ${size}</span>
-        ${large?`
-          <span class="badge warn">
-            <span class="material-icons" style="font-size:14px">block</span>
-            Too big to spoof
-          </span>`:""}
-        ${recovery?`
-          <span class="badge danger">
-            <span class="material-icons" style="font-size:14px">build</span>
-            Remove manually from recovery
-          </span>`:""}
-      </div>
-
-      <div class="mode">
-        <button data-m="move"
-          ${large||recovery?"disabled":""}
-          class="${cfg.m==="move"&&!large&&!recovery?"active":""}">
-          <span class="material-icons">visibility_off</span> Spoof
+        <button class="check-btn ${cfg.e&&!large&&!recovery?"active":""} ${large||recovery?"disabled":""}" data-key="${k}">
+          <span class="material-icons">check</span>
         </button>
-        <button data-m="rename"
-          class="${cfg.m==="rename"||large||recovery?"active":""}"
-          ${recovery?"disabled":""}>
-          <span class="material-icons">deblur</span> Mask
-        </button>
+      </div>
+      <div class="item-actions-row">
+        <div class="mode-group">
+          <button class="mode-pill ${cfg.m==="move"&&!large&&!recovery?"active":""} ${large?"warn-active disabled":""} ${recovery?"danger-active disabled":""}" data-key="${k}" data-mode="move" title="${moveLabel}">
+            <span class="material-icons">visibility_off</span>
+            <span>${moveLabel}</span>
+          </button>
+          <button class="mode-pill ${cfg.m==="rename"||large||recovery?"active":""} ${recovery?"danger-active disabled":""}" data-key="${k}" data-mode="rename" title="${maskLabel}">
+            <span class="material-icons">deblur</span>
+            <span>${maskLabel}</span>
+          </button>
+        </div>
       </div>
     `;
 
-    const t=el.querySelector(".toggle");
-    const btns=[...el.querySelectorAll(".mode button")];
+    const checkBtn = el.querySelector(".check-btn");
+    const movePill = el.querySelector(".mode-pill[data-mode='move']");
+    const maskPill = el.querySelector(".mode-pill[data-mode='rename']");
 
-    t.onclick=()=>{
-      t.classList.toggle("active");
-      saveConf(k,t.classList.contains("active"),
-        btns.find(b=>b.classList.contains("active"))?.dataset.m||"rename");
+    checkBtn.onclick = () => {
+      if(checkBtn.classList.contains("disabled")){ popup("Cannot select this item", true); return; }
+      const isActive = checkBtn.classList.contains("active");
+      const newEnabled = !isActive;
+      const currentMode = el.dataset.mode;
+      el.dataset.enabled = newEnabled ? "1" : "0";
+      updateRowVisuals(el, k);
+      saveConf(k, newEnabled, currentMode);
+      updateCounts(false);
     };
 
-    btns.forEach(b=>{
-      if(b.disabled) return;
-      b.onclick=()=>{
-        btns.forEach(x=>x.classList.remove("active"));
-        b.classList.add("active");
-        saveConf(k,t.classList.contains("active"),b.dataset.m);
-      };
-    });
+    movePill.onclick = () => {
+      if(movePill.classList.contains("disabled")){ popup(movePill.textContent.trim(), true); return; }
+      const currentEnabled = el.dataset.enabled === "1";
+      el.dataset.mode = "move";
+      updateRowVisuals(el, k);
+      saveConf(k, currentEnabled, "move");
+    };
 
-    // Trash icon for custom paths
-    const trash = el.querySelector(".trash");
-    if(trash){
-      trash.onclick = async () => {
-        delete CUSTOM[k];
-        TARGETS = {...PREDEFINED,...CUSTOM};
-        await saveCustomPaths();
-        render();
-      };
-    }
+    maskPill.onclick = () => {
+      if(maskPill.classList.contains("disabled")){ popup(maskPill.textContent.trim(), true); return; }
+      const currentEnabled = el.dataset.enabled === "1";
+      el.dataset.mode = "rename";
+      updateRowVisuals(el, k);
+      saveConf(k, currentEnabled, "rename");
+    };
 
     list.appendChild(el);
+    updateRowVisuals(el, k);
   }
+
+  const empty = document.getElementById("emptyState");
+  if(!hasItems){
+    empty.classList.add("show");
+  } else {
+    empty.classList.remove("show");
+  }
+
+  updateCounts(true);
 }
 
-// Run Cleaner
 async function runCleaner(){
   const keys = Object.keys(TARGETS);
   let done = 0;
+  const bar = document.getElementById("progressFill");
   await sh(`mkdir -p ${BASE}/.unhide ${VAULT}; echo "[$(date)] RUN" >> ${LOG}`);
   for (const k of keys){
     const p = TARGETS[k];
@@ -404,21 +1376,28 @@ async function runCleaner(){
     bar.style.width = Math.round(done / keys.length * 100) + "%";
   }
   render();
-  popup("Cleaner completed","success");
+  popup("Hide completed");
 }
 
-// Unhide
 async function unhide(){
   await sh(`[ -f ${BASE}/last_action.sh ] && sh ${BASE}/last_action.sh`);
   await sh(`echo "[$(date)] UNHIDE" >> "${LOG}"`);
-  bar.style.width="0%";
+  document.getElementById("progressFill").style.width="0%";
   render();
-  popup("Unhide completed!","info");
+  popup("Unhide completed!");
 }
 
-// Load Custom Paths & Render
+function openInfo(){ document.getElementById("infoModal").classList.add("show"); }
+function closeInfo(){ document.getElementById("infoModal").classList.remove("show"); }
+
+document.addEventListener("keydown", function(e){
+  if(e.key === "Escape"){
+    closeInfo();
+  }
+});
+
 (async()=>{
-  await loadCustomPaths();
+  document.getElementById("skeleton").style.display = "none";
   render();
 })();
 </script>
