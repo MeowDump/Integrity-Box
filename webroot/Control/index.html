@@ -592,14 +592,14 @@ h1 .material-icons{
       <span class="slider"><span class="knob"></span></span>
     </label>
   </div>
-  <div class="row" id="lite" onclick="toggleLite()">
-    <div class="icon-wrap"><span class="material-icons">bolt</span></div>
+  <div class="row" id="safemode" onclick="toggleSafeMode()">
+    <div class="icon-wrap"><span class="material-icons">health_and_safety</span></div>
     <div class="content">
-      <div class="title">Lite Mode</div>
+      <div class="title">Safe Mode</div>
     </div>
     <div class="status-dot"></div>
     <label class="switch" onclick="event.stopPropagation()">
-      <input id="liteInput" type="checkbox">
+      <input id="safemodeInput" type="checkbox">
       <span class="slider"><span class="knob"></span></span>
     </label>
   </div>
@@ -634,6 +634,13 @@ h1 .material-icons{
     <div class="icon-wrap"><span class="material-icons">update</span></div>
     <div class="content">
       <div class="title">Sync with Canary</div>
+    </div>
+    <span class="material-icons" style="color:var(--text2);font-size:22px;">chevron_right</span>
+  </div>
+  <div class="row" id="extractBoot" onclick="extractBoot()">
+    <div class="icon-wrap"><span class="material-icons">developer_board</span></div>
+    <div class="content">
+      <div class="title">Extract Boot.img</div>
     </div>
     <span class="material-icons" style="color:var(--text2);font-size:22px;">chevron_right</span>
   </div>
@@ -723,10 +730,10 @@ h1 .material-icons{
           </div>
         </div>
         <div class="help-item">
-          <div class="icon-wrap"><span class="material-icons">bolt</span></div>
+          <div class="icon-wrap"><span class="material-icons">health_and_safety</span></div>
           <div class="help-content">
-            <div class="help-title">Lite Mode</div>
-            <div class="help-desc">Battery-saving mode. Reduces background processing of spoofing intensity. Best for daily drivers who want minimal overhead.</div>
+            <div class="help-title">Safe Mode</div>
+            <div class="help-desc">This prevents custom-ROM-specific features from being used on stock firmware, where they may cause compatibility issues or unexpected behavior. YOU SHOULD NOT disable this if you're using STOCK ROM</div>
           </div>
         </div>
       </div>
@@ -752,6 +759,13 @@ h1 .material-icons{
           <div class="help-content">
             <div class="help-title">Sync with Canary</div>
             <div class="help-desc">Enables seamless, independent updates for language packs and hotfix patches without requiring a module upgrade or device reboot.</div>
+          </div>
+        </div>
+        <div class="help-item">
+          <div class="icon-wrap"><span class="material-icons">developer_board</span></div>
+          <div class="help-content">
+            <div class="help-title">Extract Boot.img</div>
+            <div class="help-desc">Extracts the active boot image from your device for backup or manual patching purposes. Output is saved to /sdcard/BootImages.</div>
           </div>
         </div>
       </div>
@@ -787,14 +801,14 @@ h1 .material-icons{
           <div class="icon-wrap"><span class="material-icons">vpn_key</span></div>
           <div class="help-content">
             <div class="help-title">Export Keybox.xml</div>
-            <div class="help-desc">Generates a valid keybox.xml file in your device’s internal storage (/sdcard) whenever you trigger the Integrity Box action. The generated file can then be manually imported into your custom ROM’s spoofing settings. Recommended for users running Integrity Box in ZYGISKLESS Mode. (ROM's inbuilt spoofing).</div>
+            <div class="help-desc">Generates a valid keybox.xml file in your device's internal storage (/sdcard) whenever you trigger the Integrity Box action. The generated file can then be manually imported into your custom ROM's spoofing settings. Recommended for users running Integrity Box in ZYGISKLESS Mode. (ROM's inbuilt spoofing).</div>
           </div>
         </div>
         <div class="help-item">
           <div class="icon-wrap"><span class="material-icons">code</span></div>
           <div class="help-content">
             <div class="help-title">Export PIF.json</div>
-            <div class="help-desc">Generates a valid meow.json file in your device’s internal storage (/sdcard) whenever you trigger the Integrity Box action. The generated file can then be manually imported into your custom ROM’s spoofing settings. Recommended for users running Integrity Box in ZYGISKLESS Mode. (ROM's inbuilt spoofing).</div>
+            <div class="help-desc">Generates a valid meow.json file in your device's internal storage (/sdcard) whenever you trigger the Integrity Box action. The generated file can then be manually imported into your custom ROM's spoofing settings. Recommended for users running Integrity Box in ZYGISKLESS Mode. (ROM's inbuilt spoofing).</div>
           </div>
         </div>
       </div>
@@ -810,6 +824,8 @@ const STABLE_URL="https://raw.githubusercontent.com/MeowDump/Integrity-Box/refs/
 const BETA_URL="https://raw.githubusercontent.com/MeowDump/Integrity-Box/refs/heads/main/beta-release/ota.json";
 const ZYGISK_DIR="/data/adb/zygisksu";
 const STYLE_SCRIPT="/data/adb/modules/playintegrityfix/webroot/common_scripts/UI/style.sh";
+const EXTRACT_BOOT_SCRIPT="/data/adb/modules/playintegrityfix/webroot/common_scripts/extract_boot.sh";
+const UPDATE_TRANS_SCRIPT="/data/adb/modules/playintegrityfix/webroot/UpdateTranslation.sh";
 
 function popup(msg, type) {
   if(!type) type="info";
@@ -893,17 +909,12 @@ function toggleProp(key){
   });
 }
 
-function toggleLite(){
-  var el=document.getElementById("lite");
+function toggleSafeMode(){
+  var el=document.getElementById("safemode");
   var on=!el.classList.contains("on");
-
-  write("spoofApps", on ? "0" : "1", function() {
-    touch(DIR+"/autopilot", on);
-
-    setOn("lite", on);
-
-    popup(on ? "Lite Mode on" : "Lite Mode off", "success");
-  });
+  touch(DIR+"/safemode",on);
+  setOn("safemode",on);
+  popup(on?"Safe Mode enabled":"Safe Mode disabled","success");
 }
 
 function toggleZygiskNext(){
@@ -936,10 +947,26 @@ function toggleZygiskNext(){
   }
 }
 
-function updateCanary(){
-  run("sh /data/adb/modules/playintegrityfix/webroot/UpdateTranslation.sh", function(r){
-    popup("Canary updated","success");
+function runScriptChecked(path, successMsg, failMsg){
+  run("if [ -f '"+path+"' ]; then sh '"+path+"'; echo '___EXIT___:'$?; else echo '___EXIT___:404'; fi", function(r){
+    var m = r.match(/___EXIT___:(\d+)\s*$/);
+    var code = m ? parseInt(m[1]) : -1;
+    if(code === 404){
+      popup("Script not found","error");
+    }else if(code !== 0){
+      popup((failMsg || "Script failed") + " (exit "+code+")","error");
+    }else{
+      popup(successMsg,"success");
+    }
   });
+}
+
+function updateCanary(){
+  runScriptChecked(UPDATE_TRANS_SCRIPT, "Canary updated", "No update available at the moment");
+}
+
+function extractBoot(){
+  runScriptChecked(EXTRACT_BOOT_SCRIPT, "Boot.img extracted", "Boot extraction failed");
 }
 
 function setMode(v){
@@ -1046,13 +1073,12 @@ function init(){
     "MOD_PROP='"+MOD_PROP+"'; " +
     "ZYGISK_DIR='"+ZYGISK_DIR+"'; " +
     "check(){ [ -f \"$1\" ] && echo 1 || echo 0; }; " +
-    "printf '{\"zygisk\":\"%s\",\"keybox\":\"%s\",\"json\":\"%s\",\"verbose\":\"%s\",\"spoofApps\":\"%s\",\"autopilot\":\"%s\",\"updateUrl\":\"%s\",\"modern\":\"%s\",\"top3\":\"%s\",\"top6\":\"%s\",\"top9\":\"%s\",\"zn_mem\":\"%s\",\"zn_link\":\"%s\",\"zn_klog\":\"%s\",\"zn_deny\":\"%s\"}\\n' " +
+    "printf '{\"zygisk\":\"%s\",\"keybox\":\"%s\",\"json\":\"%s\",\"verbose\":\"%s\",\"safemode\":\"%s\",\"updateUrl\":\"%s\",\"modern\":\"%s\",\"top3\":\"%s\",\"top6\":\"%s\",\"top9\":\"%s\",\"zn_mem\":\"%s\",\"zn_link\":\"%s\",\"zn_klog\":\"%s\",\"zn_deny\":\"%s\"}\\n' " +
     "\"$(check $DIR/zygisk)\" " +
     "\"$(check $DIR/keybox)\" " +
     "\"$(check $DIR/json)\" " +
     "\"$(grep -m1 '^verboseLogs=' $PROP | cut -d= -f2- | tr -d '\\n' || echo '')\" " +
-    "\"$(grep -m1 '^spoofApps=' $PROP | cut -d= -f2- | tr -d '\\n' || echo '')\" " +
-    "\"$(check $DIR/autopilot)\" " +
+    "\"$(check $DIR/safemode)\" " +
     "\"$(grep -m1 '^updateJson=' $MOD_PROP | cut -d= -f2- | tr -d '\\n' || echo '')\" " +
     "\"$(check $DIR/modern)\" " +
     "\"$(check $DIR/top_3)\" " +
@@ -1071,10 +1097,7 @@ function init(){
     setOn("keybox", d.keybox === "1");
     setOn("json", d.json === "1");
     setOn("verbose", d.verbose === "1");
-
-    var spoofDisabled = d.spoofApps === "0";
-    var autopilotEnabled = d.autopilot === "1";
-    setOn("lite", spoofDisabled && autopilotEnabled);
+    setOn("safemode", d.safemode === "1");
 
     updateBetaUI(d.updateUrl === BETA_URL);
     updateUiModeUI(d.modern === "1");
