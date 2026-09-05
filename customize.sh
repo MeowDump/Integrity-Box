@@ -2,22 +2,20 @@
 
 # Module and log directory paths
 MODDIR="${0%/*}"
-LOG_DIR="/data/adb/Box-Brain/Integrity-Box-Logs"
+FLAG="/data/adb/Box-Brain"
+LOG_DIR="$FLAG/Integrity-Box-Logs"
 INSTALL_LOG="$LOG_DIR/Installation.log"
+LOG_FILE="$LOG_DIR/DeviceType.log"
 SCRIPT="$MODPATH/webroot/common_scripts"
 MEOW="/data/adb/modules/playintegrityfix"
 SDK=$(getprop ro.system.build.version.sdk)
-FLAG="/data/adb/Box-Brain"
 TRICKY="/data/adb/tricky_store"
-TIMEOUT=15
+MODERN="$SCRIPT/UI"
+LEGACY="$MODPATH/webroot"
 
-# Create log directory if it doesn't exist
 mkdir -p "$LOG_DIR" || true
 mkdir -p "$MEOW"
 mkdir -p "$TRICKY"
-
-# Support Hot Installation
-#export MODULE_HOT_INSTALL_REQUEST="true"
 
 # Logger
 debug() {
@@ -46,75 +44,179 @@ check_integrity() {
     fi
 }
 
-rom_type() {
-    # use getprop grep
-    if getprop | grep -iq "lineage"; then
-        return 0
-    fi
-    
-    # read system build.prop
-    if [ -f /system/build.prop ] && grep -iq "lineage" /system/build.prop; then
-        return 0
-    fi
-    
-    # read vendor build.prop
-    if [ -f /vendor/build.prop ] && grep -iq "lineage" /vendor/build.prop; then
-        return 0
-    fi
-    
-    return 1
-}
-
 # Setup environment and permissions
 setup_environment() {
     debug " ✦ Setting up Environment "
+    debug " "
     chmod +x "$SCRIPT/key.sh"
     sh "$SCRIPT/key.sh"
-}
-
-hizru() {
-    FLAG="/data/adb/Box-Brain"
-    FLAG_FILE="$FLAG/skip"
-    LOG_DIR="/data/adb/Box-Brain/Integrity-Box-Logs"
-    LOG_FILE="$LOG_DIR/skip.log"
-
-    mkdir -p "$FLAG" "$LOG_DIR"
-
-    PKGS="com.samsung.android.app.updatecenter com.samsung.android.biometrics.app.setting com.samsung.android.game.gos com.sec.android.soagent com.xiaomi.account com.wssyncmldm com.oplus.ota com.xiaomi.misettings com.oplus.romupdate"
-    FOUND=0
-    TS="$(date '+%Y-%m-%d %H:%M:%S')"
-
-    for pkg in $PKGS; do
-        if pm list packages -s 2>/dev/null | grep -q "^package:$pkg$"; then
-            FOUND=1
-            echo "$TS | PM_DETECTED | $pkg" >> "$LOG_FILE"
-        elif find /system /product /system_ext /apex -type d -name "*$pkg*" 2>/dev/null | grep -q .; then
-            FOUND=1
-            echo "$TS | FS_DETECTED | $pkg" >> "$LOG_FILE"
-        else
-            echo "$TS | NOT_FOUND | $pkg" >> "$LOG_FILE"
-        fi
-    done
-
-    if [ "$FOUND" -eq 1 ]; then
-        touch "$FLAG_FILE"
-        echo "$TS | ACTION | skip flag created" >> "$LOG_FILE"
-        return 0
-    fi
-
-    echo "$TS | ACTION | no skip required" >> "$LOG_FILE"
-    return 1
+    debug " "
 }
 
 detect_rom() {
-    if rom_type; then
-        debug " ✦ ROM type: Custom ROM"
-    else
-        debug " ✦ ROM type: Stock / Spoofed"
-        if [ ! -f "$MEOW/service.sh" ]; then
-            touch "$FLAG/safemode"
+    local TS RESULT=0
+    TS="$(date '+%Y-%m-%d %H:%M:%S')"
+
+    > "$LOG_FILE" 2>/dev/null
+    echo "ROM Detection Started - $TS" >> "$LOG_FILE" 2>/dev/null
+
+    local props="
+        ro.build.flavor
+        ro.lineage.version
+        ro.mod.version
+        ro.custom.device
+        sys.eliteprops.keybox
+        sys.eliteprops.photos
+        sys.eliteprops.pixelprops
+        ro.lineage.build.version.plat.sdk
+        ro.infinity.version
+        ro.axion.version
+        ro.crdroid.device
+    "
+    for prop in $props; do
+        local val
+        val=$(getprop "$prop" 2>/dev/null)
+        if [ -n "$val" ]; then
+            echo "$TS | Custom ROM detected via prop: $prop=$val" >> "$LOG_FILE" 2>/dev/null
+            echo "Result: Custom ROM" >> "$LOG_FILE" 2>/dev/null
+            echo "Detection Completed - $(date)" >> "$LOG_FILE" 2>/dev/null
+            debug " ✦ ROM type: Custom ROM"
+            #Disable built-in spoofing by default 
+            touch "$FLAG/disablegms"
+            touch "$FLAG/disablevending"
+            return 1
         fi
+    done
+
+    local pkgs="
+        org.lineageos.audiofx
+        com.nikgapps.overlay.gmscore
+        com.android.axion.sandbox
+        org.omnirom.omnijaws
+        org.omnirom.omnistyle
+        org.evolution.updater
+        com.caf.fmradio
+        org.lineageos.etar
+        com.bitgapps.playstore.overlay
+        co.aospa.sense.settings.overlay
+        org.lineageos.aperture
+        org.lineageos.aperture.frameworksbaseoverlay
+        android.aosp.overlay
+        lineageos.platform
+        com.libremobileos.freeform
+        org.calyxos.backup.contacts
+        net.pixelos.ota
+        org.clover.settings.overlay
+        com.bootleggers.shishufied.clockfont.LowerAtmosphere
+        com.goolag.pif
+        com.rising.updater
+        com.infinity.updater
+    "
+    for pkg in $pkgs; do
+        if pm path "$pkg" >/dev/null 2>&1; then
+            echo "$TS | Custom ROM detected via package: $pkg" >> "$LOG_FILE" 2>/dev/null
+            echo "Result: Custom ROM" >> "$LOG_FILE" 2>/dev/null
+            echo "Detection Completed - $(date)" >> "$LOG_FILE" 2>/dev/null
+            debug " ✦ ROM type: Custom ROM"
+            #Disable built-in spoofing by default 
+            touch "$FLAG/disablegms"
+            touch "$FLAG/disablevending"
+            return 1
+        fi
+    done
+
+    if getprop | grep -iq "lineage" 2>/dev/null; then
+        echo "$TS | Custom ROM detected via getprop lineage" >> "$LOG_FILE" 2>/dev/null
+        echo "Result: Custom ROM" >> "$LOG_FILE" 2>/dev/null
+        echo "Detection Completed - $(date)" >> "$LOG_FILE" 2>/dev/null
+        debug " ✦ ROM type: Custom ROM"
+        #Disable built-in spoofing by default 
+        touch "$FLAG/disablegms"
+        touch "$FLAG/disablevending"
+        return 1
     fi
+
+    if [ -f /system/build.prop ] && grep -iq "lineage" /system/build.prop 2>/dev/null; then
+        echo "$TS | Custom ROM detected via /system/build.prop" >> "$LOG_FILE" 2>/dev/null
+        echo "Result: Custom ROM" >> "$LOG_FILE" 2>/dev/null
+        echo "Detection Completed - $(date)" >> "$LOG_FILE" 2>/dev/null
+        debug " ✦ ROM type: Custom ROM"
+        #Disable built-in spoofing by default 
+        touch "$FLAG/disablegms"
+        touch "$FLAG/disablevending"
+        return 1
+    fi
+
+    if [ -f /vendor/build.prop ] && grep -iq "lineage" /vendor/build.prop 2>/dev/null; then
+        echo "$TS | Custom ROM detected via /vendor/build.prop" >> "$LOG_FILE" 2>/dev/null
+        echo "Result: Custom ROM" >> "$LOG_FILE" 2>/dev/null
+        echo "Detection Completed - $(date)" >> "$LOG_FILE" 2>/dev/null
+        debug " ✦ ROM type: Custom ROM"
+        #Disable built-in spoofing by default 
+        touch "$FLAG/disablegms"
+        touch "$FLAG/disablevending"
+        return 1
+    fi
+
+    local sensitive_pkgs="
+        com.samsung.android.app.updatecenter
+        com.samsung.android.biometrics.app.setting
+        com.samsung.android.game.gos
+        com.sec.android.soagent
+        com.xiaomi.account
+        com.wssyncmldm
+        com.oplus.ota
+        com.xiaomi.misettings
+        com.oplus.romupdate
+    "
+    local FOUND_SENSITIVE=0
+    for pkg in $sensitive_pkgs; do
+        if pm list packages -s 2>/dev/null | grep -q "^package:$pkg$"; then
+            FOUND_SENSITIVE=1
+            echo "$TS | PM_DETECTED | $pkg" >> "$LOG_FILE" 2>/dev/null
+        elif find /system /product /system_ext /apex -type d -name "*$pkg*" 2>/dev/null | grep -q .; then
+            FOUND_SENSITIVE=1
+            echo "$TS | FS_DETECTED | $pkg" >> "$LOG_FILE" 2>/dev/null
+        else
+            echo "$TS | NOT_FOUND | $pkg" >> "$LOG_FILE" 2>/dev/null
+        fi
+    done
+
+    if [ "$FOUND_SENSITIVE" -eq 1 ]; then
+        touch "$FLAG/skip" 2>/dev/null
+        debug " ✦ ROM type: Stock ROM"
+        echo "$TS | ACTION | skip flag created (sensitive stock device)" >> "$LOG_FILE" 2>/dev/null
+    fi
+
+    touch "$FLAG/safemode" 2>/dev/null
+    echo "$TS | ACTION | safemode flag created" >> "$LOG_FILE" 2>/dev/null
+    echo "Result: Stock ROM" >> "$LOG_FILE" 2>/dev/null
+    echo "Detection Completed - $(date)" >> "$LOG_FILE" 2>/dev/null
+    debug " ✦ ROM type: Stock ROM"
+    return 0
+}
+
+check_arch() {
+    debug " ✦ Checking CPU ABI"
+    case "$(getprop ro.product.cpu.abi)" in
+        armeabi-v7a|arm64-v8a)
+            debug " ✦ Modern Hardware detected"
+            debug " ✦ using Shadow Hook method"
+            debug " "
+            ;;
+        *)
+            debug " ✦ Legacy Hardware detected"
+            debug " ✦ fallback to Dobby method"
+            debug " "
+            rm -rf "$MODPATH/zygisk" "$MODPATH/classes.dex"
+            mv "$MODPATH/legacy/zygisk" "$MODPATH/zygisk"
+            mv "$MODPATH/legacy/legacy.dex" "$MODPATH/classes.dex"
+
+            find "$MODPATH/zygisk" -type f -exec chown 0:0 {} \; -exec chmod 644 {} \;
+            chown 0:0 "$MODPATH/classes.dex"
+            chmod 644 "$MODPATH/classes.dex"
+            ;;
+    esac
 }
 
 set_integritybox_profile() {
@@ -139,22 +241,25 @@ prepare_directories() {
     [ ! -f "$MODPATH/module.prop" ] && return 1
 }
 
+	
 # Handle module prop file
 handle_module_props() {
     debug " ✦ Handling Module Properties "
+    debug " "
     touch "$MEOW/update"
     cp "$MODPATH/module.prop" "$MEOW/module.prop"
 }
 
 # Verify boot hash file
 check_boot_hash() {
-    debug " ✦ Creating Verified Boot Hash config     "
+    debug " ✦ Creating Verified Boot Hash config"
+    debug " "
     if [ ! -f "/data/adb/Box-Brain/hash.txt" ]; then
         touch "/data/adb/Box-Brain/hash.txt"
     fi
 }
 
-# Release the source
+# Redirect to release source on fresh installation
 release_source() {
     [ -f "/data/adb/Box-Brain/noredirect" ] && return 0
     nohup am start -a android.intent.action.VIEW -d "https://t.me/MeowRedirect" > /dev/null 2>&1 &
@@ -194,11 +299,11 @@ install_module() {
     handle_module_props
     set_integritybox_profile
     setup_environment
-    hizru
+    detect_rom
     cleanup
     check_boot_hash
     enable_recommended_settings
-    detect_rom
+    check_arch
     release_source
 }
 
@@ -212,7 +317,6 @@ echo "
  |___/\___/_\_\                       
                                                 
                                       
-  
 "
 
 # Set fingerprint on installation 
@@ -226,20 +330,44 @@ elif [ ! -f "$MEOW/service.sh" ]; then
     fi
 fi
 
-# remove old module id to avoid conflict
+# play stupid games, win stupid prizes 
+if [ -d /data/adb/modules/brene ] || [ -d /data/adb/modules_update/brene ]; then
+    rm -rf /data/adb/modules/brene /data/adb/modules_update/brene
+fi
+
+
 if [ -d /data/adb/modules/playintegrity ]; then
-    touch "/data/adb/modules/playintegrity/remove"
+    rm -rf "/data/adb/modules/playintegrity"
 fi
 
 # Write security patch file if missing 
 if [ ! -f $TRICKY/security_patch.txt ]; then
 cat <<EOF > $TRICKY/security_patch.txt
-all=2026-08-05
+all=2026-09-05
 EOF
 fi
 
 # Start the installation process
 install_module
+
+if [ -f "$FLAG/modern" ]; then
+    debug " ✦ Modern UI style detected"
+
+    if [ -f "$MODERN/index.html" ] && [ -f "$MODERN/style.css" ] && [ -f "$MODERN/script.js" ]; then
+        debug " ✦ Switching to Modern UI layout"
+        debug " "
+
+        [ -f "$LEGACY/index.html" ] && mv -f "$LEGACY/index.html" "$LEGACY/index.html.bak"
+        [ -f "$LEGACY/style.css" ] && mv -f "$LEGACY/style.css" "$LEGACY/style.css.bak"
+        [ -f "$LEGACY/script.js" ] && mv -f "$LEGACY/script.js" "$LEGACY/script.js.bak"
+
+        cp -f "$MODERN/index.html" "$LEGACY/index.html"
+        cp -f "$MODERN/style.css" "$LEGACY/style.css"
+        cp -f "$MODERN/script.js" "$LEGACY/script.js"
+    else
+        debug " ✦ Modern UI source files missing, keeping legacy layout"
+    fi
+fi
 
 # Create scripts 
 boot="/data/adb/service.d"
@@ -265,7 +393,6 @@ SERVICE_FILES="
 /data/adb/service.d/prop.sh
 /data/adb/service.d/hash.sh
 /data/adb/service.d/lineage.sh
-/data/adb/service.d/package.sh
 "
 
 # Check if the prop file exists and contains the required line
@@ -281,82 +408,6 @@ if [ ! -f "$PROP_FILE" ] || ! grep -Fq "$REQUIRED_LINE" "$PROP_FILE"; then
     # Delete this script itself
     rm -f "$0"
 fi
-EOF
-
-cat <<'EOF' > "$boot/package.sh"
-#!/system/bin/sh
-
-# Check if required module folders exist
-# These modules add system app package names to target.txt which ruins keybox & increases battery drain
-MODULE1="/data/adb/modules/.TA_utl"
-MODULE2="/data/adb/modules/tsupport-advance"
-MODULE3="/data/adb/modules/Yurikey"
-MODULE4="/data/adb/modules/tricky_store/webroot"
-MODULE5="/data/adb/modules/specter"
-
-# Paths
-IGNORE_FLAG="/data/adb/Box-Brain/ignore"
-TARGET_FILE="/data/adb/tricky_store/target.txt"
-SCRIPT="/data/adb/modules/playintegrityfix/webroot/common_scripts/target.sh"
-LOG_FILE="/data/adb/Box-Brain/Integrity-Box-Logs/target.log"
-
-if [ ! -d "$MODULE1" ] && [ ! -d "$MODULE2" ] && [ ! -d "$MODULE3" ] && [ ! -d "$MODULE4" ] && [ ! -d "$MODULE5" ]; then
-    exit 0
-fi
-
-# Check ignore flag
-if [ -f "$IGNORE_FLAG" ]; then
-    log "Ignore flag found, exiting"
-    exit 0
-fi
-
-# Create log directory if needed
-mkdir -p "$(dirname "$LOG_FILE")"
-
-# Log function
-log() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"
-}
-
-# Function to check and execute
-execute_if_needed() {
-    if [ -f "$TARGET_FILE" ]; then
-        line_count=$(wc -l < "$TARGET_FILE")
-        log "Target.txt has $line_count packages"
-        if [ "$line_count" -gt 150 ]; then
-            log "Line count exceeds 150, executing cleanup script"
-            if [ -f "$SCRIPT" ]; then
-                sh "$SCRIPT"
-                log "Script executed with exit code $?"
-            else
-                log "Script not found: $SCRIPT"
-            fi
-        fi
-    else
-        log "Target file not found: $TARGET_FILE"
-    fi
-}
-
-# Initial check
-log "••• Service started •••"
-
-# Exit if module is disabled 
-if [ -f "/data/adb/modules/playintegrityfix/disable" ]; then
-    log "Integrity Box is disabled, exiting..."
-    exit 0
-fi
-
-execute_if_needed
-
-# Monitor in background
-while true; do
-    sleep 30
-    if [ -f "$IGNORE_FLAG" ]; then
-        log "Ignore flag detected during monitoring, stopping"
-        exit 0
-    fi
-    execute_if_needed
-done
 EOF
 
 cat <<'EOF' > "$boot/lineage.sh"
@@ -378,9 +429,7 @@ note() {
 # Abort the script & delete flags wen safe mode is active 
 if [ -f "/data/adb/Box-Brain/safemode" ]; then
     note "$(date '+%Y-%m-%d %H:%M:%S') : Safemode active, script aborted." >> "/data/adb/Box-Brain/Integrity-Box-Logs/safemode.log"
-    rm -rf "/data/adb/Box-Brain/NoLineageProp"
-    rm -rf "/data/adb/Box-Brain/nodebug"
-    rm -rf "/data/adb/Box-Brain/tag"
+    safemode_flags
     exit 1
 fi
 
@@ -506,9 +555,16 @@ log() {
   echo "$(date '+%Y-%m-%d %H:%M:%S') | $1" >> "$LOG_FILE"
 }
 
-# Exit if module is disabled 
+# Exit if module is disabled or safe mode is enabled 
 if [ -f "/data/adb/modules/playintegrityfix/disable" ]; then
     log "Integrity Box is disabled, exiting..."
+    exit 0
+fi
+
+if [ -f "/data/adb/modules/playintegrityfix/disable" ]; then
+    log "Safe mode is enabled"
+    log "Skipping boot hash spoofing"
+    touch "/data/adb/Box-Brain/safemode"
     exit 0
 fi
 
@@ -579,7 +635,7 @@ cat <<'EOF' > "$boot/prop.sh"
 #!/system/bin/sh
 
 # CONFIG
-PATCH_DATE="2026-08-05"
+PATCH_DATE="2026-09-05"
 FILE_PATH="/data/adb/tricky_store/security_patch.txt"
 SKIP_FILE="/data/adb/Box-Brain/skip"
 LOG_DIR="/data/adb/Box-Brain/Integrity-Box-Logs"
@@ -600,6 +656,7 @@ abort() {
 if [ -f "/data/adb/Box-Brain/safemode" ]; then
     echo "$(date '+%Y-%m-%d %H:%M:%S') : Safemode active, script aborted." \
         >> "/data/adb/Box-Brain/Integrity-Box-Logs/safemode.log"
+    safemode_flags
     exit 1
 fi
 
@@ -663,7 +720,8 @@ exit 0
 EOF
 
 # A message for y'all 
-sed -i 's/^description=.*/description=> You`ve got 69 modules installed and zero goals achieved this month. I`m not angry, I`m just disappointed. And slightly angry./' "$MEOW/module.prop"
+sed -i 's/^description=.*/description=> Be kind!/' "$MEOW/module.prop"
+
 
 ##########################################
 # adapted from Play Integrity Fork by @osm0sis
@@ -684,7 +742,7 @@ if [ -e /sdcard/zygisk ] || [ -f /data/adb/Box-Brain/zygisk ]; then
         $MODPATH/autopif2.sh $MODPATH/classes.dex \
         $MODPATH/common_setup.sh $MODPATH/custom.app_replace_list.txt \
         $MODPATH/custom.pif.json \
-        $MODPATH/example.pif.prop \
+        $MODPATH/legacy \
         $MODPATH/pif.json $MODPATH/pif.prop $MODPATH/zygisk \
         $MEOW/custom.app_replace_list.txt \
         $MEOW/custom.pif.json \
@@ -719,4 +777,3 @@ rm -f /data/data/com.google.android.gms/cache/pif.prop /data/data/com.google.and
 
 display_footer
 exit 0
-
