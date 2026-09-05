@@ -7,1046 +7,1054 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
 :root{
-  --bg:#1f2233;
-  --fg:#e6e6e6;
-  --accent:#4da3ff;
-  --accent-glow:rgba(77,163,255,0.3);
-  --panel-bg:#232637cc;
-  --card-bg:#232637ee;
-  --border-radius:20px;
-  --shadow:rgba(0,0,0,0.4);
-  --transition:0.3s;
-  --success:#4dff88;
-  --danger:#ff4d4d;
-  --warning:#ffaa4d;
-  --text2:#9aa3ff;
+ --bg:#1f2233;
+ --fg:#e6e6e6;
+ --accent:#4da3ff;
+ --accent-glow:rgba(77,163,255,0.3);
+ --panel-bg:#232637cc;
+ --card-bg:#232637ee;
+ --border-radius:20px;
+ --shadow:rgba(0,0,0,0.4);
+ --transition:0.3s;
+ --success:#4dff88;
+ --danger:#ff4d4d;
+ --warning:#ffaa4d;
+ --text2:#9aa3ff;
 }
 *{box-sizing:border-box}
 body{
-  margin:0;min-height:100vh;
-  display:flex;align-items:center;justify-content:center;
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui;
-  background:radial-gradient(circle at 30% 20%,#1c2045 0%,#0e1020 100%);
-  color:var(--fg);
-  -webkit-font-smoothing:antialiased;
-  padding:20px;
+ margin:0;min-height:100vh;
+ display:flex;align-items:center;justify-content:center;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui;
+ background:radial-gradient(circle at 30% 20%,#1c2045 0%,#0e1020 100%);
+ color:var(--fg);
+ -webkit-font-smoothing:antialiased;
+ padding:20px;
 }
 .card{
-  width:380px;max-width:100%;
-  background:var(--panel-bg);
-  backdrop-filter:blur(20px);
-  border-radius:var(--border-radius);
-  padding:28px;
-  box-shadow:0 25px 60px var(--shadow),0 0 0 1px rgba(255,255,255,0.06);
-  position:relative;overflow:hidden;
-  animation:cardEntry 0.6s cubic-bezier(0.2,0.8,0.2,1);
+ width:380px;max-width:100%;
+ background:var(--panel-bg);
+ backdrop-filter:blur(20px);
+ border-radius:var(--border-radius);
+ padding:28px;
+ box-shadow:0 25px 60px var(--shadow),0 0 0 1px rgba(255,255,255,0.06);
+ position:relative;overflow:hidden;
+ animation:cardEntry 0.6s cubic-bezier(0.2,0.8,0.2,1);
 }
 @keyframes cardEntry{
-  from{opacity:0;transform:translateY(30px) scale(0.96)}
-  to{opacity:1;transform:translateY(0) scale(1)}
+ from{opacity:0;transform:translateY(30px) scale(0.96)}
+ to{opacity:1;transform:translateY(0) scale(1)}
 }
 .card::before{
-  content:"";
-  position:absolute;inset:0;
-  background:radial-gradient(circle at 50% 0%,var(--accent) 0%,transparent 70%);
-  filter:blur(40px);opacity:0.15;pointer-events:none;z-index:0;
-  animation:glowPulse 8s ease-in-out infinite;
+ content:"";
+ position:absolute;inset:0;
+ background:radial-gradient(circle at 50% 0%,var(--accent) 0%,transparent 70%);
+ filter:blur(40px);opacity:0.15;pointer-events:none;z-index:0;
+ animation:glowPulse 8s ease-in-out infinite;
 }
 @keyframes glowPulse{0%,100%{opacity:0.12}50%{opacity:0.25}}
 h1{
-  position:relative;z-index:2;
-  margin:0 0 24px 0;text-align:center;
-  font-size:22px;font-weight:700;
-  color:var(--fg);
-  display:flex;align-items:center;justify-content:center;gap:10px;
+ position:relative;z-index:2;
+ margin:0 0 24px 0;text-align:center;
+ font-size:22px;font-weight:700;
+ color:var(--fg);
+ display:flex;align-items:center;justify-content:center;gap:10px;
 }
 h1 .material-icons{
-  font-size:24px;
-  background:linear-gradient(135deg,var(--accent),#5AC8FA);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
+ font-size:24px;
+ background:linear-gradient(135deg,var(--accent),#5AC8FA);
+ -webkit-background-clip:text;
+ -webkit-text-fill-color:transparent;
 }
 .divider{
-  position:relative;z-index:2;
-  height:1px;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);
-  margin:20px 0;
+ position:relative;z-index:2;
+ height:1px;
+ background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);
+ margin:20px 0;
 }
 .section-label{
-  position:relative;z-index:2;
-  font-size:11px;
-  font-weight:600;
-  text-transform:uppercase;
-  letter-spacing:1.2px;
-  color:var(--text2);
-  margin-bottom:10px;
-  margin-top:4px;
-  padding-left:4px;
-  display:flex;
-  align-items:center;
-  gap:8px;
+ position:relative;z-index:2;
+ font-size:11px;
+ font-weight:600;
+ text-transform:uppercase;
+ letter-spacing:1.2px;
+ color:var(--text2);
+ margin-bottom:10px;
+ margin-top:4px;
+ padding-left:4px;
+ display:flex;
+ align-items:center;
+ gap:8px;
 }
 .section-label::before{
-  content:"";
-  width:3px;
-  height:14px;
-  border-radius:2px;
-  background:var(--accent);
-  display:inline-block;
+ content:"";
+ width:3px;
+ height:14px;
+ border-radius:2px;
+ background:var(--accent);
+ display:inline-block;
 }
 .row{
-  position:relative;z-index:2;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:14px;
-  padding:16px;
-  border-radius:16px;
-  background:rgba(255,255,255,0.03);
-  border:1px solid rgba(255,255,255,0.06);
-  margin-bottom:14px;
-  transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
-  cursor:pointer;
+ position:relative;z-index:2;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:14px;
+ padding:16px;
+ border-radius:16px;
+ background:rgba(255,255,255,0.03);
+ border:1px solid rgba(255,255,255,0.06);
+ margin-bottom:14px;
+ transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
+ cursor:pointer;
 }
 .row:hover{
-  background:rgba(255,255,255,0.06);
-  transform:translateY(-2px);
-  box-shadow:0 8px 24px rgba(0,0,0,0.3);
-  border-color:rgba(77,163,255,0.2);
+ background:rgba(255,255,255,0.06);
+ transform:translateY(-2px);
+ box-shadow:0 8px 24px rgba(0,0,0,0.3);
+ border-color:rgba(77,163,255,0.2);
 }
 .row:active{transform:scale(0.98)}
 .row.active{
-  background:rgba(77,163,255,0.1);
-  border-color:rgba(77,163,255,0.4);
-  box-shadow:0 0 20px rgba(77,163,255,0.15);
+ background:rgba(77,163,255,0.1);
+ border-color:rgba(77,163,255,0.4);
+ box-shadow:0 0 20px rgba(77,163,255,0.15);
 }
 .row.active .icon-wrap{
-  background:var(--accent);
-  box-shadow:0 4px 16px var(--accent-glow);
+ background:var(--accent);
+ box-shadow:0 4px 16px var(--accent-glow);
 }
 .row.active .icon-wrap .material-icons{color:white}
 .row.active .title{color:var(--accent)}
 .row.active .status-dot{
-  background:var(--success);
-  box-shadow:0 0 12px var(--success);
+ background:var(--success);
+ box-shadow:0 0 12px var(--success);
 }
 .row.active .badge{
-  background:rgba(77,255,136,0.15);
-  border-color:rgba(77,255,136,0.25);
-  color:var(--success);
+ background:rgba(77,255,136,0.15);
+ border-color:rgba(77,255,136,0.25);
+ color:var(--success);
 }
 .row.active .badge.warn{
-  background:rgba(255,170,77,0.15);
-  border-color:rgba(255,170,77,0.25);
-  color:var(--warning);
+ background:rgba(255,170,77,0.15);
+ border-color:rgba(255,170,77,0.25);
+ color:var(--warning);
 }
 .row.active .badge.danger{
-  background:rgba(255,77,77,0.15);
-  border-color:rgba(255,77,77,0.25);
-  color:var(--danger);
+ background:rgba(255,77,77,0.15);
+ border-color:rgba(255,77,77,0.25);
+ color:var(--danger);
 }
 .icon-wrap{
-  width:44px;height:44px;border-radius:12px;
-  background:rgba(255,255,255,0.08);
-  display:flex;align-items:center;justify-content:center;
-  transition:all 0.3s;flex-shrink:0;
-  position:relative;
+ width:44px;height:44px;border-radius:12px;
+ background:rgba(255,255,255,0.08);
+ display:flex;align-items:center;justify-content:center;
+ transition:all 0.3s;flex-shrink:0;
+ position:relative;
 }
 .icon-wrap .material-icons{
-  font-size:24px;color:var(--text2);
-  transition:all 0.3s;
+ font-size:24px;color:var(--text2);
+ transition:all 0.3s;
 }
 .content{flex:1;min-width:0;overflow:hidden}
 .title{
-  font-size:15px;font-weight:600;
-  color:var(--fg);
-  transition:color 0.3s;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+ font-size:15px;font-weight:600;
+ color:var(--fg);
+ transition:color 0.3s;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
 }
 .badge{
-  display:inline-flex;
-  align-items:center;
-  gap:4px;
-  font-size:10px;
-  font-weight:600;
-  padding:2px 8px;
-  border-radius:6px;
-  background:rgba(255,255,255,0.06);
-  border:1px solid rgba(255,255,255,0.08);
-  margin-top:4px;
-  transition:all 0.3s;
-  white-space:nowrap;
+ display:inline-flex;
+ align-items:center;
+ gap:4px;
+ font-size:10px;
+ font-weight:600;
+ padding:2px 8px;
+ border-radius:6px;
+ background:rgba(255,255,255,0.06);
+ border:1px solid rgba(255,255,255,0.08);
+ margin-top:4px;
+ transition:all 0.3s;
+ white-space:nowrap;
 }
 .badge .material-icons{font-size:10px}
 .badge.warn{color:var(--warning)}
 .badge.danger{color:var(--danger)}
 .status-dot{
-  width:8px;height:8px;border-radius:50%;
-  background:rgba(255,255,255,0.2);
-  transition:all 0.3s;flex-shrink:0;
+ width:8px;height:8px;border-radius:50%;
+ background:rgba(255,255,255,0.2);
+ transition:all 0.3s;flex-shrink:0;
 }
 .switch{
-  position:relative;width:54px;height:30px;flex-shrink:0;
-  pointer-events:none;
+ position:relative;width:54px;height:30px;flex-shrink:0;
+ pointer-events:none;
 }
 .switch input{position:absolute;opacity:0;width:0;height:0}
 .slider{
-  position:absolute;inset:0;border-radius:999px;
-  background:rgba(255,255,255,0.1);
-  transition:all var(--transition);
-  box-shadow:inset 0 2px 4px rgba(0,0,0,0.2);
+ position:absolute;inset:0;border-radius:999px;
+ background:rgba(255,255,255,0.1);
+ transition:all var(--transition);
+ box-shadow:inset 0 2px 4px rgba(0,0,0,0.2);
 }
 .knob{
-  position:absolute;left:3px;top:3px;
-  width:24px;height:24px;border-radius:50%;
-  background:linear-gradient(145deg,#fff,#e0e0e0);
-  transition:transform 0.25s cubic-bezier(0.2,0.8,0.2,1);
-  box-shadow:0 2px 8px rgba(0,0,0,0.3);
+ position:absolute;left:3px;top:3px;
+ width:24px;height:24px;border-radius:50%;
+ background:linear-gradient(145deg,#fff,#e0e0e0);
+ transition:transform 0.25s cubic-bezier(0.2,0.8,0.2,1);
+ box-shadow:0 2px 8px rgba(0,0,0,0.3);
 }
 .switch input:checked + .slider{
-  background:var(--accent);
-  box-shadow:0 0 20px var(--accent-glow);
+ background:var(--accent);
+ box-shadow:0 0 20px var(--accent-glow);
 }
 .switch input:checked + .slider .knob{transform:translateX(24px)}
 .switch input:disabled + .slider{
-  background:rgba(255,255,255,0.05);
-  opacity:0.5;
+ background:rgba(255,255,255,0.05);
+ opacity:0.5;
 }
 .row.spinning{pointer-events:none;opacity:0.6}
 .row.spinning .icon-wrap::after{
-  content:"";
-  position:absolute;
-  top:50%;left:50%;
-  width:18px;height:18px;
-  margin:-9px 0 0 -9px;
-  border:2px solid var(--accent);
-  border-top-color:transparent;
-  border-radius:50%;
-  animation:spin 0.7s linear infinite;
+ content:"";
+ position:absolute;
+ top:50%;left:50%;
+ width:18px;height:18px;
+ margin:-9px 0 0 -9px;
+ border:2px solid var(--accent);
+ border-top-color:transparent;
+ border-radius:50%;
+ animation:spin 0.7s linear infinite;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 .action-btn{
-  margin-top:20px;padding:16px;
-  background:rgba(77,163,255,0.1);
-  border:1px solid rgba(77,163,255,0.3);
-  border-radius:16px;
-  display:flex;align-items:center;justify-content:center;
-  gap:10px;cursor:pointer;
-  transition:all 0.25s;
-  position:relative;z-index:2;
+ margin-top:20px;padding:16px;
+ background:rgba(77,163,255,0.1);
+ border:1px solid rgba(77,163,255,0.3);
+ border-radius:16px;
+ display:flex;align-items:center;justify-content:center;
+ gap:10px;cursor:pointer;
+ transition:all 0.25s;
+ position:relative;z-index:2;
 }
 .action-btn:hover{
-  background:rgba(77,163,255,0.2);
-  transform:translateY(-2px);
-  box-shadow:0 8px 24px rgba(77,163,255,0.2);
+ background:rgba(77,163,255,0.2);
+ transform:translateY(-2px);
+ box-shadow:0 8px 24px rgba(77,163,255,0.2);
 }
 .action-btn:active{transform:scale(0.98)}
 .action-btn .material-icons{
-  font-size:20px;color:var(--accent);
-  animation:spin 4s linear infinite;
-  animation-play-state:paused;
+ font-size:20px;color:var(--accent);
+ animation:spin 4s linear infinite;
+ animation-play-state:paused;
 }
 .action-btn:hover .material-icons{animation-play-state:running}
 .footer{
-  margin-top:20px;text-align:center;
-  color:var(--text2);font-size:12px;opacity:0.7;
-  position:relative;z-index:2;
+ margin-top:20px;text-align:center;
+ color:var(--text2);font-size:12px;opacity:0.7;
+ position:relative;z-index:2;
 }
 .webui-popup{
-  position:fixed;
-  top:-70px;
-  left:50%;
-  transform:translateX(-50%);
-  padding:0.8rem 1.2rem;
-  border-radius:10px;
-  color:#fff;
-  font-weight:600;
-  font-size:13px;
-  z-index:99999;
-  box-shadow:0 6px 18px rgba(0,0,0,0.35);
-  transition:top 0.36s,opacity 0.36s;
-  opacity:0;
-  pointer-events:none;
-  white-space:nowrap;
-  backdrop-filter:blur(10px);
-  -webkit-backdrop-filter:blur(10px);
-  border:1px solid rgba(255,255,255,0.1);
+ position:fixed;
+ top:-70px;
+ left:50%;
+ transform:translateX(-50%);
+ padding:0.8rem 1.2rem;
+ border-radius:10px;
+ color:#fff;
+ font-weight:600;
+ font-size:13px;
+ z-index:99999;
+ box-shadow:0 6px 18px rgba(0,0,0,0.35);
+ transition:top 0.36s,opacity 0.36s;
+ opacity:0;
+ pointer-events:none;
+ white-space:nowrap;
+ backdrop-filter:blur(10px);
+ -webkit-backdrop-filter:blur(10px);
+ border:1px solid rgba(255,255,255,0.1);
 }
 .reboot-hint{
-  position:relative;z-index:2;
-  text-align:center;
-  font-size:11px;
-  color:var(--warning);
-  font-weight:600;
-  margin-top:12px;
-  opacity:0;
-  transform:translateY(-5px);
-  transition:all 0.3s ease;
+ position:relative;z-index:2;
+ text-align:center;
+ font-size:11px;
+ color:var(--warning);
+ font-weight:600;
+ margin-top:12px;
+ opacity:0;
+ transform:translateY(-5px);
+ transition:all 0.3s ease;
 }
 .reboot-hint.show{
-  opacity:1;
-  transform:translateY(0);
+ opacity:1;
+ transform:translateY(0);
 }
 .reboot-hint .material-icons{
-  font-size:12px;
-  vertical-align:middle;
-  margin-right:4px;
+ font-size:12px;
+ vertical-align:middle;
+ margin-right:4px;
 }
 .info-btn{
-  position:relative;z-index:2;
-  width:100%;
-  padding:10px;
-  border-radius:12px;
-  background:rgba(77,163,255,0.08);
-  border:1px solid rgba(77,163,255,0.15);
-  color:var(--accent);
-  font-family:inherit;
-  font-size:12px;
-  font-weight:600;
-  cursor:pointer;
-  margin-bottom:14px;
-  transition:all 0.25s ease;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
+ position:relative;z-index:2;
+ width:100%;
+ padding:10px;
+ border-radius:12px;
+ background:rgba(77,163,255,0.08);
+ border:1px solid rgba(77,163,255,0.15);
+ color:var(--accent);
+ font-family:inherit;
+ font-size:12px;
+ font-weight:600;
+ cursor:pointer;
+ margin-bottom:14px;
+ transition:all 0.25s ease;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ gap:6px;
 }
 .info-btn:hover{
-  background:rgba(77,163,255,0.15);
-  transform:translateY(-1px);
-  box-shadow:0 4px 16px rgba(77,163,255,0.15);
+ background:rgba(77,163,255,0.15);
+ transform:translateY(-1px);
+ box-shadow:0 4px 16px rgba(77,163,255,0.15);
 }
 .info-btn:active{transform:scale(0.98)}
 .info-btn .material-icons{font-size:16px}
+.safemode-notice{
+ position:relative;z-index:2;
+ background:rgba(255,170,77,0.1);
+ border:1px solid rgba(255,170,77,0.25);
+ border-radius:14px;
+ padding:14px 16px;
+ margin-bottom:14px;
+ font-size:12px;
+ color:var(--warning);
+ line-height:1.5;
+ display:none;
+ align-items:flex-start;
+ gap:10px;
+ animation:cardEntry 0.5s cubic-bezier(0.2,0.8,0.2,1);
+}
+.safemode-notice .material-icons{
+ font-size:20px;
+ color:var(--warning);
+ flex-shrink:0;
+ margin-top:1px;
+}
 .modal-overlay{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,0.7);
-  backdrop-filter:blur(10px);
-  -webkit-backdrop-filter:blur(10px);
-  display:none;
-  align-items:flex-end;
-  justify-content:center;
-  z-index:1000;
-  opacity:0;
-  transition:opacity 0.3s ease;
+ position:fixed;inset:0;
+ background:rgba(0,0,0,0.7);
+ backdrop-filter:blur(10px);
+ -webkit-backdrop-filter:blur(10px);
+ display:none;
+ align-items:flex-end;
+ justify-content:center;
+ z-index:1000;
+ opacity:0;
+ transition:opacity 0.3s ease;
 }
 .modal-overlay.show{
-  display:flex;opacity:1;
+ display:flex;opacity:1;
 }
 .modal-sheet{
-  width:100%;max-width:420px;
-  background:var(--panel-bg);
-  backdrop-filter:blur(30px);
-  border-radius:24px 24px 0 0;
-  padding:24px;
-  max-height:80vh;
-  overflow-y:auto;
-  transform:translateY(100%);
-  transition:transform 0.35s cubic-bezier(0.32,0.72,0,1);
-  box-shadow:0 -20px 60px rgba(0,0,0,0.5);
-  border:1px solid rgba(255,255,255,0.06);
-  border-bottom:none;
+ width:100%;max-width:420px;
+ background:var(--panel-bg);
+ backdrop-filter:blur(30px);
+ border-radius:24px 24px 0 0;
+ padding:24px;
+ max-height:80vh;
+ overflow-y:auto;
+ transform:translateY(100%);
+ transition:transform 0.35s cubic-bezier(0.32,0.72,0,1);
+ box-shadow:0 -20px 60px rgba(0,0,0,0.5);
+ border:1px solid rgba(255,255,255,0.06);
+ border-bottom:none;
 }
 .modal-overlay.show .modal-sheet{
-  transform:translateY(0);
+ transform:translateY(0);
 }
 .modal-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin-bottom:20px;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ margin-bottom:20px;
 }
 .modal-title{
-  font-size:18px;font-weight:700;
-  color:var(--fg);
-  display:flex;align-items:center;gap:8px;
+ font-size:18px;font-weight:700;
+ color:var(--fg);
+ display:flex;align-items:center;gap:8px;
 }
 .modal-title .material-icons{
-  font-size:22px;color:var(--accent);
+ font-size:22px;color:var(--accent);
 }
 .modal-close{
-  width:32px;height:32px;
-  border-radius:50%;
-  background:rgba(255,255,255,0.06);
-  border:1px solid rgba(255,255,255,0.1);
-  color:var(--text2);
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;
-  transition:all 0.2s;
+ width:32px;height:32px;
+ border-radius:50%;
+ background:rgba(255,255,255,0.06);
+ border:1px solid rgba(255,255,255,0.1);
+ color:var(--text2);
+ display:flex;align-items:center;justify-content:center;
+ cursor:pointer;
+ transition:all 0.2s;
 }
 .modal-close:hover{
-  background:rgba(255,255,255,0.1);
-  color:var(--fg);
+ background:rgba(255,255,255,0.1);
+ color:var(--fg);
 }
 .modal-close .material-icons{font-size:18px}
 .modal-divider{
-  height:1px;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);
-  margin:12px 0;
+ height:1px;
+ background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);
+ margin:12px 0;
 }
 .info-item{
-  padding:12px 0;
-  border-bottom:1px solid rgba(255,255,255,0.04);
+ padding:12px 0;
+ border-bottom:1px solid rgba(255,255,255,0.04);
 }
 .info-item:last-child{border-bottom:none}
 .info-item-title{
-  font-size:14px;font-weight:600;
-  color:var(--fg);margin-bottom:4px;
-  display:flex;align-items:center;gap:8px;
+ font-size:14px;font-weight:600;
+ color:var(--fg);margin-bottom:4px;
+ display:flex;align-items:center;gap:8px;
 }
 .info-item-title .material-icons{
-  font-size:18px;color:var(--accent);
+ font-size:18px;color:var(--accent);
 }
 .info-item-desc{
-  font-size:12px;color:var(--text2);
-  line-height:1.4;
-  padding-left:26px;
+ font-size:12px;color:var(--text2);
+ line-height:1.4;
+ padding-left:26px;
 }
 .info-item-flag{
-  font-size:10px;color:var(--text2);
-  opacity:0.6;
-  margin-top:4px;
-  padding-left:26px;
-  font-family:"SF Mono",monospace;
+ font-size:10px;color:var(--text2);
+ opacity:0.6;
+ margin-top:4px;
+ padding-left:26px;
+ font-family:"SF Mono",monospace;
 }
 .info-item-risk{
-  font-size:10px;
-  font-weight:600;
-  margin-top:4px;
-  padding-left:26px;
+ font-size:10px;
+ font-weight:600;
+ margin-top:4px;
+ padding-left:26px;
 }
 .info-section-title{
-  font-size:13px;
-  font-weight:700;
-  color:var(--accent);
-  text-transform:uppercase;
-  letter-spacing:0.08em;
-  margin:16px 0 8px 0;
-  padding-left:4px;
+ font-size:13px;
+ font-weight:700;
+ color:var(--accent);
+ text-transform:uppercase;
+ letter-spacing:0.08em;
+ margin:16px 0 8px 0;
+ padding-left:4px;
 }
 .info-section-title:first-child{
-  margin-top:0;
+ margin-top:0;
 }
 
-/* ─── iOS Settings-style grouped tables ─── */
+/* iOS Settings-style grouped tables */
 .row-group{
-  background:rgba(255,255,255,0.03);
-  border:1px solid rgba(255,255,255,0.06);
-  border-radius:16px;
-  overflow:hidden;
-  margin-bottom:24px;
+ background:rgba(255,255,255,0.03);
+ border:1px solid rgba(255,255,255,0.06);
+ border-radius:16px;
+ overflow:hidden;
+ margin-bottom:24px;
 }
 .row-group .row{
-  margin-bottom:0;
-  border-radius:0;
-  background:transparent;
-  border:none;
-  border-bottom:1px solid rgba(255,255,255,0.04);
-  box-shadow:none;
+ margin-bottom:0;
+ border-radius:0;
+ background:transparent;
+ border:none;
+ border-bottom:1px solid rgba(255,255,255,0.04);
+ box-shadow:none;
 }
 .row-group .row:last-child{border-bottom:none}
 .row-group .row:hover{
-  background:rgba(255,255,255,0.04);
-  transform:none;
-  box-shadow:none;
+ background:rgba(255,255,255,0.04);
+ transform:none;
+ box-shadow:none;
 }
 .row-group .row:active{transform:scale(0.995)}
 .row-group .row.active{
-  background:rgba(77,163,255,0.08);
-  border-color:transparent;
-  box-shadow:none;
+ background:rgba(77,163,255,0.08);
+ border-color:transparent;
+ box-shadow:none;
 }
 .row-group.action-group{border-left:3px solid rgba(255,170,77,0.35)}
 .row-group.general-group{border-left:3px solid rgba(77,255,136,0.25)}
 .row-group.kernel-group{border-left:3px solid rgba(255,77,77,0.35)}
 
 @media(max-width:420px){
-  .card{width:100%;padding:22px}
-  .row{padding:14px}
-  .icon-wrap{width:40px;height:40px}
+ .card{width:100%;padding:22px}
+ .row{padding:14px}
+ .icon-wrap{width:40px;height:40px}
 }
 </style>
 </head>
 <body>
 
 <div class="modal-overlay" id="infoModal" onclick="closeInfoModal(event)">
-  <div class="modal-sheet" onclick="event.stopPropagation()">
-    <div class="modal-header">
-      <div class="modal-title"><span class="material-icons">info</span>What do these do?</div>
-      <div class="modal-close" onclick="closeInfoModal()"><span class="material-icons">close</span></div>
-    </div>
-    <div id="infoContent"></div>
-  </div>
+ <div class="modal-sheet" onclick="event.stopPropagation()">
+   <div class="modal-header">
+     <div class="modal-title"><span class="material-icons">info</span>What do these do?</div>
+     <div class="modal-close" onclick="closeInfoModal()"><span class="material-icons">close</span></div>
+   </div>
+   <div id="infoContent"></div>
+ </div>
 </div>
 
 <div class="card">
-  <h1><span class="material-icons">settings</span>Control Centre</h1>
+ <h1><span class="material-icons">settings</span>Control Centre</h1>
 
-  <div class="row" id="row-action_exec" onclick="toggleExec()">
-    <div class="icon-wrap"><span class="material-icons">play_circle</span></div>
-    <div class="content">
-      <div class="title">Auto Run</div>
-    </div>
-    <div class="status-dot"></div>
-    <label class="switch" onclick="event.stopPropagation()">
-      <input type="checkbox" id="cb-action_exec">
-      <span class="slider"><span class="knob"></span></span>
-    </label>
-  </div>
+ <div class="row" id="row-action_exec" onclick="toggleExec()">
+   <div class="icon-wrap"><span class="material-icons">play_circle</span></div>
+   <div class="content">
+     <div class="title">Auto Run</div>
+   </div>
+   <div class="status-dot"></div>
+   <label class="switch" onclick="event.stopPropagation()">
+     <input type="checkbox" id="cb-action_exec">
+     <span class="slider"><span class="knob"></span></span>
+   </label>
+ </div>
 
-  <div class="divider"></div>
-  <div class="section-label">This will be done after reboot</div>
-  <button class="info-btn" onclick="openInfoModal()">
-    <span class="material-icons">help_outline</span>
-    What do these do?
-  </button>
-  <div id="flag-rows" class="row-group"></div>
+ <div class="divider"></div>
 
-  <div class="section-label">This will be done via action button</div>
-  <div id="action-rows" class="row-group action-group"></div>
+ <div class="safemode-notice" id="safemodeNotice">
+   <span class="material-icons">shield</span>
+   <span>Safe Mode is enabled to prevent custom-ROM-specific features from being used on stock ROM, where they may cause compatibility issues or unexpected behavior. If you’re using a custom ROM or understand the risks of enabling these features on stock firmware, you can disable Safe Mode from Advanced Mode.</span>
+ </div>
 
-  <div class="section-label">General</div>
-  <div id="general-rows" class="row-group general-group"></div>
+ <button class="info-btn" onclick="openInfoModal()">
+   <span class="material-icons">help_outline</span>
+   What do these do?
+ </button>
+  <div class="section-label">These settings requires reboot</div>
+ <div id="flag-rows" class="row-group"></div>
 
-  <div class="section-label">Kernel (Not recommended to enable)</div>
-  <div id="kernel-rows" class="row-group kernel-group"></div>
+ <div class="section-label">This will be done via action button</div>
+ <div id="action-rows" class="row-group action-group"></div>
 
-  <div class="reboot-hint" id="rebootHint">
-    <span class="material-icons">restart_alt</span>
-    Reboot required to apply changes
-  </div>
+ <div class="section-label">General</div>
+ <div id="general-rows" class="row-group general-group"></div>
 
-  <div class="action-btn" onclick="refreshAll()">
-    <span class="material-icons">refresh</span>
-    <span>Refresh States</span>
-  </div>
+ <div class="section-label">Kernel (Not recommended to enable)</div>
+ <div id="kernel-rows" class="row-group kernel-group"></div>
 
-  <div class="footer">IntegrityBox &bull; 2026</div>
+ <div class="reboot-hint" id="rebootHint">
+   <span class="material-icons">restart_alt</span>
+   Reboot required to apply changes
+ </div>
+
+ <div class="action-btn" onclick="refreshAll()">
+   <span class="material-icons">refresh</span>
+   <span>Refresh States</span>
+ </div>
+
+ <div class="footer">IntegrityBox &bull; 2026</div>
 </div>
 
 <script>
 var DIR="/data/adb/Box-Brain";
 var ACTION_SCRIPT="/data/adb/modules/playintegrityfix/action.sh";
 
-var BOOT_FLAGS=[
-  {id:"spoof-los-boot",icon:"android",title:"Hide Lineage",label:"custom ROM",desc:"Spoofs LineageOS-specific properties on boot so apps cannot detect you are running a LineageOS-based custom ROM.",risk:"low"},
-  {id:"nuke-los-boot",icon:"delete_forever",title:"Nuke Lineage",label:"custom ROM",desc:"Aggressively removes all LineageOS traces including props, services and build fingerprints on boot.",risk:"medium"},
-  {id:"spoof-custom-rom-boot",icon:"phone_android",title:"Hide Custom ROM",label:"custom ROM",desc:"Generic custom ROM hiding that spoofs build.props to appear as stock Android on boot.",risk:"low"},
-  {id:"nuke-sus-boot",icon:"cleaning_services",title:"Hide SUS Files",label:"root traces",desc:"Cleans suspicious files and directories that may reveal root access or module presence on boot.",risk:"medium"},
-];
-
 var REBOOT_FLAGS=[
-  {id:"NoLineageProp",icon:"check_circle",title:"Spoof Lineage Props",label:"reboot",desc:"Spoofs LineageOS build properties. Disable if camera or other hardware fails."},
-  {id:"nodebug",icon:"fingerprint",title:"Debug Fingerprint",label:"reboot",desc:"Hides custom ROM debug fingerprint traces from app detection."},
-  {id:"build",icon:"build",title:"Debug Build",label:"reboot",desc:"Spoofs build type from userdebug to user to appear as unmodified device."},
-  {id:"tag",icon:"sell",title:"Build Tag",label:"reboot",desc:"Spoofs build tags to release-keys instead of test-keys."},
-  {id:"encrypt",icon:"lock",title:"Spoof Encryption",label:"reboot",desc:"Fakes device encryption status to appear as encrypted"},
-  {id:"twrp",icon:"settings_backup_restore",title:"Hide Recovery",label:"reboot",desc:"Hides custom recovery presence by spoofing recovery path."},
-  {id:"skip",icon:"warning",title:"Skip System Patch",label:"reboot",desc:"Prevents spoofing of the security patch date. Use if banking apps detect patch mismatch. Disabling this can cause play integrity failure on old ROMs/Android versions"},
-  {id:"spoof-selinux-boot",icon:"security",title:"Spoof SELinux",label:"bootloop risk",desc:"Spoofs SELinux status to report as enforcing. WARNING: May cause bootloops on some devices. Use with caution.",risk:"high"},
-  {id:"hidehook",icon:"visibility_off",title:"Hide PIF Detection",label:"not recommended",desc:"Hides PIF-related hooks and detection traces on boot, it may automatically enable inbuilt ROM spoofing.",risk:"high"},
-  {id:"safemode",icon:"shield",title:"Safe Mode",label:"bootloop fix",desc:"Disables all extra spoofing features for maximum compatibility mode.",risk:"low"}
+ {id:"spoof-los-boot",icon:"android",title:"Hide Lineage",label:"custom ROM",desc:"Spoofs LineageOS-specific properties on boot so apps cannot detect you are running a LineageOS-based custom ROM.",risk:"low"},
+ {id:"nuke-los-boot",icon:"delete_forever",title:"Nuke Lineage",label:"custom ROM",desc:"Aggressively removes all LineageOS traces including props, services and build fingerprints on boot.",risk:"medium"},
+ {id:"spoof-custom-rom-boot",icon:"phone_android",title:"Hide Custom ROM",label:"custom ROM",desc:"Generic custom ROM hiding that spoofs build.props to appear as stock Android on boot.",risk:"low"},
+ {id:"NoLineageProp",icon:"check_circle",title:"Spoof Lineage Props",label:"reboot",desc:"Spoofs LineageOS build properties. Disable if camera or other hardware fails."},
+ {id:"nodebug",icon:"fingerprint",title:"Debug Fingerprint",label:"reboot",desc:"Hides custom ROM debug fingerprint traces from app detection."},
+ {id:"build",icon:"build",title:"Debug Build",label:"reboot",desc:"Spoofs build type from userdebug to user to appear as unmodified device."},
+ {id:"tag",icon:"sell",title:"Build Tag",label:"reboot",desc:"Spoofs build tags to release-keys instead of test-keys."},
+ {id:"encrypt",icon:"lock",title:"Spoof Encryption",label:"reboot",desc:"Fakes device encryption status to appear as encrypted"},
+ {id:"spoof-selinux-boot",icon:"security",title:"Spoof SELinux",label:"bootloop risk",desc:"Spoofs SELinux status to report as enforcing. WARNING: May cause bootloops on some devices. Use with caution.",risk:"high"},
+ {id:"hidehook",icon:"visibility_off",title:"Hide PIF Detection",label:"not recommended",desc:"Hides PIF-related hooks and detection traces on boot, it may automatically enable inbuilt ROM spoofing.",risk:"high"},
+ {id:"nuke-sus-boot",icon:"cleaning_services",title:"Hide SUS Files",label:"root traces",desc:"Cleans suspicious files and directories that may reveal root access or module presence on boot.",risk:"medium"},
+ {id:"twrp",icon:"settings_backup_restore",title:"Hide Recovery",label:"reboot",desc:"Hides custom recovery presence by spoofing recovery path."},
+ {id:"skip",icon:"warning",title:"Skip System Patch",label:"bootloop risk",desc:"Prevents spoofing of the security patch date. Use if banking apps detect patch mismatch. Disabling this can cause play integrity failure on old ROMs/Android versions"}
 ];
 
 var ACTION_FLAGS=[
-  {id:"lsposed",icon:"cleaning_services",title:"Clear LSposed",label:"action",desc:"Removes LSposed framework traces from the system."},
-  {id:"gapps",icon:"delete_sweep",title:"Clear Gapps Logs",label:"action",desc:"Wipes Google Apps log files to avoid custom ROM detection."},
-  {id:"root",icon:"delete_forever",title:"Clear Module Logs",label:"action",desc:"Wipes all module-related log files to clean detection traces."},
-  {id:"ota",icon:"update",title:"OTA Fix",label:"action",desc:"Fixes LineageOS OTA update errors caused by spoofed properties."}
+ {id:"lsposed",icon:"cleaning_services",title:"Clear LSposed",label:"action",desc:"Removes LSposed framework traces from the system."},
+ {id:"gapps",icon:"delete_sweep",title:"Clear Gapps Logs",label:"action",desc:"Wipes Google Apps log files to avoid custom ROM detection."},
+ {id:"root",icon:"delete_forever",title:"Clear Module Logs",label:"action",desc:"Wipes all module-related log files to clean detection traces."},
+ {id:"ota",icon:"update",title:"OTA Fix",label:"action",desc:"Fixes LineageOS OTA update errors caused by spoofed properties."}
 ];
 
 var GENERAL_FLAGS=[
-  {id:"keymint",icon:"timer",title:"Update OMK build",label:"reboot",desc:"Forces to appear as Pixel Device & use latest security patch if using Oh My Keymint module"},
-  {id:"teesim",icon:"key",title:"Skip TEEsim",label:"reboot",desc:"This will skip modifications in config.json"},
-  {id:"iframe_gesture_right",icon:"swipe",title:"Right Gestures",desc:"Enables right-hand-side back gesture swipe area in WebUI iframes."},
-  {id:"iframe_back_button",icon:"arrow_back",title:"Floating Back",desc:"Adds a floating back button overlay for easier iframe navigation."},
-  {id:"keyswitch",icon:"wifi",title:"DNS Poisoning:",desc:"This fixes keybox download errors in some regions"},
-  {id:"noredirect",icon:"block",title:"No Redirect",desc:"Disables automatic Telegram link redirects from the WebUI."}
+ {id:"keymint",icon:"timer",title:"Update OMK build",label:"reboot",desc:"Forces to appear as Pixel Device & use latest security patch if using Oh My Keymint module"},
+ {id:"teesim",icon:"key",title:"Skip TEEsim",label:"reboot",desc:"This will skip modifications in config.json"},
+ {id:"iframe_gesture_right",icon:"swipe",title:"Right Gestures",desc:"Enables right-hand-side back gesture swipe area in WebUI iframes."},
+ {id:"iframe_back_button",icon:"arrow_back",title:"Floating Back",desc:"Adds a floating back button overlay for easier iframe navigation."},
+ {id:"keyswitch",icon:"wifi",title:"DNS Poisoning:",desc:"This fixes keybox download errors in some regions"},
+ {id:"noredirect",icon:"block",title:"No Redirect",desc:"Disables automatic Telegram link redirects from the WebUI."}
 ];
 
 var KERNEL_FLAGS=[
-  {id:"buildtime",icon:"timer",title:"Spoof Build Time",label:"bootloop / soft brick risk",risk:"high",desc:"Fixed duck detector system & kernel build date mismatch detection"},
-  {id:"customkernel",icon:"adb",title:"Hide Custom Kernel",label:"bootloop / soft brick risk",risk:"high",desc:"Fixes custom kernel detection"},
-  {id:"emoji",icon:"block",title:"No Gore",label:"bootloop / soft brick risk",risk:"high",desc:"Hides emojis & special characters from kernel string"},
-  {id:"chinese",icon:"language",title:"Made in China",label:"bootloop / soft brick risk",risk:"high",desc:"Hides stuff written in chinese language to avoid detection."},
-  {id:"telegram",icon:"display_settings",title:"No Telegram",label:"bootloop / soft brick risk",risk:"high",desc:"Hides Telegram strings"},
-  {id:"mention",icon:"engineering",title:"No Mention Tags",label:"bootloop / soft brick risk",risk:"high",desc:"Hides Mention strings"},
-  {id:"cmdline",icon:"terminal",title:"Spoof CMDline",label:"bootloop / soft brick risk",risk:"high",desc:"spoofs CMDline"},
-  {id:"board",icon:"gavel",title:"Spoof Kernel",label:"bootloop / soft brick risk",risk:"high",desc:"Hides Kernel name strings"},
-  {id:"scanall",icon:"build",title:"All of Above",label:"bootloop / hard brick risk",risk:"high",desc:"Hides everything"}
+ {id:"buildtime",icon:"timer",title:"Spoof Build Time",label:"bootloop / soft brick risk",risk:"high",desc:"Fixed duck detector system & kernel build date mismatch detection"},
+ {id:"customkernel",icon:"adb",title:"Hide Custom Kernel",label:"bootloop / soft brick risk",risk:"high",desc:"Fixes custom kernel detection"},
+ {id:"emoji",icon:"block",title:"No Gore",label:"bootloop / soft brick risk",risk:"high",desc:"Hides emojis & special characters from kernel string"},
+ {id:"chinese",icon:"language",title:"Made in China",label:"bootloop / soft brick risk",risk:"high",desc:"Hides stuff written in chinese language to avoid detection."},
+ {id:"telegram",icon:"display_settings",title:"No Telegram",label:"bootloop / soft brick risk",risk:"high",desc:"Hides Telegram strings"},
+ {id:"mention",icon:"engineering",title:"No Mention Tags",label:"bootloop / soft brick risk",risk:"high",desc:"Hides Mention strings"},
+ {id:"cmdline",icon:"terminal",title:"Spoof CMDline",label:"bootloop / soft brick risk",risk:"high",desc:"spoofs CMDline"},
+ {id:"board",icon:"gavel",title:"Spoof Kernel",label:"bootloop / soft brick risk",risk:"high",desc:"Hides Kernel name strings"},
+ {id:"scanall",icon:"build",title:"All of Above",label:"bootloop / hard brick risk",risk:"high",desc:"Hides everything"}
 ];
 
 var MESSAGES={
-  noredirect:{on:"Redirect disabled",off:"Redirect enabled"},
-  buildtime:{on:"Reboot your device",off:"Reboot your device"},
-  customkernel:{on:"Reboot your device",off:"Reboot your device"},
-  emoji:{on:"Reboot your device",off:"Reboot your device"},
-  chinese:{on:"Reboot your device",off:"Reboot your device"},
-  telegram:{on:"Reboot your device",off:"Reboot your device"},
-  mention:{on:"Reboot your device",off:"Reboot your device"},
-  cmdline:{on:"Reboot your device",off:"Reboot your device"},
-  board:{on:"Reboot your device",off:"Reboot your device"},
-  scanall:{on:"Reboot your device",off:"Reboot your device"},
-  iframe_gesture_right:{on:"RHS gestures active",off:"RHS gestures disabled"},
-  keyswitch:{on:"Using alternate fallback method",off:"Downloads will use default method"},
-  iframe_back_button:{on:"Floating button active",off:"Floating button disabled"},
-  safemode:{on:"Safe mode active",off:"Safe mode disabled"},
-  twrp:{on:"Custom recovery spoofed",off:"Custom recovery disabled"},
-  keymint:{on:"OMK Pixel disabled",off:"OMK Pixel enabled"},
-  keymint:{on:"TEEsim modifications will be ignored",off:"TEEsim will be updated by default"},
-  "spoof-selinux-boot":{on:"Please reboot your device",off:"Please reboot your device"},
-  hidehook:{on:"Please reboot your device",off:"Please reboot your device"},
-  encrypt:{on:"Encryption spoofed",off:"Encryption disabled"},
-  lsposed:{on:"LSposed cleared",off:"LSposed disabled"},
-  nodebug:{on:"Debug fingerprint spoofed",off:"Debug fingerprint disabled"},
-  build:{on:"Debug build spoofed",off:"Debug build disabled"},
-  skip:{on:"Reboot your device to apply changes",off:"Reboot your device to apply changes"},
-  tag:{on:"Build tag spoofed",off:"Build tag disabled"},
-  root:{on:"Module logs cleared",off:"Module logs disabled"},
-  ota:{on:"OTA fix active",off:"OTA fix disabled"},
-  NoLineageProp:{on:"Lineage props spoofed",off:"Lineage props unchanged"},
-  gapps:{on:"Gapp logs cleared",off:"Gapp logs enabled"}
+ noredirect:{on:"Redirect disabled",off:"Redirect enabled"},
+ buildtime:{on:"Reboot your device",off:"Reboot your device"},
+ customkernel:{on:"Reboot your device",off:"Reboot your device"},
+ emoji:{on:"Reboot your device",off:"Reboot your device"},
+ chinese:{on:"Reboot your device",off:"Reboot your device"},
+ telegram:{on:"Reboot your device",off:"Reboot your device"},
+ mention:{on:"Reboot your device",off:"Reboot your device"},
+ cmdline:{on:"Reboot your device",off:"Reboot your device"},
+ board:{on:"Reboot your device",off:"Reboot your device"},
+ scanall:{on:"Reboot your device",off:"Reboot your device"},
+ iframe_gesture_right:{on:"RHS gestures active",off:"RHS gestures disabled"},
+ keyswitch:{on:"Using alternate fallback method",off:"Downloads will use default method"},
+ iframe_back_button:{on:"Floating button active",off:"Floating button disabled"},
+ twrp:{on:"Custom recovery spoofed",off:"Custom recovery disabled"},
+ keymint:{on:"OMK Pixel disabled",off:"OMK Pixel enabled"},
+ teesim:{on:"TEEsim modifications will be ignored",off:"TEEsim will be updated by default"},
+ "spoof-selinux-boot":{on:"Please reboot your device",off:"Please reboot your device"},
+ hidehook:{on:"Please reboot your device",off:"Please reboot your device"},
+ encrypt:{on:"Encryption spoofed",off:"Encryption disabled"},
+ lsposed:{on:"LSposed cleared",off:"LSposed disabled"},
+ nodebug:{on:"Debug fingerprint spoofed",off:"Debug fingerprint disabled"},
+ build:{on:"Debug build spoofed",off:"Debug build disabled"},
+ skip:{on:"Reboot your device to apply changes",off:"Reboot your device to apply changes"},
+ tag:{on:"Build tag spoofed",off:"Build tag disabled"},
+ root:{on:"Module logs cleared",off:"Module logs disabled"},
+ ota:{on:"OTA fix active",off:"OTA fix disabled"},
+ NoLineageProp:{on:"Lineage props spoofed",off:"Lineage props unchanged"},
+ gapps:{on:"Gapp logs cleared",off:"Gapp logs enabled"}
 };
+
+var SAFEMODE_IDS=[
+ "spoof-los-boot","nuke-los-boot","spoof-custom-rom-boot","spoof-selinux-boot",
+ "NoLineageProp","nodebug","build","tag","encrypt","hidehook"
+];
 
 var actionExecEnabled=false;
 var bootFlagChanged=false;
+var safeModeActive=false;
 
 function popup(msg,type){
-  type=type||"info";
-  try{
-    if(typeof window.toast==="function"){window.toast(String(msg));return}
-    if(window.kernelsu&&typeof window.kernelsu.toast==="function"){window.kernelsu.toast(String(msg));return}
-    if(typeof ksu==="object"&&typeof ksu.toast==="function"){ksu.toast(String(msg));return}
-  }catch(e){}
+ type=type||"info";
+ try{
+   if(typeof window.toast==="function"){window.toast(String(msg));return}
+   if(window.kernelsu&&typeof window.kernelsu.toast==="function"){window.kernelsu.toast(String(msg));return}
+   if(typeof ksu==="object"&&typeof ksu.toast==="function"){ksu.toast(String(msg));return}
+ }catch(e){}
 
-  var n=document.createElement("div");
-  n.className="webui-popup";
-  n.textContent=msg;
-  var colors={error:"#f44336",success:"#4caf50",info:"#1565c0",warn:"#ff8f00"};
-  var bg=colors[type]||"#0099FF";
-  Object.assign(n.style,{
-    position:"fixed",top:"-70px",left:"50%",transform:"translateX(-50%)",
-    background:bg,color:"#fff",padding:"0.8rem 1.2rem",borderRadius:"10px",
-    boxShadow:"0 6px 18px rgba(0,0,0,0.35)",fontWeight:"600",zIndex:"99999",
-    transition:"top 0.36s,opacity 0.36s",opacity:"0",
-    backdropFilter:"blur(10px)",WebkitBackdropFilter:"blur(10px)",
-    border:"1px solid rgba(255,255,255,0.1)"
-  });
-  document.body.appendChild(n);
-  requestAnimationFrame(function(){n.style.top="20px";n.style.opacity="1"});
-  setTimeout(function(){n.style.top="-70px";n.style.opacity="0";setTimeout(function(){n.remove()},420)},2500);
+ var n=document.createElement("div");
+ n.className="webui-popup";
+ n.textContent=msg;
+ var colors={error:"#f44336",success:"#4caf50",info:"#1565c0",warn:"#ff8f00"};
+ var bg=colors[type]||"#0099FF";
+ Object.assign(n.style,{
+   position:"fixed",top:"-70px",left:"50%",transform:"translateX(-50%)",
+   background:bg,color:"#fff",padding:"0.8rem 1.2rem",borderRadius:"10px",
+   boxShadow:"0 6px 18px rgba(0,0,0,0.35)",fontWeight:"600",zIndex:"99999",
+   transition:"top 0.36s,opacity 0.36s",opacity:"0",
+   backdropFilter:"blur(10px)",WebkitBackdropFilter:"blur(10px)",
+   border:"1px solid rgba(255,255,255,0.1)"
+ });
+ document.body.appendChild(n);
+ requestAnimationFrame(function(){n.style.top="20px";n.style.opacity="1"});
+ setTimeout(function(){n.style.top="-70px";n.style.opacity="0";setTimeout(function(){n.remove()},420)},2500);
 }
 
 function runShell(cmd){
-  return new Promise(function(resolve){
-    if(window.parent&&window.parent.runShellFromIframe){
-      window.parent.runShellFromIframe(cmd).then(function(r){resolve(r||"")}).catch(function(){resolve("")});
-    }else{
-      resolve("");
-    }
-  });
+ return new Promise(function(resolve){
+   if(window.parent&&window.parent.runShellFromIframe){
+     window.parent.runShellFromIframe(cmd).then(function(r){resolve(r||"")}).catch(function(){resolve("")});
+   }else{
+     resolve("");
+   }
+ });
 }
 
 function getBadgeClass(risk){
-  if(risk==="high")return"danger";
-  if(risk==="medium")return"warn";
-  return"";
+ if(risk==="high")return"danger";
+ if(risk==="medium")return"warn";
+ return"";
 }
 
 function getBadgeIcon(risk){
-  if(risk==="high")return"warning";
-  if(risk==="medium")return"error_outline";
-  return"restart_alt";
+ if(risk==="high")return"warning";
+ if(risk==="medium")return"error_outline";
+ return"restart_alt";
 }
 
-function createFlagRow(cfg,isBoot){
-  var div=document.createElement("div");
-  div.className="row";
-  if(isBoot){
-    div.id="row-boot-"+cfg.id;
-    div.onclick=function(){toggleBootFlag(cfg.id)};
-  }else{
-    div.id="row-"+cfg.id;
-    div.onclick=function(){toggle(cfg.id)};
-  }
+function createFlagRow(cfg){
+ var div=document.createElement("div");
+ div.className="row";
+ div.id="row-"+cfg.id;
+ div.onclick=function(){toggle(cfg.id)};
 
-  var badgeClass="";
-  var badgeIcon="restart_alt";
-  var badgeText=cfg.label;
+ var badgeClass=getBadgeClass(cfg.risk);
+ var badgeIcon=getBadgeIcon(cfg.risk);
+ var badgeText=cfg.label;
 
-  if(isBoot){
-    badgeClass=getBadgeClass(cfg.risk);
-    badgeIcon=getBadgeIcon(cfg.risk);
-  }
+ div.innerHTML=
+   '<div class="icon-wrap"><span class="material-icons">'+cfg.icon+'</span></div>'+
+   '<div class="content">'+
+     '<div class="title">'+cfg.title+'</div>'+
+     '<div class="badge '+badgeClass+'" id="badge-cb-'+cfg.id+'"><span class="material-icons">'+badgeIcon+'</span>'+badgeText+'</div>'+
+   '</div>'+
+   '<div class="status-dot"></div>'+
+   '<label class="switch" onclick="event.stopPropagation()">'+
+     '<input type="checkbox" id="cb-'+cfg.id+'">'+
+     '<span class="slider"><span class="knob"></span></span>'+
+   '</label>';
 
-  var inputId=isBoot?"cb-boot-"+cfg.id:"cb-"+cfg.id;
-
-  div.innerHTML=
-    '<div class="icon-wrap"><span class="material-icons">'+cfg.icon+'</span></div>'+
-    '<div class="content">'+
-      '<div class="title">'+cfg.title+'</div>'+
-      '<div class="badge '+badgeClass+'" id="badge-'+inputId+'"><span class="material-icons">'+badgeIcon+'</span>'+badgeText+'</div>'+
-    '</div>'+
-    '<div class="status-dot"></div>'+
-    '<label class="switch" onclick="event.stopPropagation()">'+
-      '<input type="checkbox" id="'+inputId+'">'+
-      '<span class="slider"><span class="knob"></span></span>'+
-    '</label>';
-
-  return div;
+ return div;
 }
 
 function createActionRow(cfg){
-  var div=document.createElement("div");
-  div.className="row";
-  div.id="row-"+cfg.id;
-  div.onclick=function(){toggle(cfg.id)};
+ var div=document.createElement("div");
+ div.className="row";
+ div.id="row-"+cfg.id;
+ div.onclick=function(){toggle(cfg.id)};
 
-  div.innerHTML=
-    '<div class="icon-wrap"><span class="material-icons">'+cfg.icon+'</span></div>'+
-    '<div class="content">'+
-      '<div class="title">'+cfg.title+'</div>'+
-      '<div class="badge"><span class="material-icons">play_arrow</span>'+cfg.label+'</div>'+
-    '</div>'+
-    '<div class="status-dot"></div>'+
-    '<label class="switch" onclick="event.stopPropagation()">'+
-      '<input type="checkbox" id="cb-'+cfg.id+'">'+
-      '<span class="slider"><span class="knob"></span></span>'+
-    '</label>';
+ div.innerHTML=
+   '<div class="icon-wrap"><span class="material-icons">'+cfg.icon+'</span></div>'+
+   '<div class="content">'+
+     '<div class="title">'+cfg.title+'</div>'+
+     '<div class="badge"><span class="material-icons">play_arrow</span>'+cfg.label+'</div>'+
+   '</div>'+
+   '<div class="status-dot"></div>'+
+   '<label class="switch" onclick="event.stopPropagation()">'+
+     '<input type="checkbox" id="cb-'+cfg.id+'">'+
+     '<span class="slider"><span class="knob"></span></span>'+
+   '</label>';
 
-  return div;
+ return div;
 }
 
 function createKernelRow(cfg){
-  var div=document.createElement("div");
-  div.className="row";
-  div.id="row-"+cfg.id;
-  div.onclick=function(){toggle(cfg.id)};
+ var div=document.createElement("div");
+ div.className="row";
+ div.id="row-"+cfg.id;
+ div.onclick=function(){toggle(cfg.id)};
 
-  var badgeClass=getBadgeClass(cfg.risk);
-  var badgeIcon=getBadgeIcon(cfg.risk);
-  var badgeText=cfg.label;
+ var badgeClass=getBadgeClass(cfg.risk);
+ var badgeIcon=getBadgeIcon(cfg.risk);
+ var badgeText=cfg.label;
 
-  div.innerHTML=
-    '<div class="icon-wrap"><span class="material-icons">'+cfg.icon+'</span></div>'+
-    '<div class="content">'+
-      '<div class="title">'+cfg.title+'</div>'+
-      '<div class="badge '+badgeClass+'" id="badge-cb-'+cfg.id+'"><span class="material-icons">'+badgeIcon+'</span>'+badgeText+'</div>'+
-    '</div>'+
-    '<div class="status-dot"></div>'+
-    '<label class="switch" onclick="event.stopPropagation()">'+
-      '<input type="checkbox" id="cb-'+cfg.id+'">'+
-      '<span class="slider"><span class="knob"></span></span>'+
-    '</label>';
+ div.innerHTML=
+   '<div class="icon-wrap"><span class="material-icons">'+cfg.icon+'</span></div>'+
+   '<div class="content">'+
+     '<div class="title">'+cfg.title+'</div>'+
+     '<div class="badge '+badgeClass+'" id="badge-cb-'+cfg.id+'"><span class="material-icons">'+badgeIcon+'</span>'+badgeText+'</div>'+
+   '</div>'+
+   '<div class="status-dot"></div>'+
+   '<label class="switch" onclick="event.stopPropagation()">'+
+     '<input type="checkbox" id="cb-'+cfg.id+'">'+
+     '<span class="slider"><span class="knob"></span></span>'+
+   '</label>';
 
-  return div;
+ return div;
 }
 
 function createGeneralRow(cfg){
-  var div=document.createElement("div");
-  div.className="row";
-  div.id="row-"+cfg.id;
-  div.onclick=function(){toggle(cfg.id)};
+ var div=document.createElement("div");
+ div.className="row";
+ div.id="row-"+cfg.id;
+ div.onclick=function(){toggle(cfg.id)};
 
-  div.innerHTML=
-    '<div class="icon-wrap"><span class="material-icons">'+cfg.icon+'</span></div>'+
-    '<div class="content">'+
-      '<div class="title">'+cfg.title+'</div>'+
-    '</div>'+
-    '<div class="status-dot"></div>'+
-    '<label class="switch" onclick="event.stopPropagation()">'+
-      '<input type="checkbox" id="cb-'+cfg.id+'">'+
-      '<span class="slider"><span class="knob"></span></span>'+
-    '</label>';
+ div.innerHTML=
+   '<div class="icon-wrap"><span class="material-icons">'+cfg.icon+'</span></div>'+
+   '<div class="content">'+
+     '<div class="title">'+cfg.title+'</div>'+
+   '</div>'+
+   '<div class="status-dot"></div>'+
+   '<label class="switch" onclick="event.stopPropagation()">'+
+     '<input type="checkbox" id="cb-'+cfg.id+'">'+
+     '<span class="slider"><span class="knob"></span></span>'+
+   '</label>';
 
-  return div;
+ return div;
 }
 
 async function toggleExec(){
-  var row=document.getElementById("row-action_exec");
-  var input=document.getElementById("cb-action_exec");
-  if(row.classList.contains("spinning"))return;
+ var row=document.getElementById("row-action_exec");
+ var input=document.getElementById("cb-action_exec");
+ if(row.classList.contains("spinning"))return;
 
-  var newVal=!input.checked;
-  input.checked=newVal;
-  row.classList.toggle("active",newVal);
-  actionExecEnabled=newVal;
+ var newVal=!input.checked;
+ input.checked=newVal;
+ row.classList.toggle("active",newVal);
+ actionExecEnabled=newVal;
 
-  try{
-    if(newVal){
-      await runShell('touch "'+DIR+'/action_exec"');
-      popup("Action execution enabled","success");
-    }else{
-      await runShell('rm -f "'+DIR+'/action_exec"');
-      popup("Action execution disabled");
-    }
-  }catch(e){
-    popup("Error: "+e.message,"error");
-    input.checked=!newVal;
-    row.classList.toggle("active",!newVal);
-    actionExecEnabled=!newVal;
-  }
+ try{
+   if(newVal){
+     await runShell('touch "'+DIR+'/action_exec"');
+     popup("Action execution enabled","success");
+   }else{
+     await runShell('rm -f "'+DIR+'/action_exec"');
+     popup("Action execution disabled");
+   }
+ }catch(e){
+   popup("Error: "+e.message,"error");
+   input.checked=!newVal;
+   row.classList.toggle("active",!newVal);
+   actionExecEnabled=!newVal;
+ }
 }
 
 async function toggle(id){
-  var row=document.getElementById("row-"+id);
-  var input=document.getElementById("cb-"+id);
-  if(!input||row.classList.contains("spinning"))return;
+ if(safeModeActive && SAFEMODE_IDS.indexOf(id)!==-1){
+   popup("Safe mode is active. Disable safe mode in advanced settings to use this feature.","warn");
+   return;
+ }
 
-  var newVal=!input.checked;
-  input.checked=newVal;
-  row.classList.toggle("active",newVal);
+ var row=document.getElementById("row-"+id);
+ var input=document.getElementById("cb-"+id);
+ if(!input||row.classList.contains("spinning"))return;
 
-  var isAction=ACTION_FLAGS.some(function(a){return a.id===id});
+ var newVal=!input.checked;
+ input.checked=newVal;
+ row.classList.toggle("active",newVal);
 
-  if(isAction&&newVal)row.classList.add("spinning");
+ var isAction=ACTION_FLAGS.some(function(a){return a.id===id});
+ var isReboot=REBOOT_FLAGS.some(function(r){return r.id===id});
 
-  try{
-    if(newVal){
-      await runShell('touch "'+DIR+"/"+id+'"');
-      if(isAction&&actionExecEnabled){
-        popup("Executing action...","info");
-        await runShell('sh "'+ACTION_SCRIPT+'"');
-        var msg=(MESSAGES[id]&&MESSAGES[id].on?MESSAGES[id].on:id+" finished");
-        popup(msg,"success");
-      }else{
-        var msg2=(MESSAGES[id]&&MESSAGES[id].on?MESSAGES[id].on:"Enabled");
-        popup(msg2,"success");
-      }
-    }else{
-      await runShell('rm -f "'+DIR+"/"+id+'"');
-      var msg3=(MESSAGES[id]&&MESSAGES[id].off?MESSAGES[id].off:"Disabled");
-      popup(msg3);
-    }
-  }catch(e){
-    popup("Error: "+e.message,"error");
-    input.checked=!newVal;
-    row.classList.toggle("active",!newVal);
-  }finally{
-    row.classList.remove("spinning");
-  }
-}
+ if(isAction&&newVal)row.classList.add("spinning");
 
-async function toggleBootFlag(id){
-  var row=document.getElementById("row-boot-"+id);
-  var input=document.getElementById("cb-boot-"+id);
-  if(!input||row.classList.contains("spinning"))return;
-
-  var newVal=!input.checked;
-  input.checked=newVal;
-  row.classList.toggle("active",newVal);
-
-  var flagPath=DIR+"/"+id;
-
-  try{
-    if(newVal){
-      await runShell('mkdir -p "'+DIR+'"');
-      await runShell('touch "'+flagPath+'"');
-      var verify=await runShell('test -f "'+flagPath+'" && echo EXISTS || echo MISSING');
-      if(String(verify).trim()==="EXISTS"){
-        popup(id+" enabled  Reboot required","success");
-        showRebootHint();
-      }else{
-        popup(id+" failed to create","error");
-        input.checked=false;
-        row.classList.remove("active");
-      }
-    }else{
-      await runShell('rm -f "'+flagPath+'"');
-      var verify=await runShell('test -f "'+flagPath+'" && echo EXISTS || echo MISSING');
-      if(String(verify).trim()==="MISSING"){
-        popup(id+" disabled  Reboot required","info");
-        showRebootHint();
-      }else{
-        popup(id+" failed to remove","error");
-        input.checked=true;
-        row.classList.add("active");
-      }
-    }
-  }catch(e){
-    popup("Error: "+e.message,"error");
-    input.checked=!newVal;
-    row.classList.toggle("active",!newVal);
-  }
+ try{
+   if(newVal){
+     await runShell('touch "'+DIR+"/"+id+'"');
+     if(isAction&&actionExecEnabled){
+       popup("Executing action...","info");
+       await runShell('sh "'+ACTION_SCRIPT+'"');
+       var msg=(MESSAGES[id]&&MESSAGES[id].on?MESSAGES[id].on:id+" finished");
+       popup(msg,"success");
+     }else{
+       var msg2=(MESSAGES[id]&&MESSAGES[id].on?MESSAGES[id].on:"Enabled");
+       popup(msg2,"success");
+       if(isReboot) showRebootHint();
+     }
+   }else{
+     await runShell('rm -f "'+DIR+"/"+id+'"');
+     var msg3=(MESSAGES[id]&&MESSAGES[id].off?MESSAGES[id].off:"Disabled");
+     popup(msg3);
+     if(isReboot) showRebootHint();
+   }
+ }catch(e){
+   popup("Error: "+e.message,"error");
+   input.checked=!newVal;
+   row.classList.toggle("active",!newVal);
+ }finally{
+   row.classList.remove("spinning");
+ }
 }
 
 function showRebootHint(){
-  bootFlagChanged=true;
-  var hint=document.getElementById("rebootHint");
-  hint.classList.add("show");
+ bootFlagChanged=true;
+ var hint=document.getElementById("rebootHint");
+ hint.classList.add("show");
 }
 
 function openInfoModal(){
-  var modal=document.getElementById("infoModal");
-  var content=document.getElementById("infoContent");
-  if(!content.innerHTML){
-    var bootTitle=document.createElement("div");
-    bootTitle.className="info-section-title";
-    bootTitle.textContent="Boot Flags";
-    content.appendChild(bootTitle);
+ var modal=document.getElementById("infoModal");
+ var content=document.getElementById("infoContent");
+ if(!content.innerHTML){
+   var rebootTitle=document.createElement("div");
+   rebootTitle.className="info-section-title";
+   rebootTitle.textContent="Reboot Flags";
+   content.appendChild(rebootTitle);
 
-    BOOT_FLAGS.forEach(function(item,i){
-      var div=document.createElement("div");
-      div.className="info-item";
-      var riskColor=item.risk==="high"?"var(--danger)":item.risk==="medium"?"var(--warning)":"var(--success)";
-      var riskText=item.risk==="high"?"High Risk":item.risk==="medium"?"Medium Risk":"Low Risk";
-      div.innerHTML='<div class="info-item-title"><span class="material-icons">'+item.icon+'</span>'+item.title+'</div><div class="info-item-desc">'+item.desc+'</div><div class="info-item-flag">Flag: '+item.id+'</div><div class="info-item-risk" style="color:'+riskColor+'">'+riskText+'</div>';
-      content.appendChild(div);
-      if(i<BOOT_FLAGS.length-1){
-        var d=document.createElement("div");
-        d.className="modal-divider";
-        content.appendChild(d);
-      }
-    });
+   REBOOT_FLAGS.forEach(function(item,i){
+     var div=document.createElement("div");
+     div.className="info-item";
+     var riskColor=item.risk==="high"?"var(--danger)":item.risk==="medium"?"var(--warning)":"var(--success)";
+     var riskText=item.risk==="high"?"High Risk":item.risk==="medium"?"Medium Risk":"Low Risk";
+     var riskHtml=item.risk?'<div class="info-item-risk" style="color:'+riskColor+'">'+riskText+'</div>':"";
+     div.innerHTML='<div class="info-item-title"><span class="material-icons">'+item.icon+'</span>'+item.title+'</div><div class="info-item-desc">'+item.desc+'</div><div class="info-item-flag">Flag: '+item.id+'</div>'+riskHtml;
+     content.appendChild(div);
+     if(i<REBOOT_FLAGS.length-1){
+       var d=document.createElement("div");
+       d.className="modal-divider";
+       content.appendChild(d);
+     }
+   });
 
-    var rebootTitle=document.createElement("div");
-    rebootTitle.className="info-section-title";
-    rebootTitle.textContent="Reboot Flags";
-    content.appendChild(rebootTitle);
+   var actionTitle=document.createElement("div");
+   actionTitle.className="info-section-title";
+   actionTitle.textContent="Action Flags";
+   content.appendChild(actionTitle);
 
-    REBOOT_FLAGS.forEach(function(item,i){
-      var div=document.createElement("div");
-      div.className="info-item";
-      div.innerHTML='<div class="info-item-title"><span class="material-icons">'+item.icon+'</span>'+item.title+'</div><div class="info-item-desc">'+item.desc+'</div><div class="info-item-flag">Flag: '+item.id+'</div>';
-      content.appendChild(div);
-      if(i<REBOOT_FLAGS.length-1){
-        var d=document.createElement("div");
-        d.className="modal-divider";
-        content.appendChild(d);
-      }
-    });
+   ACTION_FLAGS.forEach(function(item,i){
+     var div=document.createElement("div");
+     div.className="info-item";
+     div.innerHTML='<div class="info-item-title"><span class="material-icons">'+item.icon+'</span>'+item.title+'</div><div class="info-item-desc">'+item.desc+'</div><div class="info-item-flag">Flag: '+item.id+'</div>';
+     content.appendChild(div);
+     if(i<ACTION_FLAGS.length-1){
+       var d=document.createElement("div");
+       d.className="modal-divider";
+       content.appendChild(d);
+     }
+   });
 
-    var actionTitle=document.createElement("div");
-    actionTitle.className="info-section-title";
-    actionTitle.textContent="Action Flags";
-    content.appendChild(actionTitle);
+   var kernelTitle=document.createElement("div");
+   kernelTitle.className="info-section-title";
+   kernelTitle.textContent="Kernel (requires reboot)";
+   content.appendChild(kernelTitle);
 
-    ACTION_FLAGS.forEach(function(item,i){
-      var div=document.createElement("div");
-      div.className="info-item";
-      div.innerHTML='<div class="info-item-title"><span class="material-icons">'+item.icon+'</span>'+item.title+'</div><div class="info-item-desc">'+item.desc+'</div><div class="info-item-flag">Flag: '+item.id+'</div>';
-      content.appendChild(div);
-      if(i<ACTION_FLAGS.length-1){
-        var d=document.createElement("div");
-        d.className="modal-divider";
-        content.appendChild(d);
-      }
-    });
+   KERNEL_FLAGS.forEach(function(item,i){
+     var div=document.createElement("div");
+     div.className="info-item";
+     var riskColor=item.risk==="high"?"var(--danger)":item.risk==="medium"?"var(--warning)":"var(--success)";
+     var riskText=item.risk==="high"?"High Risk":item.risk==="medium"?"Medium Risk":"Low Risk";
+     div.innerHTML='<div class="info-item-title"><span class="material-icons">'+item.icon+'</span>'+item.title+'</div><div class="info-item-desc">'+item.desc+'</div><div class="info-item-flag">Flag: '+item.id+'</div><div class="info-item-risk" style="color:'+riskColor+'">'+riskText+'</div>';
+     content.appendChild(div);
+     if(i<KERNEL_FLAGS.length-1){
+       var d=document.createElement("div");
+       d.className="modal-divider";
+       content.appendChild(d);
+     }
+   });
 
-    var kernelTitle=document.createElement("div");
-    kernelTitle.className="info-section-title";
-    kernelTitle.textContent="Kernel";
-    content.appendChild(kernelTitle);
+   var generalTitle=document.createElement("div");
+   generalTitle.className="info-section-title";
+   generalTitle.textContent="General";
+   content.appendChild(generalTitle);
 
-    KERNEL_FLAGS.forEach(function(item,i){
-      var div=document.createElement("div");
-      div.className="info-item";
-      var riskColor=item.risk==="high"?"var(--danger)":item.risk==="medium"?"var(--warning)":"var(--success)";
-      var riskText=item.risk==="high"?"High Risk":item.risk==="medium"?"Medium Risk":"Low Risk";
-      div.innerHTML='<div class="info-item-title"><span class="material-icons">'+item.icon+'</span>'+item.title+'</div><div class="info-item-desc">'+item.desc+'</div><div class="info-item-flag">Flag: '+item.id+'</div><div class="info-item-risk" style="color:'+riskColor+'">'+riskText+'</div>';
-      content.appendChild(div);
-      if(i<KERNEL_FLAGS.length-1){
-        var d=document.createElement("div");
-        d.className="modal-divider";
-        content.appendChild(d);
-      }
-    });
-
-    var generalTitle=document.createElement("div");
-    generalTitle.className="info-section-title";
-    generalTitle.textContent="General";
-    content.appendChild(generalTitle);
-
-    GENERAL_FLAGS.forEach(function(item,i){
-      var div=document.createElement("div");
-      div.className="info-item";
-      div.innerHTML='<div class="info-item-title"><span class="material-icons">'+item.icon+'</span>'+item.title+'</div><div class="info-item-desc">'+item.desc+'</div><div class="info-item-flag">Flag: '+item.id+'</div>';
-      content.appendChild(div);
-      if(i<GENERAL_FLAGS.length-1){
-        var d=document.createElement("div");
-        d.className="modal-divider";
-        content.appendChild(d);
-      }
-    });
-  }
-  modal.style.display="flex";
-  requestAnimationFrame(function(){modal.classList.add("show")});
+   GENERAL_FLAGS.forEach(function(item,i){
+     var div=document.createElement("div");
+     div.className="info-item";
+     div.innerHTML='<div class="info-item-title"><span class="material-icons">'+item.icon+'</span>'+item.title+'</div><div class="info-item-desc">'+item.desc+'</div><div class="info-item-flag">Flag: '+item.id+'</div>';
+     content.appendChild(div);
+     if(i<GENERAL_FLAGS.length-1){
+       var d=document.createElement("div");
+       d.className="modal-divider";
+       content.appendChild(d);
+     }
+   });
+ }
+ modal.style.display="flex";
+ requestAnimationFrame(function(){modal.classList.add("show")});
 }
 
 function closeInfoModal(e){
-  if(e&&e.target!==e.currentTarget)return;
-  var modal=document.getElementById("infoModal");
-  modal.classList.remove("show");
-  setTimeout(function(){modal.style.display="none"},350);
+ if(e&&e.target!==e.currentTarget)return;
+ var modal=document.getElementById("infoModal");
+ modal.classList.remove("show");
+ setTimeout(function(){modal.style.display="none"},350);
 }
 
 function buildCheckCmd(arr,type){
-  if(!arr.length)return'echo ""';
-  var ids=arr.map(function(b){return b.id}).join(" ");
-  return'for f in '+ids+';do if [ -f "'+DIR+'/$f" ];then echo "'+type+':$f:1";else echo "'+type+':$f:0";fi;done';
+ if(!arr.length)return'echo ""';
+ var ids=arr.map(function(b){return b.id}).join(" ");
+ return'for f in '+ids+';do if [ -f "'+DIR+'/$f" ];then echo "'+type+':$f:1";else echo "'+type+':$f:0";fi;done';
+}
+
+async function checkSafeMode(){
+ var result=await runShell('test -f "'+DIR+'/safemode" && echo EXISTS || echo MISSING');
+ var active=String(result).trim()==="EXISTS";
+ safeModeActive=active;
+
+ var notice=document.getElementById("safemodeNotice");
+ if(notice){
+   notice.style.display=active?"flex":"none";
+ }
+
+ if(active){
+   var anyChanged=false;
+   for(var i=0;i<SAFEMODE_IDS.length;i++){
+     var id=SAFEMODE_IDS[i];
+     var input=document.getElementById("cb-"+id);
+     var row=document.getElementById("row-"+id);
+     if(input&&row){
+       input.disabled=true;
+       row.style.opacity="0.45";
+       row.style.pointerEvents="none";
+       row.style.cursor="not-allowed";
+       row.style.filter="grayscale(0.6)";
+       if(input.checked){
+         input.checked=false;
+         row.classList.remove("active");
+         await runShell('rm -f "'+DIR+'/'+id+'"');
+         anyChanged=true;
+       }
+     }
+   }
+   if(anyChanged){
+     showRebootHint();
+     popup("Safe mode disabled incompatible flags","warn");
+   }
+ }else{
+   for(var i=0;i<SAFEMODE_IDS.length;i++){
+     var id=SAFEMODE_IDS[i];
+     var input=document.getElementById("cb-"+id);
+     var row=document.getElementById("row-"+id);
+     if(input&&row){
+       input.disabled=false;
+       row.style.opacity="";
+       row.style.pointerEvents="";
+       row.style.cursor="";
+       row.style.filter="";
+     }
+   }
+ }
 }
 
 async function refreshAll(){
-  var bootCmd=buildCheckCmd(BOOT_FLAGS,"boot");
-  var rebootCmd=buildCheckCmd(REBOOT_FLAGS,"reboot");
-  var actionCmd=buildCheckCmd(ACTION_FLAGS,"action");
-  var kernelCmd=buildCheckCmd(KERNEL_FLAGS,"kernel");
-  var generalCmd=buildCheckCmd(GENERAL_FLAGS,"general");
-  var execCmd='if [ -f "'+DIR+'/action_exec" ];then echo "exec:action_exec:1";else echo "exec:action_exec:0";fi';
+ var rebootCmd=buildCheckCmd(REBOOT_FLAGS,"reboot");
+ var actionCmd=buildCheckCmd(ACTION_FLAGS,"action");
+ var kernelCmd=buildCheckCmd(KERNEL_FLAGS,"kernel");
+ var generalCmd=buildCheckCmd(GENERAL_FLAGS,"general");
+ var execCmd='if [ -f "'+DIR+'/action_exec" ];then echo "exec:action_exec:1";else echo "exec:action_exec:0";fi';
 
-  var result=await runShell(bootCmd+";"+rebootCmd+";"+actionCmd+";"+kernelCmd+";"+generalCmd+";"+execCmd);
+ var result=await runShell(rebootCmd+";"+actionCmd+";"+kernelCmd+";"+generalCmd+";"+execCmd);
 
-  if(result){
-    result.trim().split("\n").forEach(function(line){
-      var parts=line.split(":");
-      if(parts.length!==3)return;
-      var type=parts[0].trim();
-      var id=parts[1].trim();
-      var val=parts[2].trim();
+ if(result){
+   result.trim().split("\n").forEach(function(line){
+     var parts=line.split(":");
+     if(parts.length!==3)return;
+     var type=parts[0].trim();
+     var id=parts[1].trim();
+     var val=parts[2].trim();
 
-      if(type==="boot"){
-        var cb=document.getElementById("cb-boot-"+id);
-        var row=document.getElementById("row-boot-"+id);
-        if(cb&&row){
-          cb.checked=val==="1";
-          row.classList.toggle("active",val==="1");
-        }
-      }else if(type==="reboot"||type==="action"||type==="kernel"||type==="general"){
-        var cb2=document.getElementById("cb-"+id);
-        var row2=document.getElementById("row-"+id);
-        if(cb2&&row2){
-          cb2.checked=val==="1";
-          row2.classList.toggle("active",val==="1");
-        }
-      }else if(type==="exec"&&id==="action_exec"){
-        var cb3=document.getElementById("cb-action_exec");
-        var row3=document.getElementById("row-action_exec");
-        if(cb3&&row3){
-          cb3.checked=val==="1";
-          row3.classList.toggle("active",val==="1");
-          actionExecEnabled=val==="1";
-        }
-      }
-    });
-  }
-  popup("States refreshed","info");
+     if(type==="reboot"||type==="action"||type==="kernel"||type==="general"){
+       var cb=document.getElementById("cb-"+id);
+       var row=document.getElementById("row-"+id);
+       if(cb&&row){
+         cb.checked=val==="1";
+         row.classList.toggle("active",val==="1");
+       }
+     }else if(type==="exec"&&id==="action_exec"){
+       var cb2=document.getElementById("cb-action_exec");
+       var row2=document.getElementById("row-action_exec");
+       if(cb2&&row2){
+         cb2.checked=val==="1";
+         row2.classList.toggle("active",val==="1");
+         actionExecEnabled=val==="1";
+       }
+     }
+   });
+ }
+
+ await checkSafeMode();
+ popup("States refreshed","info");
 }
 
 function init(){
-  var flagContainer=document.getElementById("flag-rows");
-  var actionContainer=document.getElementById("action-rows");
-  var kernelContainer=document.getElementById("kernel-rows");
-  var generalContainer=document.getElementById("general-rows");
+ var flagContainer=document.getElementById("flag-rows");
+ var actionContainer=document.getElementById("action-rows");
+ var kernelContainer=document.getElementById("kernel-rows");
+ var generalContainer=document.getElementById("general-rows");
 
-  BOOT_FLAGS.forEach(function(b){flagContainer.appendChild(createFlagRow(b,true))});
-  REBOOT_FLAGS.forEach(function(b){flagContainer.appendChild(createFlagRow(b,false))});
-  ACTION_FLAGS.forEach(function(a){actionContainer.appendChild(createActionRow(a))});
-  KERNEL_FLAGS.forEach(function(g){kernelContainer.appendChild(createKernelRow(g))});
-  GENERAL_FLAGS.forEach(function(g){generalContainer.appendChild(createGeneralRow(g))});
+ REBOOT_FLAGS.forEach(function(b){flagContainer.appendChild(createFlagRow(b))});
+ ACTION_FLAGS.forEach(function(a){actionContainer.appendChild(createActionRow(a))});
+ KERNEL_FLAGS.forEach(function(g){kernelContainer.appendChild(createKernelRow(g))});
+ GENERAL_FLAGS.forEach(function(g){generalContainer.appendChild(createGeneralRow(g))});
 
-  setTimeout(refreshAll,50);
+ setTimeout(refreshAll,50);
 }
 
 document.addEventListener("DOMContentLoaded",init);
@@ -1054,13 +1062,13 @@ document.addEventListener("DOMContentLoaded",init);
 <script src="../TRANSLATIONS/meow.js"></script>
 <script>
 (function(){
-  var lang = localStorage.getItem('ibLang') || 'en';
-  if (lang !== 'en') {
-    var s = document.createElement('script');
-    s.src = '../TRANSLATIONS/' + lang + '.js';
-    s.onload = function(){ if(window.i18nBoot) window.i18nBoot(); };
-    document.head.appendChild(s);
-  }
+ var lang = localStorage.getItem('ibLang') || 'en';
+ if (lang !== 'en') {
+   var s = document.createElement('script');
+   s.src = '../TRANSLATIONS/' + lang + '.js';
+   s.onload = function(){ if(window.i18nBoot) window.i18nBoot(); };
+   document.head.appendChild(s);
+ }
 })();
 </script>
 </body>
