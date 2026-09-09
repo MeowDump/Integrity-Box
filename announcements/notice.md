@@ -1,9 +1,24 @@
 # WORK IN PROGRESS
 
+> 10-09-2026 THURSDAY 00:00 XM (I.S.T)
+## TO DO :
+- add new translation scheme 
+- fix broken translations
+- 
+
+
+> 09-09-2026 WEDNESDAY 10:05 PM (I.S.T)
+- Depreciated recommend settings for pixel props migration
+- Fixed issues related to pixel canary props
+- Improved announcements, fixed tab getting switched automatically when scrolling the word wrapped lines
+- Forced support page to use accent theme
+
+
 > 08-09-2026 TUESDAY 09:26 PM (I.S.T)
 - Fixed a bug in which the **built-in ROM spoofing** was not getting disabled
-- Improved iframe 
+- Improved iframe
 
+  
 > 07-09-2026 MONDAY 02:40 AM (I.S.T)
 - [ZYGISK] Added ability to **pause/resume** zygisk injection
 - [WEBUI] Added a button to **pause/resume** zygisk injection
