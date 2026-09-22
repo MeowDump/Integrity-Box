@@ -3,9 +3,9 @@
 
 > Please make sure you have the following **modules installed** before using Integrity Box:
 
-1) - [**Official Tricky Store**](https://github.com/5ec1cff/TrickyStore/releases) or [**TEE Simulator**](https://github.com/JingMatrix/TEESimulator/releases) (use any one)
+1) - [**Tricky Store OOS**](https://github.com/beakthoven/TrickyStoreOSS/releases) or [**TEE Simulator**](https://github.com/JingMatrix/TEESimulator/releases) (use any one)
 
-2) - [**Zygisk Next**](https://github.com/Dr-TSNG/ZygiskNext/releases) or [**ReZygisk**](https://github.com/PerformanC/ReZygisk/releases) (use any one)
+2) - [**Zygisk Next**](https://github.com/Dr-TSNG/ZygiskNext/releases) or [**Meow Zygisk**](https://github.com/MeowDump/MeowZygisk/releases) (use any one) (ZygiskNext is recommended for magisk)
 
 
 > - If you are using Google Pixel stock ROM, or if you want to use your custom ROM's inbuilt spoofing feature, you do not need Zygisk. Simply create a file or folder named `zygisk` in your internal storage `/sdcard/zygisk` (make sure the name is exactly lowercase), and then flash Integrity Box. This will disable all zygisk related components and grant you full CONTROL without any conflict
