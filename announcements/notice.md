@@ -1,8 +1,13 @@
 > 30 September 2026
+- The current keybox MEETS DEVICE INTEGRITY 
+
+> 29 September 2026
 - The current keybox is revoked
 
+> 28 September 2026
+- v44 development has been started 
 
-# TO BE ADDED IN v44
+## TO BE ADDED IN v44
 
 - **Ability to download Keybox from multiple sources**
 
@@ -15,7 +20,7 @@
 
 
 
-# A Note About the Future
+## A Note About the Future
 
 I’m no longer as interested in building and releasing projects as I once was, and **I simply don’t have the time for this hobby anymore**. So, at some point, I’ll be discontinuing this project.
 
