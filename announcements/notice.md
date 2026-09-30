@@ -1,3 +1,7 @@
+> 30 September 2026
+- The current keybox is revoked
+
+
 # TO BE ADDED IN v44
 
 - **Ability to download Keybox from multiple sources**
