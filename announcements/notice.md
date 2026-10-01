@@ -1,31 +1,39 @@
-> 30 September 2026
-- The current keybox MEETS DEVICE INTEGRITY 
+## Development Progress | v44
 
-> 29 September 2026
-- The current keybox is revoked
+### SCRIPT 
+- Fixed lineage override failure
+- Bump system & vendor SECURITY PATCH to 05 OCTOBER 2026
 
-> 28 September 2026
-- v44 development has been started 
+### Boot Configuration (NEW WEB UI)
+- Added Boot Configuration UI to fine-tune specific module settings and handle reboot-required configurations during fresh installation
+[Click to see screenshots](https://t.me/MonaDump/336)
 
-## TO BE ADDED IN v44
+### Conflict Resolver (NEW WEB UI)
+- Added conflict resolver to fix multiple root implementation
+[Click to see screenshots](https://t.me/MonaDump/327?single)
 
-- **Ability to download Keybox from multiple sources**
+### Keybox Source (NEW WEB UI)
+- You'll be able to download keyboxes from other modules without installing them.
+ [Click to see screenshots](https://t.me/MonaDump/322?single)
 
-- **Configure module settings during fresh installation** : Some settings currently require a reboot before they can be configured. I plan to allow them to be configured during the initial installation instead of displaying the WebUI after the reboot.
+### Play Integrity WEB UI 
+- Dropped Strong Mode 
 
-- **Deprecate Bootloader Spoofer UI checks** : I'm talking about the loading screen you see when opening the Bootloader Spoofer UI. Its main purpose is to clean up the target list, which sometimes get heavily bloated by other modules that blindly add almost every package installed on the device. Processing such an unnecessarily large list can contribute to higher battery consumption and increased device heating.
+### Boot Hash WEB UI 
+- Improved UI
+- Added Safe Mode lock
+- Added reboot confirmation
+- Added real-time status updates
+- Added ability to auto get boot hash from TEEsim
+[Click to see screenshots](https://t.me/MonaDump/334?single)
 
-- **High FPS Unlocker for games** : I may introduce this if I get some free time.
-> For now, these are the changes I have planned. More changes may be added along the way.
+### Integrity Downloader WEB UI 
+- Removed NoHello KPM - We don't need it anymore, syscall detection has been fixed in the latest version of folkpatch
+- Removed Thor - HMA-OOS already spoofs installation source, so we don't need this anymore
 
-
-
-## A Note About the Future
-
-I’m no longer as interested in building and releasing projects as I once was, and **I simply don’t have the time for this hobby anymore**. So, at some point, I’ll be discontinuing this project.
-
-I’m grateful to everyone who used my work and supported me throughout the journey. Every bit of feedback, motivation, and encouragement helped me learn something new and pushed me to keep going.
-> Thank you for everything, and thank you for being part of the journey
-
-## I came, I saw, I conquered.
-
+### TRANSLATIONS
+- Added a new “Become a translator” button to the Contributors section. It redirects directly to the translation template, making it easier for people to contribute translations and help make Integrity Box accessible worldwide.
+[Click to see screenshots](https://t.me/MonaDump/332)
+- Added Turkish translation by
+- Added German & Romanian translation by [@Astegan](https://github.com/MeowDump/TRANSLATIONS/commit/e1bf92e4131f22f713eb7ec90a94bd80af459d06)
+- Added Turkish translation by [@crackeren](https://github.com/MeowDump/TRANSLATIONS/commit/32d5f34fe9a4774013a8554632f6fb27e831fc4c)
