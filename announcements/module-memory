@@ -1,0 +1,11 @@
+STATUS          = 🟢🟢🟢
+EMERGENCY       = W
+KEY_COUNT       = 583
+CODENAME        = MALALA
+VERSION         = 44
+AOSP_KEY        = FALSE
+BUILD_TYPE      = RELEASE
+DEBUG_MODE      = FALSE
+SAFE_MODE       = FALSE
+FORCE_RESET     = FALSE
+SOURCE          = # W.I.P
