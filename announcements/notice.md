@@ -1,3 +1,17 @@
+## Play Integrity Update
+
+Keyboxes are still valid, but Play Integrity checks are failing. It seems Google has made another change that is preventing us from passing, even with valid keyboxes.
+
+I'm investigating the issue and working on a possible fix. Hopefully, we'll figure things out soon.
+
+In the meantime, please avoid flooding my DMs or the group with repetitive messages about the same issue. It won't help resolve anything or speed up the process. Panic is not a solution. I'll share an update as soon as there's something meaningful to report.
+
+Please be patient.
+
+
+
+
+
 ## Development Progress | v44
 
 ### SCRIPT 
