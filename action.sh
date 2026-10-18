@@ -411,6 +411,12 @@ if [ -f "$PATCH_FLAG" ]; then
   log_step "UPDATED" "Patch to Stock"
 
 else
+  # Dynamically synchronize security patch with custom.pif.prop if present
+  if [ -f "$P" ]; then
+    DYNAMIC_PATCH=$(grep -i '^SECURITY_PATCH=' "$P" 2>/dev/null | cut -d= -f2 | tr -d ' \t\r\n')
+    [ -n "$DYNAMIC_PATCH" ] && PATCH_DATE="$DYNAMIC_PATCH"
+  fi
+
   echo "all=$PATCH_DATE" > "$FILE_PATH" 2>>"$PATCH_LOG"
   log_step "SPOOFED" "Tricky Patch to $PATCH_DATE"
 
@@ -442,18 +448,24 @@ fi
 log_patch "Patch handling complete"
 log_patch " "
 
-for proc in com.google.android.gms.unstable com.google.android.gms com.android.vending; do
+for proc in com.google.android.gms.unstable com.google.android.gms com.android.vending com.google.android.apps.walletnfcrel; do
   kill_process "$proc"
 done
 
 log_step "RESTART" "Google Service Processes"
 
-sh "$SCRIPT_DIR/cleanup.sh" >/dev/null 2>&1; 
+sh "$SCRIPT_DIR/cleanup.sh" >/dev/null 2>&1;
 
-# Execute teesim.sh unless explicitly disabled
-if [ ! -e "$BOX/teesim" ]; then
-    sh "$SCRIPT_DIR/teesim.sh"
-    log_step "WRITING" "TEEsim Build fields"
+# Flush Google Wallet / Pay and DroidGuard cache to apply updated verdicts immediately
+rm -rf /data/data/com.google.android.gms/app_dg_cache/* 2>/dev/null
+rm -f /data/data/com.google.android.gms/databases/dg.db* 2>/dev/null
+rm -f /data/data/com.google.android.gms/databases/*pay* 2>/dev/null
+rm -f /data/data/com.google.android.gms/databases/wallet_object* 2>/dev/null
+
+# Trigger background Google Wallet TapAndPay warmup
+if command -v am >/dev/null 2>&1; then
+    am broadcast -a com.google.android.gms.tapandpay.ACTION_TOKEN_STATUS_CHANGED >/dev/null 2>&1
+    am start-service -n com.google.android.gms/.tapandpay.service.TapAndPayService >/dev/null 2>&1
 fi
 
 # Restore per-App-Spoofing value
