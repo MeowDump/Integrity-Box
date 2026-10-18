@@ -448,6 +448,9 @@ done
 
 log_step "RESTART" "Google Service Processes"
 
+# Auto-sync Magisk DenyList (GMS rm, Wallet add)
+sync_magisk_denylist && log_step "SYNCED" "Magisk DenyList (Wallet protected)"
+
 sh "$SCRIPT_DIR/cleanup.sh" >/dev/null 2>&1; 
 
 # Execute teesim.sh unless explicitly disabled

@@ -84,18 +84,16 @@ if [ -d "/data/adb/magisk" ]; then
     echo "Magisk detected."
 
     if [ -d "$MODPATH/zygisk" ]; then
-        # Remove Play Services and Play Store from Magisk DenyList when set to Enforce in normal mode
-        if magisk --denylist status; then
-            magisk --denylist rm com.google.android.gms
-            magisk --denylist rm com.android.vending
-        fi
+        # Remove Play Services and Play Store from Magisk DenyList, protect Google Wallet
+        sync_magisk_denylist
 
         # Run common tasks for installation and boot-time
         . "$MODPATH/common_setup.sh"
     else
-        # Add Play Services DroidGuard and Play Store processes to Magisk DenyList for better results in scripts-only mode
-        magisk --denylist add com.google.android.gms com.google.android.gms.unstable
-        magisk --denylist add com.android.vending
+        # Add Play Services DroidGuard, Play Store, and Google Wallet in scripts-only mode
+        magisk --denylist add com.google.android.gms com.google.android.gms.unstable >/dev/null 2>&1 || true
+        magisk --denylist add com.android.vending >/dev/null 2>&1 || true
+        magisk --denylist add com.google.android.apps.walletnfcrel >/dev/null 2>&1 || true
     fi
 
 else

@@ -294,6 +294,25 @@ safe_mv() {
   return $?
 }
 
+# Auto-sync Magisk DenyList: remove GMS/Play Store (required for Zygisk) and add Google Wallet (hide su)
+sync_magisk_denylist() {
+    [ -d "/data/adb/magisk" ] || return 0
+    local magisk_bin=""
+    for _p in /data/adb/magisk/magisk magisk /system/bin/magisk; do
+        if command -v "$_p" >/dev/null 2>&1; then
+            magisk_bin="$_p"
+            break
+        fi
+    done
+    [ -z "$magisk_bin" ] && return 0
+    if $magisk_bin --denylist status >/dev/null 2>&1; then
+        $magisk_bin --denylist rm com.google.android.gms >/dev/null 2>&1 || true
+        $magisk_bin --denylist rm com.google.android.gms.unstable >/dev/null 2>&1 || true
+        $magisk_bin --denylist rm com.android.vending >/dev/null 2>&1 || true
+        $magisk_bin --denylist add com.google.android.apps.walletnfcrel >/dev/null 2>&1 || true
+    fi
+}
+
 # Configure DenyList
 add_if_missing() {
     pkg="$1"; proc="$2"
