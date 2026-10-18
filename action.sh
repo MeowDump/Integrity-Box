@@ -313,10 +313,15 @@ for pkg in com.android.vending com.google.android.gms com.google.android.gsf io.
     echo "$pkg" >> "$TMP"
 done
 
-cmd package list packages -3 2>/dev/null | cut -d ":" -f2 | while read -r pkg; do
-    [ -z "$pkg" ] && continue
-    grep -Fxq "$pkg" "$TMP" || echo "$pkg" >> "$TMP"
-done
+if [ -f "$MODPATH/apps.txt" ]; then
+    while IFS= read -r pkg || [ -n "$pkg" ]; do
+        pkg=$(printf '%s' "$pkg" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        [ -z "$pkg" ] && continue
+        [ "$pkg" = "com.topjohnwu.magisk" ] && continue
+        grep -Fxq "$pkg" "$TMP" || echo "$pkg" >> "$TMP"
+    done < "$MODPATH/apps.txt"
+fi
+grep -Fxq "gr.nikolasspyr.integritycheck" "$TMP" || echo "gr.nikolasspyr.integritycheck" >> "$TMP"
 
 sed -i 's/^[[:space:]]*//;s/[[:space:]]*$//' "$TMP"
 sort -u "$TMP" -o "$TMP"
@@ -442,19 +447,23 @@ fi
 log_patch "Patch handling complete"
 log_patch " "
 
+# Execute teesim.sh unless explicitly disabled
+if [ ! -e "$BOX/teesim" ] && [ -f "$SCRIPT_DIR/teesim.sh" ]; then
+    sh "$SCRIPT_DIR/teesim.sh"
+    log_step "WRITING" "TEEsim Build fields"
+fi
+
 for proc in com.google.android.gms.unstable com.google.android.gms com.android.vending; do
   kill_process "$proc"
 done
 
 log_step "RESTART" "Google Service Processes"
 
-sh "$SCRIPT_DIR/cleanup.sh" >/dev/null 2>&1; 
+# Clear cached GMS TapAndPay & Wallet failures
+rm -f /data/data/com.google.android.gms/databases/pay* /data/data/com.google.android.gms/databases/wallet_object* 2>/dev/null
+pm clear com.google.android.apps.walletnfcrel >/dev/null 2>&1
 
-# Execute teesim.sh unless explicitly disabled
-if [ ! -e "$BOX/teesim" ]; then
-    sh "$SCRIPT_DIR/teesim.sh"
-    log_step "WRITING" "TEEsim Build fields"
-fi
+sh "$SCRIPT_DIR/cleanup.sh" >/dev/null 2>&1;
 
 # Restore per-App-Spoofing value
 if [ -f "$P" ]; then
