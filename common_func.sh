@@ -294,6 +294,37 @@ safe_mv() {
   return $?
 }
 
+# Detect crDroid across all versions (handles runtime prop isolation)
+is_crdroid() {
+    [ -n "$(getprop ro.crdroid.version 2>/dev/null)" ] || \
+    [ -n "$(getprop ro.crdroid.build.version 2>/dev/null)" ] || \
+    grep -qE '^ro\.crdroid\.(version|build\.version|device)=' \
+        /system/build.prop \
+        /system_ext/build.prop \
+        /product/etc/build.prop \
+        /product/build.prop \
+        /vendor/build.prop 2>/dev/null
+}
+
+# Neutralize crDroid conflicting GMS/PI spoofing while preserving Photos and Games
+disable_crdroid_spoof() {
+    is_crdroid || return 0
+    for _prop in \
+        persist.sys.pixelprops.pi \
+        persist.sys.pp.gms \
+        persist.sys.pp.finsky; do
+        resetprop -n -p "$_prop" false 2>/dev/null || setprop "$_prop" false 2>/dev/null || true
+    done
+    for _prop in \
+        persist.sys.pihooks.disable \
+        persist.sys.kihooks.disable; do
+        resetprop -n -p "$_prop" 1 2>/dev/null || setprop "$_prop" 1 2>/dev/null || true
+    done
+    resetprop -n -p persist.sys.pihooks.disable.gms_props true 2>/dev/null || setprop persist.sys.pihooks.disable.gms_props true 2>/dev/null || true
+    resetprop -n -p persist.sys.pihooks.disable.gms_key_attestation_block true 2>/dev/null || setprop persist.sys.pihooks.disable.gms_key_attestation_block true 2>/dev/null || true
+    resetprop -n -p persist.sys.pihooks.enabled_features 0 2>/dev/null || setprop persist.sys.pihooks.enabled_features 0 2>/dev/null || true
+}
+
 # Configure DenyList
 add_if_missing() {
     pkg="$1"; proc="$2"

@@ -8,6 +8,11 @@ placeholder="$MODPATH/webroot/common_scripts"
 mkdir -p "$BOX/Integrity-Box-Logs"
 mkdir -p "$boot"
 
+SKIPPERSISTPROP=false
+SKIPDELPROP=false
+[ -f "$BOX/skippersistprop" ] && SKIPPERSISTPROP=true
+[ -f "$MODPATH/skipdelprop" ] && SKIPDELPROP=true
+
 # Grant perms 
 if [ -f "$placeholder/autopilot.sh" ]; then
     chmod 755 "$placeholder/autopilot.sh"
@@ -22,10 +27,12 @@ fi
 # Handle Vending-specific prop
 if [ -f "$BOX/enablevending" ]; then
     set_simpleprop persist.sys.pixelprops.vending true
+    is_crdroid && set_simpleprop persist.sys.pp.finsky true
 fi
 
 if [ -f "$BOX/disablevending" ]; then
     set_simpleprop persist.sys.pixelprops.vending false
+    is_crdroid && set_simpleprop persist.sys.pp.finsky false
 fi
 
 # Handle GMS-specific props
@@ -35,6 +42,10 @@ if [ -f "$BOX/enablegms" ]; then
     setprop persist.sys.pihooks.enabled_features 1
     setprop persist.sys.pihooks.disable 0
     setprop persist.sys.kihooks.disable 0
+    if is_crdroid; then
+        setprop persist.sys.pixelprops.pi true
+        setprop persist.sys.pp.gms true
+    fi
 fi
 
 if [ -f "$BOX/disablegms" ]; then
@@ -43,6 +54,10 @@ if [ -f "$BOX/disablegms" ]; then
     setprop persist.sys.pihooks.enabled_features 0
     setprop persist.sys.pihooks.disable 1
     setprop persist.sys.kihooks.disable 1
+    if is_crdroid; then
+        setprop persist.sys.pixelprops.pi false
+        setprop persist.sys.pp.gms false
+    fi
 fi
 
 # Create all placeholder files only if they don't exist
@@ -101,6 +116,10 @@ if [ -d "/data/adb/magisk" ]; then
 else
     echo "Skipped denylist, Bro's not using Magisk"
 fi
+
+# Run common tasks for installation and boot-time (custom ROM props neutralization)
+[ -f "$MODPATH/common_setup.sh" ] && . "$MODPATH/common_setup.sh"
+disable_crdroid_spoof
 
 # Conditional early sensitive properties
 

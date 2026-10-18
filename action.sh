@@ -448,6 +448,12 @@ done
 
 log_step "RESTART" "Google Service Processes"
 
+# Neutralize crDroid conflicting built-in spoofing if detected
+if is_crdroid; then
+    disable_crdroid_spoof
+    log_step "CRDROID" "crDroid PixelProps neutralized"
+fi
+
 sh "$SCRIPT_DIR/cleanup.sh" >/dev/null 2>&1; 
 
 # Execute teesim.sh unless explicitly disabled

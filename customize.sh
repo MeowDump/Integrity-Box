@@ -16,6 +16,7 @@ LEGACY="$MODPATH/webroot"
 mkdir -p "$LOG_DIR" || true
 mkdir -p "$MEOW"
 mkdir -p "$TRICKY"
+[ -f "$MODPATH/common_func.sh" ] && . "$MODPATH/common_func.sh"
 
 # Logger
 debug() {
@@ -71,7 +72,6 @@ detect_rom() {
         ro.lineage.build.version.plat.sdk
         ro.infinity.version
         ro.axion.version
-        ro.crdroid.device
     "
     for prop in $props; do
         local val
@@ -87,6 +87,18 @@ detect_rom() {
             return 1
         fi
     done
+
+    # Check crDroid via unified helper
+    if is_crdroid; then
+        echo "$TS | Custom ROM detected: crDroid" >> "$LOG_FILE" 2>/dev/null
+        echo "Result: Custom ROM (crDroid)" >> "$LOG_FILE" 2>/dev/null
+        echo "Detection Completed - $(date)" >> "$LOG_FILE" 2>/dev/null
+        debug " ✦ ROM type: Custom ROM (crDroid)"
+        # Disable built-in spoofing by default
+        touch "$FLAG/disablegms"
+        touch "$FLAG/disablevending"
+        return 1
+    fi
 
     local pkgs="
         org.lineageos.audiofx
