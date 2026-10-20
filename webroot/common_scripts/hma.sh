@@ -1,24 +1,22 @@
 #!/system/bin/sh
 
-SRC_CONFIG="/data/adb/modules/playintegrityfix/hidemyapplist/config.json"
+SRC_CONFIG="/data/adb/modules/playintegrityfix/toolkit/HMA-OOS.json"
 
-APP_PATHS="
-/data/user/0/org.frknkrc44.hma_oss
-/data/user/0/com.google.android.hmal
-/data/user/0/com.tsng.hidemyapplist
-"
+HMA_PKG="org.frknkrc44.hma_oss"
+HMA_ACTIVITY="org.frknkrc44.hma_oss/.ui.activity.MainActivity"
+
+MISC_DIR="/data/misc"
+HMA_PREFIX="hide_my_applist"
 
 LOG_DIR="/data/adb/Box-Brain/Integrity-Box-Logs"
 LOG_FILE="$LOG_DIR/hma.log"
 
 BACKUP_DIR="/data/adb/HMA"
 DATE_TAG="$(date '+%Y-%m-%d_%H-%M-%S')"
-ANTISELINUX="/data/adb/Box-Brain/antiselinux"
+SKIP_FLAG="/data/adb/Box-Brain/skip"
 
 ORIG_SELINUX=""
 SELINUX_CHANGED=0
-PKG_NAME=""
-ACTIVITY=""
 
 mkdir -p "$LOG_DIR"
 mkdir -p "$BACKUP_DIR"
@@ -57,118 +55,96 @@ fi
 
 log "Source config found: $SRC_CONFIG"
 
-HMA_INSTALLED=0
-if pm list packages | grep -q "^package:org.frknkrc44.hma_oss$"; then
-    HMA_INSTALLED=1
-    PKG_NAME="org.frknkrc44.hma_oss"
-    ACTIVITY="org.frknkrc44.hma_oss/.ui.activity.MainActivity"
-elif pm list packages | grep -q "^package:com.google.android.hmal$"; then
-    HMA_INSTALLED=1
-    PKG_NAME="com.google.android.hmal"
-    ACTIVITY="com.google.android.hmal/icu.nullptr.hidemyapplist.ui.activity.MainActivity"
-elif pm list packages | grep -q "^package:com.tsng.hidemyapplist$"; then
-    HMA_INSTALLED=1
-    PKG_NAME="com.tsng.hidemyapplist"
-    ACTIVITY="com.tsng.hidemyapplist/icu.nullptr.hidemyapplist.ui.activity.MainActivity"
-fi
-
-if [ "$HMA_INSTALLED" -eq 0 ]; then
-    log "No supported HMA app installed"
+if ! pm list packages | grep -q "^package:${HMA_PKG}$"; then
+    log "HMA-OSS not installed"
     log "Opening download page..."
     nohup am start -a android.intent.action.VIEW -d "https://github.com/frknkrc44/HMA-OSS/releases" > /dev/null 2>&1 &
     exit 1
 fi
 
-log "Resolved package name: $PKG_NAME"
+log "HMA-OSS installed: $HMA_PKG"
 
-TARGET_APP=""
-for APP in $APP_PATHS; do
-    if [ -d "$APP" ]; then
-        TARGET_APP="$APP"
-        log "Found installed app data path: $APP"
+TARGET_DIR=""
+for DIR in "$MISC_DIR"/${HMA_PREFIX}_*; do
+    if [ -d "$DIR" ]; then
+        TARGET_DIR="$DIR"
+        log "Found target directory: $DIR"
         break
     fi
 done
 
-if [ -z "$TARGET_APP" ]; then
-    log "App installed but data directory not found"
-    log "Launching app to create data directory..."
-    log "Launching activity: $ACTIVITY"
-    am start --user 0 -a android.intent.action.VIEW -n "$ACTIVITY" >>"$LOG_FILE" 2>&1
+if [ -z "$TARGET_DIR" ]; then
+    log "Target directory not found, launching app to create it..."
+    log "Launching activity: $HMA_ACTIVITY"
+    am start --user 0 -a android.intent.action.VIEW -n "$HMA_ACTIVITY" >>"$LOG_FILE" 2>&1
     sleep 5
-    am force-stop "$PKG_NAME" >>"$LOG_FILE" 2>&1
-    log "App launched and stopped, checking data directory..."
-    
-    for APP in $APP_PATHS; do
-        if [ -d "$APP" ]; then
-            TARGET_APP="$APP"
-            log "Data directory now available: $APP"
+    am force-stop "$HMA_PKG" >>"$LOG_FILE" 2>&1
+
+    for DIR in "$MISC_DIR"/${HMA_PREFIX}_*; do
+        if [ -d "$DIR" ]; then
+            TARGET_DIR="$DIR"
+            log "Target directory now available: $DIR"
             break
         fi
     done
-    
-    if [ -z "$TARGET_APP" ]; then
-        log "ERROR: Data directory still not created after launch"
+
+    if [ -z "$TARGET_DIR" ]; then
+        log "ERROR: Target directory still not created after launch"
         exit 1
     fi
 fi
 
-TARGET_FILES="$TARGET_APP/files"
-TARGET_CONFIG="$TARGET_FILES/config.json"
-
-if [ ! -d "$TARGET_FILES" ]; then
-    log "/files directory missing, creating: $TARGET_FILES"
-    mkdir -p "$TARGET_FILES" || {
-        log "ERROR: Failed to create $TARGET_FILES"
-        exit 1
-    }
-fi
+TARGET_CONFIG="$TARGET_DIR/config.json"
 
 if [ -f "$TARGET_CONFIG" ]; then
     BACKUP_NAME="config_${DATE_TAG}.json"
-    log "Existing config found, moving to $BACKUP_DIR/$BACKUP_NAME"
-    mv "$TARGET_CONFIG" "$BACKUP_DIR/$BACKUP_NAME" || {
-        log "ERROR: Failed to move existing config"
+    log "Existing config found, backing up to $BACKUP_DIR/$BACKUP_NAME"
+    cp "$TARGET_CONFIG" "$BACKUP_DIR/$BACKUP_NAME" || {
+        log "ERROR: Failed to backup existing config"
         exit 1
     }
 fi
 
-log "Copying new config to $TARGET_CONFIG"
+log "Copying config to: $TARGET_CONFIG"
 cp "$SRC_CONFIG" "$TARGET_CONFIG" || {
     log "ERROR: Failed to copy new config"
     exit 1
 }
 
-chmod 666 "$TARGET_CONFIG"
-chown system:system "$TARGET_CONFIG" 2>/dev/null
+chmod 644 "$TARGET_CONFIG" || {
+    log "ERROR: Failed to set permissions on $TARGET_CONFIG"
+    exit 1
+}
 
-if [ ! -f "$ANTISELINUX" ]; then
+log "Config copied successfully"
+
+log "Force stopping HMA OSS"
+am force-stop "$HMA_PKG" >>"$LOG_FILE" 2>&1
+
+if [ -f "$SKIP_FLAG" ]; then
+    log "skip flag found, skipping SELinux mode change"
+else
     ORIG_SELINUX="$(get_selinux_mode)"
-    log "Current SELinux mode: $ORIG_SELINUX"
+    log "SELinux mode: $ORIG_SELINUX"
     if [ "$ORIG_SELINUX" = "Enforcing" ]; then
-        log "Switching SELinux to Permissive temporarily"
+        log "Temporarily setting SELinux to Permissive"
         set_selinux_permissive
         SELINUX_CHANGED=1
         sleep 0.5
     fi
-else
-    log "antiselinux flag found, skipping SELinux mode change"
 fi
 
-log "Force stopping app: $PKG_NAME"
-am force-stop "$PKG_NAME" >>"$LOG_FILE" 2>&1
-sleep 1
-log "Launching activity: $ACTIVITY"
-am start --user 0 -a android.intent.action.VIEW -n "$ACTIVITY" >>"$LOG_FILE" 2>&1
+log "Launching HMA OSS"
+am start --user 0 -a android.intent.action.VIEW -n "$HMA_ACTIVITY" >>"$LOG_FILE" 2>&1
 if [ $? -eq 0 ]; then
-    log "App launched successfully"
+    log "HMA OSS launched successfully"
 else
     log "ERROR: Failed to launch app"
 fi
 
 restore_selinux
-log "Config copy completed successfully"
-log "••••••••••••• Finished •••••••••••••"
+
+log "••••••••••••• HMA config sync finished •••••••••••••"
 log
 log
 exit 0

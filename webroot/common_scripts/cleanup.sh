@@ -2,9 +2,14 @@
 F="/data/adb/tricky_store/keybox.xml"
 T="/data/adb/tricky_store/keybox.xml.tmp"
 L="/data/adb/Box-Brain/Integrity-Box-Logs/remove.log"
-X="dowhat,youlove,lovewhat,youdo"
+X="aristotle,socrates,plato,confucius"
 
 log() {
+    if [[ -z "${_L_LOG_INITIALIZED:-}" ]]; then
+        : > "$L"
+        _L_LOG_INITIALIZED=1
+    fi
+
     echo "- $1" >> "$L"
 }
 
@@ -58,6 +63,8 @@ mv "$T" "$F"
     delete_if_exist /data/adb/integrity_box_verify
 	delete_if_exist /data/adb/modules_update/playintegrityfix/verify.sh
 	delete_if_exist /data/adb/service.d/shamiko.sh # we don't need this anymore 
+	delete_if_exist /data/adb/modules_update/auto_generated # canary updater
+	delete_if_exist /data/adb/modules/auto_generated
 	delete_if_exist /data/adb/modules_update/playintegrityfix/hash
 	delete_if_exist /data/adb/modules_update/playintegrityfix/credits.md
 	delete_if_exist /data/adb/modules_update/playintegrityfix/acknowledgement.md
@@ -78,11 +85,15 @@ mv "$T" "$F"
 	delete_if_exist /data/adb/modules/playintegrityfix/PIXEL_ZIP_METADATA
 	delete_if_exist /data/adb/modules/playintegrityfix/osm0sis
 	delete_if_exist /data/adb/pif.prop
+	delete_if_exist /data/adb/service.d/package.sh
 	delete_if_exist /data/adb/pif.json
 	delete_if_exist /data/local/tmp/keybox_scan.log
 	delete_if_exist /data/local/tmp/keybox_runner.log
 	delete_if_exist /data/adb/modules/playintegrityfix/consent.sh
 	delete_if_exist /data/adb/modules/playintegrityfix/config.md
+	delete_if_exist /data/adb/modules/playintegrityfix/legacy
+	delete_if_exist /data/adb/modules/playintegrityfix/autopif4
+	delete_if_exist /data/adb/modules/playintegrityfix/hello.sh
     echo "••••••• Cleanup Ended •••••••"
     echo " "
 } >> "$L" 2>&1

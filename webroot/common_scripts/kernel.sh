@@ -4,6 +4,11 @@ LOG="/data/adb/Box-Brain/Integrity-Box-Logs/kernel.log"
 mkdir -p "$(dirname "$LOG")"
 
 log() {
+    if [[ -z "${_LOG_INITIALIZED:-}" ]]; then
+        : > "$LOG"
+        _LOG_INITIALIZED=1
+    fi
+
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG"
 }
 
