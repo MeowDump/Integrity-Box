@@ -1,138 +1,459 @@
 RECORD="/data/adb/Box-Brain/Integrity-Box-Logs"
-OUT="/storage/emulated/0/Download/IntegrityModules"
 BOX="/data/adb/Box-Brain"
-LOGZ="/data/adb/Box-Brain/Integrity-Box-Logs/integrity_downloader.log"
+LOGZ="/data/adb/Box-Brain/Integrity-Box-Logs/move.log"
 LOG_FILE="/data/adb/Box-Brain/Integrity-Box-Logs/action.log"
-WIDTH=53
+
+# Truncate per-run logs once at startup instead of inside every logger
+mkdir -p "$RECORD"
+for _f in denylist.log lineage.log patch.log boot.log; do
+    : > "$RECORD/$_f"
+done
+: > "$LOG_FILE"
+
+record() { # record <file> <message>
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $2" >> "$RECORD/$1"
+}
+say() {    # say <file> <message>
+    record "$1" "$2"; echo "$2"
+}
+log() {    # log <message>
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"
+    /system/bin/log -t PATCH_OVERRIDE "$1"
+}
+
+update_module_description() {
+  MODPATH="/data/adb/modules/playintegrityfix"
+  PROP="$MODPATH/module.prop"
+  BAK="$PROP.bak"
+  P="$MODPATH/custom.pif.prop"
+
+  # Find BusyBox
+  bb=""
+  for p in /data/adb/modules/busybox-ndk/system/*/busybox \
+           /data/adb/ksu/bin/busybox \
+           /data/adb/ap/bin/busybox \
+           /data/adb/magisk/busybox \
+           /system/bin/busybox \
+           /system/xbin/busybox; do
+    [ -x "$p" ] && bb="$p" && break
+  done
+  [ -z "$bb" ] && return 0
+
+  # Read device identity
+  MODEL=""
+  DEVICE=""
+  INIT_SDK=""
+
+  if [ -f "$P" ]; then
+    MODEL=$("$bb" sed -n 's/^MODEL=//p' "$P" | "$bb" head -n1)
+    DEVICE=$("$bb" sed -n 's/^DEVICE=//p' "$P" | "$bb" head -n1)
+    INIT_SDK=$("$bb" sed -n 's/^DEVICE_INITIAL_SDK_INT=//p' "$P" | "$bb" head -n1)
+  fi
+
+  [ -z "$MODEL" ] && MODEL="Unknown"
+  [ -z "$DEVICE" ] && DEVICE="Unknown"
+  [ -z "$INIT_SDK" ] && INIT_SDK="Unknown"
+
+  # Build description
+  DESC="current spoofing indentify: $MODEL ($DEVICE) | InitSDK: $INIT_SDK"
+
+  # Backup original properties
+  [ ! -f "$BAK" ] && "$bb" cp "$PROP" "$BAK"
+
+  # Update description
+  "$bb" sed -i '/^description=/d' "$PROP"
+  echo "description=$DESC" >> "$PROP"
+}
+
+cleanup_root_logs() {
+  BOX="/data/adb/Box-Brain"
+  DIR="/sdcard/Download"
+
+  [ -f "$BOX/root" ] || return 0
+
+  rm -f "$BOX/root"
+
+  find "$DIR" -type f \( \
+    -name "*_install_log_2026*" -o \
+    -name "*_action_log_2026*" \
+  \) | while read -r f; do
+    echo "$(date '+%F %T') Deleted: $f" | tee -a "$LOG"
+    rm -f "$f"
+  done
+
+  handle_delay
+  exit 0
+}
+
+cleanup_ota() {
+  BOX="/data/adb/Box-Brain"
+  
+  [ -e "$BOX/ota" ] || return 0
+
+  rm -f "$MODPATH/system.prop" "$BOX/NoLineageProp"
+  rm -rf "$BOX/override" "$BOX/ota"
+  touch "$BOX/safemode"
+
+  echo " "
+  echo " "
+  echo "  D O N E | REBOOT YOUR DEVICE"
+
+  handle_delay
+  exit 0
+}
+
+cleanup_lsposed() {
+  BOX="/data/adb/Box-Brain"
+  
+  [ -f "$BOX/lsposed" ] || return 0
+
+  echo "[*] Starting cleanup..."
+
+  if getprop | grep -q '^\[dalvik.vm.dex2oat-flags\]'; then
+    echo "[*] Removing dalvik.vm.dex2oat-flags..."
+    resetprop -p dalvik.vm.dex2oat-flags &&
+      echo "[✓] Property removed." ||
+      echo "[!] Failed to remove property."
+  fi
+
+  rm -f "$BOX/lsposed" && echo "[✓] Cleanup complete."
+
+  echo "[*] Done. Exiting."
+  exit 0
+}
+
+cleanup_gapps_logs() {
+  BOX="/data/adb/Box-Brain"
+  LOGFILE="$BOX/Integrity-Box-Logs/gapps.log"
+
+  [ -f "$BOX/gapps" ] || return 0
+
+  rm -f "$BOX/gapps"
+
+  {
+    echo "===================================="
+    echo "Starting Log Cleanup"
+    echo "===================================="
+    echo ""
+
+    TARGETS="
+/sdcard/Android/litegapps/litegapps_controller.log
+/tmp/NikGapps/logfiles
+/tmp/NikGapps/addonscripts
+/tmp/NikGapps/logfiles/package_log
+/tmp/NikGapps
+/sdcard/NikGapps
+/tmp/recovery.log
+/tmp/NikGapps.log
+/tmp/Mount.log
+/tmp/installation_size.log
+/tmp/busybox.log
+/tmp/Logs-*.tar.gz
+/tmp/bitgapps_debug_logs_*.tar.gz
+/sdcard/bitgapps_debug_logs_*.tar.gz
+/system/etc/bitgapps_debug_logs_*.tar.gz
+/sdcard/Download/*_install_log_2026*
+/sdcard/Download/*_action_log_2026*
+"
+
+    for path in $TARGETS; do
+      if echo "$path" | grep -q '\*'; then
+        files=$(find "$(dirname "$path")" -type f -name "$(basename "$path")" 2>/dev/null)
+      else
+        files=$(find "$path" -type f 2>/dev/null)
+      fi
+
+      if [ -n "$files" ]; then
+        echo "Found: $path"
+        echo "$files"
+
+        echo "$files" | while IFS= read -r f; do
+          [ -n "$f" ] || continue
+          echo "Deleting: $f"
+          rm -rf "$f" 2>&1
+        done
+      elif [ -d "$path" ]; then
+        echo "Deleting directory: $path"
+        rm -rf "$path" 2>&1
+      fi
+    done
+
+    echo ""
+    echo "Cleanup complete."
+    echo "===================================="
+  } | tee -a "$LOGFILE"
+
+  handle_delay
+  exit 0
+}
+
+download_keybox() {
+  MODPATH="${0%/*}"
+  BOX="/data/adb/Box-Brain"
+
+  SCRIPT_DIR="$MODPATH/webroot/common_scripts"
+  UNOFFICIAL="$BOX/disable-default-source"
+  PRIMARY="$SCRIPT_DIR/key.sh"
+  SECONDARY="$SCRIPT_DIR/spectre.sh"
+
+  if [ -f "$UNOFFICIAL" ]; then
+    sh "$SECONDARY" || { sleep 10; exit 1; }
+  else
+    sh "$PRIMARY" || { sleep 10; exit 1; }
+  fi
+
+  echo " "
+}
+
+update_targets() {
+  local BOX="/data/adb/Box-Brain"
+  local SKIP_FILE="$BOX/skip"
+  local TARGET_DIR="/data/adb/tricky_store"
+  local TARGET="$TARGET_DIR/target.txt"
+  local BACKUP="$TARGET.bak"
+  local TMP="$TARGET.new.$$"
+  local BLACKLIST="$BOX/blacklist.txt"
+  local TEE_STATUS="$TARGET_DIR/tee_status"
+  local orig_selinux
+  local teeBroken="false"
+  local pkg
+  local success=0
+  local made_backup=0
+
+  orig_selinux="$(getenforce 2>/dev/null)" || orig_selinux="Permissive"
+
+  # Restore SELinux state and clean temporary files on exit 
+  _restore_target_update_state() {
+    [ -n "$TMP" ] && rm -f "$TMP" "${TMP}.filtered"
+
+    if [ "$orig_selinux" = "Enforcing" ] &&
+       [ ! -f "$SKIP_FILE" ]; then
+      setenforce 1 2>/dev/null
+    fi
+  }
+
+  # Ensure the target directory exists.
+  if ! mkdir -p "$TARGET_DIR" 2>/dev/null; then
+    echo " ✖ Failed to create Tricky Store directory."
+    _restore_target_update_state
+    unset -f _restore_target_update_state
+    return 1
+  fi
+
+  # Temporarily disable SELinux enforcement
+  if [ ! -f "$SKIP_FILE" ] && [ "$orig_selinux" = "Enforcing" ]; then
+    if ! setenforce 0 2>/dev/null; then
+      echo " ✖ Failed to change SELinux mode."
+      _restore_target_update_state
+      unset -f _restore_target_update_state
+      return 1
+    fi
+  fi
+
+  # Back up existing target configuration.
+  if [ -f "$TARGET" ]; then
+    if mv -f "$TARGET" "$BACKUP"; then
+      made_backup=1
+      echo " ✦ Backing up existing targets"
+    else
+      echo " ✖ Failed to back up existing targets."
+      _restore_target_update_state
+      unset -f _restore_target_update_state
+      return 1
+    fi
+  fi
+
+  # Read TEE status.
+  if [ -f "$TEE_STATUS" ] &&
+     grep -q '^teeBroken=true$' "$TEE_STATUS"; then
+    teeBroken="true"
+  fi
+
+  # Create the default target list.
+  for pkg in \
+    com.android.vending \
+    com.google.android.gms \
+    com.google.android.gsf \
+    io.github.qwq233.keyattestation \
+    io.github.vvb2060.keyattestation \
+    com.google.android.apps.walletnfcrel \
+    com.google.android.apps.messaging; do
+    echo "$pkg" >> "$TMP"
+  done
+
+  # Add third-party packages.
+  cmd package list packages -3 2>/dev/null |
+    cut -d ':' -f2 |
+    while IFS= read -r pkg; do
+      [ -z "$pkg" ] && continue
+      grep -Fxq "$pkg" "$TMP" || echo "$pkg" >> "$TMP"
+    done
+
+  # Normalize and deduplicate targets.
+  if ! sed -i 's/^[[:space:]]*//;s/[[:space:]]*$//' "$TMP" ||
+     ! sort -u "$TMP" -o "$TMP"; then
+    echo " ✖ Failed to prepare target list."
+    [ "$made_backup" -eq 1 ] && mv -f "$BACKUP" "$TARGET"
+    _restore_target_update_state
+    unset -f _restore_target_update_state
+    return 1
+  fi
+
+  # Apply blacklist.
+  if [ -s "$BLACKLIST" ]; then
+    if ! sed -i 's/^[[:space:]]*//;s/[[:space:]]*$//' "$BLACKLIST" ||
+       ! grep -Fvxf "$BLACKLIST" "$TMP" > "${TMP}.filtered"; then
+      echo " ✖ Failed to apply blacklist."
+      [ "$made_backup" -eq 1 ] && mv -f "$BACKUP" "$TARGET"
+      _restore_target_update_state
+      unset -f _restore_target_update_state
+      return 1
+    fi
+
+    mv -f "${TMP}.filtered" "$TMP" || {
+      echo " ✖ Failed to save filtered target list."
+      [ "$made_backup" -eq 1 ] && mv -f "$BACKUP" "$TARGET"
+      _restore_target_update_state
+      unset -f _restore_target_update_state
+      return 1
+    }
+
+    echo " ✦ Filtering blacklisted packages"
+  else
+    echo " ✦ No blacklist configured. Skipping.."
+  fi
+
+  # Mark targets for broken TEE devices.
+  if [ "$teeBroken" = "true" ]; then
+    if ! sed -i 's/$/!/' "$TMP"; then
+      echo " ✖ Failed to apply TEE markers."
+      [ "$made_backup" -eq 1 ] && mv -f "$BACKUP" "$TARGET"
+      _restore_target_update_state
+      unset -f _restore_target_update_state
+      return 1
+    fi
+    echo " ✦ Extended support for broken TEE devices"
+  fi
+
+  # Install the new target list.
+  if mv -f "$TMP" "$TARGET"; then
+    success=1
+    echo " ✦ Target verification succeed"
+    echo " "
+  else
+    echo " ✖ Failed to update target packages."
+    echo " "
+    [ "$made_backup" -eq 1 ] && mv -f "$BACKUP" "$TARGET"
+  fi
+
+  _restore_target_update_state
+  unset -f _restore_target_update_state
+
+  [ "$success" -eq 1 ]
+}
+
+handle_security_patch() {
+  local BOX="/data/adb/Box-Brain"
+  local LOGDIR="$BOX/Integrity-Box-Logs"
+  local PATCH_LOG="$LOGDIR/patch.log"
+  local PATCH_FLAG="$BOX/patch"
+  local SKIP_FILE="$BOX/skip"
+  local PATCH_DATE="2026-10-05"
+  local PROP_MAIN="ro.build.version.security_patch"
+  local FILE_PATH="/data/adb/tricky_store/security_patch.txt"
+  local BRAND_PROP
+  local CURRENT_PROP
+
+  BRAND_PROP="$(getprop ro.product.system.brand)"
+
+  if ! mkdir -p "${FILE_PATH%/*}" 2>/dev/null; then
+    echo " ✖ Failed to create Tricky Store directory."
+    return 1
+  fi
+
+  # Write security_patch.txt based on patch flag
+  if [ -f "$PATCH_FLAG" ]; then
+    if ! echo "system=prop" > "$FILE_PATH" 2>>"$PATCH_LOG"; then
+      echo " ✖ Failed to write security patch configuration."
+      return 1
+    fi
+
+    echo " ✦ Updated Patch to Stock"
+  else
+    if ! echo "all=$PATCH_DATE" > "$FILE_PATH" 2>>"$PATCH_LOG"; then
+      echo " ✖ Failed to write security patch configuration."
+      return 1
+    fi
+
+    echo " ✦ Spoofed Attestation Patch to $PATCH_DATE"
+
+    CURRENT_PROP="$(getprop "$PROP_MAIN" | tr -d ' \t\r\n')"
+    echo "Current $PROP_MAIN: $CURRENT_PROP" >> "$PATCH_LOG"
+
+    # Skip resetprop if skip file exists
+    if [ -f "$SKIP_FILE" ]; then
+      echo " ✦ Skip patch is ON, skipping resetprop"
+
+    # Skip resetprop only for Oplus devices
+    elif [ "$BRAND_PROP" = "oplus" ]; then
+      echo " ✦ Skipped patch due to 1+ hardware issues"
+
+    else
+      if [ "$CURRENT_PROP" != "$PATCH_DATE" ]; then
+        if command -v resetprop >/dev/null 2>&1; then
+          if resetprop "$PROP_MAIN" "$PATCH_DATE"; then
+            resetprop --compact >/dev/null 2>&1 || true
+            echo " ✦ Patched $PROP_MAIN to $PATCH_DATE"
+          else
+            echo " ✖ Unable to update $PROP_MAIN"
+          fi
+        else
+          echo " ✖ resetprop not found"
+        fi
+      else
+        echo " ✦ Android Patch spoofed to latest Pixel release"
+      fi
+    fi
+  fi
+
+  echo "Patch handling complete" >> "$PATCH_LOG"
+  echo "" >> "$PATCH_LOG"
+}
 
 # Property Backend Setup
-RESETPROP="resetprop"
+RESETPROP="resetprop -n"
 PROP_DELETE="resetprop --delete"
-PROP_WAIT="resetprop -w"
 COMPACT_SUPPORTED=false
+PROP_WAIT="resetprop -w"
+IS_MAGISK=false
 
-# Root Solution Detection & Binary Setup
-detect_root_solution() {
-    if [ -f "/data/adb/ksud" ] || [ -d "/data/adb/ksu" ]; then
-        # KernelSU
-        if [ -f "/data/adb/ksu/bin/resetprop" ]; then
-            export PATH="/data/adb/ksu/bin:$PATH"
-            echo "kernelsu"
-        else
-            echo "kernelsu_legacy"
+setup_resetprop() {
+    if [ -f "/data/adb/magisk" ] || [ -f "/data/adb/magisk/magisk" ]; then
+        if [ -f /data/adb/magisk/util_functions.sh ]; then
+            MAGISK_VER=$(grep MAGISK_VER_CODE /data/adb/magisk/util_functions.sh | cut -d= -f2)
+            [ "$MAGISK_VER" -lt 27003 ] 2>/dev/null && RESETPROP="resetprop_hexpatch"
         fi
-    elif [ -f "/data/adb/apd" ] || [ -d "/data/adb/ap" ]; then
-        # APatch
-        if [ -f "/data/adb/ap/bin/resetprop" ]; then
-            export PATH="/data/adb/ap/bin:$PATH"
-            echo "apatch"
-        else
-            echo "apatch_legacy"
-        fi
-    elif [ -f "/data/adb/magisk" ] || [ -f "/data/adb/magisk/magisk" ]; then
-        # Magisk
-        echo "magisk"
+        resetprop --help 2>&1 | grep -q "compact" && COMPACT_SUPPORTED=true
     else
-        echo "unknown"
+        for _p in /data/adb/ksu/bin /data/adb/ap/bin; do
+            [ -x "$_p/resetprop" ] && { export PATH="$_p:$PATH"; break; }
+        done
+        COMPACT_SUPPORTED=true
     fi
 }
-
-ROOT_SOL=$(detect_root_solution)
-
-# resetprop Feature Detection
-check_compact_support() {
-    resetprop --help 2>&1 | grep -q "compact"
-}
+setup_resetprop
 
 # stub for boot-time
 if [ "$(getprop sys.boot_completed)" != "1" ]; then
     ui_print() { return; }
 fi
 
-setup_resetprop() {
-    case "$ROOT_SOL" in
-        magisk)
-            # Check Magisk version for hexpatch fallback
-            if [ -f /data/adb/magisk/util_functions.sh ]; then
-                MAGISK_VER=$(grep MAGISK_VER_CODE /data/adb/magisk/util_functions.sh | cut -d= -f2)
-                [ "$MAGISK_VER" -lt 27003 ] 2>/dev/null && RESETPROP="resetprop_hexpatch" || RESETPROP="resetprop -n"
-            else
-                RESETPROP="resetprop -n"
-            fi
-            check_compact_support && COMPACT_SUPPORTED=true
-            ;;
-        kernelsu|apatch)
-            # Modern KSU/APatch with resetprop support
-            RESETPROP="resetprop -n"
-            PROP_DELETE="resetprop --delete"
-            PROP_WAIT="resetprop -w"
-            check_compact_support && COMPACT_SUPPORTED=true
-            ;;
-        kernelsu_legacy|apatch_legacy|unknown)
-            # Legacy or unknown - limited setprop only
-            RESETPROP="setprop"
-            PROP_DELETE="setprop"  # Can't actually delete
-            PROP_WAIT="sleep"
-            ;;
-    esac
-}
-
-safemode_flags() {
-	
-    local dir="/data/adb/Box-Brain"
-	
-    [ -f "$dir/safemode" ] || return 0
-	
-
-	
-    for f in spoof-los-boot nuke-los-boot spoof-custom-rom-boot NoLineageProp nodebug build tag encrypt hidehook; do
-	
-        [ -f "$dir/$f" ] && rm -f "$dir/$f"
-	
-    done
-	
-}
-
-set_perm_if_needed() {
-    _file="$1"
-    _perm="$2"
-    
-    # Skip if missing
-    [ -e "$_file" ] || return 0
-    
-    # For 755: just check if owner executable bit is set
-    [ -x "$_file" ] && return 0
-    
-    # Only chmod if not executable
-    chmod "$_perm" "$_file" 2>/dev/null || true
-}
-
-# Compact Function
 run_compact() {
     $COMPACT_SUPPORTED && resetprop -c 2>/dev/null
 }
 
-# Logger function
-pif() {
-    echo "$1" | tee -a "$RECORD/PlayIntegrityScript.log"
-}
-
-recommended_settings() {
-    touch "$BOX/migrate_force"
-    touch "$BOX/run_migrate"
-}
-
-# Logger function
-denylog() {
-    echo "$1" | tee -a "$RECORD/denylist.log"
-}
-
-center() { printf "%*s\n" $(((${#1}+$WIDTH)/2)) "$1"; }
-
-banner() {
-  printf "%${WIDTH}s\n" | tr ' ' '='
-  center "INTEGRITY BOX DOWNLOADER"
-  printf "%${WIDTH}s\n" | tr ' ' '='
+make_exec() {
+    chmod 755 "$1"
 }
 
 randomize_banner() {
@@ -140,159 +461,56 @@ randomize_banner() {
     local base_url="https://raw.githubusercontent.com/MeowDump/MeowDump/refs/heads/main/Banner"
     local random_num=$((RANDOM % 14 + 1))
     local new_banner="${base_url}/mona${random_num}.png"
-    
+
     sed -i "s|^banner=.*|banner=${new_banner}|" "$prop_file"
 }
 
-print_row() {
-  printf "%-22s %-12s %-20s\n" "$1" "$2" "$3"
-}
-
-sha_ok() {
-  if [ ! -f "$1" ]; then return 1; fi
-  echo "$2  $1" | sha256sum -c - >/dev/null 2>&1
-}
-
-get_size() {
-  if [ -f "$1" ]; then du -h "$1" 2>/dev/null | awk '{print $1}'; else echo "-"; fi
-}
-
-# determine downloader binary
 detect_downloader() {
-  # curl
   if command -v curl >/dev/null 2>&1; then
-    DOWNLOADER=$(command -v curl)
-    DL_MODE="curl"
-    return
+    DOWNLOADER=$(command -v curl); DL_MODE="curl"; return
   fi
-
-  # wget
   if command -v wget >/dev/null 2>&1; then
-    DOWNLOADER=$(command -v wget)
-    DL_MODE="wget"
-    return
+    DOWNLOADER=$(command -v wget); DL_MODE="wget"; return
   fi
-
-  # Magisk BusyBox
   if [ -x /data/adb/magisk/busybox ]; then
-    DOWNLOADER="/data/adb/magisk/busybox"
-    DL_MODE="busybox"
-    return
+    DOWNLOADER="/data/adb/magisk/busybox"; DL_MODE="busybox"; return
   fi
-
-  # KSU BusyBox
   if [ -x /data/adb/ksu/bin/busybox ]; then
-    DOWNLOADER="/data/adb/ksu/bin/busybox"
-    DL_MODE="busybox"
-    return
+    DOWNLOADER="/data/adb/ksu/bin/busybox"; DL_MODE="busybox"; return
   fi
-
-  # Built-in toybox wget
   if toybox wget --help >/dev/null 2>&1; then
-    DOWNLOADER="toybox"
-    DL_MODE="toybox"
-    return
+    DOWNLOADER="toybox"; DL_MODE="toybox"; return
   fi
-
-  # nothing available
-  DOWNLOADER=""
-  DL_MODE=""
+  DOWNLOADER=""; DL_MODE=""
 }
 
-wait_for_network() {
-  max_wait=${1:-30} # seconds
-  step=2
-  waited=0
+# Connectivity check 
+wait_for_network() { 
+  local max_wait="${1:-30}" step=2 waited=0 host
 
-  while [ $waited -lt $max_wait ]; do
-    if command -v ping >/dev/null 2>&1; then
-      ping -c 1 1.1.1.1 >/dev/null 2>&1 && return 0
-    fi
-
-    if [ -n "$DOWNLOADER" ]; then
-      if [ "$DL_MODE" = "curl" ]; then
-        /system/bin/curl -s --head --connect-timeout 5 https://raw.githubusercontent.com >/dev/null 2>&1 && return 0
-      elif [ "$DL_MODE" = "wget" ]; then
-        /system/bin/wget --spider --timeout=5 --tries=1 https://raw.githubusercontent.com >/dev/null 2>&1 && return 0
-      elif [ "$DL_MODE" = "busybox" ]; then
-        /data/adb/magisk/busybox wget --spider --timeout=5 --tries=1 https://raw.githubusercontent.com >/dev/null 2>&1 && return 0
-      fi
-    fi
-
-    sleep $step
+  while [ "$waited" -lt "$max_wait" ]; do
+    for host in 1.1.1.1 8.8.8.8 9.9.9.9 223.5.5.5 114.114.114.114; do
+      ping -c1 -W2 "$host" >/dev/null 2>&1 && return 0
+    done
+    sleep "$step"
     waited=$((waited+step))
   done
-
-  return 1
-}
-
-download() {
-  url="$1"
-  file="$2"
-  sum="$3"
-
-  tmp="$OUT/$file.tmp"
-  final="$OUT/$file"
-  rm -f "$tmp" "$final"
-
-  detect_downloader
-  if [ -z "$DOWNLOADER" ]; then
-    echo "ERROR: No downloader binary found" >>"$LOGZ"
-    return 1
-  fi
-
-  att=1
-  while [ $att -le 3 ]; do
-    echo "$(date +%F' '%T) Download attempt $att for $file using $DL_MODE" >>"$LOGZ"
-
-    if [ "$DL_MODE" = "curl" ]; then
-        "$DOWNLOADER" -L --fail --connect-timeout 10 --max-time 120 -o "$tmp" "$url" 2>>"$LOGZ"
-        rc=$?
-    elif [ "$DL_MODE" = "wget" ]; then
-        "$DOWNLOADER" --no-check-certificate -O "$tmp" "$url" 2>>"$LOGZ"
-        rc=$?
-    elif [ "$DL_MODE" = "busybox" ]; then
-        "$DOWNLOADER" wget --no-check-certificate -O "$tmp" "$url" 2>>"$LOGZ"
-        rc=$?
-    elif [ "$DL_MODE" = "toybox" ]; then
-        toybox wget -O "$tmp" "$url" 2>>"$LOGZ"
-        rc=$?
-    fi
-
-    if [ $rc -ne 0 ]; then
-      echo "WARN: downloader failed rc=$rc for $file" >>"$LOGZ"
-      rm -f "$tmp"
-      att=$((att+1))
-      sleep 1
-      continue
-    fi
-
-    # verify sha
-    if sha_ok "$tmp" "$sum"; then
-      mv "$tmp" "$final"
-      echo "$(date +%F' '%T) OK: $file saved to $final" >>"$LOGZ"
-      return 0
-    else
-      echo "WARN: SHA mismatch for $file" >>"$LOGZ"
-      rm -f "$tmp"
-      att=$((att+1))
-      sleep 1
-      continue
-    fi
-  done
-
-  echo "ERROR: Failed to download $file after retries" >>"$LOGZ"
-  rm -f "$tmp"
   return 1
 }
 
 safe_mv() {
-  src="$1"
-  dst="$2"
+  src="$1"; dst="$2"
   mkdir -p "$(dirname "$dst")"
   mv "$src" "$dst" 2>>"$LOGZ" || cp -f "$src" "$dst" 2>>"$LOGZ" && rm -f "$src"
   return $?
 }
+
+denylog() { say denylist.log "$1"; }
+lineage() { say lineage.log "$*"; }
+chup()    { record pixel.log "$1"; }
+boot_log(){ say boot.log "$1"; }
+log_patch(){ record patch.log "$*"; }
+writelog(){ log "$1"; }
 
 # Configure DenyList
 add_if_missing() {
@@ -306,46 +524,6 @@ add_if_missing() {
 
 setval() { grep -q "^$2=" "$1" && sed -i "s/^$2=.*/$2=$3/" "$1" && log "$2 > $3" || log "$2 not found"; }
 
-lineage() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S') $*" | tee -a "$RECORD/lineage.log"
-#    echo "$(date '+%Y-%m-%d %H:%M:%S') $*"
-}
-
-chup() {
-echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$RECORD/pixel.log"
-}
-
-set_resetprop() {
-    local PROP="$1"
-    local VALUE="$2"
-
-    if prop_exists "$PROP"; then
-        if resetprop -n -p "$PROP" "$VALUE" 2>/dev/null; then
-            chup "Disabled spoof: $PROP > $VALUE"
-        else
-            chup "Failed to modify $PROP"
-        fi
-    else
-        chup "Skipped $PROP (not defined)"
-    fi
-}
-
-set_simpleprop() {
-    local PROP="$1"
-    local VALUE="$2"
-    local CURRENT
-
-    CURRENT=$(su -c getprop "$PROP")
-
-    if [ -n "$CURRENT" ]; then
-        su -c setprop "$PROP" "$VALUE" >/dev/null 2>&1
-        chup "Set $PROP to $VALUE"
-    else
-        chup "Skipping $PROP, property does not exist"
-    fi
-}
-
-# Helper to add packages
 add_pkg() {
   pkg="$1"
   if [ "$teeBroken" = "true" ]; then
@@ -355,86 +533,48 @@ add_pkg() {
   fi
 }
 
-# Connectivity check
-megatron() {
-  max_attempts=5
-  attempt=1
-  delay=1
-  hosts="1.1.1.1 8.8.8.8 9.9.9.9 223.5.5.5 114.114.114.114"
-
-  while [ $attempt -le $max_attempts ]; do
-    echo " "
-    echo "🌐 Attempt $attempt of $max_attempts..."
-
-    for host in $hosts; do
-      if ping -c1 -W2 "$host" >/dev/null 2>&1; then
-        return 0
-      fi
-    done
-
-    echo "❌ No internet detected"
-    sleep $delay
-    attempt=$((attempt + 1))
-    [ $delay -lt 5 ] && delay=$((delay + 1))
-  done
-
-  echo "🚫 No internet detected after $max_attempts attempts."
-  return 1
-}
-
-# Print header
 print_header() {
   echo "
-  ___     _                _ _        
- |_ _|_ _| |_ ___ __ _ _ _(_) |_ _  _ 
+  ___     _                _ _
+ |_ _|_ _| |_ ___ __ _ _ _(_) |_ _  _
   | || ' \  _/ -_) _  | '_| |  _| || |
  |___|_||_\__\___\__, |_| |_|\__|\_, |
- | _ ) _____ __  |___/           |__/ 
- | _ \/ _ \ \ /                       
- |___/\___/_\_\                       
-                                                
-                                             
-                    
+ | _ ) _____ __  |___/           |__/
+ | _ \/ _ \ \ /
+ |___/\___/_\_\
+
+
 "
 }
 
-# Track results
 log_step() {
-  local status="$1"
-  local task="$2"
-  local timestamp
-  
+  local status="$1" task="$2" timestamp
   timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-  
   printf -- " ✦ %-10s %s\n" "$status" "$task"
   printf "[%s] %-10s %s\n" "$timestamp" "$status" "$task" >> "$LOG_FILE"
 }
 
-# Exit delay
 handle_delay() {
-  if [ "$KSU" = "true" ] || [ "$APATCH" = "true" ] && [ "$KSU_NEXT" != "true" ] && [ "$MMRL" != "true" ]; then
-    echo
-    echo " Closing in 7 seconds..."
-    sleep 7
-  fi
+  [ -f "/data/adb/Box-Brain/wait" ] || return 0
+
+  echo
+  echo " Closing in 10 seconds..."
+  sleep 10
 }
 
-log_patch() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - $*" >> "$RECORD/patch.log"
-}
-
-# Kill GMS / Vending Processes
 kill_process() {
-  TARGET="$1"
-  PID=$(pidof "$TARGET")
-  if [ -n "$PID" ]; then
-    kill -9 $PID
-    log "- Killed $TARGET"
-  else
-    log "- $TARGET not running"
-  fi
+  PID=$(pidof "$1")
+  [ -n "$PID" ] && kill -9 $PID 2>/dev/null
 }
-  
+
+restart_google_services() {
+  for proc in com.google.android.gms.unstable com.google.android.gms com.android.vending; do
+    kill_process "$proc"
+  done
+
+  echo " ✦ Killed Google Service Processes"
+}
+
 hide_recovery_folders() {
     [ -f /data/adb/Box-Brain/twrp ] || return
 
@@ -471,14 +611,13 @@ hide_recovery_folders() {
 }
 
 run_temp_exec() {
-    local script="$1"
+    local script="$1" orig_mode
 
     if [ ! -r "$script" ]; then
         echo "Script $script not readable ❌"
         return 1
     fi
 
-    local orig_mode
     orig_mode=$(stat -c "%a" "$script")
     echo "Original permission: $orig_mode"
 
@@ -490,296 +629,197 @@ run_temp_exec() {
     chmod "$orig_mode" "$script"
 }
 
-delete_if_exist() {
-    path="$1"
-    if [ -e "$path" ]; then
-        rm -rf "$path"
-        log "Deleted: $path"
+remove_if_exists() {
+    if [ -e "$1" ]; then
+        rm -rf "$1"
+        record action.log "Deleted: $1"
     fi
 }
 
-P() {
-  for Q in /data/adb/modules/busybox-ndk/system/*/busybox \
-           /data/adb/ksu/bin/busybox \
-           /data/adb/ap/bin/busybox \
-           /data/adb/magisk/busybox; do
-    [ -x "$Q" ] && echo "$Q" && return
-  done
-}
+safemode_flags() {
+    local dir="/data/adb/Box-Brain"
+    [ -f "$dir/safemode" ] || return 0
 
-Z() {
-  b=0; s=0
-  while IFS= read -r -n1 c; do
-    case "$c" in
-      [A-Z]) v=$(printf '%d' "'$c"); v=$((v - 65));;
-      [a-z]) v=$(printf '%d' "'$c"); v=$((v - 71));;
-      [0-9]) v=$(printf '%d' "'$c"); v=$((v + 4));;
-      '+') v=62;;
-      '/') v=63;;
-      '=') break;;
-      *) continue;;
-    esac
-    b=$((b << 6 | v)); s=$((s + 6))
-    if [ "$s" -ge 8 ]; then
-      s=$((s - 8)); o=$(((b >> s) & 0xFF))
-      printf \\$(printf '%03o' "$o")
-    fi
-  done
-}
-
-P() {
-  for Q in /data/adb/modules/busybox-ndk/system/*/busybox \
-           /data/adb/ksu/bin/busybox \
-           /data/adb/ap/bin/busybox \
-           /data/adb/magisk/busybox; do
-    [ -x "$Q" ] && echo "$Q" && return
-  done
-}
-
-Z() {
-  b=0; s=0
-  while IFS= read -r -n1 c; do
-    case "$c" in
-      [A-Z]) v=$(printf '%d' "'$c"); v=$((v - 65));;
-      [a-z]) v=$(printf '%d' "'$c"); v=$((v - 71));;
-      [0-9]) v=$(printf '%d' "'$c"); v=$((v + 4));;
-      '+') v=62;;
-      '/') v=63;;
-      '=') break;;
-      *) continue;;
-    esac
-    b=$((b << 6 | v)); s=$((s + 6))
-    if [ "$s" -ge 8 ]; then
-      s=$((s - 8)); o=$(((b >> s) & 0xFF))
-      printf \\$(printf '%03o' "$o")
-    fi
-  done
-}
-
-
-writelog() {
-    echo "$(date +'%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"
-    /system/bin/log -t PATCH_OVERRIDE "$1"
-}
-
-# Function to check and set property if needed
-check_and_set_prop() {
-    local PROP=$1
-    local VALUE=$2
-
-    local CURRENT
-    CURRENT=$(getprop "$PROP")
-
-    if [ "$CURRENT" = "$VALUE" ]; then
-        writelog " $PROP is already set to $VALUE no change needed"
-    else
-        if resetprop "$PROP" "$VALUE"; then
-            writelog " Set $PROP to $VALUE (was: $CURRENT)"
-        else
-            writelog " Failed to set $PROP (current: $CURRENT)"
-        fi
-    fi
-}
-
-ensure_blacklist_entries() {
-    BLACKLIST="/data/adb/Box-Brain/blacklist.txt"
-
-    # Ensure directory & file exist
-    mkdir -p "$(dirname "$BLACKLIST")"
-    [ -f "$BLACKLIST" ] || touch "$BLACKLIST"
-
-    # list of blacklisted packages 
-    REQUIRED_ENTRIES="
-io.github.vvb2060.mahoshojo
-com.reveny.nativecheck
-icu.nullptr.nativetest
-com.android.nativetest
-io.liankong.riskdetector
-me.garfieldhan.holmes
-luna.safe.luna
-com.zhenxi.hunter
-io.github.a13e300.ksuwebui
-com.topjohnwu.magisk
-com.dergoogler.mmrl.wx
-com.dergoogler.mmrl
-org.frknkrc44.hma_oss
-bin.mt.plus
-ch.protonvpn.android
-com.android.chrome
-com.google.android.apps.docs
-com.google.android.apps.photos
-com.google.android.contactkeys
-com.google.android.safetycore
-com.google.android.youtube
-com.google.ar.core
-com.heytap.browser
-com.kimcy929.screenrecorder
-com.kowx712.supermanager
-com.metrolist.music
-mark.via.gp
-org.swiftapps.swiftbackup
-"
-
-    for entry in $REQUIRED_ENTRIES; do
-        # Exact match only
-        if ! grep -qxF "$entry" "$BLACKLIST"; then
-            echo "$entry" >> "$BLACKLIST"
-        fi
+    for f in spoof-los-boot nuke-los-boot spoof-custom-rom-boot NoLineageProp nodebug build tag encrypt hidehook; do
+        remove_if_exists "$dir/$f"
     done
 }
 
-ensure_exec_permissions() {
-  local DIR="/data/adb/modules/playintegrityfix"
+# BusyBox detector
+P() {
+  for Q in /data/adb/modules/busybox-ndk/system/*/busybox \
+           /data/adb/ksu/bin/busybox \
+           /data/adb/ap/bin/busybox \
+           /data/adb/magisk/busybox; do
+    [ -x "$Q" ] && echo "$Q" && return
+  done
+}
 
-  [ -d "$DIR" ] || return 0
-
-  for file in "$DIR"/*.sh; do
-    [ -f "$file" ] || continue
-
-    if [ ! -x "$file" ]; then
-      chmod +x "$file"
+# Base64 decoder
+Z() {
+  b=0; s=0
+  while IFS= read -r -n1 c; do
+    case "$c" in
+      [A-Z]) v=$(printf '%d' "'$c"); v=$((v - 65));;
+      [a-z]) v=$(printf '%d' "'$c"); v=$((v - 71));;
+      [0-9]) v=$(printf '%d' "'$c"); v=$((v + 4));;
+      '+') v=62;;
+      '/') v=63;;
+      '=') break;;
+      *) continue;;
+    esac
+    b=$((b << 6 | v)); s=$((s + 6))
+    if [ "$s" -ge 8 ]; then
+      s=$((s - 8)); o=$(((b >> s) & 0xFF))
+      printf \\$(printf '%03o' "$o")
     fi
   done
 }
 
-##########################################
-# adapted from Play Integrity Fork by @osm0sis & Shamiko by @Lsposed Team
-# source: https://github.com/osm0sis/PlayIntegrityFork
-# license: GPL-3.0
-##########################################
-
-SKIPDELPROP=false
-[ -f "$MODPATH/skipdelprop" ] && SKIPDELPROP=true
-
-# Core Property Functions
-# resetprop_if_diff <prop> <expected>
-resetprop_if_diff() {
-    local NAME="$1"
-    local EXPECTED="$2"
+check_and_set_prop() {
+    local PROP="$1"
+    local VALUE="$2"
     local CURRENT
-    
-    case "$ROOT_SOL" in
-        magisk|kernelsu|apatch)
-            CURRENT="$(resetprop "$NAME")"
-            [ -z "$CURRENT" ] || [ "$CURRENT" = "$EXPECTED" ] || $RESETPROP "$NAME" "$EXPECTED"
-            ;;
-        *)
-            CURRENT="$(getprop "$NAME")"
-            [ -z "$CURRENT" ] || [ "$CURRENT" = "$EXPECTED" ] || setprop "$NAME" "$EXPECTED" 2>/dev/null
-            ;;
-    esac
+
+    if [ -f /data/adb/Box-Brain/force-reset ]; then
+        if $RESETPROP "$PROP" "$VALUE" >/dev/null 2>&1; then
+            record pixel.log "Forced $PROP > $VALUE"
+            return 0
+        fi
+
+        record pixel.log "Failed to force $PROP"
+        return 1
+    fi
+
+    if ! getprop | grep -Fq "[$PROP]:"; then
+        record pixel.log "Skipped $PROP (not found)"
+        return 0
+    fi
+
+    CURRENT=$(getprop "$PROP")
+
+    if [ "$CURRENT" = "$VALUE" ]; then
+        record pixel.log "Unchanged $PROP = $CURRENT"
+        return 0
+    fi
+
+    if $RESETPROP "$PROP" "$VALUE" >/dev/null 2>&1; then
+        record pixel.log "Set $PROP > $VALUE (was: $CURRENT)"
+        return 0
+    fi
+
+    record pixel.log "Failed to set $PROP"
+    return 1
 }
 
-# resetprop_if_match <prop> <match> <new_value>
 resetprop_if_match() {
-    local NAME="$1"
+    local PROP="$1"
     local MATCH="$2"
     local VALUE="$3"
     local CURRENT
-    
-    case "$ROOT_SOL" in
-        magisk|kernelsu|apatch)
-            CURRENT="$(resetprop "$NAME")"
-            ;;
-        *)
-            CURRENT="$(getprop "$NAME")"
-            ;;
-    esac
-    
+
+    CURRENT=$(resetprop "$PROP")
+
     case "$CURRENT" in
-        *"$MATCH"*) $RESETPROP "$NAME" "$VALUE" ;;
+        *"$MATCH"*)
+            if $RESETPROP "$PROP" "$VALUE" >/dev/null 2>&1; then
+                record pixel.log "Matched $PROP: $CURRENT -> $VALUE"
+                return 0
+            fi
+
+            record pixel.log "Failed modifying $PROP"
+            return 1
+            ;;
     esac
+
+    return 2
 }
 
-# delprop_if_exist <prop>
 delprop_if_exist() {
-    case "$ROOT_SOL" in
-        magisk|kernelsu|apatch)
-            [ -n "$(resetprop "$1")" ] && $PROP_DELETE "$1"
-            ;;
-        *)
-            # Can't delete on legacy, set to empty
-            setprop "$1" "" 2>/dev/null
-            ;;
-    esac
+    local PROP="$1"
+
+    if resetprop "$PROP" >/dev/null 2>&1; then
+        if $PROP_DELETE "$PROP" >/dev/null 2>&1; then
+            record pixel.log "Deleted $PROP"
+            return 0
+        fi
+
+        record pixel.log "Failed deleting $PROP"
+        return 1
+    fi
+
+    return 2
 }
 
-# persistprop <prop> <value>
 persistprop() {
-    [ "$ROOT_SOL" = "kernelsu_legacy" ] || [ "$ROOT_SOL" = "apatch_legacy" ] || [ "$ROOT_SOL" = "unknown" ] && return 0
-    
     local NAME="$1"
     local NEWVALUE="$2"
-    local CURVALUE="$(resetprop "$NAME")"
+    local CURVALUE
 
-    if ! grep -q "$NAME" "$MODPATH/uninstall.sh" 2>/dev/null; then
-        if [ "$CURVALUE" ]; then
-            [ "$NEWVALUE" = "$CURVALUE" ] || echo "resetprop -n -p \"$NAME\" \"$CURVALUE\"" >> "$MODPATH/uninstall.sh"
+    CURVALUE=$(resetprop "$NAME")
+
+    if ! grep -qF "\"$NAME\"" "$MODPATH/uninstall.sh" 2>/dev/null; then
+        if [ -n "$CURVALUE" ]; then
+            [ "$NEWVALUE" = "$CURVALUE" ] || \
+                echo "resetprop -n -p \"$NAME\" \"$CURVALUE\"" >> "$MODPATH/uninstall.sh"
         else
             echo "resetprop -p --delete \"$NAME\"" >> "$MODPATH/uninstall.sh"
         fi
     fi
+
     resetprop -n -p "$NAME" "$NEWVALUE"
 }
 
-# Legacy wrappers
-check_reset_prop() { resetprop_if_diff "$@"; }
-contains_reset_prop() { resetprop_if_match "$@"; }
-
 # Hexpatch Fallback
 resetprop_hexpatch() {
-    [ "$ROOT_SOL" != "magisk" ] && return 1
-    
     case "$1" in
         -f|--force) local FORCE=1; shift;;
-    esac 
+    esac
 
     local NAME="$1"
     local NEWVALUE="$2"
-    local CURVALUE="$(resetprop "$NAME")"
+    local CURVALUE
+    CURVALUE=$(resetprop "$NAME")
 
     [ ! "$NEWVALUE" ] || [ ! "$CURVALUE" ] && return 1
     [ "$NEWVALUE" = "$CURVALUE" ] && [ ! "$FORCE" ] && return 2
 
     local NEWLEN=${#NEWVALUE}
+    local PROPFILE
     if [ -f /dev/__properties__ ]; then
-        local PROPFILE=/dev/__properties__
+        PROPFILE=/dev/__properties__
     else
-        local PROPFILE="/dev/__properties__/$(resetprop -Z "$NAME")"
+        PROPFILE="/dev/__properties__/$(resetprop -Z "$NAME")"
     fi
     [ ! -f "$PROPFILE" ] && return 3
-    local NAMEOFFSET=$(strings -t d "$PROPFILE" | grep "$NAME" | head -1 | cut -d\  -f1)
+    local NAMEOFFSET
+    NAMEOFFSET=$(strings -t d "$PROPFILE" | grep "$NAME" | head -1 | cut -d\  -f1)
 
-    local NEWHEX="$(printf '%02x' "$NEWLEN")$(printf "$NEWVALUE" | od -A n -t x1 -v | tr -d ' \n')$(printf "%$((92-NEWLEN))s" | sed 's/ /00/g')"
+    local NEWHEX
+    NEWHEX="$(printf '%02x' "$NEWLEN")$(printf "$NEWVALUE" | od -A n -t x1 -v | tr -d ' \n')$(printf "%$((92-NEWLEN))s" | sed 's/ /00/g')"
     echo -ne "\x00\x00" | dd obs=1 count=2 seek=$((NAMEOFFSET-96)) conv=notrunc of="$PROPFILE" 2>/dev/null
     echo -ne "$(printf "$NEWHEX" | sed -e 's/.\{2\}/&\\x/g' -e 's/^/\\x/' -e 's/\\x$//')" | dd obs=1 count=93 seek=$((NAMEOFFSET-93)) conv=notrunc of="$PROPFILE" 2>/dev/null
 }
 
-boot_log() {
-    echo "$1" | tee -a "$RECORD/boot.log"
-}
-
 wait_for_boot() {
-    boot_log "Waiting for Android to finish booting..."
+    say boot.log "Waiting for Android to finish booting..."
     local count=0
     while [ "$(getprop sys.boot_completed)" != "1" ]; do
         sleep 1
         count=$((count + 1))
-        [ "$count" -ge 300 ] && { boot_log "Boot wait timeout"; return 1; }
+        [ "$count" -ge 300 ] && { say boot.log "Boot wait timeout"; return 1; }
     done
     sleep 3
-    boot_log "Initialising, please wait."
-    boot_log " "
+    say boot.log "Initialising, please wait."
+    say boot.log " "
 }
 
 reset_tricky_store() {
-    # Tricky Store
     if [ -d "/data/adb/tricky_store/key_db" ]; then
         rm -rf "/data/adb/tricky_store/key_db"
         mkdir -p "/data/adb/tricky_store/key_db"
     fi
 
-    # TEE Simulator 
     if [ -d "/data/adb/tricky_store/persistent_keys" ]; then
         rm -rf "/data/adb/tricky_store/persistent_keys"
         mkdir -p "/data/adb/tricky_store/persistent_keys"
