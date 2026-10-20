@@ -562,12 +562,18 @@ fi
 
 log "Using resetprop: $RESETPROP"
 
-# Always set static default props
+# Set static default props (preserve original avb_version if present)
 "$RESETPROP" ro.boot.vbmeta.size "4096"
 "$RESETPROP" ro.boot.vbmeta.hash_alg "sha256"
-"$RESETPROP" ro.boot.vbmeta.avb_version "2.0"
 "$RESETPROP" ro.boot.vbmeta.device_state "locked"
-log "Set static VBMeta props: size=4096, hash_alg=sha256, avb_version=2.0, device_state=locked"
+
+ORIG_AVB=$(getprop ro.boot.vbmeta.avb_version)
+if [ -z "$ORIG_AVB" ] || [ "$ORIG_AVB" = "2.0" ]; then
+    "$RESETPROP" ro.boot.vbmeta.avb_version "1.3"
+    log "Set VBMeta avb_version=1.3"
+else
+    log "Preserved native VBMeta avb_version=$ORIG_AVB"
+fi
 
 # Handle hash
 if [ ! -s "$HASH_FILE" ]; then
