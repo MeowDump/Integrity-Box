@@ -1,3 +1,4 @@
+
 # Skip on pixel mode
 if [ -e "/sdcard/zygisk" ] || [ -e "/data/adb/Box-Brain/zygisk" ]; then
     return 0

@@ -4,7 +4,6 @@ MODPATH="${0%/*}"
 
 # Module path and file references
 PIF="/data/adb/modules/playintegrityfix"
-ROOT_SOL=$(detect_root_solution)
 SCRIPT="$MODPATH/webroot/common_scripts"
 BOX="/data/adb/Box-Brain"
 LOG_DIR="$BOX/Integrity-Box-Logs"
@@ -27,43 +26,39 @@ log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') | $1" | tee -a "$LOG"
 }
 
-setup_resetprop
-
 # Boot-Phase Properties
 # Wait for boot (Magisk/KSU/APatch with resetprop only)
-case "$ROOT_SOL" in
-    magisk|kernelsu|apatch) $PROP_WAIT sys.boot_completed 0 ;;
-esac
+$PROP_WAIT sys.boot_completed 0
 
 # •••• EARLY BOOT PROPS ••••
 
 # Bootloader/VBMeta
-resetprop_if_diff "ro.boot.vbmeta.device_state" "locked"
-resetprop_if_diff "vendor.boot.vbmeta.device_state" "locked"
-resetprop_if_diff "ro.boot.verifiedbootstate" "green"
-resetprop_if_diff "vendor.boot.verifiedbootstate" "green"
-resetprop_if_diff "ro.boot.flash.locked" "1"
-resetprop_if_diff "ro.boot.veritymode" "enforcing"
+check_and_set_prop "ro.boot.vbmeta.device_state" "locked"
+check_and_set_prop "vendor.boot.vbmeta.device_state" "locked"
+check_and_set_prop "ro.boot.verifiedbootstate" "green"
+check_and_set_prop "vendor.boot.verifiedbootstate" "green"
+check_and_set_prop "ro.boot.flash.locked" "1"
+check_and_set_prop "ro.boot.veritymode" "enforcing"
 
 # Warranty/Debug
-resetprop_if_diff "ro.boot.warranty_bit" "0"
-resetprop_if_diff "ro.warranty_bit" "0"
-resetprop_if_diff "ro.vendor.boot.warranty_bit" "0"
-resetprop_if_diff "ro.vendor.warranty_bit" "0"
-resetprop_if_diff "ro.debuggable" "0"
-resetprop_if_diff "ro.force.debuggable" "0"
-resetprop_if_diff "ro.secure" "1"
-resetprop_if_diff "ro.adb.secure" "1"
-resetprop_if_diff "sys.oem_unlock_allowed" "0"
+check_and_set_prop "ro.boot.warranty_bit" "0"
+check_and_set_prop "ro.warranty_bit" "0"
+check_and_set_prop "ro.vendor.boot.warranty_bit" "0"
+check_and_set_prop "ro.vendor.warranty_bit" "0"
+check_and_set_prop "ro.debuggable" "0"
+check_and_set_prop "ro.force.debuggable" "0"
+check_and_set_prop "ro.secure" "1"
+check_and_set_prop "ro.adb.secure" "1"
+check_and_set_prop "sys.oem_unlock_allowed" "0"
 
 # Build
-resetprop_if_diff "ro.build.type" "user"
-resetprop_if_diff "ro.build.tags" "release-keys"
+check_and_set_prop "ro.build.type" "user"
+check_and_set_prop "ro.build.tags" "release-keys"
 
 # OEM-Specific
-resetprop_if_diff "ro.secureboot.lockstate" "locked"  # MIUI
-resetprop_if_diff "ro.boot.realmebootstate" "green"   # Realme
-resetprop_if_diff "ro.boot.realme.lockstate" "1"       # Realme
+check_and_set_prop "ro.secureboot.lockstate" "locked"  # MIUI
+check_and_set_prop "ro.boot.realmebootstate" "green"   # Realme
+check_and_set_prop "ro.boot.realme.lockstate" "1"       # Realme
 
 # Recovery Mode Hiding
 resetprop_if_match "ro.bootmode" "recovery" "unknown"
@@ -76,15 +71,15 @@ resetprop_if_match "vendor.boot.bootmode" "recovery" "unknown"
 #[ -n "$(resetprop service.adb.root)" ] && [ "$(resetprop service.adb.root)" != "0" ] && resetprop service.adb.root 0
 
 # Other props use normal function
-resetprop_if_diff persist.sys.developer_options 0
-resetprop_if_diff persist.sys.dev_mode 0
-resetprop_if_diff persist.sys.debuggable 0
-resetprop_if_diff ro.oem_unlock_supported 0
-resetprop_if_diff ro.hardware.virtual_device 0
+check_and_set_prop persist.sys.developer_options 0
+check_and_set_prop persist.sys.dev_mode 0
+check_and_set_prop persist.sys.debuggable 0
+check_and_set_prop ro.oem_unlock_supported 0
+check_and_set_prop ro.hardware.virtual_device 0
 
 # SELinux
-resetprop_if_diff "ro.boot.selinux" "enforcing"
-[ "$ROOT_SOL" = "magisk" ] && ! [ -f "$MODPATH/skipdelprop" ] && delprop_if_exist "ro.build.selinux"
+check_and_set_prop "ro.boot.selinux" "enforcing"
+[ "$IS_MAGISK" = "true" ] && ! [ -f "$MODPATH/skipdelprop" ] && delprop_if_exist "ro.build.selinux"
 
 # Fix SELinux permissions if permissive
 #if [ "$(cat /sys/fs/selinux/enforce 2>/dev/null)" = "0" ]; then
@@ -187,7 +182,7 @@ if [ -f "$BOX/spoof-custom-rom-boot" ]; then
    sh "$SCRIPT/prop.sh"
    log "prop.sh executed successfully"
 else
-   log "spoof-custom-rom-boot flag not found, skipping prop.sh"
+   log "hidehook flag not found, skipping prop.sh"
 fi
 
 # Hide sus files

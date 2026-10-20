@@ -5,7 +5,12 @@ LOGFILE="$LOGDIR/romhide.log"
 mkdir -p "$LOGDIR"
 
 log() {
- echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOGFILE"
+    if [[ -z "${_LOGFILE_INITIALIZED:-}" ]]; then
+        : > "$LOGFILE"
+        _LOGFILE_INITIALIZED=1
+    fi
+
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOGFILE"
 }
 
 log "••••• ROM Hide Started •••••"

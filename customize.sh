@@ -1,6 +1,5 @@
 #!/system/bin/sh
 
-# Module and log directory paths
 MODDIR="${0%/*}"
 FLAG="/data/adb/Box-Brain"
 LOG_DIR="$FLAG/Integrity-Box-Logs"
@@ -10,19 +9,17 @@ SCRIPT="$MODPATH/webroot/common_scripts"
 MEOW="/data/adb/modules/playintegrityfix"
 SDK=$(getprop ro.system.build.version.sdk)
 TRICKY="/data/adb/tricky_store"
-MODERN="$SCRIPT/UI"
-LEGACY="$MODPATH/webroot"
 
+touch "$FLAG/keyswitch"
+mkdir -p "$FLAG/PIF" || true
 mkdir -p "$LOG_DIR" || true
 mkdir -p "$MEOW"
 mkdir -p "$TRICKY"
 
-# Logger
 debug() {
     echo "$1" | tee -a "$INSTALL_LOG"
 }
 
-# Verify module integrity
 check_integrity() {
     debug "========================================="
     debug "          Integrity Box Installer    "
@@ -44,7 +41,6 @@ check_integrity() {
     fi
 }
 
-# Setup environment and permissions
 setup_environment() {
     debug " ✦ Setting up Environment "
     debug " "
@@ -61,7 +57,6 @@ detect_rom() {
     echo "ROM Detection Started - $TS" >> "$LOG_FILE" 2>/dev/null
 
     local props="
-        ro.build.flavor
         ro.lineage.version
         ro.mod.version
         ro.custom.device
@@ -90,6 +85,7 @@ detect_rom() {
 
     local pkgs="
         org.lineageos.audiofx
+        com.hentai.omaha
         com.nikgapps.overlay.gmscore
         com.android.axion.sandbox
         org.omnirom.omnijaws
@@ -196,29 +192,6 @@ detect_rom() {
     return 0
 }
 
-check_arch() {
-    debug " ✦ Checking CPU ABI"
-    case "$(getprop ro.product.cpu.abi)" in
-        armeabi-v7a|arm64-v8a)
-            debug " ✦ Modern Hardware detected"
-            debug " ✦ using Shadow Hook method"
-            debug " "
-            ;;
-        *)
-            debug " ✦ Legacy Hardware detected"
-            debug " ✦ fallback to Dobby method"
-            debug " "
-            rm -rf "$MODPATH/zygisk" "$MODPATH/classes.dex"
-            mv "$MODPATH/legacy/zygisk" "$MODPATH/zygisk"
-            mv "$MODPATH/legacy/legacy.dex" "$MODPATH/classes.dex"
-
-            find "$MODPATH/zygisk" -type f -exec chown 0:0 {} \; -exec chmod 644 {} \;
-            chown 0:0 "$MODPATH/classes.dex"
-            chmod 644 "$MODPATH/classes.dex"
-            ;;
-    esac
-}
-
 set_integritybox_profile() {
     debug " ✦ Setting IntegrityBox Profile"
         if [ "$SDK" -ge 33 ]; then
@@ -228,29 +201,41 @@ set_integritybox_profile() {
         fi
 }
 
-# Clean up old logs and files
+boot_configuration() {
+    if [ ! -f "$MEOW/service.sh" ]; then
+        debug " ✦ Fresh installation detected"
+        debug " ✦ Enabling Boot Configuration UI"
+        debug " ✦ Open WebUI after installation to"
+        debug "   configure settings before rebooting"
+        debug " "
+        mkdir -p "$MEOW/webroot"
+        cp "$MODPATH/toolkit/BootConfiguration/index.html" "$MEOW/webroot/index.html"
+        chmod 644 "$MEOW/webroot/index.html"
+        sed -i 's/^description=.*/description=> ᴄᴏɴꜰɪɢᴜʀᴇ ᴛʜᴇ ᴍᴏᴅᴜʟᴇ ʙᴇʜᴀᴠɪᴏᴜʀ ʙᴇꜰᴏʀᴇ ʀᴇʙᴏᴏᴛɪɴɢ ʙʏ ᴏᴘᴇɴɪɴɢ ᴛʜᴇ ᴡᴇʙᴜɪ/' "$MEOW/module.prop"
+    else
+        sed -i 's/^description=.*/description=> 𝑶 𝒚𝒐𝒖 𝒘𝒉𝒐 𝒉𝒂𝒗𝒆 𝒃𝒆𝒍𝒊𝒆𝒗𝒆𝒅, 𝒔𝒆𝒆𝒌 𝒉𝒆𝒍𝒑 𝒕𝒉𝒓𝒐𝒖𝒈𝒉 𝒑𝒂𝒕𝒊𝒆𝒏𝒄𝒆 𝒂𝒏𝒅 𝒑𝒓𝒂𝒚𝒆𝒓. 𝑰𝒏𝒅𝒆𝒆𝒅 𝑮𝑶𝑫 𝒊𝒔 𝒘𝒊𝒕𝒉 𝒕𝒉𝒆 𝒑𝒂𝒕𝒊𝒆𝒏𝒕./' "$MODPATH/module.prop"
+    fi
+}
+
 cleanup() {
     chmod +x "$SCRIPT/cleanup.sh"
     sh "$SCRIPT/cleanup.sh"
 }
 
-# Create necessary directories if missing
 prepare_directories() {
     debug " ✦ Preparing Required Directories  "
     [ ! -d "/data/adb/modules/playintegrityfix" ] && mkdir -p "/data/adb/modules/playintegrityfix"
     [ ! -f "$MODPATH/module.prop" ] && return 1
 }
 
-	
-# Handle module prop file
 handle_module_props() {
     debug " ✦ Handling Module Properties "
     debug " "
     touch "$MEOW/update"
-    cp "$MODPATH/module.prop" "$MEOW/module.prop"
+    cp "$MODPATH/toolkit/stock.prop" "$MODPATH/module.prop" > /dev/null 2>&1
+    cp "$MODPATH/toolkit/stock.prop" "$MEOW/module.prop" > /dev/null 2>&1
 }
 
-# Verify boot hash file
 check_boot_hash() {
     debug " ✦ Creating Verified Boot Hash config"
     debug " "
@@ -259,26 +244,24 @@ check_boot_hash() {
     fi
 }
 
-# Redirect to release source on fresh installation
 release_source() {
     [ -f "/data/adb/Box-Brain/noredirect" ] && return 0
     nohup am start -a android.intent.action.VIEW -d "https://t.me/MeowRedirect" > /dev/null 2>&1 &
 }
 
-# Enable recommended settings
 enable_recommended_settings() {
     if [ ! -f "$MEOW/service.sh" ]; then
         debug " ✦ Enabling Recommended Settings "
         touch "$FLAG/iframe_back_button"
-        touch "$FLAG/migrate_force"
-        touch "$FLAG/run_migrate"
         touch "$FLAG/noredirect"
         touch "$FLAG/ignore"
         touch "$FLAG/keyswitch"
+        touch "$FLAG/PIF/skip_json"
+        touch "$FLAG/PIF/skip_key"
+        touch "$FLAG/PIF/advanced"
     fi
 }
 
-# Final footer message
 display_footer() {
     debug "_________________________________________"
     debug " "
@@ -292,20 +275,22 @@ display_footer() {
     debug " "
 }
 
-# Main installation flow
 install_module() {
-    check_integrity
+#    check_integrity
     prepare_directories
     handle_module_props
+    boot_configuration
     set_integritybox_profile
     setup_environment
     detect_rom
     cleanup
-    check_boot_hash
     enable_recommended_settings
-    check_arch
+    check_boot_hash
     release_source
 }
+
+chmod +x "$MODPATH/hello.sh"
+sh "$MODPATH/hello.sh"
 
 echo "
   ___     _                _ _        
@@ -319,7 +304,6 @@ echo "
                                       
 "
 
-# Set fingerprint on installation 
 if [ -f "$MEOW/custom.pif.prop" ]; then
     cp "$MEOW/custom.pif.prop" "$MODPATH/custom.pif.prop"
 elif [ ! -f "$MEOW/service.sh" ]; then
@@ -330,44 +314,27 @@ elif [ ! -f "$MEOW/service.sh" ]; then
     fi
 fi
 
+if [ ! -f "$FLAG/integrity_box_ui_settings" ]; then
+    cp "$MODPATH/toolkit/integrity_box_ui_settings" "$FLAG/integrity_box_ui_settings"
+fi
+
 # play stupid games, win stupid prizes 
+# Remove biryani susfs by default 
 if [ -d /data/adb/modules/brene ] || [ -d /data/adb/modules_update/brene ]; then
     rm -rf /data/adb/modules/brene /data/adb/modules_update/brene
 fi
-
 
 if [ -d /data/adb/modules/playintegrity ]; then
     rm -rf "/data/adb/modules/playintegrity"
 fi
 
-# Write security patch file if missing 
 if [ ! -f $TRICKY/security_patch.txt ]; then
 cat <<EOF > $TRICKY/security_patch.txt
-all=2026-09-05
+all=2026-10-05
 EOF
 fi
 
-# Start the installation process
 install_module
-
-if [ -f "$FLAG/modern" ]; then
-    debug " ✦ Modern UI style detected"
-
-    if [ -f "$MODERN/index.html" ] && [ -f "$MODERN/style.css" ] && [ -f "$MODERN/script.js" ]; then
-        debug " ✦ Switching to Modern UI layout"
-        debug " "
-
-        [ -f "$LEGACY/index.html" ] && mv -f "$LEGACY/index.html" "$LEGACY/index.html.bak"
-        [ -f "$LEGACY/style.css" ] && mv -f "$LEGACY/style.css" "$LEGACY/style.css.bak"
-        [ -f "$LEGACY/script.js" ] && mv -f "$LEGACY/script.js" "$LEGACY/script.js.bak"
-
-        cp -f "$MODERN/index.html" "$LEGACY/index.html"
-        cp -f "$MODERN/style.css" "$LEGACY/style.css"
-        cp -f "$MODERN/script.js" "$LEGACY/script.js"
-    else
-        debug " ✦ Modern UI source files missing, keeping legacy layout"
-    fi
-fi
 
 # Create scripts 
 boot="/data/adb/service.d"
@@ -480,6 +447,7 @@ if [ -f "$NO_LINEAGE_FLAG" ]; then
         ro.lineage.build.version.plat.rev \
         ro.lineage.build.version.plat.sdk \
         ro.lineage.device \
+        ro.modversion \
         ro.lineage.display.version \
         ro.lineage.releasetype \
         ro.lineage.version \
@@ -562,10 +530,9 @@ if [ -f "/data/adb/modules/playintegrityfix/disable" ]; then
     exit 0
 fi
 
-if [ -f "/data/adb/modules/playintegrityfix/disable" ]; then
+if [ -f "/data/adb/Box-Brain/safemode" ]; then
     log "Safe mode is enabled"
     log "Skipping boot hash spoofing"
-    touch "/data/adb/Box-Brain/safemode"
     exit 0
 fi
 
@@ -636,7 +603,7 @@ cat <<'EOF' > "$boot/prop.sh"
 #!/system/bin/sh
 
 # CONFIG
-PATCH_DATE="2026-09-05"
+PATCH_DATE="2026-10-05"
 FILE_PATH="/data/adb/tricky_store/security_patch.txt"
 SKIP_FILE="/data/adb/Box-Brain/skip"
 LOG_DIR="/data/adb/Box-Brain/Integrity-Box-Logs"
@@ -720,10 +687,6 @@ writelog "•••••• Script Finished Successfully ••••••"
 exit 0
 EOF
 
-# A message for y'all 
-sed -i 's/^description=.*/description=> Be kind!/' "$MEOW/module.prop"
-
-
 ##########################################
 # adapted from Play Integrity Fork by @osm0sis
 # source: https://github.com/osm0sis/PlayIntegrityFork
@@ -778,3 +741,4 @@ rm -f /data/data/com.google.android.gms/cache/pif.prop /data/data/com.google.and
 
 display_footer
 exit 0
+
