@@ -434,6 +434,7 @@ if [ -n "$FLAGS_ACTIVE" ]; then
     # key=value syntax required by system.prop loaders.
     sed -i 's///g' "$TMP_PROP"
     sed -i -E 's/^\[([^]]+)\]: \[(.*)\]$/\1=\2/' "$TMP_PROP"
+    sed -i -E '/^(init\.svc\.|init\.svc_debug_pid\.|ro\.boottime\.)/d' "$TMP_PROP"
 else
     note "No prop sanitization flags found. Skipping."
 fi
