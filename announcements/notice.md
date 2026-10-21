@@ -1,8 +1,9 @@
-If you're still unable to pass Play Integrity, [try this version of TrickyStore](https://t.me/MonaDump/362)
+_If you're still unable to pass Play Integrity, [try this version of TrickyStore](https://t.me/MonaDump/362)_
 
 ## v46 Developement Status 
-> Last updated: 20 OCTOBER 2026
+> Last updated: 21 OCTOBER 2026
 > 
+- Added support for UNLIMITED GOOGLE PHOTOS ORIGINAL QUALITY BACKUP 
 - Added support for Play Store security patch and additional build fields spoofing
 - Added ability to back up and restore module settings
 - Fixed keybox loader UI failing to display available keyboxes
