@@ -1,23 +1,13 @@
 #!/system/bin/sh
 
-# Universal resetprop detection
-RP=""
-for p in $(which resetprop 2>/dev/null) /data/adb/ksu/bin/resetprop /data/adb/ap/bin/resetprop /data/adb/magisk/resetprop /sbin/resetprop /system/xbin/resetprop /system/bin/resetprop; do
-    if [ -f "$p" ]; then
-        RP="$p"
-        break
-    fi
-done
-
-resetprop_set(){
-    $RP -n "$1" "$2"
-}
+MODPATH="/data/adb/modules/playintegrityfix"
+. "$MODPATH/common_func.sh"
 
 resetprop_delete(){
     $RP -d "$1"
 }
 
-OVERRIDE="/data/adb/modules/playintegrityfix/webroot/common_scripts/force_override.sh"
+OVERRIDE="$MODPATH/webroot/common_scripts/force_override.sh"
 
 if [ -f "/data/adb/Box-Brain/safemode" ]; then
     echo " Permission denied by Safe Mode"
@@ -70,7 +60,7 @@ while IFS= read -r line || [ -n "$line" ]; do
             continue
             ;;
         *)
-            resetprop_set "$key" "$value"
+            set_prop "$key" "$value"
             actual_value=$(getprop "$key")
             if [ "$actual_value" = "$value" ]; then
                 echo "[OK] Overridden: $key=$value" >> "$LOG_FILE"
