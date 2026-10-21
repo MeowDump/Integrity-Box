@@ -285,27 +285,48 @@ elif [ -f "$UCLEANUP" ]; then
 fi
 
 # OMK Keybox Support
+OMK_FLAG="/data/adb/Box-Brain/omk-key"
+SIM_FLAG="/data/adb/Box-Brain/sim-key"
+OMK_MODULE="/data/adb/modules/oh_my_keymint"
+SIM_MODULE="/data/adb/modules/teesim"
 OMK_DIR="/data/misc/keystore/omk"
 OMK_KEYBOX="$OMK_DIR/keybox.xml"
 OMK_KEYBOX_BAK="$OMK_DIR/keybox.xml.bak"
 
-if [ -d "$OMK_DIR" ]; then
-    if [ -s "$OMK_KEYBOX" ]; then
-        cp -f "$OMK_KEYBOX" "$OMK_KEYBOX_BAK"
-        log " ✦ KeyMint attestation archived"
+# Copy keybox to Oh My KeyMint only when enabled by the user
+if [ -d "$OMK_MODULE" ] && [ ! -f "$OMK_MODULE/disable" ]; then
+    if [ -f "$OMK_FLAG" ]; then
+        if [ -s "$KEYBOX" ] && [ -d "$OMK_DIR" ]; then
+            if [ -s "$OMK_KEYBOX" ]; then
+                cp -f "$OMK_KEYBOX" "$OMK_KEYBOX_BAK"
+                log " ✦ KeyMint attestation archived"
+            fi
+            if cp -f "$KEYBOX" "$OMK_KEYBOX"; then
+                log " ✦ Attestation loaded to KeyMint"
+            else
+                log " ✦ ERROR: Failed to copy keybox to KeyMint"
+            fi
+        fi
+    else
+        log " ✦ Oh My KeyMint keybox update is disabled by user"
     fi
-    cp -f "$KEYBOX" "$OMK_KEYBOX"
-    log " ✦ Attestation loaded to KeyMint"
 fi
 
-# Backup TEE SIM keybox with timestamp
-if [ -s "$SIM_KEY" ]; then
-    cp -f "$SIM_KEY" "$SIM_KEYBACKUP"
-    log " ✦ TEE-SIM attestation archived"
-fi
-
-# Copy keybox to SIM path
-if [ -d "/data/adb/teesim" ] && [ -s "$KEYBOX" ]; then
-    cp -f "$KEYBOX" "$SIM_KEY"
-    log " ✦ Attestation loaded to TEE-SIM"
+# Copy keybox to TEE-SIM only when enabled by the user
+if [ -d "$SIM_MODULE" ] && [ ! -f "$SIM_MODULE/disable" ]; then
+    if [ -f "$SIM_FLAG" ]; then
+        if [ -s "$KEYBOX" ] && [ -d "/data/adb/teesim" ]; then
+            if [ -s "$SIM_KEY" ]; then
+                cp -f "$SIM_KEY" "$SIM_KEYBACKUP"
+                log " ✦ TEE-SIM attestation archived"
+            fi
+            if cp -f "$KEYBOX" "$SIM_KEY"; then
+                log " ✦ Attestation loaded to TEE-SIM"
+            else
+                log " ✦ ERROR: Failed to copy keybox to TEE-SIM"
+            fi
+        fi
+    else
+        log " ✦ TEE-SIM keybox update is disabled by user"
+    fi
 fi
