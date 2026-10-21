@@ -1,3 +1,6 @@
+##### Click on the action button to pass integrity again. 
+##### Sorry for the inconvenience 
+
 _If you're still unable to pass Play Integrity, [try this version of TrickyStore](https://t.me/MonaDump/362)_
 
 ## v46 Developement Status 
