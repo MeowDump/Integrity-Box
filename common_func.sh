@@ -5,10 +5,10 @@ LOG_FILE="/data/adb/Box-Brain/Integrity-Box-Logs/action.log"
 
 # Truncate per-run logs once at startup instead of inside every logger
 mkdir -p "$RECORD"
-for _f in denylist.log lineage.log patch.log boot.log; do
-    : > "$RECORD/$_f"
-done
-: > "$LOG_FILE"
+#for _f in denylist.log lineage.log patch.log boot.log; do
+#    : > "$RECORD/$_f"
+#done
+#: > "$LOG_FILE"
 
 record() { # record <file> <message>
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $2" >> "$RECORD/$1"
