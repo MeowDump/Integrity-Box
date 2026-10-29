@@ -10,7 +10,6 @@ MEOW="/data/adb/modules/playintegrityfix"
 SDK=$(getprop ro.system.build.version.sdk)
 TRICKY="/data/adb/tricky_store"
 
-touch "$FLAG/keyswitch"
 mkdir -p "$FLAG/PIF" || true
 mkdir -p "$LOG_DIR" || true
 mkdir -p "$MEOW"
@@ -232,8 +231,7 @@ handle_module_props() {
     debug " ✦ Handling Module Properties "
     debug " "
     touch "$MEOW/update"
-    cp "$MODPATH/toolkit/stock.prop" "$MODPATH/module.prop" > /dev/null 2>&1
-    cp "$MODPATH/toolkit/stock.prop" "$MEOW/module.prop" > /dev/null 2>&1
+    cp "$MODPATH/module.prop" "$MEOW/module.prop" > /dev/null 2>&1
 }
 
 check_boot_hash() {
@@ -241,6 +239,12 @@ check_boot_hash() {
     debug " "
     if [ ! -f "/data/adb/Box-Brain/hash.txt" ]; then
         touch "/data/adb/Box-Brain/hash.txt"
+    fi
+}
+
+setup_blacklist() {
+    if [ ! -f "$FLAG/blacklist.txt" ]; then
+        cp "$MODPATH/toolkit/blacklist.txt" "$FLAG/blacklist.txt"
     fi
 }
 
@@ -259,6 +263,7 @@ enable_recommended_settings() {
         touch "$FLAG/PIF/skip_json"
         touch "$FLAG/PIF/skip_key"
         touch "$FLAG/PIF/advanced"
+        touch "$FLAG/keyswitch"
     fi
 }
 
@@ -281,11 +286,12 @@ install_module() {
     handle_module_props
     boot_configuration
     set_integritybox_profile
+    enable_recommended_settings
     setup_environment
     detect_rom
     cleanup
-    enable_recommended_settings
     check_boot_hash
+    setup_blacklist
     release_source
 }
 
@@ -316,16 +322,6 @@ fi
 
 if [ ! -f "$FLAG/integrity_box_ui_settings" ]; then
     cp "$MODPATH/toolkit/integrity_box_ui_settings" "$FLAG/integrity_box_ui_settings"
-fi
-
-# play stupid games, win stupid prizes 
-# Remove biryani susfs by default 
-if [ -d /data/adb/modules/brene ] || [ -d /data/adb/modules_update/brene ]; then
-    rm -rf /data/adb/modules/brene /data/adb/modules_update/brene
-fi
-
-if [ -d /data/adb/modules/playintegrity ]; then
-    rm -rf "/data/adb/modules/playintegrity"
 fi
 
 if [ ! -f $TRICKY/security_patch.txt ]; then
