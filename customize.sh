@@ -15,6 +15,19 @@ mkdir -p "$LOG_DIR" || true
 mkdir -p "$MEOW"
 mkdir -p "$TRICKY"
 
+# Was Integrity Box already installed before this run?
+# Flashed flag files below are installation defaults: they describe a fresh
+# install, not a re-configuration. When a new release is flashed over an
+# existing install, the user already made their choice in the WebUI, so those
+# choices must survive the upgrade.
+# `$FLAG/integrity_box_ui_settings` is only ever written by this module, so its
+# presence means "Integrity Box was installed and configured before".
+if [ -f "$FLAG/integrity_box_ui_settings" ]; then
+    INTEGRITY_BOX_UPGRADE=1
+else
+    INTEGRITY_BOX_UPGRADE=0
+fi
+
 debug() {
     echo "$1" | tee -a "$INSTALL_LOG"
 }
@@ -178,13 +191,21 @@ detect_rom() {
     done
 
     if [ "$FOUND_SENSITIVE" -eq 1 ]; then
-        touch "$FLAG/skip" 2>/dev/null
+        if [ "$INTEGRITY_BOX_UPGRADE" -eq 1 ]; then
+            echo "$TS | ACTION | skip flag kept as configured (upgrade, sensitive stock device)" >> "$LOG_FILE" 2>/dev/null
+        else
+            touch "$FLAG/skip" 2>/dev/null
+            echo "$TS | ACTION | skip flag created (sensitive stock device)" >> "$LOG_FILE" 2>/dev/null
+        fi
         debug " ✦ ROM type: Stock ROM"
-        echo "$TS | ACTION | skip flag created (sensitive stock device)" >> "$LOG_FILE" 2>/dev/null
     fi
 
-    touch "$FLAG/safemode" 2>/dev/null
-    echo "$TS | ACTION | safemode flag created" >> "$LOG_FILE" 2>/dev/null
+    if [ "$INTEGRITY_BOX_UPGRADE" -eq 1 ]; then
+        echo "$TS | ACTION | safemode flag kept as configured (upgrade)" >> "$LOG_FILE" 2>/dev/null
+    else
+        touch "$FLAG/safemode" 2>/dev/null
+        echo "$TS | ACTION | safemode flag created" >> "$LOG_FILE" 2>/dev/null
+    fi
     echo "Result: Stock ROM" >> "$LOG_FILE" 2>/dev/null
     echo "Detection Completed - $(date)" >> "$LOG_FILE" 2>/dev/null
     debug " ✦ ROM type: Stock ROM"
