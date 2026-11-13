@@ -61,7 +61,29 @@ sed -i "s|^\([[:space:]]*\"device\"[[:space:]]*:[[:space:]]*\)\"[^\"]*\"|\1\"$DE
 sed -i "s|^\([[:space:]]*\"product\"[[:space:]]*:[[:space:]]*\)\"[^\"]*\"|\1\"$PRODUCT\"|" "$TMP"
 sed -i "s|^\([[:space:]]*\"manufacturer\"[[:space:]]*:[[:space:]]*\)\"[^\"]*\"|\1\"$MANUFACTURER\"|" "$TMP"
 sed -i "s|^\([[:space:]]*\"model\"[[:space:]]*:[[:space:]]*\)\"[^\"]*\"|\1\"$MODEL\"|" "$TMP"
-sed -i "s|^\([[:space:]]*\"mode\"[[:space:]]*:[[:space:]]*\)\"[^\"]*\"|\1\"generation\"|" "$TMP"
+# Keep the mode the profile already uses.
+#
+# TEESimulator defaults to "patch" (config.default.json) and its own WebUI
+# describes the two values as: "patch: keep the real hardware key and re-sign
+# only its attestation with the keybox (fewer detection points; needs a working
+# hardware level). generation: mint the whole key in software."
+# Forcing "generation" here therefore re-mints every attested key in software on
+# every Box action: the hardware root of trust disappears from the attestation -
+# the one thing MEETS_STRONG_INTEGRITY looks at - and it silently throws away
+# whatever the user selected in TEESimulator's own WebUI.
+# Only fill the field when it is missing or holds something TEESimulator would
+# reject, and then fall back to TEESimulator's own default, "patch".
+MODE=$(sed -n 's|^[[:space:]]*"mode"[[:space:]]*:[[:space:]]*"\([^"]*\)".*|\1|p' "$TMP" | head -n1)
+case "$MODE" in
+    patch|generation) ;;
+    *) MODE="patch" ;;
+esac
+sed -i "s|^\([[:space:]]*\"mode\"[[:space:]]*:[[:space:]]*\)\"[^\"]*\"|\1\"$MODE\"|" "$TMP"
+if ! grep -q '"mode"' "$TMP"; then
+    # An older/partial config without the field: TEESimulator requires it, so add
+    # it next to the keybox entry it belongs to.
+    sed -i "/\"keybox\"/a\\      \"mode\": \"$MODE\"," "$TMP"
+fi
 
 sed -i "s|\(\"patchLevel\"[[:space:]]*:[[:space:]]*\){[^}]*}|\1{ \"system\": \"system_property\", \"vendor\": \"$VENDOR_PATCH\", \"boot\": \"$VENDOR_PATCH\" }|" "$TMP"
 
