@@ -1,8 +1,15 @@
+Pixel 6A fingerprint is banned. 
+Do this for now (may not work for everyone)
+`Webui >> Play Integrity >> disable "lock pixel 6A"` toggle, then go back and click on the action button.
+
+Note: The current keybox is valid 
+
+#
+
 Keybox has been updated.
-Click on action button to fix integrity.
-> Last Updated 11:47 AM (G.M.T)
+> Last Updated 08:52 AM (I.S.T)
 > 
-> Friday, 06 November 2026
+> Monday, 16 November 2026
 
 # 
 
