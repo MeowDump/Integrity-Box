@@ -10,10 +10,15 @@ MEOW="/data/adb/modules/playintegrityfix"
 SDK=$(getprop ro.system.build.version.sdk)
 TRICKY="/data/adb/tricky_store"
 
+mkdir -p "$FLAG" || true
 mkdir -p "$FLAG/PIF" || true
 mkdir -p "$LOG_DIR" || true
-mkdir -p "$MEOW"
-mkdir -p "$TRICKY"
+mkdir -p "$MEOW" || true
+mkdir -p "$TRICKY" || true
+
+touch "$FLAG/PIF/custom-pif"
+touch "$FLAG/PIF/advanced"
+touch "$FLAG/keyswitch"
 
 debug() {
     echo "$1" | tee -a "$INSTALL_LOG"
@@ -46,6 +51,61 @@ setup_environment() {
     chmod +x "$SCRIPT/key.sh"
     sh "$SCRIPT/key.sh"
     debug " "
+}
+
+magisk_resetprop_rs() {
+    local dir="$1"
+    local arch fallback
+
+    # Remove IB bundled Resetprop-RS binaries
+    # if Magisk is not installed.
+    if [ ! -f /data/adb/magisk/magisk ]; then
+        rm -f "$dir"/resetprop-*
+        return 0
+    fi
+
+    case "$(getprop ro.product.cpu.abi)" in
+        arm64-v8a)
+            arch="arm64-v8a"
+            fallback="armeabi-v7a"
+            ;;
+        armeabi-v7a)
+            arch="armeabi-v7a"
+            fallback=""
+            ;;
+        x86_64)
+            arch="x86_64"
+            fallback="x86"
+            ;;
+        x86)
+            arch="x86"
+            fallback=""
+            ;;
+        *)
+            arch="arm64-v8a"
+            fallback="armeabi-v7a"
+            ;;
+    esac
+
+    debug " ✦ Configuring Resetprop-RS"
+
+    for f in "$dir"/resetprop-*; do
+        [ -f "$f" ] || continue
+
+        local name
+        name=$(basename "$f")
+
+        case "$name" in
+            "resetprop-${arch}"|"resetprop-${fallback}")
+                chmod +x "$f"
+                debug " ✔ Kept ${name}"
+                ;;
+            *)
+                rm -f "$f"
+                debug " ✗ Dropped ${name}"
+                ;;
+        esac
+    done
 }
 
 detect_rom() {
@@ -201,19 +261,15 @@ set_integritybox_profile() {
 }
 
 boot_configuration() {
-    if [ ! -f "$MEOW/service.sh" ]; then
-        debug " ✦ Fresh installation detected"
-        debug " ✦ Enabling Boot Configuration UI"
-        debug " ✦ Open WebUI after installation to"
-        debug "   configure settings before rebooting"
-        debug " "
-        mkdir -p "$MEOW/webroot"
-        cp "$MODPATH/toolkit/BootConfiguration/index.html" "$MEOW/webroot/index.html"
-        chmod 644 "$MEOW/webroot/index.html"
-        sed -i 's/^description=.*/description=> ᴄᴏɴꜰɪɢᴜʀᴇ ᴛʜᴇ ᴍᴏᴅᴜʟᴇ ʙᴇʜᴀᴠɪᴏᴜʀ ʙᴇꜰᴏʀᴇ ʀᴇʙᴏᴏᴛɪɴɢ ʙʏ ᴏᴘᴇɴɪɴɢ ᴛʜᴇ ᴡᴇʙᴜɪ/' "$MEOW/module.prop"
-    else
-        sed -i 's/^description=.*/description=> 𝑶 𝒚𝒐𝒖 𝒘𝒉𝒐 𝒉𝒂𝒗𝒆 𝒃𝒆𝒍𝒊𝒆𝒗𝒆𝒅, 𝒔𝒆𝒆𝒌 𝒉𝒆𝒍𝒑 𝒕𝒉𝒓𝒐𝒖𝒈𝒉 𝒑𝒂𝒕𝒊𝒆𝒏𝒄𝒆 𝒂𝒏𝒅 𝒑𝒓𝒂𝒚𝒆𝒓. 𝑰𝒏𝒅𝒆𝒆𝒅 𝑮𝑶𝑫 𝒊𝒔 𝒘𝒊𝒕𝒉 𝒕𝒉𝒆 𝒑𝒂𝒕𝒊𝒆𝒏𝒕./' "$MODPATH/module.prop"
-    fi
+    debug " ✦ Fresh installation detected"
+    debug " ✦ Enabling Boot Configuration UI"
+    debug " ✦ Open WebUI after installation to"
+    debug "   configure settings before rebooting"
+    debug " "
+
+    mkdir -p "$MEOW/webroot"
+    cp "$MODPATH/toolkit/BootConfiguration/index.html" "$MEOW/webroot/index.html"
+    chmod 644 "$MEOW/webroot/index.html"
 }
 
 cleanup() {
@@ -229,7 +285,6 @@ prepare_directories() {
 
 handle_module_props() {
     debug " ✦ Handling Module Properties "
-    debug " "
     touch "$MEOW/update"
     cp "$MODPATH/module.prop" "$MEOW/module.prop" > /dev/null 2>&1
 }
@@ -249,22 +304,21 @@ setup_blacklist() {
 }
 
 release_source() {
-    [ -f "/data/adb/Box-Brain/noredirect" ] && return 0
     nohup am start -a android.intent.action.VIEW -d "https://t.me/MeowRedirect" > /dev/null 2>&1 &
 }
 
 enable_recommended_settings() {
-    if [ ! -f "$MEOW/service.sh" ]; then
-        debug " ✦ Enabling Recommended Settings "
-        touch "$FLAG/iframe_back_button"
-        touch "$FLAG/noredirect"
-        touch "$FLAG/ignore"
-        touch "$FLAG/keyswitch"
-        touch "$FLAG/PIF/skip_json"
-        touch "$FLAG/PIF/skip_key"
-        touch "$FLAG/PIF/advanced"
-        touch "$FLAG/keyswitch"
-    fi
+    debug " ✦ Enabling Recommended Settings "
+    touch "$FLAG/iframe_back_button"
+    touch "$FLAG/noredirect"
+    touch "$FLAG/ignore"
+    touch "$FLAG/keyswitch"
+    touch "$FLAG/wait"
+    touch "$FLAG/autopilot"
+    touch "$FLAG/PIF/skip_json"
+    touch "$FLAG/PIF/skip_key"
+    touch "$FLAG/PIF/advanced"
+    touch "$FLAG/PIF/custom-pif"
 }
 
 display_footer() {
@@ -281,18 +335,14 @@ display_footer() {
 }
 
 install_module() {
-#    check_integrity
+    check_integrity
     prepare_directories
     handle_module_props
-    boot_configuration
-    set_integritybox_profile
-    enable_recommended_settings
-    setup_environment
-    detect_rom
-    cleanup
     check_boot_hash
+    setup_environment
+    magisk_resetprop_rs "$MODPATH/resetprop-rs"
+    cleanup
     setup_blacklist
-    release_source
 }
 
 chmod +x "$MODPATH/hello.sh"
@@ -326,11 +376,24 @@ fi
 
 if [ ! -f $TRICKY/security_patch.txt ]; then
 cat <<EOF > $TRICKY/security_patch.txt
-all=2026-10-05
+all=2026-11-05
 EOF
 fi
-
+ 
 install_module
+
+# Fresh Installation 
+if [ ! -f "$MEOW/service.sh" ]; then
+    enable_recommended_settings
+    set_integritybox_profile
+    boot_configuration
+    detect_rom
+    release_source
+
+    sed -i 's/^description=.*/description=> ᴄᴏɴꜰɪɢᴜʀᴇ ᴛʜᴇ ᴍᴏᴅᴜʟᴇ ʙᴇʜᴀᴠɪᴏᴜʀ ʙᴇꜰᴏʀᴇ ʀᴇʙᴏᴏᴛɪɴɢ ʙʏ ᴏᴘᴇɴɪɴɢ ᴛʜᴇ ᴡᴇʙᴜɪ/' "$MEOW/module.prop"
+else
+    sed -i 's/^description=.*/description=> If nobody was watching, nobody was judging, and nobody was there to applaud you, would your life still have a purpose?/' "$MODPATH/module.prop"
+fi
 
 # Create scripts 
 boot="/data/adb/service.d"
@@ -605,7 +668,7 @@ cat <<'EOF' > "$boot/prop.sh"
 #!/system/bin/sh
 
 # CONFIG
-PATCH_DATE="2026-10-05"
+PATCH_DATE="2026-11-05"
 FILE_PATH="/data/adb/tricky_store/security_patch.txt"
 SKIP_FILE="/data/adb/Box-Brain/skip"
 LOG_DIR="/data/adb/Box-Brain/Integrity-Box-Logs"
@@ -700,9 +763,8 @@ if [ -e /sdcard/zygisk ] || [ -f /data/adb/Box-Brain/zygisk ]; then
     debug " ✦ Proceeding Zygiskless Installation"
     debug " ✦ Disabled: Zygisk Attestation fallback"
     debug " ✦ Enabled:  Pixel Mode"
-    touch "$FLAG/zygisk"
-    touch "$FLAG/keybox"
-    touch "$FLAG/json"
+    rm -rf "$FLAG/PIF/skip_json"
+    rm -rf "$FLAG/PIF/skip_key"
     sed -i 's/^description=.*/description=Pixel Mode 🌱 has been enabled, all zygisk related components has been disabled/' "$MODPATH/module.prop"
     rm -rf $MODPATH/app_replace_list.txt \
         $MODPATH/autopif2.sh $MODPATH/classes.dex \
