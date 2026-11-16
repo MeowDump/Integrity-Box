@@ -21,6 +21,149 @@ log() {    # log <message>
     /system/bin/log -t PATCH_OVERRIDE "$1"
 }
 
+check_integrity() {
+    [ -e /data/adb/Box-Brain/integrity ] || {
+        return 0
+    }
+
+    lic_package=""
+    lic_activity=""
+
+    while IFS=' ' read -r lic_package lic_activity; do
+        [ -n "$lic_package" ] || continue
+
+        if pm path "$lic_package" >/dev/null 2>&1; then
+            echo " ✦ Found: $lic_package"
+            echo " ✦ Launching: $lic_activity"
+
+            am start --user 0 \
+                -a android.intent.action.VIEW \
+                -n "$lic_package/$lic_activity" \
+                -f 0
+
+            return $?
+        fi
+    done <<'EOF'
+com.henrikherzig.playintegritychecker com.henrikherzig.playintegritychecker.MainActivity
+com.kblack.demo_play_integrity_api com.kblack.demo_play_integrity_api.MainActivity
+gr.nikolasspyr.integritycheck gr.nikolasspyr.integritycheck.MainActivity
+mtaate.checkintegrityma com.integrity.ui.MainActivity
+dev.keiji.deviceintegrity dev.keiji.deviceintegrity.ui.agreement.AgreementActivity
+EOF
+
+    echo " ✦ No PlayIntegrity checker app is installed."
+
+    if ! pm path com.android.vending >/dev/null 2>&1; then
+        echo " ✦ Play Store is not installed."
+        return 1
+    fi
+
+    command -v getevent >/dev/null 2>&1 || {
+        echo " ✦ Touch monitoring unavailable."
+        return 1
+    }
+
+    lic_event_file="/data/local/tmp/integrity_touch_$$"
+    rm -f "$lic_event_file"
+
+    getevent -lt > "$lic_event_file" 2>/dev/null &
+    lic_event_pid=$!
+
+    lic_cleanup() {
+        kill "$lic_event_pid" 2>/dev/null
+        rm -f "$lic_event_file"
+    }
+
+    lic_touch_detected() {
+        grep -q 'BTN_TOUCH.*DOWN' "$lic_event_file" 2>/dev/null ||
+        awk '/ABS_MT_TRACKING_ID/ && !/ffffffff/ {found=1} END {exit !found}' \
+            "$lic_event_file" 2>/dev/null
+    }
+
+    lic_check_touch() {
+        if lic_touch_detected; then
+            echo " ✦ Manual touch detected. Automation stopped."
+            lic_cleanup
+            return 1
+        fi
+        return 0
+    }
+
+    echo " ✦ Opening Play Store..."
+
+    am start --user 0 \
+        -n com.android.vending/com.google.android.finsky.activities.MainActivity >/dev/null 2>&1 \
+        || {
+            lic_cleanup
+            return 1
+        }
+
+    sleep 1.5
+    lic_check_touch || return 0
+
+    lic_screen_size=$(wm size 2>/dev/null | tail -n 1 | sed 's/.*: //')
+    lic_width=${lic_screen_size%x*}
+    lic_height=${lic_screen_size#*x}
+
+    lic_density=$(wm density 2>/dev/null |
+        sed -n 's/.*density: \([0-9][0-9]*\).*/\1/p' |
+        head -n 1)
+
+    if [ -z "$lic_width" ] || [ -z "$lic_height" ] ||
+       [ -z "$lic_density" ] ||
+       [ "$lic_width" -le 0 ] || [ "$lic_height" -le 0 ] ||
+       [ "$lic_density" -le 0 ]; then
+        echo " ✦ Unable to detect screen dimensions."
+        lic_cleanup
+        return 1
+    fi
+
+    lic_x=$((lic_width - (28 * lic_density / 160)))
+    lic_y=$((55 * lic_density / 160))
+
+    lic_check_touch || return 0
+
+    echo " ✦ Tapping profile avatar..."
+    input tap "$lic_x" "$lic_y"
+
+    sleep 0.1
+    lic_check_touch || return 0
+
+    lic_swipe_x=$((lic_width / 2))
+    lic_swipe_start=$((lic_height * 80 / 100))
+    lic_swipe_end=$((lic_height * 20 / 100))
+
+    echo " ✦ Performing scroll..."
+
+    lic_check_touch || return 0
+
+    input swipe "$lic_swipe_x" "$lic_swipe_start" \
+        "$lic_swipe_x" "$lic_swipe_end" 20
+
+    echo " ✦ Automation completed."
+
+    lic_cleanup
+    return 0
+}
+
+launch_webui() {
+    [ -f /data/adb/magisk/busybox ] || return 0
+    [ -f /data/adb/Box-Brain/webui ] || return 0
+
+    if pm path io.github.a13e300.ksuwebui >/dev/null 2>&1; then
+        am start -n "io.github.a13e300.ksuwebui/.WebUIActivity" \
+            -e id "playintegrityfix" >/dev/null 2>&1
+
+    elif pm path com.dergoogler.mmrl.wx >/dev/null 2>&1; then
+        am start -n "com.dergoogler.mmrl.wx/.ui.activity.webui.WebUIActivity" \
+            -e MOD_ID "playintegrityfix" >/dev/null 2>&1
+
+    else
+        echo " ✦ KSU WEBUI not found"
+        echo " "
+    fi
+}
+
 update_module_description() {
   MODPATH="/data/adb/modules/playintegrityfix"
   PROP="$MODPATH/module.prop"
@@ -111,7 +254,7 @@ cleanup_lsposed() {
 
   if getprop | grep -q '^\[dalvik.vm.dex2oat-flags\]'; then
     echo "[*] Removing dalvik.vm.dex2oat-flags..."
-    resetprop -p dalvik.vm.dex2oat-flags &&
+    $PROP_DELETE_PERSIST dalvik.vm.dex2oat-flags &&
       echo "[✓] Property removed." ||
       echo "[!] Failed to remove property."
   fi
@@ -401,8 +544,8 @@ handle_security_patch() {
     else
       if [ "$CURRENT_PROP" != "$PATCH_DATE" ]; then
         if command -v resetprop >/dev/null 2>&1; then
-          if resetprop "$PROP_MAIN" "$PATCH_DATE"; then
-            resetprop --compact >/dev/null 2>&1 || true
+          if $RESETPROP "$PROP_MAIN" "$PATCH_DATE"; then
+            run_compact
             echo " ✦ Patched $PROP_MAIN to $PATCH_DATE"
           else
             echo " ✖ Unable to update $PROP_MAIN"
@@ -423,24 +566,83 @@ handle_security_patch() {
 # Property Backend Setup
 RESETPROP="resetprop -n"
 PROP_DELETE="resetprop --delete"
-COMPACT_SUPPORTED=false
 PROP_WAIT="resetprop -w"
+PROP_DELETE_PERSIST="resetprop -p --delete"
+
+COMPACT_SUPPORTED=false
 IS_MAGISK=false
+RESETPROP_RS=""
 
 setup_resetprop() {
-    if [ -f "/data/adb/magisk" ] || [ -f "/data/adb/magisk/magisk" ]; then
+    local dir="/data/adb/modules/playintegrityfix/resetprop-rs"
+    local arch fallback
+
+    # Detect Magisk
+    if [ -f /data/adb/magisk/magisk ]; then
+        IS_MAGISK=true
+
+        # Magisk version fallback
         if [ -f /data/adb/magisk/util_functions.sh ]; then
             MAGISK_VER=$(grep MAGISK_VER_CODE /data/adb/magisk/util_functions.sh | cut -d= -f2)
             [ "$MAGISK_VER" -lt 27003 ] 2>/dev/null && RESETPROP="resetprop_hexpatch"
         fi
-        resetprop --help 2>&1 | grep -q "compact" && COMPACT_SUPPORTED=true
+
+        # Detect device architecture
+        case "$(getprop ro.product.cpu.abi)" in
+            arm64-v8a)
+                arch="arm64-v8a"
+                fallback="armeabi-v7a"
+                ;;
+            armeabi-v7a)
+                arch="armeabi-v7a"
+                fallback=""
+                ;;
+            x86_64)
+                arch="x86_64"
+                fallback="x86"
+                ;;
+            x86)
+                arch="x86"
+                fallback=""
+                ;;
+            *)
+                arch="arm64-v8a"
+                fallback="armeabi-v7a"
+                ;;
+        esac
+
+        # Locate Resetprop-RS
+        if [ -x "$dir/resetprop-$arch" ]; then
+            RESETPROP_RS="$dir/resetprop-$arch"
+        elif [ -n "$fallback" ] && [ -x "$dir/resetprop-$fallback" ]; then
+            RESETPROP_RS="$dir/resetprop-$fallback"
+        fi
+
+        if [ -n "$RESETPROP_RS" ]; then
+            # Use Resetprop-RS exclusively for Magisk
+            RESETPROP="$RESETPROP_RS --stealth"
+            PROP_DELETE="$RESETPROP_RS -d"
+            PROP_DELETE_PERSIST="$RESETPROP_RS -p -d"
+            PROP_WAIT="$RESETPROP_RS --wait"
+        else
+            # Preserve existing Magisk fallback
+            resetprop --help 2>&1 | grep -q "compact" &&
+                COMPACT_SUPPORTED=true
+        fi
+
     else
+        # KernelSU / APatch
         for _p in /data/adb/ksu/bin /data/adb/ap/bin; do
-            [ -x "$_p/resetprop" ] && { export PATH="$_p:$PATH"; break; }
+            [ -x "$_p/resetprop" ] && {
+                export PATH="$_p:$PATH"
+                break
+            }
         done
+
         COMPACT_SUPPORTED=true
     fi
 }
+
 setup_resetprop
 
 # stub for boot-time
@@ -449,7 +651,15 @@ if [ "$(getprop sys.boot_completed)" != "1" ]; then
 fi
 
 run_compact() {
-    $COMPACT_SUPPORTED && resetprop -c 2>/dev/null
+    if [ "$IS_MAGISK" = true ]; then
+        if [ -n "$RESETPROP_RS" ]; then
+            "$RESETPROP_RS" --compact >/dev/null 2>&1
+        elif [ "$COMPACT_SUPPORTED" = true ]; then
+            resetprop -c 2>/dev/null
+        fi
+    elif [ "$COMPACT_SUPPORTED" = true ]; then
+        resetprop -c 2>/dev/null
+    fi
 }
 
 make_exec() {
@@ -767,7 +977,7 @@ persistprop() {
         fi
     fi
 
-    resetprop -n -p "$NAME" "$NEWVALUE"
+    $RESETPROP -p "$NAME" "$NEWVALUE"
 }
 
 # Hexpatch Fallback
