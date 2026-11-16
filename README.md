@@ -179,6 +179,7 @@ Wait for the update to finish, then try again.
 #### This project uses code from the following external open-source work:
 - [ezme-nodebug](https://github.com/ez-me/ezme-nodebug)
 - [PlayIntegrityFix](https://github.com/KOWX712/PlayIntegrityFix) & [PlayIntegrityFork](https://github.com/osm0sis/PlayIntegrityFork)
+- [resetprop-rs](https://github.com/pexcn/resetprop-rs)
 #
 </details>
 
