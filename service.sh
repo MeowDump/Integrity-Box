@@ -31,16 +31,12 @@ log() {
 $PROP_WAIT sys.boot_completed 0
 
 # •••• EARLY BOOT PROPS ••••
-
-# Bootloader/VBMeta
 check_and_set_prop "ro.boot.vbmeta.device_state" "locked"
 check_and_set_prop "vendor.boot.vbmeta.device_state" "locked"
 check_and_set_prop "ro.boot.verifiedbootstate" "green"
 check_and_set_prop "vendor.boot.verifiedbootstate" "green"
 check_and_set_prop "ro.boot.flash.locked" "1"
 check_and_set_prop "ro.boot.veritymode" "enforcing"
-
-# Warranty/Debug
 check_and_set_prop "ro.boot.warranty_bit" "0"
 check_and_set_prop "ro.warranty_bit" "0"
 check_and_set_prop "ro.vendor.boot.warranty_bit" "0"
@@ -50,17 +46,16 @@ check_and_set_prop "ro.force.debuggable" "0"
 check_and_set_prop "ro.secure" "1"
 check_and_set_prop "ro.adb.secure" "1"
 check_and_set_prop "sys.oem_unlock_allowed" "0"
-
-# Build
 check_and_set_prop "ro.build.type" "user"
 check_and_set_prop "ro.build.tags" "release-keys"
-
-# OEM-Specific
 check_and_set_prop "ro.secureboot.lockstate" "locked"  # MIUI
 check_and_set_prop "ro.boot.realmebootstate" "green"   # Realme
 check_and_set_prop "ro.boot.realme.lockstate" "1"       # Realme
-
-# Recovery Mode Hiding
+check_and_set_prop persist.sys.developer_options 0
+check_and_set_prop persist.sys.dev_mode 0
+check_and_set_prop persist.sys.debuggable 0
+check_and_set_prop ro.oem_unlock_supported 0
+check_and_set_prop ro.hardware.virtual_device 0
 resetprop_if_match "ro.bootmode" "recovery" "unknown"
 resetprop_if_match "ro.boot.bootmode" "recovery" "unknown"
 resetprop_if_match "vendor.boot.bootmode" "recovery" "unknown"
@@ -69,13 +64,6 @@ resetprop_if_match "vendor.boot.bootmode" "recovery" "unknown"
 # Reset system properties if mismatch
 #[ -n "$(resetprop sys.usb.adb.disabled)" ] && [ "$(resetprop sys.usb.adb.disabled)" != "1" ] && resetprop sys.usb.adb.disabled 1
 #[ -n "$(resetprop service.adb.root)" ] && [ "$(resetprop service.adb.root)" != "0" ] && resetprop service.adb.root 0
-
-# Other props use normal function
-check_and_set_prop persist.sys.developer_options 0
-check_and_set_prop persist.sys.dev_mode 0
-check_and_set_prop persist.sys.debuggable 0
-check_and_set_prop ro.oem_unlock_supported 0
-check_and_set_prop ro.hardware.virtual_device 0
 
 # SELinux
 check_and_set_prop "ro.boot.selinux" "enforcing"
