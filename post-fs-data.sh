@@ -4,14 +4,39 @@ MODPATH="${0%/*}"
 
 BOX="/data/adb/Box-Brain"
 boot="/data/adb/service.d"
-placeholder="$MODPATH/webroot/common_scripts"
+backend="$MODPATH/webroot/common_scripts"
 mkdir -p "$BOX/Integrity-Box-Logs"
-mkdir -p "$boot"
 
-# Grant perms 
-if [ -f "$placeholder/autopilot.sh" ]; then
-    chmod 755 "$placeholder/autopilot.sh"
-fi
+# Verify backend perms
+for _f in \
+    "$MODPATH/webroot/Canary.sh" \
+    "$MODPATH/resetprop-rs/resetprop-x86_64" \
+    "$MODPATH/resetprop-rs/resetprop-x86" \
+    "$MODPATH/resetprop-rs/resetprop-armeabi-v7a" \
+    "$MODPATH/resetprop-rs/resetprop-arm64-v8a" \
+    "$boot/prop.sh" \
+    "$boot/hash.sh" \
+    "$boot/lineage.sh" \
+    "$boot/.box_cleanup.sh" \
+    "$backend/teesim.sh" \
+    "$backend/susfiles.sh" \
+    "$backend/web_bridge.sh" \
+    "$backend/autopilot.sh" \
+    "$backend/multiroot.sh" \
+    "$backend/custom_pif.sh" \
+    "$backend/spectre.sh" \
+    "$backend/resetprop.sh" \
+    "$backend/Report.sh" \
+    "$backend/status.sh" \
+    "$backend/force_override.sh" \
+    "$backend/override_lineage.sh" \
+    "$backend/keymint.sh" \
+    "$backend/hehe.sh" \
+    "$backend/zygisk.sh" \
+    "$backend/extract_boot.sh"
+do
+    make_exec "$_f" || true
+done
 
 # Skip disabling built-in spoofing when zygiskless mode is enabled 
 if [ -f "$BOX/zygisk" ]; then
@@ -45,39 +70,30 @@ if [ -f "$BOX/disablegms" ]; then
     check_and_set_prop -f persist.sys.kihooks.disable 1
 fi
 
-# Create all placeholder files only if they don't exist
-for file in kill aosp patch xml tee user hma ulock stop start nogms lineage selinux hide resetprop faq nuke zygisknext yesgms; do
-    [ -f "$placeholder/$file" ] || touch "$placeholder/$file"
+# Conditional early sensitive properties
+check_and_set_prop ro.boot.warranty_bit 0
+check_and_set_prop ro.vendor.boot.warranty_bit 0
+check_and_set_prop ro.vendor.warranty_bit 0
+check_and_set_prop ro.warranty_bit 0
+check_and_set_prop ro.boot.realmebootstate green
+check_and_set_prop ro.is_ever_orange 0
+check_and_set_prop ro.adb.secure 1
+check_and_set_prop ro.boot.veritymode.managed yes
+check_and_set_prop ro.debuggable 0
+check_and_set_prop ro.force.debuggable 0
+check_and_set_prop ro.secure 1
+delprop_if_exist ro.boot.verifiedbooterror
+delprop_if_exist ro.boot.verifyerrorpart
+
+for PROP in $(resetprop | grep -oE 'ro.*.build.tags'); do
+    check_and_set_prop $PROP release-keys
 done
 
-# Verify backend perms
-for _f in \
-    "$MODPATH/webroot/Canary.sh" \
-    "$boot/prop.sh" \
-    "$boot/hash.sh" \
-    "$boot/lineage.sh" \
-    "$boot/.box_cleanup.sh" \
-    "$placeholder/teesim.sh" \
-    "$placeholder/scan_keybox.sh" \
-    "$placeholder/susfiles.sh" \
-    "$placeholder/autopilot.sh" \
-    "$placeholder/target.sh" \
-    "$placeholder/multiroot.sh" \
-    "$placeholder/gms.sh" \
-    "$placeholder/spectre.sh" \
-    "$placeholder/resetprop.sh" \
-    "$placeholder/Report.sh" \
-    "$placeholder/force_override.sh" \
-    "$placeholder/override_lineage.sh" \
-    "$placeholder/keymint.sh" \
-    "$placeholder/hehe.sh" \
-    "$placeholder/zygisk.sh" \
-    "$placeholder/extract_boot.sh"
-do
-    make_exec "$_f"
+for PROP in $(resetprop | grep -oE 'ro.*.build.type'); do
+    check_and_set_prop $PROP user
 done
 
-# Fix multiple root implementation warning 
+# Fix multiple root implementation conflicts 
 count=0
 
 [ -e "$BOX/ROOT/apatch" ] && count=$((count + 1))
@@ -85,16 +101,10 @@ count=0
 [ -e "$BOX/ROOT/kernelsu" ] && count=$((count + 1))
 
 if [ "$count" -eq 1 ]; then
-    sh "$placeholder/multiroot.sh"
+    sh "$backend/multiroot.sh"
 fi
 
-##########################################
-# adapted from Play Integrity Fork by @osm0sis
-# source: https://github.com/osm0sis/PlayIntegrityFork
-# license: GPL-3.0
-##########################################
-
-# First check if Magisk directory exists
+# Handle denylist for magisk users
 if [ -d "/data/adb/magisk" ]; then
     echo "Magisk detected."
 
@@ -108,7 +118,7 @@ if [ -d "/data/adb/magisk" ]; then
         # Run common tasks for installation and boot-time
         . "$MODPATH/common_setup.sh"
     else
-        # Add Play Services DroidGuard and Play Store processes to Magisk DenyList for better results in scripts-only mode
+        # Add Play Services DroidGuard and Play Store processes to Magisk DenyList for better results in zygiskless mode
         magisk --denylist add com.google.android.gms com.google.android.gms.unstable
         magisk --denylist add com.android.vending
     fi
@@ -116,36 +126,5 @@ if [ -d "/data/adb/magisk" ]; then
 else
     echo "Skipped denylist, Bro's not using Magisk"
 fi
-
-# Conditional early sensitive properties
-
-# Samsung
-check_and_set_prop ro.boot.warranty_bit 0
-check_and_set_prop ro.vendor.boot.warranty_bit 0
-check_and_set_prop ro.vendor.warranty_bit 0
-check_and_set_prop ro.warranty_bit 0
-
-# Realme
-check_and_set_prop ro.boot.realmebootstate green
-
-# OnePlus
-check_and_set_prop ro.is_ever_orange 0
-
-# Microsoft
-for PROP in $(resetprop | grep -oE 'ro.*.build.tags'); do
-    check_and_set_prop $PROP release-keys
-done
-
-# Other
-for PROP in $(resetprop | grep -oE 'ro.*.build.type'); do
-    check_and_set_prop $PROP user
-done
-check_and_set_prop ro.adb.secure 1
-delprop_if_exist ro.boot.verifiedbooterror
-delprop_if_exist ro.boot.verifyerrorpart
-check_and_set_prop ro.boot.veritymode.managed yes
-check_and_set_prop ro.debuggable 0
-check_and_set_prop ro.force.debuggable 0
-check_and_set_prop ro.secure 1
 
 exit 0
