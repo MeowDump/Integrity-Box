@@ -1,0 +1,35 @@
+# With `[filter].enabled = true`, a UID is intercepted when any package
+# sharing that UID is listed in `scoop`.
+# Filter deny settings still apply to every package resolved for the UID.
+
+version = 1
+
+scoop = [
+  "io.github.vvb2060.keyattestation",
+  "com.google.android.gsf",
+  "com.google.android.gms",
+  "com.android.vending",
+  "com.eltavine.duckdetector",
+]
+
+[main]
+enabled = true
+log_level = "debug"
+
+[filter]
+enabled = true
+deny_packages = []
+block_android_package = true
+allow_unknown_package = false
+
+[intercept]
+get_security_level = true
+get_key_entry = true
+update_subcomponent = true
+list_entries = true
+delete_key = true
+grant = true
+ungrant = true
+get_number_of_entries = true
+list_entries_batched = true
+get_supplementary_attestation_info = true

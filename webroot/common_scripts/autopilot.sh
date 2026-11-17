@@ -8,13 +8,6 @@ MODPATH="/data/adb/modules/playintegrityfix"
 mkdir -p "$BOX_BRAIN/Integrity-Box-Logs" 2>/dev/null
 LOG_FILE="$BOX_BRAIN/Integrity-Box-Logs/autorun.log"
 
-log() {
-    echo "[$(date '+%H:%M:%S')] $1" >> "$LOG_FILE"
-    if type writelog >/dev/null 2>&1; then
-        writelog "$1" 2>/dev/null
-    fi
-}
-
 log "••••••• AUTORUN START PID: $$ •••••••"
 
 if [ -f "$MODPATH/common_func.sh" ]; then
@@ -24,6 +17,16 @@ else
     log "FATAL: common_func.sh missing"
     exit 1
 fi
+
+writelog() {
+    if [[ -z "${_LOG_FILE_INITIALIZED:-}" ]]; then
+        : > "$LOG_FILE"
+        _LOG_FILE_INITIALIZED=1
+    fi
+
+    echo "$(date +'%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"
+    /system/bin/log -t PATCH_OVERRIDE "$1"
+}
 
 if [ ! -f "$BOX_BRAIN/autopilot" ]; then
     log "autopilot disabled, exit"

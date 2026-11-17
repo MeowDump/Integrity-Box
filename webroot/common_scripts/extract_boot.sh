@@ -11,6 +11,11 @@ mkdir -p "$(dirname "$LOG_FILE")" "$OUTPUT_DIR"
 : > "$LOG_FILE"
 
 log() {
+    if [[ -z "${_LOG_FILE_INITIALIZED:-}" ]]; then
+        : > "$LOG_FILE"
+        _LOG_FILE_INITIALIZED=1
+    fi
+
     echo "$1"
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"
 }
@@ -338,6 +343,11 @@ main() {
         info "Use this boot.img to root your device with Apatch / Folkpatch or Magisk."
     else
         error "No partitions could be extracted."
+        raw ""
+        raw "Troubleshooting:"
+        raw "  1. Ensure root: su -c ./extract_boot.sh"
+        raw "  2. Check non-standard partition names"
+        raw "  3. Try from custom recovery terminal"
     fi
 
     raw ""

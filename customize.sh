@@ -1,6 +1,5 @@
 #!/system/bin/sh
 
-# Module and log directory paths
 MODDIR="${0%/*}"
 FLAG="/data/adb/Box-Brain"
 LOG_DIR="$FLAG/Integrity-Box-Logs"
@@ -10,19 +9,21 @@ SCRIPT="$MODPATH/webroot/common_scripts"
 MEOW="/data/adb/modules/playintegrityfix"
 SDK=$(getprop ro.system.build.version.sdk)
 TRICKY="/data/adb/tricky_store"
-MODERN="$SCRIPT/UI"
-LEGACY="$MODPATH/webroot"
 
+mkdir -p "$FLAG" || true
+mkdir -p "$FLAG/PIF" || true
 mkdir -p "$LOG_DIR" || true
-mkdir -p "$MEOW"
-mkdir -p "$TRICKY"
+mkdir -p "$MEOW" || true
+mkdir -p "$TRICKY" || true
 
-# Logger
+touch "$FLAG/PIF/custom-pif"
+touch "$FLAG/PIF/advanced"
+touch "$FLAG/keyswitch"
+
 debug() {
     echo "$1" | tee -a "$INSTALL_LOG"
 }
 
-# Verify module integrity
 check_integrity() {
     debug "========================================="
     debug "          Integrity Box Installer    "
@@ -44,13 +45,67 @@ check_integrity() {
     fi
 }
 
-# Setup environment and permissions
 setup_environment() {
     debug " ✦ Setting up Environment "
     debug " "
     chmod +x "$SCRIPT/key.sh"
     sh "$SCRIPT/key.sh"
     debug " "
+}
+
+magisk_resetprop_rs() {
+    local dir="$1"
+    local arch fallback
+
+    # Remove IB bundled Resetprop-RS binaries
+    # if Magisk is not installed.
+    if [ ! -f /data/adb/magisk/magisk ]; then
+        rm -f "$dir"/resetprop-*
+        return 0
+    fi
+
+    case "$(getprop ro.product.cpu.abi)" in
+        arm64-v8a)
+            arch="arm64-v8a"
+            fallback="armeabi-v7a"
+            ;;
+        armeabi-v7a)
+            arch="armeabi-v7a"
+            fallback=""
+            ;;
+        x86_64)
+            arch="x86_64"
+            fallback="x86"
+            ;;
+        x86)
+            arch="x86"
+            fallback=""
+            ;;
+        *)
+            arch="arm64-v8a"
+            fallback="armeabi-v7a"
+            ;;
+    esac
+
+    debug " ✦ Configuring Resetprop-RS"
+
+    for f in "$dir"/resetprop-*; do
+        [ -f "$f" ] || continue
+
+        local name
+        name=$(basename "$f")
+
+        case "$name" in
+            "resetprop-${arch}"|"resetprop-${fallback}")
+                chmod +x "$f"
+                debug " ✔ Kept ${name}"
+                ;;
+            *)
+                rm -f "$f"
+                debug " ✗ Dropped ${name}"
+                ;;
+        esac
+    done
 }
 
 detect_rom() {
@@ -61,7 +116,6 @@ detect_rom() {
     echo "ROM Detection Started - $TS" >> "$LOG_FILE" 2>/dev/null
 
     local props="
-        ro.build.flavor
         ro.lineage.version
         ro.mod.version
         ro.custom.device
@@ -90,6 +144,7 @@ detect_rom() {
 
     local pkgs="
         org.lineageos.audiofx
+        com.hentai.omaha
         com.nikgapps.overlay.gmscore
         com.android.axion.sandbox
         org.omnirom.omnijaws
@@ -196,29 +251,6 @@ detect_rom() {
     return 0
 }
 
-check_arch() {
-    debug " ✦ Checking CPU ABI"
-    case "$(getprop ro.product.cpu.abi)" in
-        armeabi-v7a|arm64-v8a)
-            debug " ✦ Modern Hardware detected"
-            debug " ✦ using Shadow Hook method"
-            debug " "
-            ;;
-        *)
-            debug " ✦ Legacy Hardware detected"
-            debug " ✦ fallback to Dobby method"
-            debug " "
-            rm -rf "$MODPATH/zygisk" "$MODPATH/classes.dex"
-            mv "$MODPATH/legacy/zygisk" "$MODPATH/zygisk"
-            mv "$MODPATH/legacy/legacy.dex" "$MODPATH/classes.dex"
-
-            find "$MODPATH/zygisk" -type f -exec chown 0:0 {} \; -exec chmod 644 {} \;
-            chown 0:0 "$MODPATH/classes.dex"
-            chmod 644 "$MODPATH/classes.dex"
-            ;;
-    esac
-}
-
 set_integritybox_profile() {
     debug " ✦ Setting IntegrityBox Profile"
         if [ "$SDK" -ge 33 ]; then
@@ -228,29 +260,35 @@ set_integritybox_profile() {
         fi
 }
 
-# Clean up old logs and files
+boot_configuration() {
+    debug " ✦ Fresh installation detected"
+    debug " ✦ Enabling Boot Configuration UI"
+    debug " ✦ Open WebUI after installation to"
+    debug "   configure settings before rebooting"
+    debug " "
+
+    mkdir -p "$MEOW/webroot"
+    cp "$MODPATH/toolkit/BootConfiguration/index.html" "$MEOW/webroot/index.html"
+    chmod 644 "$MEOW/webroot/index.html"
+}
+
 cleanup() {
     chmod +x "$SCRIPT/cleanup.sh"
     sh "$SCRIPT/cleanup.sh"
 }
 
-# Create necessary directories if missing
 prepare_directories() {
     debug " ✦ Preparing Required Directories  "
     [ ! -d "/data/adb/modules/playintegrityfix" ] && mkdir -p "/data/adb/modules/playintegrityfix"
     [ ! -f "$MODPATH/module.prop" ] && return 1
 }
 
-	
-# Handle module prop file
 handle_module_props() {
     debug " ✦ Handling Module Properties "
-    debug " "
     touch "$MEOW/update"
-    cp "$MODPATH/module.prop" "$MEOW/module.prop"
+    cp "$MODPATH/module.prop" "$MEOW/module.prop" > /dev/null 2>&1
 }
 
-# Verify boot hash file
 check_boot_hash() {
     debug " ✦ Creating Verified Boot Hash config"
     debug " "
@@ -259,26 +297,30 @@ check_boot_hash() {
     fi
 }
 
-# Redirect to release source on fresh installation
-release_source() {
-    [ -f "/data/adb/Box-Brain/noredirect" ] && return 0
-    nohup am start -a android.intent.action.VIEW -d "https://t.me/MeowRedirect" > /dev/null 2>&1 &
-}
-
-# Enable recommended settings
-enable_recommended_settings() {
-    if [ ! -f "$MEOW/service.sh" ]; then
-        debug " ✦ Enabling Recommended Settings "
-        touch "$FLAG/iframe_back_button"
-        touch "$FLAG/migrate_force"
-        touch "$FLAG/run_migrate"
-        touch "$FLAG/noredirect"
-        touch "$FLAG/ignore"
-        touch "$FLAG/keyswitch"
+setup_blacklist() {
+    if [ ! -f "$FLAG/blacklist.txt" ]; then
+        cp "$MODPATH/toolkit/blacklist.txt" "$FLAG/blacklist.txt"
     fi
 }
 
-# Final footer message
+release_source() {
+    nohup am start -a android.intent.action.VIEW -d "https://t.me/MeowRedirect" > /dev/null 2>&1 &
+}
+
+enable_recommended_settings() {
+    debug " ✦ Enabling Recommended Settings "
+    touch "$FLAG/iframe_back_button"
+    touch "$FLAG/noredirect"
+    touch "$FLAG/ignore"
+    touch "$FLAG/keyswitch"
+    touch "$FLAG/wait"
+    touch "$FLAG/autopilot"
+    touch "$FLAG/PIF/skip_json"
+    touch "$FLAG/PIF/skip_key"
+    touch "$FLAG/PIF/advanced"
+    touch "$FLAG/PIF/custom-pif"
+}
+
 display_footer() {
     debug "_________________________________________"
     debug " "
@@ -292,20 +334,19 @@ display_footer() {
     debug " "
 }
 
-# Main installation flow
 install_module() {
     check_integrity
     prepare_directories
     handle_module_props
-    set_integritybox_profile
-    setup_environment
-    detect_rom
-    cleanup
     check_boot_hash
-    enable_recommended_settings
-    check_arch
-    release_source
+    setup_environment
+    magisk_resetprop_rs "$MODPATH/resetprop-rs"
+    cleanup
+    setup_blacklist
 }
+
+chmod +x "$MODPATH/hello.sh"
+sh "$MODPATH/hello.sh"
 
 echo "
   ___     _                _ _        
@@ -319,7 +360,6 @@ echo "
                                       
 "
 
-# Set fingerprint on installation 
 if [ -f "$MEOW/custom.pif.prop" ]; then
     cp "$MEOW/custom.pif.prop" "$MODPATH/custom.pif.prop"
 elif [ ! -f "$MEOW/service.sh" ]; then
@@ -330,43 +370,29 @@ elif [ ! -f "$MEOW/service.sh" ]; then
     fi
 fi
 
-# play stupid games, win stupid prizes 
-if [ -d /data/adb/modules/brene ] || [ -d /data/adb/modules_update/brene ]; then
-    rm -rf /data/adb/modules/brene /data/adb/modules_update/brene
+if [ ! -f "$FLAG/integrity_box_ui_settings" ]; then
+    cp "$MODPATH/toolkit/integrity_box_ui_settings" "$FLAG/integrity_box_ui_settings"
 fi
 
-
-if [ -d /data/adb/modules/playintegrity ]; then
-    rm -rf "/data/adb/modules/playintegrity"
-fi
-
-# Write security patch file if missing 
 if [ ! -f $TRICKY/security_patch.txt ]; then
 cat <<EOF > $TRICKY/security_patch.txt
-all=2026-09-05
+all=2026-11-05
 EOF
 fi
-
-# Start the installation process
+ 
 install_module
 
-if [ -f "$FLAG/modern" ]; then
-    debug " ✦ Modern UI style detected"
+# Fresh Installation 
+if [ ! -f "$MEOW/service.sh" ]; then
+    enable_recommended_settings
+    set_integritybox_profile
+    boot_configuration
+    detect_rom
+    release_source
 
-    if [ -f "$MODERN/index.html" ] && [ -f "$MODERN/style.css" ] && [ -f "$MODERN/script.js" ]; then
-        debug " ✦ Switching to Modern UI layout"
-        debug " "
-
-        [ -f "$LEGACY/index.html" ] && mv -f "$LEGACY/index.html" "$LEGACY/index.html.bak"
-        [ -f "$LEGACY/style.css" ] && mv -f "$LEGACY/style.css" "$LEGACY/style.css.bak"
-        [ -f "$LEGACY/script.js" ] && mv -f "$LEGACY/script.js" "$LEGACY/script.js.bak"
-
-        cp -f "$MODERN/index.html" "$LEGACY/index.html"
-        cp -f "$MODERN/style.css" "$LEGACY/style.css"
-        cp -f "$MODERN/script.js" "$LEGACY/script.js"
-    else
-        debug " ✦ Modern UI source files missing, keeping legacy layout"
-    fi
+    sed -i 's/^description=.*/description=> ᴄᴏɴꜰɪɢᴜʀᴇ ᴛʜᴇ ᴍᴏᴅᴜʟᴇ ʙᴇʜᴀᴠɪᴏᴜʀ ʙᴇꜰᴏʀᴇ ʀᴇʙᴏᴏᴛɪɴɢ ʙʏ ᴏᴘᴇɴɪɴɢ ᴛʜᴇ ᴡᴇʙᴜɪ/' "$MEOW/module.prop"
+else
+    sed -i 's/^description=.*/description=> If nobody was watching, nobody was judging, and nobody was there to applaud you, would your life still have a purpose?/' "$MODPATH/module.prop"
 fi
 
 # Create scripts 
@@ -467,6 +493,7 @@ if [ -n "$FLAGS_ACTIVE" ]; then
     # key=value syntax required by system.prop loaders.
     sed -i 's///g' "$TMP_PROP"
     sed -i -E 's/^\[([^]]+)\]: \[(.*)\]$/\1=\2/' "$TMP_PROP"
+    sed -i -E '/^(init\.svc\.|init\.svc_debug_pid\.|ro\.boottime\.)/d' "$TMP_PROP"
 else
     note "No prop sanitization flags found. Skipping."
 fi
@@ -479,6 +506,7 @@ if [ -f "$NO_LINEAGE_FLAG" ]; then
         ro.lineage.build.version.plat.rev \
         ro.lineage.build.version.plat.sdk \
         ro.lineage.device \
+        ro.modversion \
         ro.lineage.display.version \
         ro.lineage.releasetype \
         ro.lineage.version \
@@ -561,10 +589,9 @@ if [ -f "/data/adb/modules/playintegrityfix/disable" ]; then
     exit 0
 fi
 
-if [ -f "/data/adb/modules/playintegrityfix/disable" ]; then
+if [ -f "/data/adb/Box-Brain/safemode" ]; then
     log "Safe mode is enabled"
     log "Skipping boot hash spoofing"
-    touch "/data/adb/Box-Brain/safemode"
     exit 0
 fi
 
@@ -594,12 +621,18 @@ fi
 
 log "Using resetprop: $RESETPROP"
 
-# Always set static default props
+# Set static default props (preserve original avb_version if present)
 "$RESETPROP" ro.boot.vbmeta.size "4096"
 "$RESETPROP" ro.boot.vbmeta.hash_alg "sha256"
-"$RESETPROP" ro.boot.vbmeta.avb_version "2.0"
 "$RESETPROP" ro.boot.vbmeta.device_state "locked"
-log "Set static VBMeta props: size=4096, hash_alg=sha256, avb_version=2.0, device_state=locked"
+
+ORIG_AVB=$(getprop ro.boot.vbmeta.avb_version)
+if [ -z "$ORIG_AVB" ] || [ "$ORIG_AVB" = "2.0" ]; then
+    "$RESETPROP" ro.boot.vbmeta.avb_version "1.3"
+    log "Set VBMeta avb_version=1.3"
+else
+    log "Preserved native VBMeta avb_version=$ORIG_AVB"
+fi
 
 # Handle hash
 if [ ! -s "$HASH_FILE" ]; then
@@ -635,7 +668,7 @@ cat <<'EOF' > "$boot/prop.sh"
 #!/system/bin/sh
 
 # CONFIG
-PATCH_DATE="2026-09-05"
+PATCH_DATE="2026-11-05"
 FILE_PATH="/data/adb/tricky_store/security_patch.txt"
 SKIP_FILE="/data/adb/Box-Brain/skip"
 LOG_DIR="/data/adb/Box-Brain/Integrity-Box-Logs"
@@ -719,10 +752,6 @@ writelog "•••••• Script Finished Successfully ••••••"
 exit 0
 EOF
 
-# A message for y'all 
-sed -i 's/^description=.*/description=> Be kind!/' "$MEOW/module.prop"
-
-
 ##########################################
 # adapted from Play Integrity Fork by @osm0sis
 # source: https://github.com/osm0sis/PlayIntegrityFork
@@ -734,9 +763,8 @@ if [ -e /sdcard/zygisk ] || [ -f /data/adb/Box-Brain/zygisk ]; then
     debug " ✦ Proceeding Zygiskless Installation"
     debug " ✦ Disabled: Zygisk Attestation fallback"
     debug " ✦ Enabled:  Pixel Mode"
-    touch "$FLAG/zygisk"
-    touch "$FLAG/keybox"
-    touch "$FLAG/json"
+    rm -rf "$FLAG/PIF/skip_json"
+    rm -rf "$FLAG/PIF/skip_key"
     sed -i 's/^description=.*/description=Pixel Mode 🌱 has been enabled, all zygisk related components has been disabled/' "$MODPATH/module.prop"
     rm -rf $MODPATH/app_replace_list.txt \
         $MODPATH/autopif2.sh $MODPATH/classes.dex \
@@ -777,3 +805,4 @@ rm -f /data/data/com.google.android.gms/cache/pif.prop /data/data/com.google.and
 
 display_footer
 exit 0
+

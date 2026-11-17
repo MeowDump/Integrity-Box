@@ -1,19 +1,17 @@
-> Release Date: 18/10/2026
+### v48.1
+- Fixed & Re uploaded broken build
 
-####  [🏆 Click here to support my work](https://meowdump.github.io/)
+### Emergency Update
+> Release Date: 16/11/2026
 
-# What's New?
+- Fixed some issues related to play integrity
+- Shipped with [resetprop-rs](https://github.com/pexcn/resetprop-rs) ( this is for magisk users only) 
+- Fixed all known bugs from v47
 
-- Dropped Zygisk support for legacy x86 hardware
-- Fixed issues with Zygote injection
-- Improved FP script and migration script
-- Deprecated OMK and TeeSim build field spoofing
-- Fixed Integrity Box profile not working correctly
-- Fixed Pixelify mode resetting automatically when running actions
-- Fixed Keybox Loader UI failing to detect XML files
-- Reworked the shell backend
-- Added a delay handler toggle to Module Settings
-- Added Blog & Articles to Experimental Features
-- Code cleanup and general improvements
+#
 
-Personal note: Life have been a little difficult lately. If you can, **please remember me in your prayers 🤲**
+#### A messege from developer
+- I've got a lot going on right now, and managing this project alongside everything else is becoming difficult. I might not be able to give it much time for the next few weeks, so updates will be delayed. Thanks for understanding.
+
+- Life have been a little difficult lately. If you can, **please remember me in your prayers 🤲**
+- ####  [🏆 Click here to support my work](https://meowdump.github.io/)
