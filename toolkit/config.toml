@@ -1,0 +1,35 @@
+version = 2
+
+[crypto]
+kak_seed = ""
+root_kek_seed = ""
+shared_secret_nonce = ""
+shared_secret_seed = ""
+
+[device]
+brand = ""
+device = ""
+imei = ""
+imei2 = ""
+manufacturer = ""
+meid = ""
+model = ""
+overrideTelephonyProperties = false
+product = ""
+serial = ""
+
+[main]
+backend = "injector"
+force_skip_system_biometric_hat_verification = false
+log_level = "debug"
+
+[trust]
+boot_patchlevel = "auto"
+device_locked = true
+os_patchlevel = "auto"
+os_version = "auto"
+security_patch = "auto"
+vb_hash = ""
+vb_key = "auto"
+vendor_patchlevel = "auto"
+verified_boot_state = true

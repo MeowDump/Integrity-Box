@@ -5,7 +5,7 @@ FINAL_SPEED=0.08
 
 show_animation() {
     frame=1
-    total_frames=5
+    total_frames=4
 
     get_terminal_size() {
         terminal_width=$(tput cols 2>/dev/null)
@@ -106,16 +106,6 @@ EOF
                 ;;
             4)
                 art=$(cat <<'EOF'
- ____  _____ ____  _____  ___ _| |_ _____
-|  _ \(____ |    \(____ |/___|_   _) ___ |
-| | | / ___ | | | / ___ |___ | | |_| ____|
-|_| |_\_____|_|_|_\_____(___/   \__)_____)
-EOF
-)
-                speed=$NORMAL_SPEED
-                ;;
-            5)
-                art=$(cat <<'EOF'
  _____  ___  ___ _____| | _____ ____  _   _
 (____ |/___)/___|____ | |(____ |    \| | | |
 / ___ |___ |___ / ___ | |/ ___ | | | | |_| |
@@ -148,9 +138,9 @@ EOF
             printf 'Preparing Environment......\n\n'
 
             if [ $((frame % 2)) -eq 1 ]; then
-                direction=top
-            else
                 direction=bottom
+            else
+                direction=top
             fi
 
             printf '%s\n' "$art" |

@@ -10,6 +10,7 @@ SCRIPT_DIR="$MODPATH/webroot/common_scripts"
 
 mkdir -p "$BOX" "$LOGDIR"
 print_header
+launch_webui
 
 cleanup_root_logs
 cleanup_ota
@@ -20,6 +21,7 @@ reset_tricky_store
 download_keybox
 update_targets
 
+sh "$SCRIPT_DIR/status.sh" || true
 sh "$MODPATH/osm0sis.sh" || true
 sh "$SCRIPT_DIR/cleanup.sh" >/dev/null 2>&1
 
@@ -38,6 +40,7 @@ update_module_description
 echo " "
 echo " "
 echo "    -- ACTION COMPLETED SUCCESSFULLY --"
+check_integrity >/dev/null 2>&1
 handle_delay
 exit 0
 
