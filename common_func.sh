@@ -1024,14 +1024,62 @@ wait_for_boot() {
     say boot.log " "
 }
 
+# Fingerprint of the keybox TrickyStore builds its stored keys from.
+keybox_fingerprint() {
+    local KEYBOX="/data/adb/tricky_store/keybox.xml"
+
+    [ -s "$KEYBOX" ] || return 1
+    sha256sum "$KEYBOX" 2>/dev/null | awk '{print $1}'
+}
+
+# TrickyStore derives its stored keys from the keybox, so they only have to be
+# dropped when the keybox itself changed. Purging them on every run makes
+# Google forget the device: accounts get logged out and pairings (ChatGPT remote
+# control, Wallet cards, Wear style devices) have to be redone for nothing.
+# Keys are kept while the installed keybox hash did not move.
 reset_tricky_store() {
-    if [ -d "/data/adb/tricky_store/key_db" ]; then
-        rm -rf "/data/adb/tricky_store/key_db"
-        mkdir -p "/data/adb/tricky_store/key_db"
+    local BOX="/data/adb/Box-Brain"
+    local STATE="$BOX/keybox-keys-hash"
+    local FORCE="$BOX/force-key-reset"
+    local current previous purge
+
+    purge=1
+
+    current="$(keybox_fingerprint)"
+    previous=""
+    [ -f "$STATE" ] && previous="$(head -n 1 "$STATE" 2>/dev/null | tr -dc 'a-fA-F0-9')"
+
+    if [ -f "$FORCE" ]; then
+        rm -f "$FORCE"
+        log "Key reset forced, dropping stored TrickyStore keys"
+    elif [ -z "$current" ]; then
+        log "No keybox installed, keeping existing TrickyStore keys"
+        purge=0
+    elif [ -z "$previous" ]; then
+        log "First run with this keybox, keeping existing TrickyStore keys"
+        purge=0
+    elif [ "$current" = "$previous" ]; then
+        log "Keybox unchanged, keeping existing TrickyStore keys"
+        purge=0
+    else
+        log "Keybox changed, dropping stored TrickyStore keys"
     fi
 
-    if [ -d "/data/adb/tricky_store/persistent_keys" ]; then
-        rm -rf "/data/adb/tricky_store/persistent_keys"
-        mkdir -p "/data/adb/tricky_store/persistent_keys"
+    if [ "$purge" = 1 ]; then
+        if [ -d "/data/adb/tricky_store/key_db" ]; then
+            rm -rf "/data/adb/tricky_store/key_db"
+            mkdir -p "/data/adb/tricky_store/key_db"
+        fi
+
+        if [ -d "/data/adb/tricky_store/persistent_keys" ]; then
+            rm -rf "/data/adb/tricky_store/persistent_keys"
+            mkdir -p "/data/adb/tricky_store/persistent_keys"
+        fi
+    fi
+
+    if [ -n "$current" ]; then
+        mkdir -p "$BOX" 2>/dev/null
+        printf '%s\n' "$current" > "$STATE" 2>/dev/null ||
+            log "Failed to record the keybox fingerprint"
     fi
 }
