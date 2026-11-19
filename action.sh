@@ -17,8 +17,11 @@ cleanup_ota
 cleanup_lsposed
 cleanup_gapps_logs
 
-reset_tricky_store
 download_keybox
+# Decide after the keybox was fetched: the stored keys only have to be dropped
+# when the installed keybox really changed, and a failed download must not cost
+# the user its keys.
+reset_tricky_store
 update_targets
 
 sh "$SCRIPT_DIR/status.sh" || true
