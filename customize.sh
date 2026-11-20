@@ -303,6 +303,12 @@ setup_blacklist() {
     fi
 }
 
+setup_status() {
+    if [ ! -f "$FLAG/status.json" ]; then
+        cp "$MODPATH/toolkit/status.json" "$FLAG/status.json"
+    fi
+}
+
 release_source() {
     nohup am start -a android.intent.action.VIEW -d "https://t.me/MeowRedirect" > /dev/null 2>&1 &
 }
@@ -343,6 +349,7 @@ install_module() {
     magisk_resetprop_rs "$MODPATH/resetprop-rs"
     cleanup
     setup_blacklist
+    setup_status
 }
 
 chmod +x "$MODPATH/hello.sh"
@@ -374,11 +381,10 @@ if [ ! -f "$FLAG/integrity_box_ui_settings" ]; then
     cp "$MODPATH/toolkit/integrity_box_ui_settings" "$FLAG/integrity_box_ui_settings"
 fi
 
-if [ ! -f $TRICKY/security_patch.txt ]; then
-cat <<EOF > $TRICKY/security_patch.txt
-all=2026-11-05
-EOF
-fi
+[ -d "$TRICKY/keys" ] && rm -rf "$TRICKY/keys"
+PATCH_DATE="$(cat "$FLAG/patch.txt" 2>/dev/null)"
+[ -z "$PATCH_DATE" ] && PATCH_DATE="$(date '+%Y-%m-05')"
+echo "all=$PATCH_DATE" > "$TRICKY/security_patch.txt"
  
 install_module
 
@@ -668,11 +674,12 @@ cat <<'EOF' > "$boot/prop.sh"
 #!/system/bin/sh
 
 # CONFIG
-PATCH_DATE="2026-11-05"
+PATCH_FILE="/data/adb/Box-Brain/patch.txt"
 FILE_PATH="/data/adb/tricky_store/security_patch.txt"
 SKIP_FILE="/data/adb/Box-Brain/skip"
 LOG_DIR="/data/adb/Box-Brain/Integrity-Box-Logs"
 LOG_FILE="$LOG_DIR/prop_patch.log"
+FALLBACK_DATE="2026-11-05"
 
 writelog() {
     TS="$(date '+%Y-%m-%d %H:%M:%S')"
@@ -684,6 +691,25 @@ abort() {
     writelog "ERROR | $1"
     exit 1
 }
+
+# GET PATCH DATE
+if [ -f "$PATCH_FILE" ]; then
+    PATCH_DATE="$(tr -d ' \t\r\n' < "$PATCH_FILE")"
+    PATCH_SOURCE="patch.txt"
+
+elif [ -f "$FILE_PATH" ]; then
+    PATCH_DATE="$(sed -n 's/^all=//p' "$FILE_PATH" | head -n 1 | tr -d ' \t\r\n')"
+    PATCH_SOURCE="security_patch.txt"
+
+else
+    PATCH_DATE="$FALLBACK_DATE"
+    PATCH_SOURCE="hardcoded fallback"
+fi
+
+# VALIDATE PATCH DATE
+if ! echo "$PATCH_DATE" | grep -Eq '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'; then
+    abort "Invalid patch date from $PATCH_SOURCE"
+fi
 
 # SAFE MODE CHECK
 if [ -f "/data/adb/Box-Brain/safemode" ]; then
@@ -718,8 +744,9 @@ setprop_safe() {
 
 # START LOG
 writelog "•••••• Starting Security Patch Override ••••••"
+writelog "Selected Patch Date: $PATCH_DATE (Source: $PATCH_SOURCE)"
 
-# Exit if module is disabled 
+# Exit if module is disabled
 if [ -f "/data/adb/modules/playintegrityfix/disable" ]; then
     writelog "Integrity Box is disabled, exiting..."
     exit 0
