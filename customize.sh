@@ -370,11 +370,7 @@ echo "
 if [ -f "$MEOW/custom.pif.prop" ]; then
     cp "$MEOW/custom.pif.prop" "$MODPATH/custom.pif.prop"
 elif [ ! -f "$MEOW/service.sh" ]; then
-    if [ "$SDK" -le 31 ]; then
-        cp "$MODPATH/toolkit/legacy.prop" "$MODPATH/custom.pif.prop"
-    else
-        cp "$MODPATH/toolkit/pixelify.prop" "$MODPATH/custom.pif.prop"
-    fi
+    cp "$MODPATH/toolkit/pixelify.prop" "$MODPATH/custom.pif.prop"
 fi
 
 if [ ! -f "$FLAG/integrity_box_ui_settings" ]; then
