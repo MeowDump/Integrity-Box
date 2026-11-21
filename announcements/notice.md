@@ -1,10 +1,7 @@
-> All keyboxes are banned.
-> So don't waste your time messing up
-> with your existing configuration.
->
-> Wait for new leak
+> Keyboxes has been updated.
 > 
-> Last updated: 21 November 2026 | Saturday 
+> 21-11-2026 | 12:52 PM (IST)
+> 
 
 # 
 
