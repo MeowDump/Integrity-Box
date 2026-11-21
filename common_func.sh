@@ -17,7 +17,8 @@ say() {    # say <file> <message>
     record "$1" "$2"; echo "$2"
 }
 log() {    # log <message>
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
+    echo "$1"
     /system/bin/log -t PATCH_OVERRIDE "$1"
 }
 
@@ -167,8 +168,8 @@ launch_webui() {
 update_module_description() {
   MODPATH="/data/adb/modules/playintegrityfix"
   PROP="$MODPATH/module.prop"
-  BAK="$PROP.bak"
   P="$MODPATH/custom.pif.prop"
+  BRAIN="/data/adb/Box-Brain"
 
   # Find BusyBox
   bb=""
@@ -182,26 +183,39 @@ update_module_description() {
   done
   [ -z "$bb" ] && return 0
 
-  # Read device identity
-  MODEL=""
-  DEVICE=""
-  INIT_SDK=""
+  if [ ! -d "$MODPATH/zygisk" ]; then
+    DEVICE=$(getprop ro.product.device)
+    PATCH=$(getprop ro.build.version.security_patch)
 
-  if [ -f "$P" ]; then
-    MODEL=$("$bb" sed -n 's/^MODEL=//p' "$P" | "$bb" head -n1)
-    DEVICE=$("$bb" sed -n 's/^DEVICE=//p' "$P" | "$bb" head -n1)
-    INIT_SDK=$("$bb" sed -n 's/^DEVICE_INITIAL_SDK_INT=//p' "$P" | "$bb" head -n1)
+    [ -z "$DEVICE" ] && DEVICE="Unknown"
+    [ -z "$PATCH" ] && PATCH="Unknown"
+
+    DESC="⏤͟͞𝗣𝗜𝗫𝗘𝗟 𝗠𝗢𝗗𝗘 🍋‍🟩 •• $DEVICE | $PATCH"
+  else
+    # Read spoofed identity
+    MODEL=""
+    INITSDK=""
+
+    if [ -f "$P" ]; then
+      MODEL=$("$bb" sed -n 's/^MODEL=//p' "$P" | "$bb" head -n1)
+      INITSDK=$("$bb" sed -n 's/^DEVICE_INITIAL_SDK_INT=//p' "$P" | "$bb" head -n1)
+    fi
+
+    [ -z "$MODEL" ] && MODEL="Unknown"
+    [ -z "$INITSDK" ] && INITSDK="Unknown"
+
+    # Status indicators
+    STATUS=""
+
+    [ -f "$BRAIN/safemode" ] && STATUS="${STATUS}⏤͟͞𝗦𝗔𝗙𝗘 𝗠𝗢𝗗𝗘 🚨 "
+
+    SELINUX=$("$bb" cat /sys/fs/selinux/enforce 2>/dev/null)
+    [ "$SELINUX" = "0" ] && STATUS="${STATUS}⏤͟͞𝗦𝗘𝗟𝗜𝗡𝗨𝗫 𝗣𝗘𝗥𝗠𝗜𝗦𝗦𝗜𝗩𝗘 ❌ "
+
+    [ -f "$BRAIN/force-reset" ] && STATUS="${STATUS}⏤͟͞𝗔𝗚𝗥𝗘𝗦𝗦𝗜𝗩𝗘 𝗠𝗢𝗗𝗘 🔥 "
+
+    DESC="${STATUS}•• $MODEL | InitSDK $INITSDK"
   fi
-
-  [ -z "$MODEL" ] && MODEL="Unknown"
-  [ -z "$DEVICE" ] && DEVICE="Unknown"
-  [ -z "$INIT_SDK" ] && INIT_SDK="Unknown"
-
-  # Build description
-  DESC="current spoofing indentify: $MODEL ($DEVICE) | InitSDK: $INIT_SDK"
-
-  # Backup original properties
-  [ ! -f "$BAK" ] && "$bb" cp "$PROP" "$BAK"
 
   # Update description
   "$bb" sed -i '/^description=/d' "$PROP"
@@ -501,13 +515,29 @@ handle_security_patch() {
   local PATCH_LOG="$LOGDIR/patch.log"
   local PATCH_FLAG="$BOX/patch"
   local SKIP_FILE="$BOX/skip"
-  local PATCH_DATE="2026-10-05"
+  local PATCH_FILE="$BOX/patch.txt"
+  local PATCH_DATE
   local PROP_MAIN="ro.build.version.security_patch"
   local FILE_PATH="/data/adb/tricky_store/security_patch.txt"
   local BRAND_PROP
   local CURRENT_PROP
 
+  # Automatically generate current month security patch date
+  PATCH_DATE="$(date '+%Y-%m')-05"
+
   BRAND_PROP="$(getprop ro.product.system.brand)"
+
+  # Ensure Box-Brain directory exists
+  if ! mkdir -p "$BOX" 2>/dev/null; then
+    echo " ✖ Failed to create Box-Brain directory."
+    return 1
+  fi
+
+  # Write automatically generated date to patch.txt
+  if ! echo "$PATCH_DATE" > "$PATCH_FILE"; then
+    echo " ✖ Failed to write patch date to $PATCH_FILE"
+    return 1
+  fi
 
   if ! mkdir -p "${FILE_PATH%/*}" 2>/dev/null; then
     echo " ✖ Failed to create Tricky Store directory."
@@ -757,13 +787,6 @@ print_header() {
 "
 }
 
-log_step() {
-  local status="$1" task="$2" timestamp
-  timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-  printf -- " ✦ %-10s %s\n" "$status" "$task"
-  printf "[%s] %-10s %s\n" "$timestamp" "$status" "$task" >> "$LOG_FILE"
-}
-
 handle_delay() {
   [ -f "/data/adb/Box-Brain/wait" ] || return 0
 
@@ -887,11 +910,18 @@ Z() {
 }
 
 check_and_set_prop() {
+    local FORCE=0
+
+    if [ "$1" = "-f" ]; then
+        FORCE=1
+        shift
+    fi
+
     local PROP="$1"
     local VALUE="$2"
     local CURRENT
 
-    if [ -f /data/adb/Box-Brain/force-reset ]; then
+    if [ "$FORCE" -eq 1 ] || [ -f /data/adb/Box-Brain/force-reset ]; then
         if $RESETPROP "$PROP" "$VALUE" >/dev/null 2>&1; then
             record pixel.log "Forced $PROP > $VALUE"
             return 0
@@ -1051,18 +1081,23 @@ reset_tricky_store() {
 
     if [ -f "$FORCE" ]; then
         rm -f "$FORCE"
-        log "Key reset forced, dropping stored TrickyStore keys"
+        log " ✦ Key reset forced by user,"
+        log "   dropping stored TrickyStore keys"
     elif [ -z "$current" ]; then
-        log "No keybox installed, keeping existing TrickyStore keys"
+        log " ✦ No keybox installed,"
+        log "   keeping existing keybox"
         purge=0
     elif [ -z "$previous" ]; then
-        log "First run with this keybox, keeping existing TrickyStore keys"
+        log " ✦ First run with this keybox,"
+        log "   keeping existing keybox"
         purge=0
     elif [ "$current" = "$previous" ]; then
-        log "Keybox unchanged, keeping existing TrickyStore keys"
+        log " ✦ Keybox unchanged"
+        log "   keeping existing keybox"
         purge=0
     else
-        log "Keybox changed, dropping stored TrickyStore keys"
+        log " ✦ New keybox detected,"
+        log "   dropping stored TrickyStore keys"
     fi
 
     if [ "$purge" = 1 ]; then
@@ -1080,6 +1115,6 @@ reset_tricky_store() {
     if [ -n "$current" ]; then
         mkdir -p "$BOX" 2>/dev/null
         printf '%s\n' "$current" > "$STATE" 2>/dev/null ||
-            log "Failed to record the keybox fingerprint"
+            log " ✦ Failed to record the keybox fingerprint"
     fi
 }
