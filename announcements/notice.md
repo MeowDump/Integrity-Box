@@ -1,6 +1,10 @@
-Keybox has been updated.
-> The current keybox is valid till
-> 29 November 2026 | Sunday
+> All keyboxes are banned.
+> So don't waste your time messing up
+> with your existing configuration.
+>
+> Wait for new leak
+> 
+> Last updated: 21 November 2026 | Saturday 
 
 # 
 
