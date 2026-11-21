@@ -24,9 +24,7 @@ download_keybox
 reset_tricky_store
 update_targets
 
-sh "$SCRIPT_DIR/status.sh" || true
-sh "$MODPATH/osm0sis.sh" || true
-sh "$SCRIPT_DIR/cleanup.sh" >/dev/null 2>&1
+sh "$SCRIPT_DIR/cleanup.sh" >/dev/null 2>&1; 
 
 if [ -d "/data/adb/modules/teesim" ]; then
     sh "$SCRIPT_DIR/teesim.sh" || true
@@ -37,6 +35,7 @@ if [ -d "/data/adb/modules/oh_my_keymint" ]; then
 fi
 
 handle_security_patch
+sync_magisk_denylist
 restart_google_services
 update_module_description
 
