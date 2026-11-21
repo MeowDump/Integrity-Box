@@ -16,9 +16,14 @@ mkdir -p "$LOG_DIR" || true
 mkdir -p "$MEOW" || true
 mkdir -p "$TRICKY" || true
 
-touch "$FLAG/PIF/custom-pif"
-touch "$FLAG/PIF/advanced"
-touch "$FLAG/keyswitch"
+# Installation defaults, same condition as the "Fresh Installation" block below:
+# when a new release is flashed over an existing install, keep the flags the
+# user already set in the WebUI instead of turning them back on.
+if [ ! -f "$MEOW/service.sh" ]; then
+    touch "$FLAG/PIF/custom-pif"
+    touch "$FLAG/PIF/advanced"
+    touch "$FLAG/keyswitch"
+fi
 
 debug() {
     echo "$1" | tee -a "$INSTALL_LOG"
@@ -832,4 +837,3 @@ rm -f /data/data/com.google.android.gms/cache/pif.prop /data/data/com.google.and
 
 display_footer
 exit 0
-
