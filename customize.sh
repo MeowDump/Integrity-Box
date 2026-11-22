@@ -108,6 +108,50 @@ magisk_resetprop_rs() {
     done
 }
 
+manage_safemode() {
+    local timeout_seconds=60 line
+    
+    ui_print "----------------------------------------"
+    ui_print "        Safemode Configuration"
+    ui_print "----------------------------------------"
+    ui_print " "
+    ui_print "  Safemode prevents certain custom ROM-specific"
+    ui_print "  functions from running on stock ROMs. This is"
+    ui_print "  intended to avoid potentially rare issues such as"
+    ui_print "  bootloops or broken cameras on some devices"
+    ui_print " "
+    ui_print "  Safemode is enabled by default. Disabling it"
+    ui_print "  can help improve Play Integrity results"
+    ui_print " "
+    ui_print "  You can always enable or disable it"
+    ui_print "  later, manually through the WebUI"
+    ui_print " "
+    ui_print "  Volume Up   : Enable Safemode"
+    ui_print "  Volume Down : Disable Safemode"
+    ui_print "  No key press within 60 seconds: Enable by default"
+    ui_print " "
+    ui_print "  Press a volume key to make your choice..."
+    ui_print " "
+    ui_print "----------------------------------------"
+    read -r -t "$timeout_seconds" line < <(getevent -ql | awk '/KEY_VOLUME/ {print; exit}')
+
+    if [ $? -eq 142 ]; then
+        debug " ✦ Timeout: enabling safemode by default"
+        touch "$FLAG/safemode" 2>/dev/null
+        return 0
+    fi
+
+    if echo "$line" | grep -q "KEY_VOLUMEUP"; then
+        touch "$FLAG/safemode" 2>/dev/null
+        debug " ✦ Volume Up pressed: safemode enabled"
+    elif echo "$line" | grep -q "KEY_VOLUMEDOWN"; then
+        rm -f "$FLAG/safemode" 2>/dev/null
+        debug " ✦ Volume Down pressed: safemode disabled"
+    else
+        touch "$FLAG/safemode" 2>/dev/null
+    fi
+}
+
 detect_rom() {
     local TS RESULT=0
     TS="$(date '+%Y-%m-%d %H:%M:%S')"
@@ -243,11 +287,11 @@ detect_rom() {
         echo "$TS | ACTION | skip flag created (sensitive stock device)" >> "$LOG_FILE" 2>/dev/null
     fi
 
-    touch "$FLAG/safemode" 2>/dev/null
     echo "$TS | ACTION | safemode flag created" >> "$LOG_FILE" 2>/dev/null
     echo "Result: Stock ROM" >> "$LOG_FILE" 2>/dev/null
     echo "Detection Completed - $(date)" >> "$LOG_FILE" 2>/dev/null
     debug " ✦ ROM type: Stock ROM"
+    manage_safemode
     return 0
 }
 
@@ -321,6 +365,7 @@ enable_recommended_settings() {
     touch "$FLAG/keyswitch"
     touch "$FLAG/wait"
     touch "$FLAG/autopilot"
+    touch "$FLAG/force-reset"
     touch "$FLAG/PIF/skip_json"
     touch "$FLAG/PIF/skip_key"
     touch "$FLAG/PIF/advanced"
@@ -346,10 +391,11 @@ install_module() {
     handle_module_props
     check_boot_hash
     setup_environment
-    magisk_resetprop_rs "$MODPATH/resetprop-rs"
+#    magisk_resetprop_rs "$MODPATH/resetprop-rs"
     cleanup
     setup_blacklist
     setup_status
+    generate_hosts_block
 }
 
 chmod +x "$MODPATH/hello.sh"
@@ -782,13 +828,14 @@ EOF
 ##########################################
 
 # Zygiskless installation 
-if [ -e /sdcard/zygisk ] || [ -f /data/adb/Box-Brain/zygisk ]; then
+if [ -d /sdcard/zygisk ] || [ -f /sdcard/zygisk ] || [ -f /data/adb/Box-Brain/zygisk ]; then
     debug " ✦ Proceeding Zygiskless Installation"
     debug " ✦ Disabled: Zygisk Attestation fallback"
     debug " ✦ Enabled:  Pixel Mode"
-    rm -rf "$FLAG/PIF/skip_json"
-    rm -rf "$FLAG/PIF/skip_key"
-    sed -i 's/^description=.*/description=Pixel Mode 🌱 has been enabled, all zygisk related components has been disabled/' "$MODPATH/module.prop"
+#    rm -rf "$FLAG/PIF/skip_json"
+#    rm -rf "$FLAG/PIF/skip_key"
+    sed -i 's/^description=.*/description=⏤͟͞𝗣𝗜𝗫𝗘𝗟 𝗠𝗢𝗗𝗘 🍋‍🟩 has been enabled, all zygisk related components has been removed/' "$MODPATH/module.prop"
+    sed -i 's/^description=.*/description=⏤͟͞𝗣𝗜𝗫𝗘𝗟 𝗠𝗢𝗗𝗘 🍋‍🟩 has been enabled, all zygisk related components has been removed/' "$MEOW/module.prop"
     rm -rf $MODPATH/app_replace_list.txt \
         $MODPATH/autopif2.sh $MODPATH/classes.dex \
         $MODPATH/common_setup.sh $MODPATH/custom.app_replace_list.txt \
