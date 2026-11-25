@@ -153,11 +153,11 @@ launch_webui() {
 
     if pm path io.github.a13e300.ksuwebui >/dev/null 2>&1; then
         am start -n "io.github.a13e300.ksuwebui/.WebUIActivity" \
-            -e id "playintegrityfix" >/dev/null 2>&1
+            -e id "integrity-box" >/dev/null 2>&1
 
     elif pm path com.dergoogler.mmrl.wx >/dev/null 2>&1; then
         am start -n "com.dergoogler.mmrl.wx/.ui.activity.webui.WebUIActivity" \
-            -e MOD_ID "playintegrityfix" >/dev/null 2>&1
+            -e MOD_ID "integrity-box" >/dev/null 2>&1
 
     else
         echo " ✦ KSU WEBUI not found"
@@ -166,9 +166,9 @@ launch_webui() {
 }
 
 update_module_description() {
-  MODPATH="/data/adb/modules/playintegrityfix"
+  MODPATH="/data/adb/modules/integrity-box"
   PROP="$MODPATH/module.prop"
-  P="$MODPATH/custom.pif.prop"
+  P="$MODPATH/config.meow"
   BRAIN="/data/adb/Box-Brain"
 
   # Find BusyBox
@@ -604,7 +604,7 @@ IS_MAGISK=false
 RESETPROP_RS=""
 
 setup_resetprop() {
-    local dir="/data/adb/modules/playintegrityfix/resetprop-rs"
+    local dir="/data/adb/modules/integrity-box/resetprop-rs"
     local arch fallback
 
     # Detect Magisk
@@ -697,7 +697,7 @@ make_exec() {
 }
 
 randomize_banner() {
-    local prop_file="/data/adb/modules/playintegrityfix/module.prop"
+    local prop_file="/data/adb/modules/integrity-box/module.prop"
     local base_url="https://raw.githubusercontent.com/MeowDump/MeowDump/refs/heads/main/Banner"
     local random_num=$((RANDOM % 14 + 1))
     local new_banner="${base_url}/mona${random_num}.png"

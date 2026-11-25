@@ -1,6 +1,6 @@
 #!/system/bin/sh
 
-MODPATH="/data/adb/modules/playintegrityfix"
+MODPATH="/data/adb/modules/integrity-box"
 . "$MODPATH/common_func.sh"
 
 resetprop_delete(){
@@ -18,7 +18,7 @@ echo " Checking for Lineage Props"
 getprop | grep -i lineage
 echo " "
 
-PROP_FILE="/data/adb/modules/playintegrityfix/system.prop"
+PROP_FILE="/data/adb/modules/integrity-box/system.prop"
 LOG_FILE="/data/adb/Box-Brain/Integrity-Box-Logs/prop_debug.log"
 
 echo "[prop spoof debug log]" > "$LOG_FILE"

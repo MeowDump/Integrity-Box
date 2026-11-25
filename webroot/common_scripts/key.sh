@@ -1,7 +1,7 @@
 #!/system/bin/sh
 
-MODPATH="/data/adb/modules/playintegrityfix"
-UPDATEPATH="/data/adb/modules_update/playintegrityfix"
+MODPATH="/data/adb/modules/integrity-box"
+UPDATEPATH="/data/adb/modules_update/integrity-box"
 
 # Load common functions
 if [ -f "$MODPATH/common_func.sh" ]; then

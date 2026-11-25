@@ -3,7 +3,7 @@
 OMK_DIR="/data/misc/keystore/omk"
 CONFIG_TOML="$OMK_DIR/config.toml"
 TMP_CONFIG="${CONFIG_TOML}.tmp.$$"
-PIF_PROP="/data/adb/modules/playintegrityfix/custom.pif.prop"
+PIF_PROP="/data/adb/modules/integrity-box/config.meow"
 
 # Exit silently if OMK directory or config doesn't exist
 [ -d "$OMK_DIR" ] || exit 0

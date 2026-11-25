@@ -2,7 +2,7 @@
 
 TSIM_DIR="/data/adb/teesim"
 CONFIG_JSON="$TSIM_DIR/config.json"
-PIF_PROP="/data/adb/modules/playintegrityfix/custom.pif.prop"
+PIF_PROP="/data/adb/modules/integrity-box/config.meow"
 SEC_PATCH="/data/adb/tricky_store/security_patch.txt"
 TARGET_TXT="/data/adb/tricky_store/target.txt"
 

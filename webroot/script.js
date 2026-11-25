@@ -1,5 +1,5 @@
-const MODDIR = `/data/adb/modules/playintegrityfix/webroot/common_scripts`;
-const PROP = `/data/adb/modules/playintegrityfix/module.prop`;
+const MODDIR = `/data/adb/modules/integrity-box/webroot/common_scripts`;
+const PROP = `/data/adb/modules/integrity-box/module.prop`;
 const BOXBRAIN = `/data/adb/Box-Brain`;
 
 const modalBackdrop = document.getElementById("modal-backdrop");
@@ -262,7 +262,7 @@ async function updateDashboard() {
     "status-playstore": "dumpsys package com.android.vending | grep versionName | head -n1 | awk -F'=' '{print $2}' | cut -d'-' -f1 | cut -d' ' -f1 | cut -d'.' -f1-3",
     "status-selinux": "getenforce || echo Unknown",
     "status-target": "[ -f /data/adb/tricky_store/target.txt ] && grep -cve '^$' /data/adb/tricky_store/target.txt || echo 0",
-    "status-pixel": "[ -f /data/adb/modules/playintegrityfix/custom.pif.prop ] && awk -F= '/^MODEL=/{print $2}' /data/adb/modules/playintegrityfix/custom.pif.prop || echo None",
+    "status-pixel": "[ -f /data/adb/modules/integrity-box/config.meow ] && awk -F= '/^MODEL=/{print $2}' /data/adb/modules/integrity-box/config.meow || echo None",
     "status-patch": "getprop ro.build.version.security_patch || echo Unknown",
     "status-integrity": "__FETCH_KEYBOX__",
     "status-profile": `if [ -f ${BOXBRAIN}/advanced ]; then echo 'Supreme'; elif [ -f ${BOXBRAIN}/pixelify ]; then echo 'Pixelify'; elif [ -f ${BOXBRAIN}/legacy ]; then echo 'Legacy'; elif [ -f ${BOXBRAIN}/wipe ]; then echo 'Meta'; else echo 'None'; fi`,
@@ -281,7 +281,7 @@ async function updateDashboard() {
   const expiryEl = document.getElementById("status-expiry");
   if (expiryEl) {
     try {
-      const file = "/data/adb/modules/playintegrityfix/custom.pif.prop";
+      const file = "/data/adb/modules/integrity-box/config.meow";
       const exp = await readExpiry(file);
 
       if (!exp) {

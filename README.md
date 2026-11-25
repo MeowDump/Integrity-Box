@@ -24,7 +24,7 @@
   _Magisk users need to [install this app](https://github.com/MeowDump/KsuWebUIStandalone/releases) to access the WebUI._
 
 - **Does IntegrityBox replace Play Integrity Fix/Fork module?**  
-  Yes! Starting from v28, PIF is fully integrated into IntegrityBox. The module ID was changed to `playintegrityfix` when i updated the [module base](https://github.com/MeowDump/Integrity-Box/blob/931f1dd91cc785c4ab95bf3e049acf7f0e71bb77/module.prop). IntegrityBox now handles everything PIF did so installing PIF module is does not make any sense.
+  Yes! Starting from v28, PIF is fully integrated into IntegrityBox. The module ID was changed to `integrity-box` when i updated the [module base](https://github.com/MeowDump/Integrity-Box/blob/931f1dd91cc785c4ab95bf3e049acf7f0e71bb77/module.prop). IntegrityBox now handles everything PIF did so installing PIF module is does not make any sense.
 
 - **Do I need to install Tricky Addon or PIF module**  
   **NO,** Please read the requirements section below.

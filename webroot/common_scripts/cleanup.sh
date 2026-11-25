@@ -61,39 +61,39 @@ mv "$T" "$F"
 
     log "Deleting known leftover files from my modules..."
     delete_if_exist /data/adb/integrity_box_verify
-	delete_if_exist /data/adb/modules_update/playintegrityfix/verify.sh
+	delete_if_exist /data/adb/modules_update/integrity-box/verify.sh
 	delete_if_exist /data/adb/service.d/shamiko.sh # we don't need this anymore 
 	delete_if_exist /data/adb/modules_update/auto_generated # canary updater
 	delete_if_exist /data/adb/modules/auto_generated
-	delete_if_exist /data/adb/modules_update/playintegrityfix/hash
-	delete_if_exist /data/adb/modules_update/playintegrityfix/credits.md
-	delete_if_exist /data/adb/modules_update/playintegrityfix/acknowledgement.md
-	delete_if_exist /data/adb/modules_update/playintegrityfix/README.md
-	delete_if_exist /data/adb/modules_update/playintegrityfix/CHANGELOG.md
-	delete_if_exist /data/adb/modules/playintegrityfix/tmp.prop
-	delete_if_exist /data/adb/modules/playintegrityfix/custom.pif.json
-	delete_if_exist /data/adb/modules/playintegrityfix/custom.pif.json.bak
-	delete_if_exist /data/adb/modules/playintegrityfix/pixel.txt.bak
-	delete_if_exist /data/adb/modules/playintegrityfix/pixel.txt
-	delete_if_exist /data/adb/modules/playintegrityfix/pif.prop
-	delete_if_exist /data/adb/modules/playintegrityfix/pif.json
-	delete_if_exist /data/adb/modules/playintegrityfix/toolkit/legacy.prop
-	delete_if_exist /data/adb/modules/playintegrityfix/toolkit/pixelify.prop
-	delete_if_exist /data/adb/modules/playintegrityfix/PIXEL_LATEST_HTML
-	delete_if_exist /data/adb/modules/playintegrityfix/PIXEL_OTA_HTML
-	delete_if_exist /data/adb/modules/playintegrityfix/PIXEL_VERSIONS_HTML
-	delete_if_exist /data/adb/modules/playintegrityfix/PIXEL_ZIP_METADATA
-	delete_if_exist /data/adb/modules/playintegrityfix/osm0sis
-	delete_if_exist /data/adb/pif.prop
+	delete_if_exist /data/adb/modules_update/integrity-box/hash
+	delete_if_exist /data/adb/modules_update/integrity-box/credits.md
+	delete_if_exist /data/adb/modules_update/integrity-box/acknowledgement.md
+	delete_if_exist /data/adb/modules_update/integrity-box/README.md
+	delete_if_exist /data/adb/modules_update/integrity-box/CHANGELOG.md
+	delete_if_exist /data/adb/modules/integrity-box/tmp.prop
+	delete_if_exist /data/adb/modules/integrity-box/custom.pif.json
+	delete_if_exist /data/adb/modules/integrity-box/custom.pif.json.bak
+	delete_if_exist /data/adb/modules/integrity-box/pixel.txt.bak
+	delete_if_exist /data/adb/modules/integrity-box/pixel.txt
+	delete_if_exist /data/adb/modules/integrity-box/config.meow
+	delete_if_exist /data/adb/modules/integrity-box/pif.json
+	delete_if_exist /data/adb/modules/integrity-box/toolkit/legacy.prop
+	delete_if_exist /data/adb/modules/integrity-box/toolkit/pixelify.prop
+	delete_if_exist /data/adb/modules/integrity-box/PIXEL_LATEST_HTML
+	delete_if_exist /data/adb/modules/integrity-box/PIXEL_OTA_HTML
+	delete_if_exist /data/adb/modules/integrity-box/PIXEL_VERSIONS_HTML
+	delete_if_exist /data/adb/modules/integrity-box/PIXEL_ZIP_METADATA
+	delete_if_exist /data/adb/modules/integrity-box/osm0sis
+	delete_if_exist /data/adb/config.meow
 	delete_if_exist /data/adb/service.d/package.sh
 	delete_if_exist /data/adb/pif.json
 	delete_if_exist /data/local/tmp/keybox_scan.log
 	delete_if_exist /data/local/tmp/keybox_runner.log
-	delete_if_exist /data/adb/modules/playintegrityfix/consent.sh
-	delete_if_exist /data/adb/modules/playintegrityfix/config.md
-	delete_if_exist /data/adb/modules/playintegrityfix/legacy
-	delete_if_exist /data/adb/modules/playintegrityfix/autopif4
-	delete_if_exist /data/adb/modules/playintegrityfix/hello.sh
+	delete_if_exist /data/adb/modules/integrity-box/consent.sh
+	delete_if_exist /data/adb/modules/integrity-box/config.md
+	delete_if_exist /data/adb/modules/integrity-box/legacy
+	delete_if_exist /data/adb/modules/integrity-box/autopif4
+	delete_if_exist /data/adb/modules/integrity-box/hello.sh
     echo "••••••• Cleanup Ended •••••••"
     echo " "
 } >> "$L" 2>&1

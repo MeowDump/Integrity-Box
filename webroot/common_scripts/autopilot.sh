@@ -3,7 +3,7 @@
 CHECK_INTERVAL=900
 GITHUB="https://raw.githubusercontent.com/MeowDump/Integrity-Box/main/auto-pilot"
 BOX_BRAIN="/data/adb/Box-Brain"
-MODPATH="/data/adb/modules/playintegrityfix"
+MODPATH="/data/adb/modules/integrity-box"
 
 mkdir -p "$BOX_BRAIN/Integrity-Box-Logs" 2>/dev/null
 LOG_FILE="$BOX_BRAIN/Integrity-Box-Logs/autorun.log"

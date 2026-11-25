@@ -6,7 +6,7 @@ LOG_DIR="$FLAG/Integrity-Box-Logs"
 INSTALL_LOG="$LOG_DIR/Installation.log"
 LOG_FILE="$LOG_DIR/DeviceType.log"
 SCRIPT="$MODPATH/webroot/common_scripts"
-MEOW="/data/adb/modules/playintegrityfix"
+MEOW="/data/adb/modules/integrity-box"
 SDK=$(getprop ro.system.build.version.sdk)
 TRICKY="/data/adb/tricky_store"
 
@@ -323,7 +323,7 @@ cleanup() {
 
 prepare_directories() {
     debug " ✦ Preparing Required Directories  "
-    [ ! -d "/data/adb/modules/playintegrityfix" ] && mkdir -p "/data/adb/modules/playintegrityfix"
+    [ ! -d "/data/adb/modules/integrity-box" ] && mkdir -p "/data/adb/modules/integrity-box"
     [ ! -f "$MODPATH/module.prop" ] && return 1
 }
 
@@ -413,10 +413,10 @@ echo "
                                       
 "
 
-if [ -f "$MEOW/custom.pif.prop" ]; then
-    cp "$MEOW/custom.pif.prop" "$MODPATH/custom.pif.prop"
+if [ -f "$MEOW/config.meow" ]; then
+    cp "$MEOW/config.meow" "$MODPATH/config.meow"
 elif [ ! -f "$MEOW/service.sh" ]; then
-    cp "$MODPATH/toolkit/pixelify.prop" "$MODPATH/custom.pif.prop"
+    cp "$MODPATH/toolkit/pixelify.prop" "$MODPATH/config.meow"
 fi
 
 if [ ! -f "$FLAG/integrity_box_ui_settings" ]; then
@@ -458,7 +458,7 @@ cat <<'EOF' > "$boot/.box_cleanup.sh"
 # This script deletes those leftover files and folders, and then deletes itself. 
 # It only runs if IntegrityBox is not installed
 
-PROP_FILE="/data/adb/modules/playintegrityfix/module.prop"
+PROP_FILE="/data/adb/modules/integrity-box/module.prop"
 REQUIRED_LINE="support=https://t.me/MeowDump"
 LOG_DIR="/data/adb/Box-Brain"
 
@@ -487,12 +487,12 @@ EOF
 cat <<'EOF' > "$boot/lineage.sh"
 #!/system/bin/sh
 
-MODPATH="/data/adb/modules/playintegrityfix"
+MODPATH="/data/adb/modules/integrity-box"
 . $MODPATH/common_func.sh
 
 # Module path and file references
 LOG_DIR="/data/adb/Box-Brain/Integrity-Box-Logs"
-PROP="/data/adb/modules/playintegrityfix/system.prop"
+PROP="/data/adb/modules/integrity-box/system.prop"
 
 note() {
     TS="$(date '+%Y-%m-%d %H:%M:%S')"
@@ -508,13 +508,13 @@ if [ -f "/data/adb/Box-Brain/safemode" ]; then
 fi
 
 # Exit if module is disabled 
-if [ -f "/data/adb/modules/playintegrityfix/disable" ]; then
+if [ -f "/data/adb/modules/integrity-box/disable" ]; then
     note "Integrity Box is disabled, exiting..."
     exit 0
 fi
 
 # Module install path
-export MODPATH="/data/adb/modules/playintegrityfix"
+export MODPATH="/data/adb/modules/integrity-box"
 
 NO_LINEAGE_FLAG="/data/adb/Box-Brain/NoLineageProp"
 NODEBUG_FLAG="/data/adb/Box-Brain/nodebug"
@@ -632,7 +632,7 @@ log() {
 }
 
 # Exit if module is disabled or safe mode is enabled 
-if [ -f "/data/adb/modules/playintegrityfix/disable" ]; then
+if [ -f "/data/adb/modules/integrity-box/disable" ]; then
     log "Integrity Box is disabled, exiting..."
     exit 0
 fi
@@ -789,7 +789,7 @@ writelog "•••••• Starting Security Patch Override ••••••
 writelog "Selected Patch Date: $PATCH_DATE (Source: $PATCH_SOURCE)"
 
 # Exit if module is disabled
-if [ -f "/data/adb/modules/playintegrityfix/disable" ]; then
+if [ -f "/data/adb/modules/integrity-box/disable" ]; then
     writelog "Integrity Box is disabled, exiting..."
     exit 0
 fi
@@ -841,7 +841,7 @@ if [ -d /sdcard/zygisk ] || [ -f /sdcard/zygisk ] || [ -f /data/adb/Box-Brain/zy
         $MODPATH/common_setup.sh $MODPATH/custom.app_replace_list.txt \
         $MODPATH/custom.pif.json \
         $MODPATH/legacy \
-        $MODPATH/pif.json $MODPATH/pif.prop $MODPATH/zygisk \
+        $MODPATH/pif.json $MODPATH/config.meow $MODPATH/zygisk \
         $MEOW/custom.app_replace_list.txt \
         $MEOW/custom.pif.json \
         $MEOW/skippersistprop \
@@ -867,7 +867,7 @@ if [ -d "$MODPATH/zygisk" ]; then
 fi
 
 # Clean up any leftover files from previous deprecated methods
-rm -f /data/data/com.google.android.gms/cache/pif.prop /data/data/com.google.android.gms/pif.prop \
+rm -f /data/data/com.google.android.gms/cache/config.meow /data/data/com.google.android.gms/config.meow \
     /data/data/com.google.android.gms/cache/pif.json /data/data/com.google.android.gms/pif.json
 
 # Remove flag from /sdcard to avoid detection 

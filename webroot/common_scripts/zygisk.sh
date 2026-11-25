@@ -1,6 +1,6 @@
 #!/system/bin/sh
 
-FLAG="/data/adb/modules/playintegrityfix/stop"
+FLAG="/data/adb/modules/integrity-box/stop"
 LOG="/data/adb/Box-Brain/Integrity-Box-Logs/zygisk.log"
 
 log() {

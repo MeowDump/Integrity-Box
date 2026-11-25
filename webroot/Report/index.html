@@ -347,7 +347,7 @@ function openLink(url){
 
 function runScript(){
   try{
-    ksu.exec("sh /data/adb/modules/playintegrityfix/webroot/common_scripts/Report.sh");
+    ksu.exec("sh /data/adb/modules/integrity-box/webroot/common_scripts/Report.sh");
     showToast("Exported to /sdcard/report.json","success");
   }catch{
     showToast("Failed to export","error");
