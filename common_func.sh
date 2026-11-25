@@ -509,6 +509,18 @@ update_targets() {
   [ "$success" -eq 1 ]
 }
 
+# SECURITY_PATCH of the active fingerprint (config.meow), as YYYY-MM-DD. Fails when the file or the value is
+# missing or malformed. Tricky Store attests this date, so it has to equal the one the fingerprint spoofs.
+patch_from_pif() {
+  local v
+  [ -f "$MODPATH/config.meow" ] || return 1
+  v="$(sed -n 's/^SECURITY_PATCH=//p' "$MODPATH/config.meow" | head -n 1 | tr -d ' \t\r')"
+  case "$v" in
+    [0-9][0-9][0-9][0-9]-[01][0-9]-[0-3][0-9]) echo "$v" ;;
+    *) return 1 ;;
+  esac
+}
+
 handle_security_patch() {
   local BOX="/data/adb/Box-Brain"
   local LOGDIR="$BOX/Integrity-Box-Logs"
@@ -522,8 +534,8 @@ handle_security_patch() {
   local BRAND_PROP
   local CURRENT_PROP
 
-  # Automatically generate current month security patch date
-  PATCH_DATE="$(date '+%Y-%m')-05"
+  # Follow the fingerprint's patch; without a valid one use the current month's patch, as before
+  PATCH_DATE="$(patch_from_pif)" || PATCH_DATE="$(date '+%Y-%m')-05"
 
   BRAND_PROP="$(getprop ro.product.system.brand)"
 
