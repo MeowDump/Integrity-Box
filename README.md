@@ -14,19 +14,29 @@
 - **What is IntegrityBox?**  
   Integrity Box started as a simple project to make keybox management easier for rooted Android users. Over time, it grew into a toolkit that brings Play Integrity fixes, system property management, spoofing controls, and other useful features together in one place. The project continues to evolve as Android changes, with new features, fixes, and improvements added along the way.
 
+#
+
 - **IDK how to use this module?**
-  > **Fresh installation only:** After flashing the module, **do not reboot immediately**. Go back to your root manager's **Modules** section, launch the WebUI, and configure the module first. Once you're done, reboot your device to apply the changes. This setup UI appears only after a fresh installation and is different from the regular WebUI.
-  >
-  > [Click here to see the setup UI.](https://raw.githubusercontent.com/MeowDump/Integrity-Box/refs/heads/main/assets/new/Configuration.png)
 
   _Just flash the module and forget about it. Integrity Box handles the rest, so you don't have to mess with configuration files or run commands manually._
 
+  > [OPTIONAL] **Fresh installation only:** After flashing the module, **do not reboot immediately**. Go back to your root manager's **Modules** section, launch the WebUI, and configure the module first. Once you're done, reboot your device to apply the changes. This setup UI appears only after a fresh installation and is different from the regular WebUI. (totally optional btw)
+  >
+  > [Click here to see the setup UI.](https://raw.githubusercontent.com/MeowDump/Integrity-Box/refs/heads/main/assets/new/Configuration.png)
+
   _Magisk users need to [install this app](https://github.com/MeowDump/KsuWebUIStandalone/releases) to access the WebUI._
 
-- **Does IntegrityBox replace Play Integrity Fix/Fork module?**  
-  Yes! Starting from v28, PIF is fully integrated into IntegrityBox. The module ID was changed to `integrity-box` when i updated the [module base](https://github.com/MeowDump/Integrity-Box/blob/931f1dd91cc785c4ab95bf3e049acf7f0e71bb77/module.prop). IntegrityBox now handles everything PIF did so installing PIF module is does not make any sense.
+#
 
-- **Do I need to install Tricky Addon or PIF module**  
+- **Does IntegrityBox removes any existing module?**
+
+  Yes! It removes PIF Inject, PIFork, Spectre, YuriKey, and AlwaysStrong.
+
+  **But why?** _**Because you don't need them.**_ IntegrityBox manages everything by itself. Installing other modules does not make any sense, they just conflict or make things worse
+
+#
+
+- **Do I need to install Tricky Addon or PIF module or TrickyStore/OMK/TEEsim?**  
   **NO,** Please read the requirements section below.
   
 #
@@ -38,10 +48,11 @@
 
 > Please make sure you have the following **modules installed** before using Integrity Box:
 
-1) - [**Tricky Store OOS**](https://github.com/beakthoven/TrickyStoreOSS/releases) or [**TEE Simulator**](https://github.com/JingMatrix/TEESimulator/releases) (use any one) 
+1) - [**Zygisk Next**](https://github.com/LSPosed/ZygiskNext/releases) or [**Meow Zygisk**](https://github.com/MeowDump/MeowZygisk/releases) (use any one) 
 
-2) - [**Zygisk Next**](https://github.com/LSPosed/ZygiskNext/releases) or [**Meow Zygisk**](https://github.com/MeowDump/MeowZygisk/releases) (use any one) 
+TrickyStoreOOS is already integrated with IntegrityBox, so there's no need to install TrickyStore, OMK, or TEEsim separately.
 
+**However, if you prefer to use any of these modules, you're free to do so! No manual configuration is required. The built-in TrickyStore automatically disables itself whenever TrickyStore, OMK, or TEEsim is installed and enabled.**
 
 - _If you are using Google Pixel stock ROM, or if you want to use your custom ROM's inbuilt spoofing feature, you do not need Zygisk. Simply create a file or folder named `zygisk` in your internal storage `/sdcard/zygisk` (make sure the name is exactly lowercase), and then flash Integrity Box. This will disable all zygisk related components and grant you full CONTROL without any conflict_
 
@@ -180,6 +191,7 @@ Wait for the update to finish, then try again.
 - [ezme-nodebug](https://github.com/ez-me/ezme-nodebug)
 - [PlayIntegrityFix](https://github.com/KOWX712/PlayIntegrityFix) & [PlayIntegrityFork](https://github.com/osm0sis/PlayIntegrityFork)
 - [resetprop-rs](https://github.com/pexcn/resetprop-rs)
+- [TrickyStoreOSS](https://github.com/beakthoven/TrickyStoreOSS)
 #
 </details>
 
