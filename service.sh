@@ -27,8 +27,8 @@ log() {
 }
 
 # Boot-Phase Properties
-# Wait for boot (Magisk/KSU/APatch with resetprop only)
-$PROP_WAIT sys.boot_completed 0
+# Wait for boot (the same on Magisk, KSU and APatch, whichever resetprop is installed)
+wait_boot_completed
 
 # •••• EARLY BOOT PROPS ••••
 check_and_set_prop "ro.boot.vbmeta.device_state" "locked"
