@@ -358,7 +358,17 @@ check_engine() {
 # The attestation triplet is key + fingerprint + patch. The keybox checks above cannot see a
 # fingerprint that expired or a patch that disagrees with it; both turn DEVICE integrity red
 # while everything else looks healthy (incident 2026-11-16).
-PIFPROP=${AP_PIF:-$MODULES/playintegrityfix/custom.pif.prop}
+# The module directory and the name of its fingerprint file changed between releases (integrity-box/config.meow,
+# earlier playintegrityfix/custom.pif.prop): look at the one that exists.
+PIFMOD=$MODULES/integrity-box
+[ -d "$PIFMOD" ] || PIFMOD=$MODULES/playintegrityfix
+PIFPROP=${AP_PIF:-}
+if [ -z "$PIFPROP" ]; then
+    for _n in config.meow custom.pif.prop; do
+        [ -f "$PIFMOD/$_n" ] && PIFPROP=$PIFMOD/$_n && break
+    done
+    [ -n "$PIFPROP" ] || PIFPROP=$PIFMOD/config.meow
+fi
 PATCHFILE=${AP_PATCH:-$KDIR/security_patch.txt}
 
 # Prints one line: "OK|ERR reason id patch expiry released fingerprint" (unknown values are "-").
@@ -456,9 +466,9 @@ day_number() {
 }
 
 check_pif() {
-    [ -d "$MODULES/playintegrityfix" ] || [ -n "${AP_PIF:-}" ] || return 0
+    [ -d "$PIFMOD" ] || [ -n "${AP_PIF:-}" ] || return 0
     if [ ! -f "$PIFPROP" ]; then
-        report WARN pif-format "custom.pif.prop missing (the module may use another fingerprint source)"
+        report WARN pif-format "${PIFPROP##*/} missing (the module may use another fingerprint source)"
         return 0
     fi
     summary=$(pif_summary "$PIFPROP")
