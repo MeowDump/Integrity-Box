@@ -49,6 +49,12 @@ setup_environment() {
     debug " ✦ Setting up Environment "
     debug " "
     chmod +x "$SCRIPT/key.sh"
+    # The AutoPilot engine is an ARM64 binary: elsewhere it is removed, and the module's own scripts keep working
+    # exactly as before (they hand over to the engine only when it is present).
+    case "$(getprop ro.product.cpu.abi)" in
+        arm64-v8a) chmod 755 "$SCRIPT/bin/box-autopilot" "$SCRIPT/ap2.sh" 2>/dev/null ;;
+        *) rm -f "$SCRIPT/bin/box-autopilot" ;;
+    esac
     sh "$SCRIPT/key.sh"
     debug " "
 }

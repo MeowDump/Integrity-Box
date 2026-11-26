@@ -431,7 +431,7 @@ input:checked + .ios-toggle-slider:before{
           <span class="material-icons">monitor_heart</span>
         </div>
         <div class="ios-item-content">
-          <div class="ios-item-title">Daemon Heartbeat</div>
+          <div class="ios-item-title">Daemon Process / Last Heartbeat</div>
           <div class="ios-item-subtitle" id="heartbeatSubtitle">Checking...</div>
           <div class="ios-item-time" id="heartbeatTime">--</div>
         </div>
@@ -442,7 +442,7 @@ input:checked + .ios-toggle-slider:before{
           <span class="material-icons">cloud_sync</span>
         </div>
         <div class="ios-item-content">
-          <div class="ios-item-title">Last GitHub Check</div>
+          <div class="ios-item-title">Update Status / Next Check</div>
           <div class="ios-item-subtitle" id="githubSubtitle">Checking...</div>
           <div class="ios-item-time" id="githubTime">--</div>
         </div>
@@ -465,11 +465,11 @@ input:checked + .ios-toggle-slider:before{
 
     <div class="section-header">Execution Mode</div>
     <div class="mode-grid">
-      <div class="mode-btn" id="fullMode" onclick="setMode('full')">
+      <div class="mode-btn" id="fullMode" aria-disabled="true" onclick="setMode('full')">
         <div class="mode-icon">
           <span class="material-icons">auto_fix_high</span>
         </div>
-        <div class="mode-label">Xtreme Mode</div>
+        <div class="mode-label">Xtreme unavailable</div>
       </div>
       <div class="mode-btn" id="keyboxMode" onclick="setMode('keybox')">
         <div class="mode-icon">
@@ -652,21 +652,21 @@ function updateModeUI(mode) {
     fullBtn.classList.add('active');
     keyboxBtn.classList.remove('active');
     descTitle.textContent = 'Xtreme Mode Active';
-    descText.textContent = 'Executes complete automation: Keybox injection, fingerprint spoofing, target configuration, and system patching.';
+    descText.textContent = 'AutoPilot v2 updates keybox only. Full automation is not supported.';
   } else {
     fullBtn.classList.remove('active');
     keyboxBtn.classList.add('active');
     descTitle.textContent = 'Keybox Only Mode';
-    descText.textContent = 'Performs single keybox injection only. Minimal footprint for attestation bypass.';
+    descText.textContent = 'Checks keybox validity and revocation, then searches for a replacement when needed.';
   }
 }
 
-function updateHeartbeatUI(timestamp) {
+function updateHeartbeatUI(timestamp, running) {
   const subtitle = document.getElementById('heartbeatSubtitle');
   const timeEl = document.getElementById('heartbeatTime');
   const icon = document.getElementById('heartbeatIcon');
   
-  const status = getHeartbeatStatus(timestamp);
+  const status = running === true ? {status: 'active', text: 'Process alive'} : running === false ? {status: 'dead', text: 'Not running'} : getHeartbeatStatus(timestamp);
   
   subtitle.textContent = status.text;
   timeEl.textContent = timeAgo(timestamp) + ' • ' + formatExactTime(timestamp);
@@ -696,16 +696,38 @@ function updateGithubUI(timestamp) {
 }
 
 function checkAutopilot() {
-  runShell('[ -f ' + AUTOPILOT_FLAG + ' ] && echo "1" || echo "0"', function(result) {
-    updateAutopilotUI(result.trim() === '1');
+  runShell('sh ' + DAEMON_SCRIPT + ' status', function(result) {
+    try {
+      const state = JSON.parse(result);
+      document.getElementById('autopilotToggle').checked = state.desired_enabled;
+      document.getElementById('statusSubtitle').textContent = state.running ? state.phase : (state.desired_enabled ? 'Waiting for service' : 'Disabled');
+      updateHeartbeatUI(state.running ? Math.floor(Date.parse(state.heartbeat)/1000) : 0, state.running);
+      document.getElementById('githubSubtitle').textContent = state.reason || [describeConsumer(state.consumer), describePIF(state.pif), 'Revocation: ' + state.revocation_state].filter(Boolean).join(' • ');
+      document.getElementById('githubTime').textContent = state.next_due && !state.next_due.startsWith('0001') ? state.next_due : '--';
+    } catch { document.getElementById('statusSubtitle').textContent = 'Status unavailable'; }
   });
 }
 
-function checkMode() {
-  runShell('[ -f ' + RUN_ACTION + ' ] && echo "1" || echo "0"', function(result) {
-    updateModeUI(result.trim() === '1' ? 'full' : 'keybox');
-  });
+// Plain-text summary of the PIF fingerprint and the Tricky Store patch pair.
+function describePIF(pif) {
+  if (!pif || !pif.state || pif.state === 'off') return '';
+  const names = { ok: 'ok', expiring: 'expires soon', expired: 'expired', banned: 'withdrawn by the maintainer', invalid: 'unreadable', absent: 'not found' };
+  let text = 'Fingerprint: ' + (names[pif.state] || pif.state);
+  if (pif.patch_pair === 'mismatch') text += ', patch MISMATCH';
+  else if (pif.patch_pair === 'match') text += ', patch matches';
+  return text;
 }
+
+// Plain-text summary of whether the keybox consumer (Tricky Store) accepted the key.
+function describeConsumer(consumer) {
+  if (!consumer || !consumer.id) return '';
+  if (!consumer.present) return 'Tricky Store: not installed';
+  if (consumer.state === 'accepted') return 'Tricky Store: no refusal logged';
+  if (consumer.state === 'rejected') return 'Tricky Store: refused the key';
+  return 'Tricky Store: not verified (' + (consumer.evidence || 'no evidence') + ')';
+}
+
+function checkMode() { updateModeUI('keybox'); }
 
 function checkEmergency() {
   getHighestEmergencyFlag(function(flag) {
@@ -713,56 +735,20 @@ function checkEmergency() {
   });
 }
 
-function checkTimestamps() {
-  runShell('cat /data/adb/Box-Brain/daemon_heartbeat 2>/dev/null || echo "0"', function(beat) {
-    updateHeartbeatUI(beat.trim());
-  });
-  
-  runShell('cat /data/adb/Box-Brain/last_github_check 2>/dev/null || echo "0"', function(check) {
-    updateGithubUI(check.trim());
-  });
-}
+function checkTimestamps() { checkAutopilot(); }
 
 function toggleAutopilot() {
   const enabled = document.getElementById('autopilotToggle').checked;
-  showLoader(true, enabled ? 'Enabling...' : 'Disabling...');
-  if (enabled) {
-    runShell('mkdir -p /data/adb/Box-Brain && touch ' + AUTOPILOT_FLAG, function() {
-      runShell('sh ' + DAEMON_SCRIPT + ' &', function() {
-        showLoader(false);
-        popup('AutoPilot enabled', 'success');
-        updateAutopilotUI(true);
-        setTimeout(checkTimestamps, 1000);
-      });
-    });
-  } else {
-    runShell('rm -f ' + AUTOPILOT_FLAG, function() {
-      showLoader(false);
-      popup('AutoPilot disabled', 'info');
-      updateAutopilotUI(false);
-    });
-  }
+  showLoader(true, enabled ? 'Enabling...' : 'Stopping...');
+  runShell('sh ' + DAEMON_SCRIPT + (enabled ? ' enable' : ' disable'), function() {
+    showLoader(false);
+    checkAutopilot();
+  });
 }
 
 function setMode(mode) {
-  const currentIsFull = document.getElementById('fullMode').classList.contains('active');
-  const targetIsFull = mode === 'full';
-  if (currentIsFull === targetIsFull) return;
-  
-  showLoader(true, 'Switching mode...');
-  if (targetIsFull) {
-    runShell('touch ' + RUN_ACTION, function() {
-      showLoader(false);
-      popup('Xtreme Mode activated', 'success');
-      updateModeUI('full');
-    });
-  } else {
-    runShell('rm -f ' + RUN_ACTION, function() {
-      showLoader(false);
-      popup('Keybox Only mode activated', 'success');
-      updateModeUI('keybox');
-    });
-  }
+  if (mode === 'full') popup('AutoPilot v2 supports Keybox Only mode', 'info');
+  updateModeUI('keybox');
 }
 
 document.addEventListener('DOMContentLoaded', function() {

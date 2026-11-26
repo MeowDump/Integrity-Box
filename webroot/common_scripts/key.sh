@@ -1,4 +1,6 @@
 #!/system/bin/sh
+# The AutoPilot engine, when installed, takes over (ap2.sh); this script is the fallback without it.
+[ -x "${0%/*}/bin/box-autopilot" ] && exec sh "${0%/*}/ap2.sh" keybox "$@"
 
 MODPATH="/data/adb/modules/integrity-box"
 UPDATEPATH="/data/adb/modules_update/integrity-box"

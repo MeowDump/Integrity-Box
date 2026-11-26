@@ -348,6 +348,13 @@ download_keybox() {
   MODPATH="${0%/*}"
   BOX="/data/adb/Box-Brain"
 
+  # With the AutoPilot engine installed the keybox is fetched, validated and installed by it (the source follows the
+  # disable-default-source flag); otherwise the module's own scripts below do it, as before.
+  if [ -x "$MODPATH/webroot/common_scripts/bin/box-autopilot" ]; then
+    sh "$MODPATH/webroot/common_scripts/ap2.sh" run-once
+    return
+  fi
+
   SCRIPT_DIR="$MODPATH/webroot/common_scripts"
   UNOFFICIAL="$BOX/disable-default-source"
   PRIMARY="$SCRIPT_DIR/key.sh"
@@ -519,6 +526,23 @@ patch_from_pif() {
     [0-9][0-9][0-9][0-9]-[01][0-9]-[0-3][0-9]) echo "$v" ;;
     *) return 1 ;;
   esac
+}
+
+# Fingerprint refresh for the Action button: with the AutoPilot engine installed it owns the fingerprint (denylist,
+# expiry, matching patch, probe). The module's own generator osm0sis.sh picks a random Pixel and ignores the denylist,
+# so with the engine it is only the fallback for pif_mode=off (exit code 3).
+refresh_pif_fingerprint() {
+  local scripts="$MODPATH/webroot/common_scripts" rc
+  if [ -x "$scripts/bin/box-autopilot" ]; then
+    sh "$scripts/ap2.sh" pif-refresh
+    rc=$?
+    if [ "$rc" -eq 3 ]; then
+      sh "$MODPATH/osm0sis.sh" || true
+    fi
+  else
+    sh "$MODPATH/osm0sis.sh" || true
+  fi
+  return 0
 }
 
 handle_security_patch() {

@@ -223,7 +223,10 @@ if [ -f "$BOX/rukja" ]; then
 fi
 
 # Daemon watchdog
-if [ -f "$BOX/autopilot" ]; then
+if [ -f "$BOX/autopilot" ] && [ -x "$SCRIPT/bin/box-autopilot" ]; then
+    # AutoPilot v2 supervises its own worker; the start stays asynchronous.
+    nohup sh "$SCRIPT/autopilot.sh" start </dev/null >/dev/null 2>&1 &
+elif [ -f "$BOX/autopilot" ]; then
     (
         while true; do
             last=$(cat $BOX/daemon_heartbeat 2>/dev/null || echo "0")

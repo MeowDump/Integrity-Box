@@ -1,4 +1,14 @@
 #!/system/bin/sh
+# The AutoPilot engine, when installed, takes over (ap2.sh); this script is the fallback without it. `doctor` needs
+# no engine. The engine-only commands must never start this script's own loop when no engine is installed.
+if [ -x "${0%/*}/bin/box-autopilot" ] || [ "${1:-}" = doctor ]; then
+    exec sh "${0%/*}/ap2.sh" "$@"
+fi
+case "${1:-}" in
+    status|probe|inspect|run-once|import|configure|clock-status|pif-refresh|enable|disable|start)
+        echo "AutoPilot engine is not installed" >&2
+        exit 1 ;;
+esac
 
 CHECK_INTERVAL=900
 GITHUB="https://raw.githubusercontent.com/MeowDump/Integrity-Box/main/auto-pilot"
