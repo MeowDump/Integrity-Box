@@ -2,6 +2,8 @@
 
 CHECK_INTERVAL=900
 GITHUB="https://raw.githubusercontent.com/MeowDump/Integrity-Box/main/auto-pilot"
+GITHUB_LATEST="$GITHUB/latest"
+GITHUB_API="https://api.github.com/repos/MeowDump/Integrity-Box/contents/auto-pilot"
 BOX_BRAIN="/data/adb/Box-Brain"
 MODPATH="/data/adb/modules/integrity-box"
 
@@ -97,23 +99,33 @@ wakelock_release() {
     [ -w "/sys/power/wake_unlock" ] && printf "integrity_autorun" > /sys/power/wake_unlock 2>/dev/null
 }
 
+name_is_newer() {
+    # Exit 0 when marker $1 is newer than $2. A longer marker is always newer
+    # (AA > Z); at equal length the letters are compared. Without this rule a
+    # plain string compare makes "Z" beat "AA".
+    local cand="$1"
+    local cur="$2"
+    case "$cand" in
+        [A-Z] | [A-Z][A-Z] | [A-Z][A-Z][A-Z]) : ;;
+        *) return 1 ;;
+    esac
+    [ -z "$cur" ] && return 0
+    if [ ${#cand} -ne ${#cur} ]; then
+        [ ${#cand} -gt ${#cur} ]
+        return $?
+    fi
+    [ "$cand" \> "$cur" ]
+}
+
 get_local_highest() {
     highest=""
     for f in "$BOX_BRAIN"/emergency_[A-Z]*; do
         [ -f "$f" ] || continue
         name=$(basename "$f")
         letter=${name#emergency_}
-        case "$letter" in
-            [A-Z]|[A-Z][A-Z])
-                if [ -z "$highest" ]; then
-                    highest="$letter"
-                else
-                    if [ "$letter" \> "$highest" ]; then
-                        highest="$letter"
-                    fi
-                fi
-                ;;
-        esac
+        if name_is_newer "$letter" "$highest"; then
+            highest="$letter"
+        fi
     done
     printf '%s' "$highest"
 }
@@ -129,7 +141,7 @@ get_script() {
 }
 
 check_github() {
-    letter="$1"
+    local letter="$1"
     if ! type detect_downloader >/dev/null 2>&1; then
         log "WARNING: detect_downloader not found"
         return 1
@@ -141,32 +153,111 @@ check_github() {
     elif [ "$DL_MODE" = "wget" ]; then
         wget -q --spider --timeout=15 --tries=1 "$GITHUB/emergency_$letter" 2>/dev/null
     else
-        false
+        # busybox and toybox wget have no portable --spider, so download and
+        # throw the body away. Without this fallback the sweep stayed mute on
+        # those devices and reported "Remote: none" forever.
+        fetch_text "$GITHUB/emergency_$letter" >/dev/null 2>&1
     fi
 }
 
-get_remote_highest() {
+fetch_text() {
+    # GET an URL and write the body on stdout.
+    local url="$1"
+    [ -n "$url" ] || return 1
+    type detect_downloader >/dev/null 2>&1 || return 1
+    detect_downloader
+    case "$DL_MODE" in
+        curl)    curl -fLsS --connect-timeout 15 --max-time 20 "$url" 2>/dev/null ;;
+        wget)    wget -q --timeout=15 --tries=1 -O - "$url" 2>/dev/null ;;
+        busybox) "$DOWNLOADER" wget -q -T 15 -O - "$url" 2>/dev/null ;;
+        toybox)  toybox wget -T 15 -O - "$url" 2>/dev/null ;;
+        *) return 1 ;;
+    esac
+}
+
+normalize_marker() {
+    # Accepts "AD", "AD\n" or "emergency_AD" and prints the canonical marker.
+    local marker
+    marker=$(printf '%s' "$1" | head -n1 | tr -d ' \t\r\n' | sed -e 's/^[Ee][Mm][Ee][Rr][Gg][Ee][Nn][Cc][Yy]_//')
+    case "$marker" in
+        [A-Z] | [A-Z][A-Z] | [A-Z][A-Z][A-Z])
+            printf '%s' "$marker"
+            return 0
+            ;;
+    esac
+    return 1
+}
+
+get_remote_highest_from_latest() {
+    # One CDN request: auto-pilot/latest holds the marker currently in use.
+    local raw
+    raw=$(fetch_text "$GITHUB_LATEST") || return 1
+    [ -n "$raw" ] || return 1
+    normalize_marker "$raw"
+}
+
+get_remote_highest_from_api() {
+    # One request: directory listing of auto-pilot, highest emergency_* entry.
+    local raw cand highest
+    raw=$(fetch_text "$GITHUB_API") || return 1
+    [ -n "$raw" ] || return 1
     highest=""
-    for letter in A B C D E F G H I J K L M N O P Q R S T U V W X Y Z; do
-        if check_github "$letter"; then
-            highest="$letter"
+    for cand in $(printf '%s' "$raw" \
+        | tr ',' '\n' \
+        | sed -n 's/.*"name"[[:space:]]*:[[:space:]]*"emergency_\([A-Za-z]*\)".*/\1/p' \
+        | tr 'a-z' 'A-Z' | sort -u); do
+        if name_is_newer "$cand" "$highest"; then
+            highest="$cand"
         fi
     done
-    if [ "$highest" = "Z" ]; then
-        for letter in AA AB AC AD AE AF AG AH AI AJ AK AL AM AN AO AP AQ AR AS AT AU AV AW AX AY AZ; do
-            if check_github "$letter"; then
-                highest="$letter"
-            fi
-        done
-    fi
-    if [ "$highest" = "AZ" ]; then
-        for letter in BA BB BC BD BE BF BG BH BI BJ BK BL BM BN BO BP BQ BR BS BT BU BV BW BX BY BZ; do
-            if check_github "$letter"; then
-                highest="$letter"
-            fi
-        done
-    fi
+    [ -n "$highest" ] || return 1
     printf '%s' "$highest"
+}
+
+sweep_tier_reverse() {
+    # $1 = tier prefix ("" then "A" then "B"). Probes Z down to A and returns
+    # the first hit, which is the highest marker of that tier.
+    local prefix="$1" sym
+    for sym in Z Y X W V U T S R Q P O N M L K J I H G F E D C B A; do
+        if check_github "${prefix}${sym}"; then
+            printf '%s' "${prefix}${sym}"
+            return 0
+        fi
+    done
+    return 1
+}
+
+get_remote_highest_by_sweep() {
+    # Last resort, needs no index file to exist.
+    local marker
+    marker=$(sweep_tier_reverse "B") \
+        || marker=$(sweep_tier_reverse "A") \
+        || marker=$(sweep_tier_reverse "") \
+        || marker=""
+    # normalize_marker drops any stray message that leaked on stdout while
+    # sweeping, so a marker always reaches the caller.
+    normalize_marker "$marker" || printf ''
+}
+
+get_remote_highest() {
+    # The first two paths cost one request each; the sweep only runs when
+    # neither latest nor the API answers. Logs go to stderr so they cannot
+    # pollute the stdout this function returns to its caller.
+    local marker
+    marker=$(get_remote_highest_from_latest)
+    if [ -n "$marker" ]; then
+        log "Remote $marker (latest index)" >&2
+        printf '%s' "$marker"
+        return 0
+    fi
+    marker=$(get_remote_highest_from_api)
+    if [ -n "$marker" ]; then
+        log "Remote $marker (GitHub API)" >&2
+        printf '%s' "$marker"
+        return 0
+    fi
+    log "latest/API unavailable, sweeping emergency files" >&2
+    get_remote_highest_by_sweep
 }
 
 execute() {
