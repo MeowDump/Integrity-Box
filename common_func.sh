@@ -611,6 +611,20 @@ PROP_DELETE="resetprop --delete"
 PROP_WAIT="resetprop -w"
 PROP_DELETE_PERSIST="resetprop -p --delete"
 
+# Wait until the system finished booting (at most 10 minutes). `$PROP_WAIT sys.boot_completed 0` is not portable:
+# Magisk's `resetprop -w NAME 0` waits until the value CHANGES from 0, but resetprop-rs `--wait NAME 0` (the backend
+# chosen above on Magisk) waits until it EQUALS 0, i.e. forever once the boot is done, so service.sh never got past
+# its first line. Polling getprop behaves the same with every backend.
+wait_boot_completed() {
+  _wb=0
+  while [ "$(getprop sys.boot_completed 2>/dev/null)" != "1" ] && [ "$_wb" -lt 600 ]; do
+    sleep 1
+    _wb=$((_wb + 1))
+  done
+  unset _wb
+  return 0
+}
+
 COMPACT_SUPPORTED=false
 IS_MAGISK=false
 RESETPROP_RS=""
