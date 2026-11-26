@@ -20,6 +20,7 @@ LOG6="$LOG_DIR/build.log"
 
 # Log folder
 mkdir -p "$LOG_DIR"
+trim_logs "$LOG_DIR"
 
 # Logger function
 log() {

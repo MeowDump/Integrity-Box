@@ -605,6 +605,23 @@ handle_security_patch() {
   echo "" >> "$PATCH_LOG"
 }
 
+# trim_logs [DIR]: keep every *.log in DIR (default: the module's log directory) below 256 KiB. The scripts append
+# to these files on every boot, Action press and autopilot pass and nothing ever shrinks them. A log over the
+# limit keeps its last 500 lines; the file is rewritten in place so owner, mode and SELinux label stay as they were.
+trim_logs() {
+  local dir="${1:-/data/adb/Box-Brain/Integrity-Box-Logs}" f
+  [ -d "$dir" ] || return 0
+  for f in "$dir"/*.log; do
+    [ -f "$f" ] || continue
+    [ "$(wc -c < "$f" 2>/dev/null)" -gt 262144 ] 2>/dev/null || continue
+    if tail -n 500 "$f" > "$f.trim" 2>/dev/null && [ -s "$f.trim" ]; then
+      cat "$f.trim" > "$f" 2>/dev/null
+    fi
+    rm -f "$f.trim"
+  done
+  return 0
+}
+
 # Property Backend Setup
 RESETPROP="resetprop -n"
 PROP_DELETE="resetprop --delete"
