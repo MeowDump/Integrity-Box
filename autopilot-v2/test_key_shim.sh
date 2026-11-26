@@ -1,6 +1,6 @@
 #!/bin/sh
-# Host test of webroot/common_scripts/key.sh (the thin shim over the engine plus the author's v48.1 hints for
-# keybox targets the user did not enable). Run: sh autopilot-v2/test_key_shim.sh
+# Host test of key.sh handing over to the engine through ap2.sh (plus the hints for keybox targets the user did not
+# enable). Run: sh autopilot-v2/test_key_shim.sh
 set -eu
 HERE=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 W=$(mktemp -d)
@@ -10,6 +10,7 @@ fail() { printf 'FAIL: %s\n' "$1" >&2; exit 1; }
 
 mkdir -p "$W/s/bin" "$W/mods" "$W/box"
 cp "$HERE/../webroot/common_scripts/key.sh" "$W/s/key.sh"
+cp "$HERE/../webroot/common_scripts/ap2.sh" "$W/s/ap2.sh"
 printf '#!/bin/sh\necho "ENGINE $*"\n' > "$W/s/bin/box-autopilot"; chmod 755 "$W/s/bin/box-autopilot"
 run() { AP_BOX="$W/box" AP_MODULES="$W/mods" sh "$W/s/key.sh" "$@" 2>&1; }
 has() { printf '%s\n' "$OUT" | grep -q -- "$1" || fail "$CASE: expected '$1' in: $OUT"; }

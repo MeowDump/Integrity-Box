@@ -16,7 +16,7 @@ run_case() { # NAME ENGINE_PRESENT(1|0) ENGINE_RC EXPECT_LEGACY(1|0)
     d="$W/$1"; mkdir -p "$d/webroot/common_scripts/bin"
     : > "$d/legacy.log"; : > "$d/engine.log"
     printf '#!/bin/sh\necho ran >> "%s/legacy.log"\n' "$d" > "$d/osm0sis.sh"
-    printf '#!/bin/sh\necho "$@" >> "%s/engine.log"\nexit %s\n' "$d" "$3" > "$d/webroot/common_scripts/autopilot.sh"
+    printf '#!/bin/sh\necho "$@" >> "%s/engine.log"\nexit %s\n' "$d" "$3" > "$d/webroot/common_scripts/ap2.sh"
     if [ "$2" = 1 ]; then : > "$d/webroot/common_scripts/bin/box-autopilot"; chmod 755 "$d/webroot/common_scripts/bin/box-autopilot"; fi
     ( MODPATH="$d"; . "$W/fn.sh"; refresh_pif_fingerprint ) >/dev/null 2>&1 || fail "$1: the function must always succeed (Action must not abort)"
     got=0; [ -s "$d/legacy.log" ] && got=1
