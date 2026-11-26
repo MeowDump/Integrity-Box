@@ -25,7 +25,10 @@ reset_tricky_store
 update_targets
 
 sh "$SCRIPT_DIR/status.sh" || true
-sh "$MODPATH/osm0sis.sh" || true
+# The fingerprint: AutoPilot owns it (denylist, expiry, matching patch, probe). The legacy generator
+# (osm0sis.sh) picks a RANDOM Pixel, ignores the denylist and used to hardcode the patch, so it is
+# only the fallback: engine missing or pif_mode=off.
+refresh_pif_fingerprint
 sh "$SCRIPT_DIR/cleanup.sh" >/dev/null 2>&1
 
 if [ -d "/data/adb/modules/teesim" ]; then

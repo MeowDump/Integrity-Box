@@ -1,4 +1,12 @@
 #!/system/bin/sh
+# Stop the AutoPilot engine's worker (when the engine is installed) before any config or module deletion. A failure to
+# stop it (other ABI, stop timeout) must not abort the cleanup below: Magisk deletes the module directory anyway, so an
+# early exit would only leave service.d, Box-Brain and the keybox behind. The enable flag is removed by hand then;
+# the worker ends at its next check once the flag is gone.
+MODDIR=${0%/*}
+if [ -x "$MODDIR/webroot/common_scripts/bin/box-autopilot" ]; then
+    sh "$MODDIR/webroot/common_scripts/autopilot.sh" disable || rm -f /data/adb/Box-Brain/autopilot
+fi
 set -x
 
 # Log file & Logger

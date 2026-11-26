@@ -348,6 +348,13 @@ download_keybox() {
   MODPATH="${0%/*}"
   BOX="/data/adb/Box-Brain"
 
+  # With the AutoPilot engine installed the keybox is fetched, validated and installed by it (the source follows the
+  # disable-default-source flag); otherwise the module's own scripts below do it, as before.
+  if [ -x "$MODPATH/webroot/common_scripts/bin/box-autopilot" ]; then
+    sh "$MODPATH/webroot/common_scripts/ap2.sh" run-once
+    return
+  fi
+
   SCRIPT_DIR="$MODPATH/webroot/common_scripts"
   UNOFFICIAL="$BOX/disable-default-source"
   PRIMARY="$SCRIPT_DIR/key.sh"
@@ -509,6 +516,35 @@ update_targets() {
   [ "$success" -eq 1 ]
 }
 
+# SECURITY_PATCH of the active fingerprint (config.meow), as YYYY-MM-DD. Fails when the file or the value is
+# missing or malformed. Tricky Store attests this date, so it has to equal the one the fingerprint spoofs.
+patch_from_pif() {
+  local v
+  [ -f "$MODPATH/config.meow" ] || return 1
+  v="$(sed -n 's/^SECURITY_PATCH=//p' "$MODPATH/config.meow" | head -n 1 | tr -d ' \t\r')"
+  case "$v" in
+    [0-9][0-9][0-9][0-9]-[01][0-9]-[0-3][0-9]) echo "$v" ;;
+    *) return 1 ;;
+  esac
+}
+
+# Fingerprint refresh for the Action button: with the AutoPilot engine installed it owns the fingerprint (denylist,
+# expiry, matching patch, probe). The module's own generator osm0sis.sh picks a random Pixel and ignores the denylist,
+# so with the engine it is only the fallback for pif_mode=off (exit code 3).
+refresh_pif_fingerprint() {
+  local scripts="$MODPATH/webroot/common_scripts" rc
+  if [ -x "$scripts/bin/box-autopilot" ]; then
+    sh "$scripts/ap2.sh" pif-refresh
+    rc=$?
+    if [ "$rc" -eq 3 ]; then
+      sh "$MODPATH/osm0sis.sh" || true
+    fi
+  else
+    sh "$MODPATH/osm0sis.sh" || true
+  fi
+  return 0
+}
+
 handle_security_patch() {
   local BOX="/data/adb/Box-Brain"
   local LOGDIR="$BOX/Integrity-Box-Logs"
@@ -522,8 +558,8 @@ handle_security_patch() {
   local BRAND_PROP
   local CURRENT_PROP
 
-  # Automatically generate current month security patch date
-  PATCH_DATE="$(date '+%Y-%m')-05"
+  # Follow the fingerprint's patch; without a valid one use the current month's patch, as before
+  PATCH_DATE="$(patch_from_pif)" || PATCH_DATE="$(date '+%Y-%m')-05"
 
   BRAND_PROP="$(getprop ro.product.system.brand)"
 
@@ -593,11 +629,42 @@ handle_security_patch() {
   echo "" >> "$PATCH_LOG"
 }
 
+# trim_logs [DIR]: keep every *.log in DIR (default: the module's log directory) below 256 KiB. The scripts append
+# to these files on every boot, Action press and autopilot pass and nothing ever shrinks them. A log over the
+# limit keeps its last 500 lines; the file is rewritten in place so owner, mode and SELinux label stay as they were.
+trim_logs() {
+  local dir="${1:-/data/adb/Box-Brain/Integrity-Box-Logs}" f
+  [ -d "$dir" ] || return 0
+  for f in "$dir"/*.log; do
+    [ -f "$f" ] || continue
+    [ "$(wc -c < "$f" 2>/dev/null)" -gt 262144 ] 2>/dev/null || continue
+    if tail -n 500 "$f" > "$f.trim" 2>/dev/null && [ -s "$f.trim" ]; then
+      cat "$f.trim" > "$f" 2>/dev/null
+    fi
+    rm -f "$f.trim"
+  done
+  return 0
+}
+
 # Property Backend Setup
 RESETPROP="resetprop -n"
 PROP_DELETE="resetprop --delete"
 PROP_WAIT="resetprop -w"
 PROP_DELETE_PERSIST="resetprop -p --delete"
+
+# Wait until the system finished booting (at most 10 minutes). `$PROP_WAIT sys.boot_completed 0` is not portable:
+# Magisk's `resetprop -w NAME 0` waits until the value CHANGES from 0, but resetprop-rs `--wait NAME 0` (the backend
+# chosen above on Magisk) waits until it EQUALS 0, i.e. forever once the boot is done, so service.sh never got past
+# its first line. Polling getprop behaves the same with every backend.
+wait_boot_completed() {
+  _wb=0
+  while [ "$(getprop sys.boot_completed 2>/dev/null)" != "1" ] && [ "$_wb" -lt 600 ]; do
+    sleep 1
+    _wb=$((_wb + 1))
+  done
+  unset _wb
+  return 0
+}
 
 COMPACT_SUPPORTED=false
 IS_MAGISK=false

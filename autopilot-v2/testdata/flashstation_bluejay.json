@@ -1,0 +1,788 @@
+{
+ "flashstationBuild": [
+  {
+   "product": "bluejay_beta",
+   "buildId": "13769805",
+   "releaseCandidateName": "BP31.250610.004",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/baklava/images/factory/bluejay_beta-bp31.250610.004-factory-bd3ec535.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "baklava-qpr1-beta3",
+    "releaseTrackName": "Android 16 QPR1",
+    "releaseTrackVersionName": "Beta 3",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "13905196",
+   "releaseCandidateName": "BP31.250610.009",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/baklava/images/factory/bluejay_beta-bp31.250610.009-factory-fd77802c.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "baklava-qpr1-beta3.1",
+    "releaseTrackName": "Android 16 QPR1",
+    "releaseTrackVersionName": "Beta 3.1",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "13939570",
+   "releaseCandidateName": "BP41.250725.006",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/baklava/images/factory/bluejay_beta-bp41.250725.006-factory-3883e4ac.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "baklava-qpr2-beta1",
+    "releaseTrackName": "Android 16 QPR2",
+    "releaseTrackVersionName": "Beta 1",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "14082742",
+   "releaseCandidateName": "BP41.250822.010",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/baklava/images/factory/bluejay_beta-bp41.250822.010-factory-806b06c0.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "baklava-qpr2-beta2",
+    "releaseTrackName": "Android 16 QPR2",
+    "releaseTrackVersionName": "Beta 2",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "14281857",
+   "releaseCandidateName": "BP41.250916.010",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/baklava/images/factory/bluejay_beta-bp41.250916.010-factory-ec7eac33.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "baklava-qpr2-beta3.1",
+    "releaseTrackName": "Android 16 QPR2",
+    "releaseTrackVersionName": "Beta 3.1",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "14330257",
+   "releaseCandidateName": "BP41.250916.012",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/baklava/images/factory/bluejay_beta-bp41.250916.012-factory-71e9ac21.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "baklava-qpr2-beta3.2",
+    "releaseTrackName": "Android 16 QPR2",
+    "releaseTrackVersionName": "Beta 3.2",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "14394155",
+   "releaseCandidateName": "BP41.250916.015",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/baklava/images/factory/bluejay_beta-bp41.250916.015-factory-f7eb08b7.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "baklava-qpr2-beta3.3",
+    "releaseTrackName": "Android 16 QPR2",
+    "releaseTrackVersionName": "Beta 3.3",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "14560987",
+   "releaseCandidateName": "CP11.251114.006",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/baklava/images/factory/bluejay_beta-cp11.251114.006-factory-21df6321.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "baklava-qpr3-beta1",
+    "releaseTrackName": "Android 16 QPR3",
+    "releaseTrackVersionName": "Beta 1",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "14621658",
+   "releaseCandidateName": "CP11.251114.007",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/baklava/images/factory/bluejay_beta-cp11.251114.007-factory-54937bd0.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "baklava-qpr3-beta1.1",
+    "releaseTrackName": "Android 16 QPR3",
+    "releaseTrackVersionName": "Beta 1.1",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "14691661",
+   "releaseCandidateName": "CP11.251209.007",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/baklava/images/factory/bluejay_beta-cp11.251209.007-factory-9dd53248.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "baklava-qpr3-beta2",
+    "releaseTrackName": "Android 16 QPR3",
+    "releaseTrackVersionName": "Beta 2",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "14876943",
+   "releaseCandidateName": "CP21.260116.011.A1",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-cp21.260116.011.a1-factory-69129272.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-beta1",
+    "releaseTrackName": "Android 17",
+    "releaseTrackVersionName": "Beta 1",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "14911996",
+   "releaseCandidateName": "CP21.260206.011.A1",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-cp21.260206.011.a1-factory-48596580.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-beta2",
+    "releaseTrackName": "Android 17",
+    "releaseTrackVersionName": "Beta 2",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "15063635",
+   "releaseCandidateName": "CP21.260306.017",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-cp21.260306.017-factory-5c81c904.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-beta3",
+    "releaseTrackName": "Android 17",
+    "releaseTrackVersionName": "Beta 3",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "15199860",
+   "releaseCandidateName": "CP21.260330.008",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-cp21.260330.008-factory-543ae0e9.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-beta4",
+    "releaseTrackName": "Android 17",
+    "releaseTrackVersionName": "Beta 4",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "15246833",
+   "releaseCandidateName": "CP31.260403.005.A1",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-cp31.260403.005.a1-factory-72b09724.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-qpr1-beta1",
+    "releaseTrackName": "Android 17 QPR1",
+    "releaseTrackVersionName": "Beta 1",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "15327290",
+   "releaseCandidateName": "CP31.260423.012.A1",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-cp31.260423.012.a1-factory-51d75c77.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-qpr1-beta2",
+    "releaseTrackName": "Android 17 QPR1",
+    "releaseTrackVersionName": "Beta 2",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "15421647",
+   "releaseCandidateName": "CP31.260508.005.A1",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-cp31.260508.005.a1-factory-40f640dd.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-qpr1-beta3",
+    "releaseTrackName": "Android 17 QPR1",
+    "releaseTrackVersionName": "Beta 3",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "15591683",
+   "releaseCandidateName": "CP31.260522.006.A1",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-cp31.260522.006.a1-factory-fdefe7f2.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-qpr1-beta4",
+    "releaseTrackName": "Android 17 QPR1",
+    "releaseTrackVersionName": "Beta 4",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "15653239",
+   "releaseCandidateName": "CP31.260608.007",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-cp31.260608.007-factory-35c9af85.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-qpr1-beta5",
+    "releaseTrackName": "Android 17 QPR1",
+    "releaseTrackVersionName": "Beta 5",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "15731206",
+   "releaseCandidateName": "CP31.260618.005",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-cp31.260618.005-factory-7f4cbce5.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-qpr1-beta6",
+    "releaseTrackName": "Android 17 QPR1",
+    "releaseTrackVersionName": "Beta 6",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "15817740",
+   "releaseCandidateName": "CP31.260623.005",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-cp31.260623.005-factory-8e5a7309.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-qpr1-beta7",
+    "releaseTrackName": "Android 17 QPR1",
+    "releaseTrackVersionName": "Beta 7",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "15961508",
+   "releaseCandidateName": "CP31.260623.010",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-cp31.260623.010-factory-2756863a.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-qpr1-beta8",
+    "releaseTrackName": "Android 17 QPR1",
+    "releaseTrackVersionName": "Beta 8",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "15834971",
+   "releaseCandidateName": "CP41.260701.005",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-cp41.260701.005-factory-46f0d248.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-qpr2-beta1",
+    "releaseTrackName": "Android 17 QPR2",
+    "releaseTrackVersionName": "Beta 1",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "15938186",
+   "releaseCandidateName": "CP41.260717.006",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-cp41.260717.006-factory-ef944e50.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-qpr2-beta2",
+    "releaseTrackName": "Android 17 QPR2",
+    "releaseTrackVersionName": "Beta 2",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "16056594",
+   "releaseCandidateName": "CP41.260731.005.A2",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-cp41.260731.005.a2-factory-619869e2.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-qpr2-beta3",
+    "releaseTrackName": "Android 17 QPR2",
+    "releaseTrackVersionName": "Beta 3",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "16182618",
+   "releaseCandidateName": "CP41.260814.003.A2",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-cp41.260814.003.a2-factory-fb253ac7.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-qpr2-beta4",
+    "releaseTrackName": "Android 17 QPR2",
+    "releaseTrackVersionName": "Beta 4",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "16319837",
+   "releaseCandidateName": "CP41.260828.005.A6",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-cp41.260828.005.a6-factory-c5b7b91b.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-qpr2-beta5",
+    "releaseTrackName": "Android 17 QPR2",
+    "releaseTrackVersionName": "Beta 5",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "16416850",
+   "releaseCandidateName": "CP41.260831.007",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-cp41.260831.007-factory-9010a8fa.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-qpr2-beta6",
+    "releaseTrackName": "Android 17 QPR2",
+    "releaseTrackVersionName": "Beta 6",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "16450490",
+   "releaseCandidateName": "CP41.260831.007.A3",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-cp41.260831.007.a3-factory-fc96b9f5.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-qpr2-beta6.1",
+    "releaseTrackName": "Android 17 QPR2",
+    "releaseTrackVersionName": "Beta 6.1",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "16521119",
+   "releaseCandidateName": "CP41.260831.016",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-cp41.260831.016-factory-3b079cfd.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-qpr2-beta7",
+    "releaseTrackName": "Android 17 QPR2",
+    "releaseTrackVersionName": "Beta 7",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "16451184",
+   "releaseCandidateName": "DP11.260918.006",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-dp11.260918.006-factory-0bff776a.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-qpr3-beta1",
+    "releaseTrackName": "Android 17 QPR3",
+    "releaseTrackVersionName": "Beta 1",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "16594701",
+   "releaseCandidateName": "DP11.261002.005",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-dp11.261002.005-factory-0f666f71.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-qpr3-beta2",
+    "releaseTrackName": "Android 17 QPR3",
+    "releaseTrackVersionName": "Beta 2",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "16708287",
+   "releaseCandidateName": "DP11.261016.003",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-dp11.261016.003-factory-2c56b47a.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-qpr3-beta3",
+    "releaseTrackName": "Android 17 QPR3",
+    "releaseTrackVersionName": "Beta 3",
+    "active": false,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "13734781",
+   "releaseCandidateName": "ZP11.250606.010.A1",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/CANARY/images/factory/bluejay_beta-zp11.250606.010.a1-factory-b74439b1.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "canary-202506",
+    "releaseTrackName": "Android Canary",
+    "releaseTrackVersionName": "Canary 202506",
+    "active": false,
+    "canary": true
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "13818224",
+   "releaseCandidateName": "ZP11.250627.009",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/CANARY/images/factory/bluejay_beta-zp11.250627.009-factory-f95baa01.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "canary-202507",
+    "releaseTrackName": "Android Canary",
+    "releaseTrackVersionName": "Canary 202507",
+    "active": false,
+    "canary": true
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "13914797",
+   "releaseCandidateName": "ZP11.250728.008",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/CANARY/images/factory/bluejay_beta-zp11.250728.008-factory-2efd9647.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "canary-202508",
+    "releaseTrackName": "Android Canary",
+    "releaseTrackVersionName": "Canary 202508",
+    "active": false,
+    "canary": true
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "14104575",
+   "releaseCandidateName": "ZP11.250829.007",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/CANARY/images/factory/bluejay_beta-zp11.250829.007-factory-5e0eefc3.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "canary-202509",
+    "releaseTrackName": "Android Canary",
+    "releaseTrackVersionName": "Canary 202509",
+    "active": false,
+    "canary": true
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "14282035",
+   "releaseCandidateName": "ZP11.250926.010",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/CANARY/images/factory/bluejay_beta-zp11.250926.010-factory-71b58d13.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "canary-202510",
+    "releaseTrackName": "Android Canary",
+    "releaseTrackVersionName": "Canary 202510",
+    "active": false,
+    "canary": true
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "14396972",
+   "releaseCandidateName": "ZP11.251031.009",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/CANARY/images/factory/bluejay_beta-zp11.251031.009-factory-9ac60f98.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "canary-202511",
+    "releaseTrackName": "Android Canary",
+    "releaseTrackVersionName": "Canary 202511",
+    "active": false,
+    "canary": true
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "14518957",
+   "releaseCandidateName": "ZP11.251121.010",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/CANARY/images/factory/bluejay_beta-zp11.251121.010-factory-1293c84b.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "canary-202512",
+    "releaseTrackName": "Android Canary",
+    "releaseTrackVersionName": "Canary 202512",
+    "active": false,
+    "canary": true
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "14649019",
+   "releaseCandidateName": "ZP11.251212.007",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/CANARY/images/factory/bluejay_beta-zp11.251212.007-factory-1b46d77e.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "canary-202601",
+    "releaseTrackName": "Android Canary",
+    "releaseTrackVersionName": "Canary 202601",
+    "active": false,
+    "canary": true
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "14822050",
+   "releaseCandidateName": "ZP11.260123.011",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/CANARY/images/factory/bluejay_beta-zp11.260123.011-factory-964af292.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "canary-202602",
+    "releaseTrackName": "Android Canary",
+    "releaseTrackVersionName": "Canary 202602",
+    "active": false,
+    "canary": true
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "14993212",
+   "releaseCandidateName": "ZP11.260220.007",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/CANARY/images/factory/bluejay_beta-zp11.260220.007-factory-1ba0c067.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "canary-202603",
+    "releaseTrackName": "Android Canary",
+    "releaseTrackVersionName": "Canary 202603",
+    "active": false,
+    "canary": true
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "15205769",
+   "releaseCandidateName": "ZP11.260320.008",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/CANARY/images/factory/bluejay_beta-zp11.260320.008-factory-641cbe6d.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "canary-202604",
+    "releaseTrackName": "Android Canary",
+    "releaseTrackVersionName": "Canary 202604",
+    "active": false,
+    "canary": true
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "15372612",
+   "releaseCandidateName": "ZP11.260417.009",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/CANARY/images/factory/bluejay_beta-zp11.260417.009-factory-f74dffd2.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "canary-202605",
+    "releaseTrackName": "Android Canary",
+    "releaseTrackVersionName": "Canary 202605",
+    "active": false,
+    "canary": true
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "15513807",
+   "releaseCandidateName": "ZP11.260515.009",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/CANARY/images/factory/bluejay_beta-zp11.260515.009-factory-7cab2585.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "canary-202606",
+    "releaseTrackName": "Android Canary",
+    "releaseTrackVersionName": "Canary 202606",
+    "active": false,
+    "canary": true
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "15760424",
+   "releaseCandidateName": "ZP11.260618.005",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/CANARY/images/factory/bluejay_beta-zp11.260618.005-factory-9bad3ec6.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "canary-202607",
+    "releaseTrackName": "Android Canary",
+    "releaseTrackVersionName": "Canary 202607",
+    "active": false,
+    "canary": true
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "16004061",
+   "releaseCandidateName": "ZP11.260717.006",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/CANARY/images/factory/bluejay_beta-zp11.260717.006-factory-aeb62b88.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "canary-202608",
+    "releaseTrackName": "Android Canary",
+    "releaseTrackVersionName": "Canary 202608",
+    "active": false,
+    "canary": true
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "16290768",
+   "releaseCandidateName": "ZP11.260821.010",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/CANARY/images/factory/bluejay_beta-zp11.260821.010-factory-eb94eb78.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "canary-202609",
+    "releaseTrackName": "Android Canary",
+    "releaseTrackVersionName": "Canary 202609",
+    "active": false,
+    "canary": true
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "16484274",
+   "releaseCandidateName": "ZP11.260918.007",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/CANARY/images/factory/bluejay_beta-zp11.260918.007-factory-a6494b9b.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "canary-202610",
+    "releaseTrackName": "Android Canary",
+    "releaseTrackVersionName": "Canary 202610",
+    "active": false,
+    "canary": true
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "14837756",
+   "releaseCandidateName": "CP11.251209.009",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/baklava/images/factory/bluejay_beta-cp11.251209.009-factory-74427982.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "baklava-qpr3-beta2.1",
+    "releaseTrackName": "Android 16 QPR3",
+    "releaseTrackVersionName": "Beta 2.1",
+    "active": true,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "15501256",
+   "releaseCandidateName": "CP21.260330.011.A1",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-cp21.260330.011.a1-factory-12794e19.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-beta4.1",
+    "releaseTrackName": "Android 17",
+    "releaseTrackVersionName": "Beta 4.1",
+    "active": true,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "16064790",
+   "releaseCandidateName": "CP31.260623.012",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-cp31.260623.012-factory-4fcbcf6b.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-qpr1-beta9",
+    "releaseTrackName": "Android 17 QPR1",
+    "releaseTrackVersionName": "Beta 9",
+    "active": true,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "16596456",
+   "releaseCandidateName": "CP41.260831.019",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-cp41.260831.019-factory-0e1e15c2.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-qpr2-beta7.1",
+    "releaseTrackName": "Android 17 QPR2",
+    "releaseTrackVersionName": "Beta 7.1",
+    "active": true,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "16847878",
+   "releaseCandidateName": "DP11.261030.003",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/cinnamonbun/images/factory/bluejay_beta-dp11.261030.003-factory-2d4a9734.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "cinnamonbun-qpr3-beta4",
+    "releaseTrackName": "Android 17 QPR3",
+    "releaseTrackVersionName": "Beta 4",
+    "active": true,
+    "canary": false
+   }
+  },
+  {
+   "product": "bluejay_beta",
+   "buildId": "16754936",
+   "releaseCandidateName": "ZP11.261016.008",
+   "factoryImageDownloadUrl": "https://dl.google.com/developers/android/CANARY/images/factory/bluejay_beta-zp11.261016.008-factory-047d574c.zip",
+   "target": "bluejay_beta-user",
+   "previewMetadata": {
+    "id": "canary-202611",
+    "releaseTrackName": "Android Canary",
+    "releaseTrackVersionName": "Canary 202611",
+    "active": true,
+    "canary": true
+   }
+  }
+ ]
+}

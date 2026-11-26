@@ -20,6 +20,7 @@ LOG6="$LOG_DIR/build.log"
 
 # Log folder
 mkdir -p "$LOG_DIR"
+trim_logs "$LOG_DIR"
 
 # Logger function
 log() {
@@ -27,8 +28,8 @@ log() {
 }
 
 # Boot-Phase Properties
-# Wait for boot (Magisk/KSU/APatch with resetprop only)
-$PROP_WAIT sys.boot_completed 0
+# Wait for boot (the same on Magisk, KSU and APatch, whichever resetprop is installed)
+wait_boot_completed
 
 # •••• EARLY BOOT PROPS ••••
 check_and_set_prop "ro.boot.vbmeta.device_state" "locked"
@@ -222,7 +223,10 @@ if [ -f "$BOX/rukja" ]; then
 fi
 
 # Daemon watchdog
-if [ -f "$BOX/autopilot" ]; then
+if [ -f "$BOX/autopilot" ] && [ -x "$SCRIPT/bin/box-autopilot" ]; then
+    # AutoPilot v2 supervises its own worker; the start stays asynchronous.
+    nohup sh "$SCRIPT/autopilot.sh" start </dev/null >/dev/null 2>&1 &
+elif [ -f "$BOX/autopilot" ]; then
     (
         while true; do
             last=$(cat $BOX/daemon_heartbeat 2>/dev/null || echo "0")

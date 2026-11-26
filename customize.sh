@@ -49,6 +49,12 @@ setup_environment() {
     debug " ✦ Setting up Environment "
     debug " "
     chmod +x "$SCRIPT/key.sh"
+    # The AutoPilot engine is an ARM64 binary: elsewhere it is removed, and the module's own scripts keep working
+    # exactly as before (they hand over to the engine only when it is present).
+    case "$(getprop ro.product.cpu.abi)" in
+        arm64-v8a) chmod 755 "$SCRIPT/bin/box-autopilot" "$SCRIPT/ap2.sh" 2>/dev/null ;;
+        *) rm -f "$SCRIPT/bin/box-autopilot" ;;
+    esac
     sh "$SCRIPT/key.sh"
     debug " "
 }
@@ -425,7 +431,12 @@ fi
 
 [ -d "$TRICKY/keys" ] && rm -rf "$TRICKY/keys"
 PATCH_DATE="$(cat "$FLAG/patch.txt" 2>/dev/null)"
-[ -z "$PATCH_DATE" ] && PATCH_DATE="$(date '+%Y-%m-05')"
+# Same rule as patch_from_pif in common_func.sh (not sourced yet at this point): the fingerprint's patch wins
+[ -z "$PATCH_DATE" ] && PATCH_DATE="$(sed -n 's/^SECURITY_PATCH=//p' "$MODPATH/config.meow" 2>/dev/null | head -n 1 | tr -d ' \t\r')"
+case "$PATCH_DATE" in
+    [0-9][0-9][0-9][0-9]-[01][0-9]-[0-3][0-9]) ;;
+    *) PATCH_DATE="$(date '+%Y-%m-05')" ;;
+esac
 echo "all=$PATCH_DATE" > "$TRICKY/security_patch.txt"
  
 install_module
