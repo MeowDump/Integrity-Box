@@ -22,6 +22,85 @@ log() {    # log <message>
     /system/bin/log -t PATCH_OVERRIDE "$1"
 }
 
+detect_conflict() {
+    local FAIL=0
+    local LOG="/data/adb/Box-Brain/Integrity-Box-Logs/trickybox.log"
+
+    mkdir -p "$(dirname "$LOG")" || return 1
+
+    # Self check
+    if [ -f "/data/adb/modules/integrity-box/disable" ]; then
+        trickybox_log "ERROR: Integrity Box is disabled. ✗"
+        FAIL=1
+    else
+        trickybox_log "Integrity Box is fully functional."
+    fi
+     
+    if [ -f "/data/adb/modules/integrity-box/sepolicy.rule" ]; then
+        trickybox_log "DETECTED: built-in tricky store."
+    else
+        trickybox_log "ERROR: Tricky Box not found."
+        FAIL=1
+    fi
+
+    # Tricky Store / OOS
+    if [ -d "/data/adb/modules/tricky_store" ]; then
+        trickybox_log "Tricky Store module is installed."
+
+        if [ -f "/data/adb/modules/tricky_store/disable" ]; then
+            trickybox_log "Tricky Store module is disabled. ✔"
+        else
+            trickybox_log "ERROR: Tricky Store module is enabled. ✗"
+            FAIL=1
+        fi
+    else
+        trickybox_log "Tricky Store module is not installed. ✔"
+    fi
+
+    # OhMyKeyMint
+    if [ -d "/data/adb/modules/oh_my_keymint" ]; then
+        trickybox_log "OhMyKeyMint is installed."
+
+        if [ -f "/data/adb/modules/oh_my_keymint/disable" ]; then
+            trickybox_log "OhMyKeyMint is disabled. ✔"
+        else
+            trickybox_log "ERROR: OhMyKeyMint is enabled. ✗"
+            FAIL=1
+        fi
+    else
+        trickybox_log "OhMyKeyMint is not installed. ✔"
+    fi
+
+    # TEEsim
+    if [ -d "/data/adb/modules/teesim" ]; then
+        trickybox_log "TEEsim is installed."
+
+        if [ -f "/data/adb/modules/teesim/disable" ]; then
+            trickybox_log "TEEsim is disabled. ✔"
+        else
+            trickybox_log "ERROR: TEEsim is enabled.  ✗"
+            FAIL=1
+        fi
+    else
+        trickybox_log "TEEsim is not installed. ✔"
+    fi
+
+    # Final result
+    if [ "$FAIL" -ne 0 ]; then
+        echo " "
+        trickybox_log "---------------------------------"
+        trickybox_log " ⚠ Conflict detected ⚠"
+        trickybox_log "Built-in Tricky Store backend will be disabled"
+        trickybox_log "Attestation will be handled by"
+        trickybox_log "detected conflicting module"
+        trickybox_log "---------------------------------"
+        return 1
+    fi
+
+    trickybox_log "All checks passed."
+    return 0
+}
+
 check_integrity() {
     [ -e /data/adb/Box-Brain/integrity ] || {
         return 0
@@ -218,6 +297,10 @@ update_module_description() {
   fi
 
   # Update description
+  if detect_conflict >/dev/null 2>&1; then
+    DESC="[built-in tricky store] •• $MODEL | InitSDK $INITSDK"
+  fi
+
   "$bb" sed -i '/^description=/d' "$PROP"
   echo "description=$DESC" >> "$PROP"
 }
@@ -1092,8 +1175,8 @@ reset_tricky_store() {
         log "   keeping existing keybox"
         purge=0
     elif [ "$current" = "$previous" ]; then
-        log " ✦ Keybox unchanged"
-        log "   keeping existing keybox"
+#        log " ✦ Keybox unchanged"
+#        log "   keeping existing keybox"
         purge=0
     else
         log " ✦ New keybox detected,"

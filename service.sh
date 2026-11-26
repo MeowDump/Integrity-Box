@@ -27,8 +27,12 @@ log() {
 }
 
 # Boot-Phase Properties
-# Wait for boot (Magisk/KSU/APatch with resetprop only)
-$PROP_WAIT sys.boot_completed 0
+# Wait for boot
+if [ -n "$RESETPROP_RS" ]; then
+    $PROP_WAIT sys.boot_completed 1
+else
+    $PROP_WAIT sys.boot_completed 0
+fi
 
 # •••• EARLY BOOT PROPS ••••
 check_and_set_prop "ro.boot.vbmeta.device_state" "locked"
@@ -51,11 +55,11 @@ check_and_set_prop "ro.build.tags" "release-keys"
 check_and_set_prop "ro.secureboot.lockstate" "locked"  # MIUI
 check_and_set_prop "ro.boot.realmebootstate" "green"   # Realme
 check_and_set_prop "ro.boot.realme.lockstate" "1"       # Realme
-check_and_set_prop persist.sys.developer_options 0
-check_and_set_prop persist.sys.dev_mode 0
-check_and_set_prop persist.sys.debuggable 0
-check_and_set_prop ro.oem_unlock_supported 0
-check_and_set_prop ro.hardware.virtual_device 0
+check_and_set_prop "persist.sys.developer_options" "0"
+check_and_set_prop "persist.sys.dev_mode" "0"
+check_and_set_prop "persist.sys.debuggable" "0"
+check_and_set_prop "ro.oem_unlock_supported" "0"
+check_and_set_prop "ro.hardware.virtual_device" "0"
 resetprop_if_match "ro.bootmode" "recovery" "unknown"
 resetprop_if_match "ro.boot.bootmode" "recovery" "unknown"
 resetprop_if_match "vendor.boot.bootmode" "recovery" "unknown"

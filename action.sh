@@ -18,14 +18,11 @@ cleanup_lsposed
 cleanup_gapps_logs
 
 download_keybox
-# Decide after the keybox was fetched: the stored keys only have to be dropped
-# when the installed keybox really changed, and a failed download must not cost
-# the user its keys.
 reset_tricky_store
 update_targets
 
 sh "$SCRIPT_DIR/status.sh" || true
-sh "$MODPATH/osm0sis.sh" || true
+sh "$MODPATH/pixelprop.sh" || true
 sh "$SCRIPT_DIR/cleanup.sh" >/dev/null 2>&1
 
 if [ -d "/data/adb/modules/teesim" ]; then

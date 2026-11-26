@@ -64,7 +64,11 @@ mv "$T" "$F"
 	delete_if_exist /data/adb/modules_update/integrity-box/verify.sh
 	delete_if_exist /data/adb/service.d/shamiko.sh # we don't need this anymore 
 	delete_if_exist /data/adb/modules_update/auto_generated # canary updater
-	delete_if_exist /data/adb/modules/auto_generated
+	delete_if_exist /data/adb/modules/auto_generated # canary updater
+	delete_if_exist /data/adb/modules_update/playintegrityfork # conflict 
+	delete_if_exist /data/adb/modules/playintegrityfork # conflict
+	delete_if_exist /data/adb/modules/COPG-VD # conflict
+	delete_if_exist /data/adb/modules_update/COPG-VD # conflict
 	delete_if_exist /data/adb/modules_update/integrity-box/hash
 	delete_if_exist /data/adb/modules_update/integrity-box/credits.md
 	delete_if_exist /data/adb/modules_update/integrity-box/acknowledgement.md
@@ -75,7 +79,7 @@ mv "$T" "$F"
 	delete_if_exist /data/adb/modules/integrity-box/custom.pif.json.bak
 	delete_if_exist /data/adb/modules/integrity-box/pixel.txt.bak
 	delete_if_exist /data/adb/modules/integrity-box/pixel.txt
-	delete_if_exist /data/adb/modules/integrity-box/config.meow
+	delete_if_exist /data/adb/modules/integrity-box/pif.prop
 	delete_if_exist /data/adb/modules/integrity-box/pif.json
 	delete_if_exist /data/adb/modules/integrity-box/toolkit/legacy.prop
 	delete_if_exist /data/adb/modules/integrity-box/toolkit/pixelify.prop
@@ -83,8 +87,8 @@ mv "$T" "$F"
 	delete_if_exist /data/adb/modules/integrity-box/PIXEL_OTA_HTML
 	delete_if_exist /data/adb/modules/integrity-box/PIXEL_VERSIONS_HTML
 	delete_if_exist /data/adb/modules/integrity-box/PIXEL_ZIP_METADATA
-	delete_if_exist /data/adb/modules/integrity-box/osm0sis
-	delete_if_exist /data/adb/config.meow
+	delete_if_exist /data/adb/modules/integrity-box/pixelprop
+	delete_if_exist /data/adb/pif.prop
 	delete_if_exist /data/adb/service.d/package.sh
 	delete_if_exist /data/adb/pif.json
 	delete_if_exist /data/local/tmp/keybox_scan.log

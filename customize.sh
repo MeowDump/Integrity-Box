@@ -7,18 +7,20 @@ INSTALL_LOG="$LOG_DIR/Installation.log"
 LOG_FILE="$LOG_DIR/DeviceType.log"
 SCRIPT="$MODPATH/webroot/common_scripts"
 MEOW="/data/adb/modules/integrity-box"
-SDK=$(getprop ro.system.build.version.sdk)
+BRAND=$(getprop ro.product.system.brand)
 TRICKY="/data/adb/tricky_store"
 
 mkdir -p "$FLAG" || true
 mkdir -p "$FLAG/PIF" || true
+mkdir -p "$FLAG/TrickyBox" || true
 mkdir -p "$LOG_DIR" || true
 mkdir -p "$MEOW" || true
 mkdir -p "$TRICKY" || true
-
-touch "$FLAG/PIF/custom-pif"
-touch "$FLAG/PIF/advanced"
 touch "$FLAG/keyswitch"
+
+if [ -z "$(ls -A "$FLAG/PIF" 2>/dev/null)" ] || [ "$BRAND" != "google" ]; then
+    touch "$FLAG/PIF/bluejay"
+fi
 
 debug() {
     echo "$1" | tee -a "$INSTALL_LOG"
@@ -47,7 +49,6 @@ check_integrity() {
 
 setup_environment() {
     debug " ✦ Setting up Environment "
-    debug " "
     chmod +x "$SCRIPT/key.sh"
     sh "$SCRIPT/key.sh"
     debug " "
@@ -295,15 +296,6 @@ detect_rom() {
     return 0
 }
 
-set_integritybox_profile() {
-    debug " ✦ Setting IntegrityBox Profile"
-        if [ "$SDK" -ge 33 ]; then
-            touch "$FLAG/pixelify"
-        else
-            touch "$FLAG/legacy"
-        fi
-}
-
 boot_configuration() {
     debug " ✦ Fresh installation detected"
     debug " ✦ Enabling Boot Configuration UI"
@@ -385,8 +377,76 @@ display_footer() {
     debug " "
 }
 
+generate_hosts_block() {
+    HOSTS_SOURCE="/system/etc/hosts"
+    HOSTS_TARGET="$MODPATH/system/etc/hosts"
+    TMP_HOSTS="$MODPATH/hosts.tmp"
+
+    mkdir -p "$MODPATH/system/etc" || return 1
+
+    if [ -f "$HOSTS_SOURCE" ]; then
+        awk '
+        {
+            remove = 0
+            for (i = 2; i <= NF; i++) {
+                if ($i == "protectt.ai" || $i == "t7.protectt.ai") {
+                    remove = 1
+                }
+            }
+            if (!remove) print
+        }
+        ' "$HOSTS_SOURCE" > "$TMP_HOSTS" || return 1
+    else
+        printf "127.0.0.1 localhost\n::1 ip6-localhost\n" > "$TMP_HOSTS" || return 1
+    fi
+
+    printf "\n0.0.0.0 protectt.ai\n0.0.0.0 t7.protectt.ai\n" >> "$TMP_HOSTS" || return 1
+
+    mv "$TMP_HOSTS" "$HOSTS_TARGET" || return 1
+
+    return 0
+}
+
+install_tricky_backend() {
+    if [ -d "/data/adb/modules/oh_my_keymint" ] ||
+       [ -d "/data/adb/modules/tricky_store" ] ||
+       [ -d "/data/adb/modules/teesim" ]; then
+        return 0
+    fi
+
+    BACKEND_ZIP="$MODPATH/toolkit/TrickyBox.zip"
+
+    [ -f "$BACKEND_ZIP" ] || return 0
+    
+    debug " ✦ No external attestation modules detected"
+    debug " ✦ Installing built-in Tricky Store"
+
+    if [ -x "/data/adb/magisk/magisk" ]; then
+        /data/adb/magisk/magisk --install-module "$BACKEND_ZIP" >/dev/null 2>&1
+        STATUS=$?
+        [ "$STATUS" -eq 0 ] && debug " ✦ TrickyBox: Successfully installed via Magisk."
+        cleanup
+        debug " ✦ Please don't install Tricky Store or TEEsim or OMK"
+        debug " "
+    elif [ -x "/data/adb/ksu/bin/ksud" ]; then
+        /data/adb/ksu/bin/ksud module install "$BACKEND_ZIP" >/dev/null 2>&1
+        STATUS=$?
+        [ "$STATUS" -eq 0 ] && debug " ✦ TrickyBox: Successfully installed via KernelSU."
+        cleanup
+        debug " ✦ Please don't install Tricky Store or TEEsim or OMK"
+        debug " "
+    elif [ -x "/data/adb/ap/bin/apd" ]; then
+        /data/adb/ap/bin/apd module install "$BACKEND_ZIP" >/dev/null 2>&1
+        STATUS=$?
+        [ "$STATUS" -eq 0 ] && debug " ✦ TrickyBox: Successfully installed via APatch."
+        cleanup
+        debug " ✦ Please don't install Tricky Store or TEEsim or OMK"
+        debug " "
+    fi
+}
+
 install_module() {
-    check_integrity
+#    check_integrity
     prepare_directories
     handle_module_props
     check_boot_hash
@@ -395,7 +455,8 @@ install_module() {
     cleanup
     setup_blacklist
     setup_status
-    generate_hosts_block
+    install_tricky_backend
+#    generate_hosts_block
 }
 
 chmod +x "$MODPATH/hello.sh"
@@ -412,6 +473,28 @@ echo "
                                                 
                                       
 "
+# Migrate if >v49
+MIGRATE="/data/adb/modules/playintegrityfix"
+
+if [ -d "$MIGRATE/toolkit" ]; then
+    debug " ✦ Migrating files to new MODPATH"
+
+    if [ -f "$MIGRATE/apps.txt" ]; then
+        cp "$MIGRATE/apps.txt" "$MODPATH/apps.txt"
+    fi
+
+    if [ -f "$MIGRATE/custom.pif.prop" ]; then
+        cp "$MIGRATE/custom.pif.prop" "$MODPATH/config.meow"
+    fi
+
+    rm -rf "$MIGRATE"
+    debug " ✦ Migration complete!"
+    debug " "
+    debug "       N O T I C E "
+    debug " ✦ Reboot is mandatory"
+    debug " ✦ Play Integrity can fail anytime"
+    debug " "
+fi
 
 if [ -f "$MEOW/config.meow" ]; then
     cp "$MEOW/config.meow" "$MODPATH/config.meow"
@@ -433,7 +516,6 @@ install_module
 # Fresh Installation 
 if [ ! -f "$MEOW/service.sh" ]; then
     enable_recommended_settings
-    set_integritybox_profile
     boot_configuration
     detect_rom
     release_source
@@ -841,7 +923,7 @@ if [ -d /sdcard/zygisk ] || [ -f /sdcard/zygisk ] || [ -f /data/adb/Box-Brain/zy
         $MODPATH/common_setup.sh $MODPATH/custom.app_replace_list.txt \
         $MODPATH/custom.pif.json \
         $MODPATH/legacy \
-        $MODPATH/pif.json $MODPATH/config.meow $MODPATH/zygisk \
+        $MODPATH/pif.json $MODPATH/pif.prop $MODPATH/zygisk \
         $MEOW/custom.app_replace_list.txt \
         $MEOW/custom.pif.json \
         $MEOW/skippersistprop \
@@ -849,10 +931,10 @@ if [ -d /sdcard/zygisk ] || [ -f /sdcard/zygisk ] || [ -f /data/adb/Box-Brain/zy
 fi
 
 # Copy any disabled app files to updated module
-if [ -d $MEOW/system ]; then
-    debug " ✦ Restoring disabled ROM apps configuration"
-    cp -afL $MEOW/system $MODPATH
-fi
+#if [ -d $MEOW/system ]; then
+#    debug " ✦ Restoring disabled ROM apps configuration"
+#    cp -afL $MEOW/system $MODPATH
+#fi
 
 # Warn if potentially conflicting modules are installed
 if [ -d /data/adb/modules/MagiskHidePropsConf ]; then
@@ -867,8 +949,8 @@ if [ -d "$MODPATH/zygisk" ]; then
 fi
 
 # Clean up any leftover files from previous deprecated methods
-rm -f /data/data/com.google.android.gms/cache/config.meow /data/data/com.google.android.gms/config.meow \
-    /data/data/com.google.android.gms/cache/pif.json /data/data/com.google.android.gms/pif.json
+rm -f /data/data/com.google.android.gms/cache/pif.prop /data/data/com.google.android.gms/pif.prop \
+    /data/data/com.google.android.gms/cache/config.meow /data/data/com.google.android.gms/config.meow
 
 # Remove flag from /sdcard to avoid detection 
 [ -f /sdcard/zygisk ] || [ -d /sdcard/zygisk ] && rm -rf /sdcard/zygisk

@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Fix Boot Hash</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  color-scheme:dark;
+  --bg:#1f2233;
+  --fg:#e6e6e6;
+  --accent:#1592FF;
+  --panel-bg:#232637D9;
+  --card-bg:#232637E6;
+  --card-border:#ffffff0D;
+  --btn-hover:#2d3240F2;
+  --shadow:#00000035;
+  --radius:22px;
+  --muted:#a3a8b8;
+}
+html,body{min-height:100%;background:linear-gradient(145deg,#1f2233 0%,#191c2c 100%);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--fg)}
+body{min-height:100vh;padding:28px 16px 36px;display:flex;align-items:flex-start;justify-content:center}
+button,input{font:inherit}
+.shell{width:min(100%,430px);padding:25px;background:var(--panel-bg);border:1px solid var(--card-border);border-radius:var(--radius);box-shadow:0 12px 34px var(--shadow);position:relative;overflow:hidden}
+.shell:before{content:"";position:absolute;top:-120px;right:-110px;width:230px;height:230px;border-radius:50%;background:var(--accent);opacity:.055;filter:blur(55px);pointer-events:none}
+.head{position:relative;display:flex;align-items:center;gap:13px;margin-bottom:25px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.07);position:relative;justify-content:center;text-align:center}
+.logo{width:42px;height:42px;flex:0 0 42px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:rgba(21,146,255,.13);color:var(--accent)}
+.logo .material-symbols-outlined{font-size:23px}
+.head-copy{flex:1;min-width:0}
+.title{font-size:20px;line-height:1.25;font-weight:680;letter-spacing:-.5px;color:var(--fg)}
+.subtitle{font-size:12.5px;line-height:1.5;color:var(--muted);margin-top:4px;letter-spacing:0}
+.info-icon,.info-close{width:34px;height:34px;flex:0 0 34px;display:flex;align-items:center;justify-content:center;border:1px solid var(--card-border);border-radius:14px;background:rgba(255,255,255,.035);color:#b7bfd0;cursor:pointer}
+.info-icon:active,.info-close:active{background:rgba(21,146,255,.13);color:var(--accent)}
+.section-heading{font-size:16px;line-height:1.35;font-weight:660;letter-spacing:-.25px;margin:0 0 5px;color:var(--fg)}
+.section-description{font-size:12.5px;line-height:1.6;color:var(--muted);margin:0 0 22px;max-width:100%}
+.field-label{display:block;font-size:12px;line-height:1.4;font-weight:630;letter-spacing:0;color:#c4cada;margin:0 0 8px}
+.input{display:block;width:100%;height:49px;padding:0 14px;border:1px solid rgba(255,255,255,.09);border-radius:15px;background:rgba(15,18,30,.48);color:var(--fg);font:500 13px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.25px;transition:border-color .18s,box-shadow .18s}
+.input::placeholder{color:#777f94;letter-spacing:0}
+.input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(21,146,255,.12)}
+.hash-helper{display:block;width:100%;margin:9px auto 0;text-align:center !important;justify-self:center;align-self:center;font-size:11.5px;line-height:1.6;color:var(--muted);max-width:none}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:22px}
+.btn{min-width:0;height:43px;padding:0 11px;display:flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--card-border);border-radius:16px;background:rgba(255,255,255,.045);color:#dfe3ed;font-size:12px;font-weight:600;cursor:pointer;transition:background .16s,border-color .16s,transform .16s}
+.btn .material-symbols-outlined{font-size:18px}
+.btn:active{transform:scale(.985)}
+.btn:disabled{opacity:.42;cursor:not-allowed;transform:none}
+.btn.primary{grid-column:1/-1;height:46px;background:var(--accent);border-color:var(--accent);color:#fff;font-size:13px}
+.btn.primary:hover{background:#087fdf;border-color:#087fdf}
+.btn.ghost:hover{background:var(--btn-hover);border-color:rgba(255,255,255,.12)}
+.btn.reboot{color:#ff858c;background:rgba(255,107,107,.055);border-color:rgba(255,107,107,.12)}
+.btn.reboot:hover{background:rgba(255,107,107,.11)}
+.saved-card{margin-top:25px;padding:17px;border:1px solid var(--card-border);border-radius:18px;background:rgba(15,18,30,.25)}
+.saved-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:11px}
+.saved-heading-group{min-width:0}
+.saved-label{display:flex;align-items:center;gap:8px;font-size:13px;line-height:1.35;font-weight:640;color:#dfe3ed;letter-spacing:-.1px}
+.saved-description{font-size:11px;line-height:1.45;color:var(--muted);margin:4px 0 0 25px}
+.saved-label .material-symbols-outlined{font-size:17px;color:var(--accent)}
+.saved-state{display:flex;align-items:center;gap:6px;font-size:10.5px;line-height:1.4;color:var(--muted);white-space:nowrap;padding-top:2px}
+.state-dot{width:6px;height:6px;border-radius:50%;background:#1592FF;opacity:.8}
+.saved{display:block;min-height:19px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);font:12px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;color:#c0c8d8;overflow-wrap:anywhere;word-break:break-all}
+
+.device-card{margin-top:15px;padding:17px;border:1px solid var(--card-border);border-radius:18px;background:rgba(15,18,30,.25)}
+.device-card-head{display:flex;align-items:center;gap:9px;margin-bottom:15px}
+.device-card-head .material-symbols-outlined{font-size:18px;color:var(--accent)}
+.device-card-title{font-size:13px;line-height:1.35;font-weight:640;color:#dfe3ed;letter-spacing:-.1px}
+.device-list{display:grid;gap:0}
+.device-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:10px 0;border-top:1px solid rgba(255,255,255,.055)}
+.device-row:first-child{border-top:0;padding-top:0}
+.device-key{min-width:0;font-size:11px;line-height:1.5;color:var(--muted);overflow-wrap:anywhere}
+.device-value{max-width:58%;font:11.5px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;color:#d4dbea;text-align:right;overflow-wrap:anywhere;word-break:break-word}
+.device-value.loading{color:#858da1}
+.safe-warning{display:none;margin:0 0 18px;padding:12px 13px;border:1px solid rgba(255,170,77,.25);border-radius:11px;background:rgba(255,170,77,.09);color:#ffaa4d;font-size:12px;line-height:1.5;align-items:center;gap:10px}
+.safe-warning.show{display:flex}.safe-warning .material-symbols-outlined{font-size:20px;flex-shrink:0}.safe-subtext{opacity:.8}
+body.safe-mode .input,body.safe-mode .btn{opacity:.4;pointer-events:none;filter:grayscale(1)}
+.confirm-modal,.info-modal{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.68);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.confirm-modal.show,.info-modal.show{display:flex}
+.confirm-card,.info-sheet{width:min(100%,390px);max-height:82vh;overflow:auto;padding:21px;border:1px solid var(--card-border);border-radius:20px;background:#232637f5;box-shadow:0 18px 50px #0008}
+.confirm-card h3{font-size:16px;margin-bottom:8px}.confirm-card p{font-size:13px;line-height:1.55;color:var(--muted)}
+.confirm-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}.confirm-actions .btn{min-width:92px;padding:0 14px}.confirm-actions .btn.primary{grid-column:auto;height:43px;color:#fff}
+.info-sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.info-sheet-title{display:flex;align-items:center;gap:8px;font-weight:650;font-size:15px}.info-sheet-title .material-symbols-outlined{color:var(--accent)}
+.info-text{font-size:13px;line-height:1.65;color:#c2cad8}.info-text p{margin-bottom:12px}.info-text p:last-child{margin-bottom:0}
+@media(max-width:380px){body{padding:18px 12px 26px}.shell{padding:21px}.head{margin-bottom:21px}.controls{gap:8px}.btn{padding:0 8px;font-size:11px}}
+.field{width:100%;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="confirm-modal" id="rebootModal" role="dialog" aria-modal="true" aria-labelledby="rebootTitle">
+  <div class="confirm-card">
+    <h3 id="rebootTitle">Reboot device?</h3>
+    <p>Are you sure you want to reboot the device now?</p>
+    <div class="confirm-actions">
+      <button id="rebootCancel" class="btn">Cancel</button>
+      <button id="rebootConfirm" class="btn primary">Reboot</button>
+    </div>
+  </div>
+</div>
+
+<div class="info-modal" id="infoModal">
+  <div class="info-sheet" onclick="event.stopPropagation()">
+    <div class="info-sheet-head">
+      <div class="info-sheet-title">
+        <span class="material-symbols-outlined">info</span>
+        <span>Fix Boot Hash</span>
+      </div>
+      <button class="info-close" id="infoClose" aria-label="Close">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="info-text">
+      <p>Reboot is required to apply changes</p>
+      <p>Only A-Z and 0-9 are allowed. Do not include labels or spaces. if you are unsure please leave it alone and make sure the config is empty</p>
+      <p>If you are unsure please click on the reset button and reboot your device. it will revert the changes (if already made)</p>
+      <p>You can obtain the boot hash from a Key Attestation app or from a root detector that reports abnormal verified boot hash behaviour.</p>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+  <div id="safeWarning" class="safe-warning">
+    <span class="material-symbols-outlined">warning</span>
+    <span><strong>Safe Mode enabled.</strong><br><span class="safe-subtext">UI options are disabled for user safety.</span></span>
+  </div>
+
+  <div class="head">
+    <div class="logo"><span class="material-symbols-outlined">verified_user</span></div>
+    <div class="head-copy">
+      <div class="title">Fix Boot Hash</div>
+      <div class="subtitle">Verified boot hash configuration</div>
+    </div>
+    <button class="info-icon" id="infoBtn" aria-label="Info">
+      <span class="material-symbols-outlined">info</span>
+    </button>
+  </div>
+
+  <section aria-labelledby="configHeading">
+    <div class="field">
+      
+      <input id="new-hash" class="input" placeholder="E.g. F99B5EA989109F1E4702BD3" autocomplete="off" spellcheck="false" />
+      <div class="hash-helper">Paste your boot hash above</div>
+    </div>
+
+    <div class="controls">
+      <button id="apply" class="btn primary"><span class="material-symbols-outlined">check</span>Apply</button>
+      <button id="reset" class="btn ghost"><span class="material-symbols-outlined">restart_alt</span>Reset</button>
+      <button id="reboot" class="btn reboot"><span class="material-symbols-outlined">restart_alt</span>Reboot</button>
+    </div>
+  </section>
+
+  <section class="saved-card" aria-labelledby="savedHeading">
+    <div class="saved-top">
+      <div class="saved-heading-group">
+        <div class="saved-label" id="savedHeading">Saved:</div>
+        
+      </div>
+      
+    </div>
+    <div id="savedHash" class="saved">Config is empty</div>
+  </section>
+
+  <section class="device-card" aria-labelledby="deviceInfoHeading">
+    <div class="device-card-head">
+      <span class="material-symbols-outlined">memory</span>
+      <div class="device-card-title" id="deviceInfoHeading">System Information</div>
+    </div>
+    <div class="device-list">
+      <div class="device-row"><div class="device-key">VBMeta Size</div><div class="device-value loading" id="vbmetaSize">Loading…</div></div>
+      <div class="device-row"><div class="device-key">VBMeta Hash Algorithm</div><div class="device-value loading" id="vbmetaHashAlg">Loading…</div></div>
+      <div class="device-row"><div class="device-key">Device State</div><div class="device-value loading" id="vbmetaDeviceState">Loading…</div></div>
+      <div class="device-row"><div class="device-key">AVB Version</div><div class="device-value loading" id="vbmetaAvbVersion">Loading…</div></div>
+      <div class="device-row"><div class="device-key">Uptime</div><div class="device-value loading" id="deviceUptime">Loading…</div></div>
+    </div>
+  </section>
+</div>
+
+<script>
+const DEST = "/data/adb/Box-Brain/hash.txt";
+const SAFE_MODE = "/data/adb/Box-Brain/safemode";
+const input = document.getElementById("new-hash");
+const savedEl = document.getElementById("savedHash");
+const applyBtn = document.getElementById("apply");
+const resetBtn = document.getElementById("reset");
+const rebootBtn = document.getElementById("reboot");
+const safeWarning = document.getElementById("safeWarning");
+
+function popup(msg, type="info"){
+  try{
+    if(window.toast) return window.toast(msg);
+    if(window.kernelsu?.toast) return kernelsu.toast(msg);
+    if(window.ksu?.toast) return ksu.toast(msg);
+  }catch(e){}
+  alert(msg);
+}
+
+function getExec(){
+  if(window.ksu?.exec) return window.ksu.exec.bind(window.ksu);
+  if(window.kernelsu?.exec) return window.kernelsu.exec.bind(window.kernelsu);
+  if(typeof window.exec === "function") return window.exec;
+  return null;
+}
+
+function runCmd(cmd){
+  const exec = getExec();
+  if(!exec) return Promise.reject(new Error("No exec bridge"));
+
+  try{
+    if(exec.length >= 3){
+      return new Promise((resolve, reject)=>{
+        const id = "__cb"+Date.now();
+        window[id] = (code, stdout, stderr)=>{
+          delete window[id];
+          if(+code === 0) resolve(stdout||"");
+          else reject(new Error(stderr||stdout||"shell error"));
+        };
+        exec(cmd, "{}", id);
+      });
+    }
+
+    const out = exec(cmd);
+    if(out?.then) return out.then(r=>r.stdout || r);
+    return Promise.resolve(out?.stdout || out || "");
+  }catch(e){
+    return Promise.reject(e);
+  }
+}
+
+async function isSafeMode(){
+  try{
+    const result = await runCmd(`if [ -f '${SAFE_MODE}' ]; then printf "1"; else printf "0"; fi`);
+    return String(result).trim() === "1";
+  }catch(e){
+    return false;
+  }
+}
+
+async function clearConfig(){
+  return runCmd(`rm -f '${DEST}'`);
+}
+
+async function applySafeModeState(active, clearOnEnable=false){
+  const wasActive = document.body.classList.contains("safe-mode");
+
+  if(active){
+    document.body.classList.add("safe-mode");
+    safeWarning.classList.add("show");
+    input.disabled = true;
+    applyBtn.disabled = true;
+    resetBtn.disabled = true;
+    rebootBtn.disabled = true;
+    savedEl.textContent = "Config is empty ";
+
+    if(clearOnEnable && !wasActive){
+      try{ await clearConfig(); }catch(e){}
+      input.value = "";
+    }
+  }else{
+    document.body.classList.remove("safe-mode");
+    safeWarning.classList.remove("show");
+    input.disabled = false;
+    applyBtn.disabled = false;
+    resetBtn.disabled = false;
+    rebootBtn.disabled = false;
+
+    if(wasActive) await readSaved();
+  }
+}
+
+async function syncSafeModeUI(){
+  const active = await isSafeMode();
+  await applySafeModeState(active, true);
+}
+
+function formatUptime(raw){
+  const match = String(raw || "").trim().match(/^(\d+(?:\.\d+)?)/);
+  if(!match) return "Unavailable";
+
+  const totalSeconds = Math.floor(Number(match[1]));
+  if(!Number.isFinite(totalSeconds) || totalSeconds < 0) return "Unavailable";
+
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const parts = [];
+  if(days) parts.push(`${days}d`);
+  if(hours || days) parts.push(`${hours}h`);
+  if(minutes || hours || days) parts.push(`${minutes}m`);
+  if(!parts.length) parts.push(`${seconds}s`);
+  return parts.join(" ");
+}
+
+function setDeviceValue(id, value){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const clean = String(value ?? "").trim();
+  el.textContent = clean || "Unavailable";
+  el.classList.remove("loading");
+}
+
+async function readProp(name){
+  try{
+    return String(await runCmd(`getprop '${name}'`) ?? "").trim();
+  }catch(e){
+    return "";
+  }
+}
+
+async function loadDeviceInfo(){
+  const ids = ["vbmetaSize","vbmetaHashAlg","vbmetaDeviceState","vbmetaAvbVersion","deviceUptime"];
+
+  try{
+    const [
+      vbmetaSize,
+      vbmetaHashAlg,
+      vbmetaDeviceStateRaw,
+      vbmetaAvbVersion,
+      avbVersion,
+      verifiedBootState,
+      flashLocked,
+      uptimeRaw
+    ] = await Promise.all([
+      readProp("ro.boot.vbmeta.size"),
+      readProp("ro.boot.vbmeta.hash_alg"),
+      readProp("ro.boot.vbmeta.device_state"),
+      readProp("ro.boot.vbmeta.avb_version"),
+      readProp("ro.boot.avb_version"),
+      readProp("ro.boot.verifiedbootstate"),
+      readProp("ro.boot.flash.locked"),
+      (async()=>{
+        try{
+          return String(await runCmd("cat /proc/uptime") ?? "").trim();
+        }catch(e){
+          try{
+            return String(await runCmd("uptime -p") ?? "").trim();
+          }catch(_){
+            return "";
+          }
+        }
+      })()
+    ]);
+
+    let deviceState = vbmetaDeviceStateRaw;
+    if(!deviceState && flashLocked === "1") deviceState = "locked";
+    else if(!deviceState && flashLocked === "0") deviceState = "unlocked";
+    else if(!deviceState && verifiedBootState) deviceState = verifiedBootState;
+
+    const resolvedAvbVersion = vbmetaAvbVersion || avbVersion;
+
+    setDeviceValue("vbmetaSize", vbmetaSize);
+    setDeviceValue("vbmetaHashAlg", vbmetaHashAlg);
+    setDeviceValue("vbmetaDeviceState", deviceState);
+    setDeviceValue("vbmetaAvbVersion", resolvedAvbVersion);
+
+    let uptimeDisplay = formatUptime(uptimeRaw);
+    if(uptimeDisplay === "Unavailable" && /^up\s+/i.test(uptimeRaw)){
+      uptimeDisplay = uptimeRaw.replace(/^up\s+/i, "").trim();
+    }
+    setDeviceValue("deviceUptime", uptimeDisplay);
+  }catch(e){
+    ids.forEach(id=>setDeviceValue(id, ""));
+  }
+}
+async function initializeUI(){
+  try{
+    await syncSafeModeUI();
+    if(!document.body.classList.contains("safe-mode")) await readSaved();
+    await loadDeviceInfo();
+  }catch(e){
+    popup(e.message,"error");
+    await readSaved();
+    await loadDeviceInfo();
+  }
+}
+
+async function readSaved(){
+  try{
+    const txt = await runCmd(`cat '${DEST}' || true`);
+    const t = txt.trim();
+    savedEl.textContent = t || "Config is empty ";
+  }catch(e){
+    savedEl.textContent = "Config is empty ";
+  }
+}
+
+async function writeFile(v){
+  const safe = v.replace(/'/g,"'\"'\"'");
+  return runCmd(`printf "%s" '${safe}' > '${DEST}' && sync`);
+}
+
+async function removeFile(){
+  return runCmd(`rm -f '${DEST}'`);
+}
+
+function validate(v){
+  if(!v) return {ok:false,why:"Empty"};
+  if(/[^A-Za-z0-9]/.test(v)) return {ok:false,why:"Only A-Z and 0-9 allowed"};
+  if(v.length < 12) return {ok:false,why:"Too short"};
+  if(v.length > 4096) return {ok:false,why:"Too long"};
+  return {ok:true};
+}
+
+applyBtn.onclick = async ()=>{
+  const v = input.value.trim();
+  const check = validate(v);
+  if(!check.ok) return popup(check.why,"error");
+  applyBtn.disabled = true;
+  try{
+    await writeFile(v);
+    await readSaved();
+    popup("Boot hash applied","success");
+
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    await runCmd("sh '/data/adb/service.d/hash.sh'");
+    popup("Hash script executed","success");
+  }catch(e){
+    popup(e.message,"error");
+  }finally{
+    applyBtn.disabled = false;
+  }
+};
+
+resetBtn.onclick = async ()=>{
+  try{
+    await removeFile();
+    savedEl.textContent="Config is empty ";
+    popup("Boot hash removed","info");
+  }catch(e){ popup(e.message,"error"); }
+};
+
+
+rebootBtn.onclick = async ()=>{
+  if(await isSafeMode()) return;
+  rebootModal.classList.add("show");
+};
+
+const rebootModal = document.getElementById("rebootModal");
+const rebootCancel = document.getElementById("rebootCancel");
+const rebootConfirm = document.getElementById("rebootConfirm");
+const infoModal = document.getElementById("infoModal");
+function closeRebootModal(){
+  rebootModal.classList.remove("show");
+}
+
+rebootCancel.addEventListener("click", closeRebootModal);
+
+rebootModal.addEventListener("click", e=>{
+  if(e.target === rebootModal) closeRebootModal();
+});
+
+document.addEventListener("keydown", e=>{
+  if(e.key === "Escape" && rebootModal.classList.contains("show")) closeRebootModal();
+});
+
+rebootConfirm.addEventListener("click", async ()=>{
+  closeRebootModal();
+  try{ await runCmd("reboot"); }catch(e){ popup(e.message,"error"); }
+});
+
+const infoBtn = document.getElementById("infoBtn");
+const infoClose = document.getElementById("infoClose");
+
+function closeInfo(){
+  infoModal.classList.remove("show");
+}
+
+infoBtn.onclick = ()=>infoModal.classList.add("show");
+infoClose.onclick = closeInfo;
+infoModal.onclick = closeInfo;
+
+document.addEventListener("visibilitychange", ()=>{
+  if(!document.hidden) syncSafeModeUI();
+});
+window.addEventListener("focus", syncSafeModeUI);
+window.addEventListener("pageshow", syncSafeModeUI);
+
+setInterval(()=>{
+  if(!document.hidden) syncSafeModeUI();
+}, 1000);
+setInterval(()=>{
+  if(!document.hidden) loadDeviceInfo();
+}, 30000);
+window.addEventListener("focus", loadDeviceInfo);
+
+initializeUI();
+setInterval(()=>{ if(!document.hidden) loadDeviceInfo(); }, 30000);
+</script>
+<script src="../TRANSLATIONS/meow.js"></script>
+<script>
+(function(){
+  var lang = localStorage.getItem('ibLang') || 'en';
+  if (lang !== 'en') {
+    var s = document.createElement('script');
+    s.src = '../TRANSLATIONS/' + lang + '.js';
+    s.onload = function(){ if(window.i18nBoot) window.i18nBoot(); };
+    document.head.appendChild(s);
+  }
+})();
+</script>
+</body>
+</html>

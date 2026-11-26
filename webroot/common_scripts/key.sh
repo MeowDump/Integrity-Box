@@ -229,7 +229,6 @@ fi
 
 # Decode the downloaded file
 # The file is encoded as: base64 > hex > ROT13
-log " "
 log " ✦ Decoding keybox file..."
 
 TMP_HEX="$(mktemp -p /data/local/tmp)"
@@ -293,7 +292,6 @@ OLD_HASH="$(sha256sum "$KEYBOX" 2>/dev/null | awk '{print $1}')"
 
 if [ -n "$NEW_HASH" ] && [ "$NEW_HASH" = "$OLD_HASH" ]; then
     log " ✦ Keybox already up to date"
-    log " "
     rm -f "$NEW_KEYBOX"
 elif ! mv -f "$NEW_KEYBOX" "$KEYBOX"; then
     log " ✦ ERROR: Failed to install the decoded keybox"

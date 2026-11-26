@@ -1,0 +1,2047 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"><title>Prop Spoofer</title><link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"><style>
+
+:root{
+--bg:#1f2233;
+--fg:#e6e6e6;
+--accent:#4da3ff;
+--accent-glow:rgba(77,163,255,0.3);
+--danger:#ff4d4d;
+--danger-glow:rgba(255,77,77,0.3);
+--panel-bg:#232637cc;
+--success:#4dff88;
+--pink:#ff6b9d;
+--pink-glow:rgba(255,107,157,0.3);
+--text2:#9aa3ff;
+--transition:0.3s;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+margin:0;min-height:100vh;
+display:flex;align-items:center;justify-content:center;
+font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui;
+background:radial-gradient(circle at 30% 20%,#1c2045 0%,#0e1020 100%);
+color:var(--fg);
+-webkit-font-smoothing:antialiased;
+padding:20px;
+}
+.card{
+width:480px;max-width:100%;
+background:var(--panel-bg);
+backdrop-filter:blur(20px);
+border-radius:20px;
+padding:28px;
+box-shadow:0 25px 60px rgba(0,0,0,0.4),0 0 0 1px rgba(255,255,255,0.06);
+position:relative;overflow:hidden;
+animation:cardEntry 0.6s cubic-bezier(0.2,0.8,0.2,1);
+}
+@keyframes cardEntry{
+from{opacity:0;transform:translateY(30px) scale(0.96)}
+to{opacity:1;transform:translateY(0) scale(1)}
+}
+.card::before{
+content:"";
+position:absolute;inset:0;
+background:radial-gradient(circle at 50% 0%,var(--accent) 0%,transparent 70%);
+filter:blur(40px);opacity:0.15;pointer-events:none;z-index:0;
+animation:glowPulse 8s ease-in-out infinite;
+}
+@keyframes glowPulse{0%,100%{opacity:0.12}50%{opacity:0.25}}
+.header-wrap{
+position:relative;z-index:2;
+text-align:center;
+margin-bottom:20px;
+}
+h1{
+position:relative;z-index:2;
+margin:0 0 8px 0;
+font-size:22px;font-weight:700;
+display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.subtitle{
+text-align:center;color:var(--text2);
+font-size:13px;font-weight:500;margin-bottom:0;
+position:relative;z-index:2;
+}
+.header-actions{
+position:absolute;
+top:0;
+right:0;
+display:flex;
+gap:8px;
+}
+.icon-btn{
+width:36px;
+height:36px;
+border-radius:12px;
+background:rgba(255,255,255,0.05);
+border:1px solid rgba(255,255,255,0.08);
+color:var(--text2);
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+transition:all .2s ease;
+}
+.icon-btn:hover{
+background:rgba(77,163,255,0.12);
+border-color:rgba(77,163,255,0.25);
+color:var(--accent);
+}
+.icon-btn:active{transform:scale(0.92)}
+.icon-btn .material-icons{font-size:18px}
+.action-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+margin-bottom:20px;
+position:relative;z-index:2;
+}
+.action-grid .btn{
+width:100%;
+min-height:46px;
+border-radius:14px;
+}
+.action-grid .apply-btn{
+padding:14px 18px;
+text-transform:none;
+letter-spacing:0.3px;
+}
+.action-grid .btn-toggle{
+margin:0;
+}
+.btn{
+padding:14px 18px;
+border-radius:14px;
+border:none;
+background:rgba(255,255,255,0.06);
+color:#fff;
+font-size:13px;
+font-weight:600;
+cursor:pointer;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:8px;
+transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:scale(0.96)}
+.btn .material-icons{font-size:18px}
+.btn-primary{
+background:rgba(77,163,255,0.1);
+color:var(--accent);
+border:1px solid rgba(77,163,255,0.2);
+}
+.btn-primary:hover{
+background:rgba(77,163,255,0.2);
+box-shadow:0 4px 16px rgba(77,163,255,0.15);
+}
+.btn-primary .material-icons{color:var(--accent)}
+.btn-danger{
+background:rgba(255,77,77,0.1);
+color:var(--danger);
+border:1px solid rgba(255,77,77,0.2);
+}
+.btn-danger:hover{
+background:rgba(255,77,77,0.2);
+box-shadow:0 4px 16px rgba(255,77,77,0.15);
+}
+.btn-danger .material-icons{color:var(--danger)}
+.btn-toggle{
+background:rgba(255,170,77,0.08);
+color:#ffaa4d;
+border:1px solid rgba(255,170,77,0.15);
+}
+.btn-toggle:hover{
+background:rgba(255,170,77,0.15);
+box-shadow:0 4px 16px rgba(255,170,77,0.1);
+}
+.btn-toggle.on{
+background:rgba(255,170,77,0.2);
+color:#ffaa4d;
+border-color:rgba(255,170,77,0.3);
+box-shadow:0 4px 16px rgba(255,170,77,0.15);
+}
+.btn-toggle.on:hover{
+background:rgba(255,170,77,0.3);
+box-shadow:0 8px 28px rgba(255,170,77,0.2);
+}
+.btn-toggle.on .material-icons{color:#ffaa4d}
+.apply-btn{
+padding:14px 48px;
+border-radius:14px;
+border:1px solid rgba(77,163,255,0.2);
+background:rgba(77,163,255,0.1);
+color:var(--accent);
+font-size:15px;
+font-weight:700;
+cursor:pointer;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:8px;
+transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
+text-transform:uppercase;
+letter-spacing:0.5px;
+}
+.apply-btn:hover{
+background:rgba(77,163,255,0.2);
+box-shadow:0 4px 16px rgba(77,163,255,0.15);
+transform:translateY(-2px);
+}
+.apply-btn:active{transform:scale(0.96)}
+.apply-btn .material-icons{font-size:20px;color:var(--accent)}
+.apply-btn:disabled{opacity:0.35;cursor:not-allowed;transform:none;box-shadow:none}
+.terminal{
+position:relative;z-index:2;
+margin-bottom:20px;
+border-radius:16px;
+background:linear-gradient(135deg,rgba(21,146,255,0.08) 0%,rgba(21,146,255,0.03) 100%);
+border:1px solid rgba(77,163,255,0.2);
+box-shadow:0 0 40px rgba(77,163,255,0.1),inset 0 1px 0 rgba(255,255,255,0.05);
+overflow:hidden;
+}
+.terminal-header{
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:12px 16px;
+background:rgba(77,163,255,0.08);
+border-bottom:1px solid rgba(77,163,255,0.15);
+}
+.terminal-title{
+display:flex;
+align-items:center;
+gap:8px;
+font-size:12px;
+font-weight:600;
+color:var(--accent);
+text-transform:uppercase;
+letter-spacing:0.5px;
+}
+.terminal-title .material-icons{font-size:16px;color:var(--accent)}
+.terminal-actions{
+display:flex;
+gap:8px;
+}
+.dot{
+width:10px;height:10px;
+border-radius:50%;
+background:rgba(255,255,255,0.2);
+}
+.dot.red{background:var(--danger)}
+.dot.yellow{background:#ff9f0a}
+.dot.green{background:var(--success)}
+.terminal-body{
+padding:16px;
+font-family:'SF Mono',SFMono-Regular,monospace;
+font-size:11px;
+line-height:1.6;
+height:160px;
+overflow-y:auto;
+color:rgba(255,255,255,0.6);
+}
+.terminal-body::-webkit-scrollbar{width:6px}
+.terminal-body::-webkit-scrollbar-track{background:transparent}
+.terminal-body::-webkit-scrollbar-thumb{
+background:rgba(77,163,255,0.3);
+border-radius:3px;
+}
+.log-entry{
+display:flex;
+align-items:flex-start;
+gap:10px;
+margin-bottom:6px;
+padding:6px 0;
+border-bottom:1px solid rgba(77,163,255,0.1);
+animation:slideIn 0.3s ease;
+}
+@keyframes slideIn{
+from{opacity:0;transform:translateX(-10px)}
+to{opacity:1;transform:translateX(0)}
+}
+.log-entry:last-child{border-bottom:none}
+.log-content{
+flex:1;
+display:flex;
+align-items:center;
+gap:8px;
+}
+.log-icon{
+width:16px;
+height:16px;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:12px;
+}
+.log-icon.ok{background:rgba(77,255,136,0.15);color:var(--success)}
+.log-icon.err{background:rgba(255,77,77,0.15);color:var(--danger)}
+.log-icon.cmd{background:rgba(77,163,255,0.2);color:var(--accent)}
+.log-icon.info{background:rgba(255,255,255,0.1);color:var(--text2)}
+.log-icon.warn{background:rgba(255,170,77,0.15);color:#ffaa4d}
+.section-title{
+position:relative;z-index:2;
+font-size:12px;
+font-weight:600;
+color:var(--text2);
+text-transform:uppercase;
+letter-spacing:0.5px;
+margin:20px 0 12px 0;
+padding-left:12px;
+border-left:3px solid var(--accent);
+}
+.section-title.danger{
+border-left-color:var(--danger);
+color:var(--danger);
+}
+.section-title.success{
+border-left-color:var(--pink);
+color:var(--pink);
+}
+.section-title.hook{
+border-left-color:#c896ff;
+color:#c896ff;
+}
+.row{
+position:relative;z-index:2;
+display:flex;align-items:center;justify-content:space-between;
+gap:14px;padding:14px 16px;border-radius:14px;
+background:rgba(255,255,255,0.03);
+border:1px solid rgba(255,255,255,0.06);
+margin-bottom:8px;
+transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
+cursor:pointer;
+}
+.row:hover{
+background:rgba(255,255,255,0.06);
+transform:translateY(-2px);
+box-shadow:0 8px 24px rgba(0,0,0,0.3);
+border-color:rgba(77,163,255,0.2);
+}
+.row:active{transform:scale(0.98)}
+.row.active{
+background:rgba(77,163,255,0.1);
+border-color:rgba(77,163,255,0.4);
+box-shadow:none;
+}
+.row.active .icon-wrap{
+background:var(--accent);
+box-shadow:none;
+}
+.row.active .icon-wrap .material-icons{color:white}
+.row.active .title{color:var(--accent)}
+.row.danger:hover{
+border-color:rgba(255,77,77,0.3);
+}
+.row.danger.active{
+background:rgba(255,77,77,0.1);
+border-color:rgba(255,77,77,0.5);
+box-shadow:none;
+}
+.row.danger.active .icon-wrap{
+background:var(--danger);
+box-shadow:none;
+}
+.row.danger.active .title{color:var(--danger)}
+.row.success.active{
+background:rgba(255,107,157,0.1);
+border-color:rgba(255,107,157,0.4);
+box-shadow:none;
+}
+.row.success.active .icon-wrap{
+background:var(--pink);
+box-shadow:none;
+}
+.row.success.active .icon-wrap .material-icons{color:white}
+.row.success.active .title{color:var(--pink)}
+.row.success:hover{
+border-color:rgba(255,107,157,0.3);
+}
+.row.hook.active{
+background:rgba(200,150,255,0.1);
+border-color:rgba(200,150,255,0.4);
+box-shadow:none;
+}
+.row.hook.active .icon-wrap{
+background:#c896ff;
+box-shadow:none;
+}
+.row.hook.active .icon-wrap .material-icons{color:white}
+.row.hook.active .title{color:#c896ff}
+.row.hook:hover{
+border-color:rgba(200,150,255,0.3);
+}
+.icon-wrap{
+width:40px;height:40px;border-radius:10px;
+background:rgba(255,255,255,0.08);
+display:flex;align-items:center;justify-content:center;
+transition:all 0.3s;flex-shrink:0;
+}
+.icon-wrap .material-icons{
+font-size:20px;color:var(--text2);
+transition:all 0.3s;
+}
+.content{flex:1;min-width:0}
+.title{
+font-size:15px;font-weight:600;
+color:var(--fg);margin-bottom:2px;
+transition:color 0.3s;
+}
+.subtitle-text{
+font-size:11px;color:var(--text2);
+font-weight:500;
+opacity:0.8;
+font-family:'SF Mono',SFMono-Regular,monospace;
+}
+.switch{
+position:relative;width:50px;height:28px;flex-shrink:0;
+pointer-events:none;
+}
+.switch input{position:absolute;opacity:0;width:0;height:0}
+.slider{
+position:absolute;inset:0;border-radius:999px;
+background:rgba(255,255,255,0.1);
+transition:all var(--transition);
+box-shadow:inset 0 2px 4px rgba(0,0,0,0.2);
+}
+.knob{
+position:absolute;left:2px;top:2px;
+width:24px;height:24px;border-radius:50%;
+background:linear-gradient(145deg,#fff,#e0e0e0);
+transition:transform 0.25s cubic-bezier(0.2,0.8,0.2,1);
+box-shadow:0 2px 8px rgba(0,0,0,0.3);
+}
+.switch input:checked + .slider{
+background:var(--accent);
+box-shadow:none;
+}
+.switch input:checked + .slider .knob{transform:translateX(22px)}
+.row.danger .switch input:checked + .slider{
+background:var(--danger);
+box-shadow:none;
+}
+.row.success .switch input:checked + .slider{
+background:var(--pink);
+box-shadow:none;
+}
+.row.hook .switch input:checked + .slider{
+background:#c896ff;
+box-shadow:none;
+}
+.status-bar{
+display:flex;
+align-items:center;
+justify-content:space-between;
+margin-top:16px;
+padding:0 4px;
+position:relative;z-index:2;
+}
+.status-text{
+font-size:12px;
+color:var(--text2);
+font-weight:500;
+display:flex;
+align-items:center;
+gap:8px;
+}
+.spinner{
+width:14px;height:14px;
+border:2px solid rgba(255,255,255,0.1);
+border-top-color:var(--accent);
+border-radius:50%;
+animation:spin 0.8s linear infinite;
+display:none;
+}
+.spinner.active{display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.footer{
+margin-top:16px;text-align:center;
+color:var(--text2);font-size:11px;opacity:0.6;
+position:relative;z-index:2;
+}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:linear-gradient(180deg,rgba(35,38,65,0.95),rgba(22,24,45,0.98));backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:14px 22px;display:flex;align-items:center;gap:12px;font-size:13px;font-weight:600;color:var(--fg);box-shadow:0 16px 48px rgba(0,0,0,0.45);opacity:0;pointer-events:none;transition:all .4s cubic-bezier(0.22,1,0.36,1);z-index:3000;max-width:90vw}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast .material-icons{font-size:20px;flex-shrink:0}
+.toast.ok .material-icons{color:var(--success)}
+.toast.err .material-icons{color:var(--danger)}
+.toast.info .material-icons{color:var(--accent)}
+.toast.warn .material-icons{color:#ffaa4d}
+.safe-mode-banner{position:relative;z-index:2;background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);border-radius:14px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;animation:slideIn 0.4s ease}
+.safe-mode-banner .material-icons{color:var(--danger);font-size:20px}
+.safe-mode-banner span{font-size:13px;color:var(--danger);font-weight:600}
+.warning-card{position:relative;z-index:2;background:rgba(255,170,77,0.08);border:1px solid rgba(255,170,77,0.2);border-radius:14px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;animation:slideIn 0.4s ease}
+.warning-card .material-icons{color:#ffaa4d;font-size:20px;flex-shrink:0;margin-top:1px}
+.warning-card span{font-size:12px;color:#ffaa4d;font-weight:500;line-height:1.5}
+.scan-row{display:none}
+.info-modal{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+.info-modal.open{display:flex}
+.info-modal-bg{position:absolute;inset:0;background:rgba(5,6,14,0.75);backdrop-filter:blur(12px);opacity:0;transition:opacity .3s ease}
+.info-modal.open .info-modal-bg{opacity:1}
+.info-modal-card{position:relative;width:100%;max-width:380px;background:linear-gradient(180deg,rgba(35,38,65,0.9),rgba(22,24,45,0.95));backdrop-filter:blur(32px);border-radius:22px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 32px 80px rgba(0,0,0,0.55);padding:22px;opacity:0;transform:scale(0.92) translateY(16px);transition:all .35s cubic-bezier(0.22,1,0.36,1);max-height:88vh;overflow-y:auto}
+.info-modal.open .info-modal-card{opacity:1;transform:scale(1) translateY(0)}
+.info-modal-head{display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.05)}
+.info-modal-head .material-icons{font-size:20px;color:var(--accent)}
+.info-modal-title{font-size:18px;font-weight:700;letter-spacing:-0.3px}
+.legend-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.legend-row:last-child{border-bottom:none}
+.legend-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.legend-dot.blue{background:var(--accent);box-shadow:0 0 8px var(--accent)}
+.legend-dot.red{background:var(--danger);box-shadow:0 0 8px var(--danger)}
+.legend-dot.pink{background:var(--pink);box-shadow:0 0 8px var(--pink-glow)}
+.legend-dot.purple{background:#c896ff;box-shadow:0 0 8px rgba(200,150,255,0.5)}
+.legend-dot.green{background:var(--success);box-shadow:0 0 8px rgba(77,255,136,0.5)}
+.legend-text{font-size:13px;color:var(--text2);font-weight:500}
+.info-close-btn{width:100%;margin-top:18px;padding:15px;border-radius:14px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:all .25s cubic-bezier(0.22,1,0.36,1);display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:0.3px}
+.info-close-btn:hover{background:#6bb5ff;transform:translateY(-1px);box-shadow:0 8px 28px rgba(77,163,255,0.2)}
+.info-close-btn:active{transform:scale(0.97)}
+.tip-row{position:relative;z-index:2;background:rgba(77,163,255,0.06);border:1px solid rgba(77,163,255,0.12);border-radius:14px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;animation:slideIn 0.4s ease}
+.tip-row .material-icons{color:var(--accent);font-size:20px;flex-shrink:0;margin-top:1px}
+.tip-row span{font-size:12px;color:var(--text2);font-weight:500;line-height:1.5}
+@media(max-width:420px){
+.card{width:100%;padding:20px}
+.row{padding:12px 14px}
+.icon-wrap{width:36px;height:36px}
+.terminal-body{height:140px}
+}
+
+
+/* Current Prop Spoofer structure : visual layer only. */
+.universal-search{position:relative;z-index:2;margin:8px 0 15px}
+.universal-search-wrap{height:46px;border:1px solid rgba(77,163,255,.20);background:rgba(255,255,255,.035);border-radius:14px;display:flex;align-items:center;padding:0 12px;gap:9px}
+.universal-search-icon{font-size:20px;color:var(--accent)}
+.universal-search-input{flex:1;min-width:0;background:none;border:0;outline:0;color:var(--fg);font-size:13px}
+.universal-search-input::placeholder{color:#7f8aa8}
+.universal-search-clear{display:none;border:0;background:none;color:var(--text2);cursor:pointer}
+.universal-search-count{font-size:10px;color:var(--accent);font-weight:700}
+
+.row-group{position:relative;z-index:2;border-radius:14px;overflow:hidden;margin-bottom:14px}
+.row-group .row{margin-bottom:0;border-radius:0;border-left:1px solid rgba(255,255,255,.06);border-right:1px solid rgba(255,255,255,.06);border-top:1px solid rgba(255,255,255,.06)}
+.row-group .row:first-child{border-radius:14px 14px 0 0}
+.row-group .row:last-child{border-radius:0 0 14px 14px;border-bottom:1px solid rgba(255,255,255,.06)}
+.row-group .row:only-child{border-radius:14px}
+.row-group .row:hover{transform:none}
+.row-group .row.active{transform:none}
+
+/* Prop rows keep the old visual language: name first, actual property underneath. */
+.content,.duck-main-content{flex:1;min-width:0}
+.title{font-size:15px;font-weight:600;color:var(--fg);margin-bottom:2px;transition:color .3s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prop-only{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui,sans-serif;font-size:11px;font-weight:600;letter-spacing:0;color:var(--fg)}
+.row.active .title{color:var(--accent)}
+.row.danger.active .title{color:var(--danger)}
+.row.success.active .title{color:var(--pink)}
+.row.hook.active .title{color:#c896ff}
+
+/* Duck selection is the row itself. */
+.duck-row{gap:12px}
+.duck-row .duck-action-wrap{display:flex;align-items:center;flex:0 0 auto}
+.duck-row .duck-action-segment{display:flex;align-items:center;gap:3px;padding:3px;border:1px solid rgba(255,107,157,.18);background:rgba(255,255,255,.035);border-radius:11px;box-shadow:inset 0 1px 0 rgba(255,255,255,.035)}
+.duck-row .duck-action-btn{height:29px;min-width:62px;padding:0 9px;border:0;border-radius:8px;background:transparent;color:#8f9db8;font-size:10px;font-weight:750;cursor:pointer;transition:.18s}
+.duck-row .duck-action-btn:hover{color:#fff;background:rgba(255,255,255,.055)}
+.duck-row .duck-action-btn.active.delete{background:rgba(255,77,77,.20);color:#ff9da5;box-shadow:none}
+.duck-row .duck-action-btn.active.reset{background:rgba(77,163,255,.20);color:#8fc7ff;box-shadow:none}
+.duck-row .duck-action-btn .material-icons{font-size:13px;vertical-align:-2px;margin-right:3px}
+.duck-row .duck-switch-wrap,.duck-row .switch{display:none}
+.action-help{position:relative;z-index:2;margin:-2px 0 10px;padding:10px 12px;border:1px solid rgba(255,107,157,.15);border-radius:12px;background:linear-gradient(90deg,rgba(255,107,157,.07),rgba(77,163,255,.045));color:var(--text2);font-size:11px;line-height:1.5}
+.action-help strong{color:var(--fg);font-weight:700}
+.duck-empty{display:none;color:var(--text2);font-size:11px;text-align:center;padding:12px}
+
+/* Dynamic hook rows inherit the old purple treatment. */
+#hook-rows .row.hook{border-color:rgba(200,150,255,.12)}
+#hook-rows .row.hook .icon-wrap .material-icons{color:#c896ff}
+
+/* Current search result wrappers. */
+.search-results{display:none;margin-top:12px;position:relative;z-index:2}
+.search-results.open{display:block}
+.search-results-head{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#8fa0bd;margin:0 3px 7px;display:flex;justify-content:space-between}
+.search-results-sub{color:var(--accent)}
+.search-live-row{border:1px solid rgba(255,255,255,.06)!important;border-radius:14px!important;margin-bottom:7px!important;background:rgba(255,255,255,.03)!important}
+.category-label{font-size:9px;color:#8f9bbb;text-transform:uppercase;letter-spacing:.7px;font-weight:800;margin:9px 3px 5px}
+.search-result-empty{padding:15px;text-align:center;color:#7e8aa7;font-size:11px}
+.row.search-focus{background:rgba(77,163,255,.18)!important;border-color:rgba(77,163,255,.55)!important;box-shadow:none!important;transform:none!important}
+
+/* Keep the current status/toast/modal functionality but give it the old skin. */
+.status-bar{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding:0 4px;position:relative;z-index:2}
+.status-text{font-size:12px;color:var(--text2);font-weight:500;display:flex;align-items:center;gap:8px}
+.toast{position:fixed;bottom:28px;left:50%;top:auto;transform:translateX(-50%) translateY(20px);background:linear-gradient(180deg,rgba(35,38,65,.95),rgba(22,24,45,.98));backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px 22px;display:flex;align-items:center;gap:12px;font-size:13px;font-weight:600;color:var(--fg);box-shadow:0 16px 48px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:all .4s cubic-bezier(.22,1,.36,1);z-index:3000;max-width:90vw}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast .material-icons{font-size:20px;flex-shrink:0}.toast.ok .material-icons{color:var(--success)}.toast.err .material-icons{color:var(--danger)}.toast.info .material-icons{color:var(--accent)}.toast.warn .material-icons{color:#ffaa4d}
+.info-modal{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+.info-modal.open{display:flex}
+.info-modal-bg{position:absolute;inset:0;background:rgba(5,6,14,.75);backdrop-filter:blur(12px)}
+.info-modal-card{position:relative;width:100%;max-width:380px;background:linear-gradient(180deg,rgba(35,38,65,.9),rgba(22,24,45,.95));backdrop-filter:blur(32px);border-radius:22px;border:1px solid rgba(255,255,255,.08);box-shadow:0 32px 80px rgba(0,0,0,.55);padding:22px;max-height:88vh;overflow-y:auto;z-index:1}
+.info-modal-head{display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.05);font-size:18px;font-weight:700}.info-modal-head .material-icons{font-size:20px;color:var(--accent)}
+.legend-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px;color:var(--text2)}.legend-row:last-child{border-bottom:none}.legend-row strong{color:var(--fg)}
+.legend-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}.legend-dot.blue{background:var(--accent);box-shadow:0 0 8px var(--accent)}.legend-dot.red{background:var(--danger);box-shadow:0 0 8px var(--danger)}.legend-dot.pink{background:var(--pink);box-shadow:0 0 8px var(--pink-glow)}.legend-dot.purple{background:#c896ff;box-shadow:0 0 8px rgba(200,150,255,.5)}.legend-dot.green{background:var(--success);box-shadow:0 0 8px rgba(77,255,136,.5)}
+.info-close-btn{width:100%;margin-top:18px;padding:15px;border-radius:14px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:all .25s cubic-bezier(.22,1,.36,1)}
+
+@media(max-width:560px){body{padding:10px}.card{width:100%;padding:20px}.row{padding:12px 14px}.icon-wrap{width:36px;height:36px}.duck-action-btn{min-width:55px;padding:0 7px}}
+@media(max-width:420px){.duck-action-btn{min-width:50px;padding:0 5px;font-size:9px}.prop-only{font-size:10px}.duck-row{gap:8px}}
+
+</style></head><body>
+<div class="card">
+  <div class="header-wrap">
+    <h1><span class="material-icons">shield</span>Prop Spoofer</h1>
+    <div class="subtitle">IntegrityBox</div>
+    <div class="header-actions"><button class="icon-btn" id="infoBtn" type="button"><span class="material-icons">info</span></button></div>
+  </div>
+  <div class="universal-search" id="universalSearch"><div class="universal-search-wrap"><span class="material-icons universal-search-icon">search</span><input class="universal-search-input" id="universalSearchInput" type="search" placeholder="Search properties..." autocomplete="off" spellcheck="false"><button class="universal-search-clear" onclick="clearUniversalSearch()" aria-label="Clear search"><span class="material-icons">close</span></button><span class="universal-search-count" id="universalSearchCount"></span></div></div>
+  <div class="safe-mode-banner" id="safeModeBanner" style="display:none"><span class="material-icons">warning</span><span>Safe Mode Active - Props Spoofer Locked</span></div>
+  <div class="warning-card" id="spoofWarning" style="display:none"><span class="material-icons">warning</span><span>You’ve enabled the Hook Prop Spoofer. It removes the hook-related props it finds, but this can also re-enable your ROM’s built-in spoofing. Turn that spoofing off after running the Prop Spoofer to avoid conflicts with IntegrityBox.</span></div>
+  <div class="tip-row" id="tipRow" style="display:none"><span class="material-icons">lightbulb</span><span id="tipText"></span></div>
+  <div class="terminal"><div class="terminal-header"><div class="terminal-title"><span class="material-icons">terminal</span>Execution Log</div><div class="terminal-actions"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div></div><div class="terminal-body" id="log"></div></div>
+  <div class="action-grid">
+    <div class="btn btn-primary" onclick="selectAll()"><span class="material-icons">check_circle</span>Select All</div>
+    <div class="btn btn-danger" onclick="clearAll()"><span class="material-icons">remove_circle</span>Clear All</div>
+    <div class="btn btn-toggle hook-toggle" id="hookToggle" onclick="toggleHook()"><span class="material-icons">bug_report</span><span id="hookToggleText">Hook Prop</span></div>
+    <div class="btn btn-primary apply-btn" onclick="execute()" id="execBtn"><span class="material-icons">play_arrow</span>Apply Changes</div>
+  </div>
+  <div class="section-title">Reset Props</div><div id="rows"></div>
+  <div class="section-title success">Fix Duck Detector Props Detection</div><div class="action-help"><strong>Tap a prop to select or deselect it.</strong> Choose <strong>Nuke</strong> to remove the prop, or <strong>Spoof</strong> to restore its safe value.<br><u><strong>Don't touch them if you don't know what you're doing.</strong></u></div><div id="duck-rows"></div><div class="duck-empty" id="duckEmpty">No matching props found.</div>
+  <div class="section-title hook">Hook Props</div><div id="hook-rows"></div>
+  <div class="section-title danger">Delete Props</div><div id="delete-rows"></div>
+  <div class="status-bar"><span class="status-text" id="status">Ready</span><div class="spinner" id="spinner"></div></div>
+  <div class="search-results" id="searchResults"><div class="search-results-head"><span>Search Results</span><span class="search-results-sub" id="searchResultsHint"></span></div><div id="searchResultsList"></div></div>
+  <div class="footer">IntegrityBox • 2026</div>
+</div>
+<div class="toast" id="toast"><span class="material-icons" id="tIcon">info</span><span id="tTxt"></span></div>
+<div class="info-modal" id="infoModal"><div class="info-modal-bg" onclick="closeInfoModal()"></div><div class="info-modal-card"><div class="info-modal-head"><span class="material-icons">info</span><div>About Props</div></div><div class="legend-row"><div class="legend-dot blue"></div><div><strong>Blue</strong> : Reset Props</div></div><div class="legend-row"><div class="legend-dot pink"></div><div><strong>Pink</strong> : Duck Props</div></div><div class="legend-row"><div class="legend-dot purple"></div><div><strong>Purple</strong> : Hook Props</div></div><div class="legend-row"><div class="legend-dot green"></div><div><strong>Green</strong> : PIF Props</div></div><div class="legend-row"><div class="legend-dot red"></div><div><strong>Red</strong> : Delete Props</div></div><button class="info-close-btn" onclick="closeInfoModal()">Got it</button></div></div>
+<script>
+const logEl = document.getElementById('log');
+const statusEl = document.getElementById('status');
+const spinner = document.getElementById('spinner');
+const rowsEl = document.getElementById('rows');
+const deleteRowsEl = document.getElementById('delete-rows');
+const duckRowsEl = document.getElementById('duck-rows');
+const hookRowsEl = document.getElementById('hook-rows');
+
+let safeMode = false;
+let tT = null;
+const LOG_DIR='/data/adb/Box-Brain/Integrity-Box-Logs';
+const LOG_FILE=LOG_DIR+'/PropSpoofer.log';
+
+const hookPatterns=[
+'pphook','pihook','pixelprops','eliteprops','xposed','lsposed',
+'edxposed','zygisk','riru','magiskhide','spoofed','injected','module_',
+'persist.sys.pixelprops'
+];
+
+const romKeywords='lineage|evolution|crdroid|arrow|mistos|axion|infinity|pixelos|rising|lunaris|halcyon|havoc|alphadroid|avium|bliss|calyx|derpfest|graphene|lmodroid|lumine|matrixx|sakura|statix|superior|clover|witaqua|yaap|mica';
+
+const props = [
+{id:'usb_adb_disabled',label:'USB Debug Block',sub:'sys.usb.adb.disabled',icon:'usb_off',ops:[['sys.usb.adb.disabled','1']]},
+{id:'usb_config_mtp',label:'MTP Only Mode',sub:'persist.sys.usb.config',icon:'usb',ops:[['persist.sys.usb.config','mtp'],['sys.usb.config','mtp'],['sys.usb.state','mtp']]},
+{id:'adb_root_off',label:'ADB Root Off',sub:'service.adb.root',icon:'terminal',ops:[['service.adb.root','0'],['service.adb.tcp.port','-1']]},
+{id:'ro_secure',label:'Secure Mode',sub:'ro.secure',icon:'verified_user',ops:[['ro.secure','1'],['ro.adb.secure','1']]},
+{id:'ro_debuggable',label:'Debug Off',sub:'ro.debuggable',icon:'bug_report',ops:[['ro.debuggable','0'],['persist.sys.debuggable','0']]},
+{id:'dev_options',label:'Dev Options Off',sub:'persist.sys.developer_options',icon:'code_off',ops:[['persist.sys.developer_options','0'],['persist.sys.dev_mode','0']]},
+{id:'global_dev',label:'Global Settings',sub:'development_settings_enabled',icon:'settings',settings:[['global','development_settings_enabled','0'],['global','adb_enabled','0'],['global','oem_unlock_allowed','0']]},
+{id:'verified_boot',label:'Verified Boot',sub:'ro.boot.verifiedbootstate',icon:'security',ops:[['ro.boot.verifiedbootstate','green'],['vendor.boot.verifiedbootstate','green']]},
+{id:'flash_locked',label:'Flash Locked',sub:'ro.boot.flash.locked',icon:'lock',ops:[['ro.boot.flash.locked','1']]},
+{id:'vbmeta_locked',label:'VBMeta Locked',sub:'ro.boot.vbmeta.device_state',icon:'shield',ops:[['ro.boot.vbmeta.device_state','locked'],['vendor.boot.vbmeta.device_state','locked']]},
+{id:'secureboot',label:'SecureBoot',sub:'ro.secureboot.lockstate',icon:'gpp_good',ops:[['ro.secureboot.lockstate','locked']]},
+{id:'warranty_bit',label:'Warranty Valid',sub:'ro.boot.warranty_bit',icon:'check_circle',ops:[['ro.boot.warranty_bit','0']]},
+{id:'build_type',label:'User Build',sub:'ro.build.type',icon:'build_circle',ops:[['ro.build.type','user'],['ro.build.tags','release-keys']]},
+{id:'oem_unlock',label:'OEM Lock',sub:'ro.oem_unlock_supported',icon:'block',ops:[['ro.oem_unlock_supported','0'],['sys.oem_unlock_allowed','0']]},
+{id:'qemu_off',label:'No Emulator',sub:'ro.kernel.qemu',icon:'computer',ops:[['ro.kernel.qemu','0'],['ro.boot.qemu','0'],['ro.hardware.virtual_device','0']]},
+{id:'cache_clean',label:'Nuke Trash',sub:'odex_cleanup',icon:'delete_sweep',shell:'find /data/app -type f \\( -name "*.odex" -o -name "*.vdex" \\) -delete 2>/dev/null; find /data/app -type f -name "base.odex" -delete 2>/dev/null'}
+];
+
+const deleteProps = [
+{id:'del_lineage_device',prop:'ro.lineage.device',label:'Lineage Device',icon:'phone_android'},
+{id:'del_crdroid_device',prop:'ro.crdroid.device',label:'crDroid Device',icon:'phone_android'},
+{id:'del_build_flavor',prop:'ro.build.flavor',label:'Build Flavor',icon:'build'},
+{id:'del_custom_device',prop:'ro.custom.device',label:'Custom Device',icon:'phone_android'},
+{id:'del_build_elitever',prop:'ro.build.elitever',label:'Elite Version',icon:'upgrade'},
+{id:'del_xiaomi_devid',prop:'ro.xiaomi.developerid',label:'Xiaomi Dev ID',icon:'badge'},
+{id:'del_modversion',prop:'ro.modversion',label:'Mod Version',icon:'numbers'},
+{id:'del_elite_time',prop:'ro.elite.version.code_time',label:'Elite Time',icon:'schedule'},
+{id:'del_elite_keybox',prop:'sys.eliteprops.keybox',label:'Elite Keybox',icon:'vpn_key'},
+{id:'del_elite_pif',prop:'sys.eliteprops.pif',label:'Elite PIF',icon:'fingerprint'},
+{id:'del_elite_vending',prop:'sys.eliteprops.vending',label:'Elite Vending',icon:'shopping_cart'},
+{id:'del_elite_pixel',prop:'sys.eliteprops.pixelprops',label:'Elite Pixel',icon:'view_module'},
+{id:'del_elite_photos',prop:'sys.eliteprops.photos',label:'Elite Photos',icon:'photo'},
+{id:'del_elite_games',prop:'sys.eliteprops.games',label:'Elite Games',icon:'sports_esports'},
+{id:'del_elite_snap',prop:'sys.eliteprops.snapchat',label:'Elite Snapchat',icon:'camera'},
+{id:'del_elite_recent',prop:'sys.eliteprops.recent',label:'Elite Recent',icon:'history'},
+{id:'del_elite_recent_all',prop:'sys.eliteprops.recent.all',label:'Elite Recent All',icon:'history_toggle_off'},
+{id:'del_elite_spoof',prop:'sys.eliteprops.spoofastab',label:'Elite Spoof',icon:'shuffle'},
+{id:'del_pixel_device',prop:'ro.pixel.device',label:'Pixel Device',icon:'phone_iphone'},
+{id:'del_pixel_ver',prop:'ro.pixel.version',label:'Pixel Version',icon:'info'},
+{id:'del_pixel_build',prop:'ro.pixel.build.version',label:'Pixel Build',icon:'build'},
+{id:'del_pixel_release',prop:'ro.pixel.releasetype',label:'Pixel Release',icon:'new_releases'},
+{id:'del_pixel_legal',prop:'ro.pixellegal.url',label:'Pixel Legal',icon:'gavel'},
+{id:'del_evo_device',prop:'ro.evolution.device',label:'Evolution Device',icon:'phone_android'},
+{id:'del_evo_build',prop:'ro.evolution.build.version',label:'Evolution Build',icon:'build'},
+{id:'del_evo_display',prop:'ro.evolution.display.version',label:'Evolution Display',icon:'display_settings'},
+{id:'del_evo_ver',prop:'ro.evolution.version',label:'Evolution Version',icon:'info'},
+{id:'del_evo_legal',prop:'ro.evolutionlegal.url',label:'Evolution Legal',icon:'gavel'},
+{id:'del_lineage_sdk',prop:'ro.lineage.build.version.plat.sdk',label:'Lineage SDK',icon:'sdk'},
+{id:'del_lineage_rev',prop:'ro.lineage.build.version.plat.rev',label:'Lineage Rev',icon:'update'},
+{id:'del_rising_popup',prop:'ro.rising.feature.pop_up_view',label:'Rising Popup',icon:'open_in_new'},
+{id:'del_rising_chipset',prop:'ro.rising.chipset',label:'Rising Chipset',icon:'memory'},
+{id:'del_rising_maintainer',prop:'ro.rising.maintainer',label:'Rising Maintainer',icon:'engineering'},
+{id:'del_rising_code',prop:'ro.rising.code',label:'Rising Code',icon:'qr_code'},
+{id:'del_rising_pkg',prop:'ro.rising.packagetype',label:'Rising Package',icon:'inventory_2'},
+{id:'del_rising_rel',prop:'ro.rising.releasetype',label:'Rising Release',icon:'new_releases'},
+{id:'del_rising_ver',prop:'ro.rising.version',label:'Rising Version',icon:'info'},
+{id:'del_rising_build',prop:'ro.rising.build.version',label:'Rising Build',icon:'build'},
+{id:'del_rising_display',prop:'ro.rising.display.version',label:'Rising Display',icon:'display_settings'},
+{id:'del_rising_codename',prop:'ro.rising.platform_release_codename',label:'Rising Codename',icon:'tag'},
+{id:'del_rising_device',prop:'ro.rising.device',label:'Rising Device',icon:'phone_android'},
+{id:'del_rising_storage',prop:'ro.rising.storage',label:'Rising Storage',icon:'storage'},
+{id:'del_rising_ram',prop:'ro.rising.ram',label:'Rising RAM',icon:'memory'},
+{id:'del_rising_battery',prop:'ro.rising.battery',label:'Rising Battery',icon:'battery_full'},
+{id:'del_rising_dispres',prop:'ro.rising.display_resolution',label:'Rising Resolution',icon:'resolution'},
+{id:'del_lineage_ver',prop:'ro.lineage.version',label:'Lineage Version',icon:'info'},
+{id:'del_lineage_disp',prop:'ro.lineage.display.version',label:'Lineage Display',icon:'display_settings'},
+{id:'del_lineage_build',prop:'ro.lineage.build.version',label:'Lineage Build',icon:'build'},
+{id:'del_lineage_rel',prop:'ro.lineage.releasetype',label:'Lineage Release',icon:'new_releases'},
+{id:'del_lineage_legal',prop:'ro.lineagelegal.url',label:'Lineage Legal',icon:'gavel'},
+{id:'del_infinity_device',prop:'ro.infinity.device',label:'Infinity Device',icon:'phone_android'},
+{id:'del_infinity_soc',prop:'ro.infinity.soc',label:'Infinity SoC',icon:'memory'},
+{id:'del_infinity_batt',prop:'ro.infinity.battery',label:'Infinity Battery',icon:'battery_full'},
+{id:'del_infinity_disp',prop:'ro.infinity.display',label:'Infinity Display',icon:'display_settings'},
+{id:'del_infinity_cam',prop:'ro.infinity.camera',label:'Infinity Camera',icon:'camera_alt'},
+{id:'del_infinity_android',prop:'ro.infinity.android.version',label:'Infinity Android',icon:'android'},
+{id:'del_infinity_build',prop:'ro.infinity.build.version',label:'Infinity Build',icon:'build'},
+{id:'del_infinity_status',prop:'ro.infinity.build.status',label:'Infinity Status',icon:'fact_check'},
+{id:'del_infinity_date',prop:'ro.infinity.build.date',label:'Infinity Date',icon:'calendar_today'},
+{id:'del_infinity_type',prop:'ro.infinity.buildtype',label:'Infinity Type',icon:'category'},
+{id:'del_infinity_fp',prop:'ro.infinity.fingerprint',label:'Infinity Fingerprint',icon:'fingerprint'},
+{id:'del_infinity_ver',prop:'ro.infinity.version',label:'Infinity Version',icon:'info'},
+{id:'del_infinity_maint',prop:'ro.infinity.maintainer',label:'Infinity Maintainer',icon:'engineering'},
+{id:'del_havoc_variant',prop:'ro.havoc.build.variant',label:'Havoc Variant',icon:'tune'},
+{id:'del_havoc_device',prop:'ro.havoc.device',label:'Havoc Device',icon:'phone_android'},
+{id:'del_havoc_date',prop:'ro.havoc.build.date',label:'Havoc Date',icon:'calendar_today'},
+{id:'del_havoc_build',prop:'ro.havoc.build.version',label:'Havoc Build',icon:'build'},
+{id:'del_havoc_fp',prop:'ro.havoc.fingerprint',label:'Havoc Fingerprint',icon:'fingerprint'},
+{id:'del_havoc_rel',prop:'ro.havoc.releasetype',label:'Havoc Release',icon:'new_releases'},
+{id:'del_havoc_ver',prop:'ro.havoc.version',label:'Havoc Version',icon:'info'},
+{id:'del_havoc_sec',prop:'ro.havoc.build.version.security_patch',label:'Havoc Security',icon:'security_update'},
+{id:'del_derpfest_device',prop:'ro.derpfest.device',label:'Derpfest Device',icon:'phone_android'},
+{id:'del_derpfest_date',prop:'ro.derpfest.build.date',label:'Derpfest Date',icon:'calendar_today'},
+{id:'del_derpfest_build',prop:'ro.derpfest.build.version',label:'Derpfest Build',icon:'build'},
+{id:'del_derpfest_variant',prop:'ro.derpfest.build.variant',label:'Derpfest Variant',icon:'tune'},
+{id:'del_derpfest_disp',prop:'ro.derpfest.display.version',label:'Derpfest Display',icon:'display_settings'},
+{id:'del_derpfest_rel',prop:'ro.derpfest.releasetype',label:'Derpfest Release',icon:'new_releases'},
+{id:'del_derpfest_ver',prop:'ro.derpfest.version',label:'Derpfest Version',icon:'info'},
+{id:'del_derpfest_legal',prop:'ro.derpfestlegal.url',label:'Derpfest Legal',icon:'gavel'},
+{id:'del_axion_device',prop:'ro.axion.device',label:'Axion Device',icon:'phone_android'},
+{id:'del_axion_ver',prop:'ro.axion.version',label:'Axion Version',icon:'info'},
+{id:'del_axion_disp',prop:'ro.axion.display.version',label:'Axion Display',icon:'display_settings'},
+{id:'del_axion_build',prop:'ro.axion.build.version',label:'Axion Build',icon:'build'},
+{id:'del_axion_rel',prop:'ro.axion.releasetype',label:'Axion Release',icon:'new_releases'},
+{id:'del_axion_maint',prop:'persist.sys.axion_maintainer',label:'Axion Maintainer',icon:'engineering'},
+{id:'del_axion_proc',prop:'persist.sys.axion_processor_info',label:'Axion Processor',icon:'memory'}
+];
+
+const duckProps = [
+/* Core */
+{id:'duck_mock_location',prop:'ro.allow.mock.location',safeValue:'0',label:'ro.allow.mock.location',icon:'location_off'},
+{id:'duck_crypto_state',prop:'ro.crypto.state',safeValue:'encrypted',label:'ro.crypto.state',icon:'lock'},
+{id:'duck_service_adb_root',prop:'service.adb.root',safeValue:'0',label:'service.adb.root',icon:'terminal'},
+
+/* Boot */
+{id:'duck_avb_version',prop:'ro.boot.avb_version',safeValue:'1.0',label:'ro.boot.avb_version',icon:'verified'},
+{id:'duck_flash_locked',prop:'ro.boot.flash.locked',safeValue:'1',label:'ro.boot.flash.locked',icon:'lock'},
+{id:'duck_vbmeta_state',prop:'ro.boot.vbmeta.device_state',safeValue:'locked',label:'ro.boot.vbmeta.device_state',icon:'shield'},
+{id:'duck_warranty_bit',prop:'ro.boot.warranty_bit',safeValue:'0',label:'ro.boot.warranty_bit',icon:'verified_user'},
+{id:'duck_oem_unlock_allowed',prop:'sys.oem_unlock_allowed',safeValue:'',label:'sys.oem_unlock_allowed',icon:'admin_panel_settings'},
+{id:'duck_oem_unlock_setting',prop:'oem_unlock_allowed',label:'oem_unlock_allowed',icon:'admin_panel_settings',kind:'setting',namespace:'global',key:'oem_unlock_allowed'},
+
+/* Build constants: these are Java Build.* checks backed by the corresponding properties. */
+{id:'duck_build_fingerprint',prop:'ro.build.fingerprint',label:'Build.FINGERPRINT',icon:'fingerprint'},
+{id:'duck_build_tags',prop:'ro.build.tags',safeValue:'release-keys',label:'Build.TAGS',icon:'sell'},
+{id:'duck_build_type',prop:'ro.build.type',safeValue:'user',label:'Build.TYPE',icon:'build_circle'},
+
+/* Info-only properties */
+{id:'duck_vbmeta_digest',prop:'ro.boot.vbmeta.digest',label:'ro.boot.vbmeta.digest',icon:'fingerprint'},
+{id:'duck_display_id',prop:'ro.build.display.id',label:'ro.build.display.id',icon:'badge'},
+{id:'duck_ro_build_fingerprint',prop:'ro.build.fingerprint',label:'ro.build.fingerprint',icon:'fingerprint'},
+{id:'duck_release',prop:'ro.build.version.release',label:'ro.build.version.release',icon:'android'},
+{id:'duck_sdk',prop:'ro.build.version.sdk',label:'ro.build.version.sdk',icon:'numbers'},
+{id:'duck_security_patch',prop:'ro.build.version.security_patch',label:'ro.build.version.security_patch',icon:'security'},
+{id:'duck_hardware',prop:'ro.hardware',label:'ro.hardware',icon:'memory'},
+{id:'duck_brand',prop:'ro.product.brand',label:'ro.product.brand',icon:'branding_watermark'},
+{id:'duck_device',prop:'ro.product.device',label:'ro.product.device',icon:'phone_android'},
+{id:'duck_manufacturer',prop:'ro.product.manufacturer',label:'ro.product.manufacturer',icon:'factory'},
+{id:'duck_model',prop:'ro.product.model',label:'ro.product.model',icon:'smartphone'},
+{id:'duck_system_fingerprint',prop:'ro.system.build.fingerprint',label:'ro.system.build.fingerprint',icon:'fingerprint'},
+{id:'duck_vendor_fingerprint',prop:'ro.vendor.build.fingerprint',label:'ro.vendor.build.fingerprint',icon:'fingerprint'}
+];
+
+const pifList=[
+'sys.eliteprops.pif','ro.pixel.device','ro.pixel.version',
+'ro.pixel.build.version','ro.pixel.releasetype','ro.pixellegal.url',
+'sys.eliteprops.pixelprops','sys.eliteprops.vending','sys.eliteprops.keybox',
+'persist.sys.pixelprops.pi','persist.sys.pixelprops.gms','persist.sys.pixelprops.all'
+];
+
+let dynamicProps = [];
+const skipDuck = false;
+let skipHook = true;
+
+function makeGroup(container,kind){
+const group=document.createElement('div');
+group.className='row-group '+(kind||'');
+container.appendChild(group);
+return group;
+}
+
+function render(){
+hookRowsEl.innerHTML='';
+dynamicProps=[];
+
+duckRowsEl.innerHTML='';
+const duckGroup=makeGroup(duckRowsEl,'duck-group');
+duckProps.forEach(p=>{
+const div=document.createElement('div');
+div.className='row success duck-row';
+div.id='row-'+p.id;
+div.dataset.search=(p.label+' '+p.prop+' '+p.id).toLowerCase();
+div.onclick=()=>toggle(p.id);
+div.innerHTML='<div class="icon-wrap"><span class="material-icons">'+p.icon+'</span></div><div class="duck-main-content"><div class="title prop-only">'+p.prop+'</div></div><div class="duck-action-wrap"><div class="duck-action-segment" data-action=""><button type="button" class="duck-action-btn delete" data-action="delete"><span class="material-icons">delete</span>Nuke</button><button type="button" class="duck-action-btn reset" data-action="reset"><span class="material-icons">restart_alt</span>Spoof</button></div></div><div class="duck-switch-wrap"><label class="switch" onclick="event.stopPropagation()"><input type="checkbox" id="'+p.id+'"><span class="slider"><span class="knob"></span></span></label></div>';
+duckGroup.appendChild(div);
+});
+
+rowsEl.innerHTML='';
+const resetGroup=makeGroup(rowsEl,'reset-group');
+props.forEach(p=>{
+const div=document.createElement('div');
+div.className='row';
+div.id='row-'+p.id;
+div.dataset.search=(p.label+' '+p.sub+' '+p.id).toLowerCase();
+div.onclick=()=>toggle(p.id);
+div.innerHTML='<div class="icon-wrap"><span class="material-icons">'+p.icon+'</span></div><div class="content"><div class="title prop-only">'+p.sub+'</div></div><label class="switch" onclick="event.stopPropagation()"><input type="checkbox" id="'+p.id+'"><span class="slider"><span class="knob"></span></span></label>';
+resetGroup.appendChild(div);
+});
+
+deleteRowsEl.innerHTML='';
+const deleteGroup=makeGroup(deleteRowsEl,'delete-group');
+deleteProps.forEach(p=>{
+const div=document.createElement('div');
+div.className='row danger';
+div.id='row-'+p.id;
+div.dataset.search=(p.label+' '+p.prop+' '+p.id).toLowerCase();
+div.onclick=()=>toggle(p.id);
+div.innerHTML='<div class="icon-wrap"><span class="material-icons">'+p.icon+'</span></div><div class="content"><div class="title prop-only">'+p.prop+'</div></div><label class="switch" onclick="event.stopPropagation()"><input type="checkbox" id="'+p.id+'"><span class="slider"><span class="knob"></span></span></label>';
+deleteGroup.appendChild(div);
+});
+updateUniversalSearch();
+}
+
+function getHookPropLabel(prop){
+const p=prop.toLowerCase();
+if(p.includes('android.vending')||p.includes('.vending'))return 'Play Store';
+if(p.includes('gms')||p.includes('google.gms'))return 'Google Play services';
+if(p.includes('photos'))return 'Google Photos';
+if(p.includes('netflix'))return 'Netflix';
+if(p.includes('pixelprops')||p.includes('pixelprop'))return 'Pixel Props';
+if(p.includes('pphooks'))return 'PPHooks';
+if(p.includes('pihooks'))return 'PIHooks';
+if(p.includes('eliteprops'))return 'Elite Props';
+if(p.includes('keybox'))return 'Keybox';
+if(p.includes('integrity'))return 'Play Integrity';
+if(p.includes('pif'))return 'Play Integrity Fix';
+if(p.includes('snapchat'))return 'Snapchat';
+if(p.includes('games'))return 'Games';
+if(p.includes('vending'))return 'Play Store';
+return 'Hook Property';
+}
+
+function addDynamicRow(container, id, label, prop, category){
+const div=document.createElement('div');
+div.className='row '+category;
+div.id='row-'+id;
+div.dataset.search=(label+' '+prop+' '+id+' '+category).toLowerCase();
+div.onclick=()=>toggle(id);
+const icon=category==='hook'?'bug_report':category==='pif'?'vpn_key':'memory';
+div.innerHTML='<div class="icon-wrap"><span class="material-icons">'+icon+'</span></div><div class="content"><div class="title prop-only">'+prop+'</div></div><label class="switch" onclick="event.stopPropagation()"><input type="checkbox" id="'+id+'" checked><span class="slider"><span class="knob"></span></span></label>';
+container.appendChild(div);
+div.classList.add('active');
+updateUniversalSearch();
+}
+
+function getDuckAction(id){
+const el=document.querySelector('#row-'+CSS.escape(id)+' .duck-action-segment');
+return el ? (el.dataset.action||null) : null;
+}
+
+function setDuckAction(id,action){
+const row=document.getElementById('row-'+id);
+if(!row)return;
+const segment=row.querySelector('.duck-action-segment');
+if(!segment)return;
+action=action==='reset'?'reset':'delete';
+segment.dataset.action=action;
+segment.querySelectorAll('.duck-action-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.action===action));
+const checkbox=row.querySelector('input[type="checkbox"]');
+if(checkbox){checkbox.checked=true;row.classList.add('active');}
+}
+
+document.addEventListener('click',function(e){
+const btn=e.target.closest('.duck-action-btn');
+if(!btn)return;
+const row=btn.closest('.duck-row');
+if(!row)return;
+e.stopPropagation();
+setDuckAction(row.id.replace(/^row-/,''),btn.dataset.action);
+});
+
+function toggle(id){
+const el=document.getElementById(id);
+if(el){
+el.checked=!el.checked;
+document.getElementById('row-'+id).classList.toggle('active',el.checked);
+}
+}
+
+function toast(msg,type){
+const el=document.getElementById('toast');
+document.getElementById('tTxt').textContent=msg;
+document.getElementById('tIcon').textContent=type==='ok'?'check_circle':type==='err'?'error':type==='warn'?'warning':'info';
+el.className='toast '+(type||'info');
+el.classList.add('show');
+if(tT)clearTimeout(tT);
+tT=setTimeout(()=>el.classList.remove('show'),3200);
+}
+
+function writeLog(line){
+const safe=line.replace(/'/g,"'\\''").replace(/`/g,'\\`');
+const ts=new Date().toISOString().replace('T',' ').substring(0,19);
+safeSh("printf '%s\\n' '"+ts+" | "+safe+"' >> "+LOG_FILE).catch(()=>{});
+}
+
+function log(msg,type){
+const entry=document.createElement('div');
+entry.className='log-entry';
+const content=document.createElement('div');
+content.className='log-content';
+const icon=document.createElement('span');
+icon.className='material-icons log-icon '+type;
+if(type==='ok')icon.textContent='check';
+else if(type==='err')icon.textContent='close';
+else if(type==='cmd')icon.textContent='chevron_right';
+else if(type==='warn')icon.textContent='warning';
+else icon.textContent='info';
+const text=document.createElement('span');
+text.className='log-text';
+text.textContent=msg;
+content.appendChild(icon);
+content.appendChild(text);
+entry.appendChild(content);
+logEl.appendChild(entry);
+logEl.scrollTop=logEl.scrollHeight;
+writeLog('['+(type||'info').toUpperCase()+'] '+msg);
+}
+
+function setStatus(text,loading){
+statusEl.innerHTML=loading?'<div class="spinner active" style="display:inline-block;width:12px;height:12px;border-width:2px;margin-right:6px"></div>'+text:text;
+spinner.classList.toggle('active',loading);
+}
+
+function clearUniversalSearch(){
+const input=document.getElementById('universalSearchInput');
+input.value='';
+updateUniversalSearch();
+input.focus();
+}
+
+function searchResultCategory(row){
+if(row.classList.contains('success'))return 'Duck Props';
+if(row.classList.contains('hook'))return 'Hook Props';
+if(row.classList.contains('pif'))return 'PIF Props';
+if(row.classList.contains('danger'))return 'Delete Props';
+return 'Reset Props';
+}
+
+function searchResultIcon(row){
+const icon=row.querySelector('.icon-wrap .material-icons');
+return icon?icon.textContent:'tune';
+}
+
+function syncSearchProxy(proxy,source){
+const sourceInput=source.querySelector('input[type="checkbox"]');
+const proxyInput=proxy.querySelector('input[type="checkbox"]');
+if(sourceInput&&proxyInput)proxyInput.checked=sourceInput.checked;
+const sourceAction=source.querySelector('.duck-action-segment');
+const proxyAction=proxy.querySelector('.duck-action-segment');
+if(sourceAction&&proxyAction){
+ proxyAction.dataset.action=sourceAction.dataset.action||'delete';
+ proxyAction.querySelectorAll('.duck-action-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.action===proxyAction.dataset.action));
+}
+proxy.classList.toggle('active',!!sourceInput?.checked);
+}
+
+function makeSearchProxy(row){
+const proxy=row.cloneNode(true);
+proxy.removeAttribute('id');
+proxy.classList.add('search-live-row');
+proxy.style.display='flex';
+proxy.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+proxy.querySelector('.duck-action-switch input')?.setAttribute('data-proxy-action','1');
+const sourceInput=row.querySelector('input[type="checkbox"]');
+const proxyInput=proxy.querySelector('input[type="checkbox"]');
+if(sourceInput&&proxyInput){
+proxyInput.checked=sourceInput.checked;
+proxyInput.onclick=e=>{
+e.stopPropagation();
+sourceInput.checked=!sourceInput.checked;
+sourceInput.dispatchEvent(new Event('change',{bubbles:true}));
+row.classList.toggle('active',sourceInput.checked);
+proxyInput.checked=sourceInput.checked;
+};
+}
+const sourceAction=row.querySelector('.duck-action-segment');
+const proxyAction=proxy.querySelector('.duck-action-segment');
+if(sourceAction&&proxyAction){
+ proxyAction.onclick=e=>{
+  const btn=e.target.closest('.duck-action-btn');
+  if(!btn)return;
+  e.stopPropagation();
+  const action=btn.dataset.action==='reset'?'reset':'delete';
+  sourceAction.dataset.action=action;
+  proxyAction.dataset.action=action;
+  sourceAction.querySelectorAll('.duck-action-btn').forEach(b=>b.classList.toggle('active',b.dataset.action===action));
+  proxyAction.querySelectorAll('.duck-action-btn').forEach(b=>b.classList.toggle('active',b.dataset.action===action));
+  const sourceCheckbox=row.querySelector('input[type="checkbox"]');
+  if(sourceCheckbox){sourceCheckbox.checked=true;row.classList.add('active');}
+ };
+}
+proxy.onclick=e=>{
+if(e.target.closest('.switch,.duck-action-segment'))return;
+const sourceId=row.id.replace(/^row-/,'');
+const input=document.getElementById('universalSearchInput');
+if(input)input.value='';
+updateUniversalSearch();
+requestAnimationFrame(()=>{
+  const target=document.getElementById('row-'+sourceId);
+  if(!target)return;
+  target.scrollIntoView({behavior:'smooth',block:'center'});
+  target.classList.add('search-focus');
+  setTimeout(()=>target.classList.remove('search-focus'),1200);
+});
+};
+return proxy;
+}
+
+function showSearchResultRow(row){
+const input=document.getElementById('universalSearchInput');
+if(!input)return;
+const query=input.value;
+updateUniversalSearch(query);
+}
+
+function updateUniversalSearch(forcedQuery){
+const input=document.getElementById('universalSearchInput');
+const query=typeof forcedQuery==='string'?(forcedQuery.trim().toLowerCase()):(input?.value||'').trim().toLowerCase();
+const count=document.getElementById('universalSearchCount');
+const results=document.getElementById('searchResults');
+const list=document.getElementById('searchResultsList');
+const hint=document.getElementById('searchResultsHint');
+const rows=[...document.querySelectorAll('.row[data-search]')];
+
+rows.forEach(row=>{row.style.display=query?'none':'';});
+
+if(!query){
+if(count)count.textContent='';
+if(results)results.classList.remove('open');
+if(list)list.innerHTML='';
+if(hint)hint.textContent='';
+rows.forEach(row=>row.style.display='');
+return;
+}
+
+const matches=rows.filter(row=>row.dataset.search.includes(query));
+if(count)count.textContent=matches.length+' found';
+if(!results||!list)return;
+results.classList.add('open');
+hint.textContent=matches.length===1?'1 matching prop':matches.length+' matching props';
+list.innerHTML='';
+
+if(matches.length===0){
+list.innerHTML='<div class="search-result-empty">No matching props found.</div>';
+return;
+}
+
+const groups={};
+matches.forEach(row=>{
+const category=searchResultCategory(row);
+(groups[category]??=[]).push(row);
+});
+Object.entries(groups).forEach(([category,groupRows])=>{
+const label=document.createElement('div');
+label.className='category-label';
+label.textContent=category;
+list.appendChild(label);
+const wrap=document.createElement('div');
+wrap.className='row-group';
+list.appendChild(wrap);
+groupRows.forEach(row=>wrap.appendChild(makeSearchProxy(row)));
+});
+}
+
+document.addEventListener('input',e=>{if(e.target&&e.target.id==='universalSearchInput')updateUniversalSearch();});
+
+function escapeHtml(value){
+return String(value).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+}
+
+function selectAll(){
+props.forEach(p=>{
+const el=document.getElementById(p.id);
+if(el){
+el.checked=true;
+document.getElementById('row-'+p.id).classList.add('active');
+}
+});
+deleteProps.forEach(p=>{
+const el=document.getElementById(p.id);
+if(el){
+el.checked=true;
+document.getElementById('row-'+p.id).classList.add('active');
+}
+});
+dynamicProps.forEach(p=>{
+const el=document.getElementById(p.id);
+if(el){
+el.checked=true;
+document.getElementById('row-'+p.id).classList.add('active');
+}
+});
+}
+
+function clearAll(){
+props.forEach(p=>{
+const el=document.getElementById(p.id);
+if(el){
+el.checked=false;
+document.getElementById('row-'+p.id).classList.remove('active');
+}
+});
+deleteProps.forEach(p=>{
+const el=document.getElementById(p.id);
+if(el){
+el.checked=false;
+document.getElementById('row-'+p.id).classList.remove('active');
+}
+});
+duckProps.forEach(p=>{
+const el=document.getElementById(p.id);
+if(el){
+el.checked=false;
+const row=document.getElementById('row-'+p.id);
+const segment=row&&row.querySelector('.duck-action-segment');
+if(segment){segment.dataset.action='';segment.querySelectorAll('.duck-action-btn').forEach(btn=>btn.classList.remove('active'));}
+row.classList.remove('active');
+}
+});
+dynamicProps.forEach(p=>{
+const el=document.getElementById(p.id);
+if(el){
+el.checked=false;
+document.getElementById('row-'+p.id).classList.remove('active');
+}
+});
+}
+
+function toggleHook(){
+skipHook=!skipHook;
+const btn=document.getElementById('hookToggle');
+const txt=document.getElementById('hookToggleText');
+const warn=document.getElementById('spoofWarning');
+if(skipHook){
+btn.classList.remove('on');
+btn.querySelector('.material-icons').textContent='do_not_disturb';
+txt.textContent='Hook Props';
+warn.style.display='none';
+toast('Hook Props skipped','warn');
+}else{
+btn.classList.add('on');
+btn.querySelector('.material-icons').textContent='bug_report';
+txt.textContent='Stop Hook Scan';
+warn.style.display='flex';
+toast('Hook Props enabled','ok');
+scanDynamicProps();
+}
+}
+
+function openInfoModal(){
+document.getElementById('infoModal').classList.add('open');
+}
+
+function closeInfoModal(){
+document.getElementById('infoModal').classList.remove('open');
+}
+
+document.getElementById('infoBtn')?.addEventListener('click',function(e){
+ e.preventDefault();e.stopPropagation();openInfoModal();
+});
+document.getElementById('infoModal')?.addEventListener('click',function(e){
+ if(e.target===this||e.target.classList.contains('info-modal-bg'))closeInfoModal();
+});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeInfoModal();});
+
+function getApi(){
+if(window.parent&&window.parent!==window&&typeof window.parent.runShellFromIframe==='function'){
+return {type:'iframe',exec:window.parent.runShellFromIframe};
+}
+const k=(typeof ksu!=='undefined'&&ksu.exec)?ksu:(window.parent&&window.parent.ksu)?window.parent.ksu:null;
+if(k&&typeof k.exec==='function')return {type:'ksu',exec:k.exec.bind(k)};
+return null;
+}
+
+async function sh(cmd,timeoutMs){
+timeoutMs=timeoutMs||12000;
+const api=getApi();
+if(!api)throw new Error('KSU');
+if(api.type==='iframe'){
+const r=await Promise.race([
+api.exec(cmd),
+new Promise((_,rej)=>setTimeout(()=>rej(new Error('TIMEOUT')),timeoutMs))
+]);
+return (r||'').replace(/\r/g,'');
+}
+return new Promise((res,rej)=>{
+const timer=setTimeout(()=>rej(new Error('TIMEOUT')),timeoutMs);
+const cb='c'+Date.now()+(Math.random()*1e4|0);
+window[cb]=(c,o,e)=>{
+clearTimeout(timer);
+delete window[cb];
+if(c===0){res((o||'').replace(/\r/g,''));}
+else{rej(new Error(e||o||'exit:'+c));}
+};
+try{api.exec(cmd,'{}',cb);}catch(ex){clearTimeout(timer);delete window[cb];rej(ex);}
+});
+}
+
+async function safeSh(cmd,timeoutMs){
+try{return await sh(cmd,timeoutMs);}catch(e){return '';}
+}
+
+function shellQuote(value){
+return "'"+String(value).replace(/'/g,"'\\''")+"'";
+}
+
+async function propExists(prop){
+try{
+/*
+ * Do not use `getprop <name> != ""` here because an existing property
+ * may legally have an empty value. Check the property database itself.
+ */
+const result=await sh('getprop | grep -Fq '+shellQuote('['+prop+']:')+'; echo $?',5000);
+return result.trim()==='0';
+}catch{
+return false;
+}
+}
+
+async function duckItemExists(p){
+if(p.kind==='setting'){
+try{const out=(await sh('settings get '+p.namespace+' '+p.key,5000)).trim();return out!==''&&out!=='null';}catch{return false;}
+}
+return propExists(p.prop);
+}
+
+async function checkSafeMode(){
+try{
+const result=await sh('[ -f /data/adb/Box-Brain/safemode ] && echo yes || echo no',3000);
+if(result.trim()==='yes'){
+safeMode=true;
+document.getElementById('safeModeBanner').style.display='flex';
+document.getElementById('execBtn').disabled=true;
+document.getElementById('hookToggle').disabled=true;
+log('This feature is for custom ROM users who need to hide custom ROM detection by spoofing system properties. If you*re on a stock ROM, you don*t need it, and enabling it may modify system properties unnecessarily and cause compatibility issues.','warn');
+toast('Safe Mode: Spoofer locked','warn');
+}
+}catch(e){
+safeMode=false;
+}
+}
+
+async function scanDuckProps(){
+log('Scanning for Duck Props...','cmd');
+let foundCount=0;
+for(const p of duckProps){
+const exists=await duckItemExists(p);
+if(exists)foundCount++;
+}
+if(foundCount===0){
+log('No Duck Props found on device','ok');
+}else{
+log(foundCount+' Duck Prop(s) found - choose an action for each','ok');
+}
+}
+
+async function scanDynamicProps(){
+if(skipHook){
+log('Hook Props scan skipped by user','warn');
+return;
+}
+log('Scanning for Hook / PIF Props...','cmd');
+try{
+const allPropsOut=await sh('getprop',8000);
+const allLines=allPropsOut.split('\n');
+const propMap=new Map();
+for(const line of allLines){
+const m=line.match(/^\[([^\]]+)\]:\s*\[(.*)\]$/);
+if(m)propMap.set(m[1],m[2]);
+}
+const bad=['dalvik','init.svc','debug_pid','appimageformat','zygote'];
+let hookCount=0;
+let pifCount=0;
+for(const [propName,propValue] of propMap){
+const lowerProp=propName.toLowerCase();
+const isHook=hookPatterns.some(pat=>lowerProp.includes(pat));
+const isPif=pifList.includes(propName);
+const isBad=bad.some(b=>lowerProp.includes(b));
+if((isHook||isPif)&&!isBad){
+const dup=dynamicProps.some(x=>x.prop===propName);
+if(!dup){
+const id='dyn_'+propName.replace(/\./g,'_');
+dynamicProps.push({id:id,prop:propName,label:getHookPropLabel(propName),value:propValue});
+addDynamicRow(hookRowsEl,id,getHookPropLabel(propName),propName,'hook');
+if(isHook) hookCount++;
+if(isPif) pifCount++;
+log('Found prop: '+propName,'warn');
+}
+}
+}
+const total=hookCount+pifCount;
+if(total===0){
+log('No dynamic props detected','ok');
+}else{
+log(total+' dynamic prop(s) detected','warn');
+toast(total+' dynamic prop(s) found','warn');
+}
+}catch(e){
+log('Dynamic scan failed: '+(e.message||''),'err');
+}
+}
+
+async function scanRomKeywords(){
+log('Scanning for ROM keyword props...','cmd');
+try{
+const allPropsOut=await sh('getprop',8000);
+const allLines=allPropsOut.split('\n');
+const propMap=new Map();
+for(const line of allLines){
+const m=line.match(/^\[([^\]]+)\]:\s*\[(.*)\]$/);
+if(m)propMap.set(m[1],m[2]);
+}
+const romRegex=new RegExp(romKeywords,'i');
+let foundCount=0;
+for(const [propName,propValue] of propMap){
+if(romRegex.test(propName)){
+const already=deleteProps.some(x=>x.prop===propName);
+if(!already){
+foundCount++;
+log('ROM keyword found: '+propName+' = '+propValue,'warn');
+}
+}
+}
+if(foundCount===0){
+log('No additional ROM keyword props found','ok');
+}else{
+log(foundCount+' additional ROM keyword prop(s) found','warn');
+}
+}catch(e){
+log('ROM keyword scan failed: '+(e.message||''),'err');
+}
+}
+
+function showTip(foundHook, foundRom, foundDuck){
+const tipRow = document.getElementById('tipRow');
+const tipText = document.getElementById('tipText');
+let tips = [];
+if(foundHook) tips.push('Hook/PIF props detected - enable Hook Props to clean them');
+if(foundRom) tips.push('ROM props detected - enable Delete Props to remove them');
+
+if(tips.length > 0){
+tipText.textContent = tips.join(' | ');
+tipRow.style.display = 'flex';
+}
+}
+
+async function autoScanAndTip(){
+log('Auto-scanning device for recommendations...','cmd');
+let foundHook = false;
+let foundRom = false;
+let foundDuck = false;
+
+try{
+const allPropsOut=await sh('getprop',8000);
+const allLines=allPropsOut.split('\n');
+const propMap=new Map();
+for(const line of allLines){
+const m=line.match(/^\[([^\]]+)\]:\s*\[(.*)\]$/);
+if(m)propMap.set(m[1],m[2]);
+}
+
+const bad=['dalvik','init.svc','debug_pid','appimageformat','zygote'];
+for(const [propName,propValue] of propMap){
+const lowerProp=propName.toLowerCase();
+const isHook=hookPatterns.some(pat=>lowerProp.includes(pat));
+const isPif=pifList.includes(propName);
+const isBad=bad.some(b=>lowerProp.includes(b));
+if((isHook||isPif)&&!isBad){
+foundHook = true;
+break;
+}
+}
+
+const romRegex=new RegExp(romKeywords,'i');
+for(const [propName,propValue] of propMap){
+if(romRegex.test(propName)){
+const already=deleteProps.some(x=>x.prop===propName);
+if(!already){
+foundRom = true;
+break;
+}
+}
+}
+
+for(const p of duckProps){
+if(p.kind==='setting'){
+try{const setting=(await sh('settings get '+p.namespace+' '+p.key,5000)).trim();if(setting!==''&&setting!=='null'){foundDuck=true;break;}}catch{}
+}else if(propMap.has(p.prop)){
+foundDuck = true;
+break;
+}
+}
+
+if(foundHook || foundRom || foundDuck){
+showTip(foundHook, foundRom, foundDuck);
+log('Auto-scan complete - recommendations generated','ok');
+} else {
+log('Auto-scan complete - no issues detected','ok');
+}
+}catch(e){
+log('Auto-scan failed: '+(e.message||''),'err');
+}
+}
+
+async function readPropMap(){
+const out=await sh('getprop',10000);
+const map=new Map();
+for(const line of out.split('\n')){
+const m=line.match(/^\[([^\]]+)\]:\s*\[(.*)\]$/);
+if(m)map.set(m[1],m[2]);
+}
+return map;
+}
+
+async function verifyAppliedProps(){
+log('=== VERIFYING APPLIED PROPS ===','cmd');
+let allGood=true;
+
+let propMap;
+try{
+propMap=await readPropMap();
+}catch(e){
+log('Could not read property database: '+(e.message||e),'err');
+return;
+}
+
+/* Reset Props: verify every individual property, not the old command-string heuristic. */
+for(const p of props){
+const el=document.getElementById(p.id);
+if(!el||!el.checked)continue;
+
+if(p.ops){
+for(const [prop,expected] of p.ops){
+const actual=propMap.has(prop)?propMap.get(prop):'';
+if(actual!==expected){
+log(p.label+' mismatch: '+prop+' expected '+expected+', got '+(propMap.has(prop)?actual:'<missing>'),'err');
+allGood=false;
+}else{
+log(p.label+' verified: '+prop+' = '+actual,'ok');
+}
+}
+}
+
+if(p.settings){
+for(const [namespace,key,expected] of p.settings){
+try{
+const actual=(await sh('settings get '+namespace+' '+key,5000)).trim();
+if(actual!==expected){
+log(p.label+' mismatch: '+namespace+'/'+key+' expected '+expected+', got '+(actual||'<empty>'),'err');
+allGood=false;
+}else{
+log(p.label+' verified: '+namespace+'/'+key+' = '+actual,'ok');
+}
+}catch(e){
+log(p.label+' verification failed: '+namespace+'/'+key,'err');
+allGood=false;
+}
+}
+}
+}
+
+/* Delete Props: selected means the property should be absent. */
+for(const p of deleteProps){
+const el=document.getElementById(p.id);
+if(!el||!el.checked)continue;
+
+if(propMap.has(p.prop)){
+log(p.label+' STILL EXISTS: '+p.prop+' = '+propMap.get(p.prop),'err');
+allGood=false;
+}else{
+log(p.label+' verified removed','ok');
+}
+}
+
+/* Duck Props: verify according to the action selected for each property. */
+if(!skipDuck){
+for(const p of duckProps){
+const el=document.getElementById(p.id);
+const actionEl=document.getElementById(p.id+'-action');
+if(!el || !el.checked || !actionEl || actionEl.value === 'none') continue;
+const action=actionEl.value;
+
+if(p.kind==='setting'){
+try{
+const actual=(await sh('settings get '+p.namespace+' '+p.key,5000)).trim();
+if(action==='delete'){
+if(actual!==''&&actual!=='null'){log(p.label+' STILL EXISTS: '+actual,'err');allGood=false;}
+else log(p.label+' verified removed','ok');
+}else if(action==='reset'){
+if(actual!=='0'){log(p.label+' mismatch: expected 0, got '+(actual||'<empty>'),'err');allGood=false;}
+else log(p.label+' verified: 0','ok');
+}
+}catch(e){log(p.label+' verification failed: '+(e.message||e),'err');allGood=false;}
+continue;
+}
+
+if(action==='delete'){
+if(propMap.has(p.prop)){
+log(p.label+' STILL EXISTS: '+p.prop+' = '+propMap.get(p.prop),'err');
+allGood=false;
+}else{
+log(p.label+' verified removed','ok');
+}
+}else if(action==='reset'){
+const actual=propMap.has(p.prop)?propMap.get(p.prop):null;
+if(p.prop==='sys.oem_unlock_allowed'){
+if(actual!==null){
+log(p.label+' smart reset mismatch: Android 16 expects this property to be absent, got '+actual,'err');
+allGood=false;
+}else{
+log(p.label+' smart reset verified: property absent','ok');
+}
+continue;
+}
+if(actual===null){
+log(p.label+' smart reset missing: '+p.prop,'err');
+allGood=false;
+continue;
+}
+/* Verify known fixed values. For source-derived resets, compare against the current canonical source. */
+const fixed={
+'ro.allow.mock.location':'0','ro.crypto.state':'encrypted','service.adb.root':'0',
+'ro.boot.avb_version':'1.0','ro.boot.flash.locked':'1','ro.boot.vbmeta.device_state':'locked',
+'ro.boot.warranty_bit':'0','ro.build.tags':'release-keys','ro.build.type':'user'
+};
+let expected=fixed[p.prop]||null;
+if(p.prop==='ro.build.fingerprint') expected=propMap.get('ro.system.build.fingerprint')||propMap.get('ro.product.system.build.fingerprint')||propMap.get('ro.vendor.build.fingerprint')||null;
+if(p.prop==='ro.build.version.release') expected=propMap.get('ro.system.build.version.release')||propMap.get('ro.vendor.build.version.release')||null;
+if(p.prop==='ro.build.version.sdk') expected=propMap.get('ro.system.build.version.sdk')||propMap.get('ro.vendor.build.version.sdk')||null;
+if(p.prop==='ro.build.version.security_patch') expected=propMap.get('ro.system.build.version.security_patch')||propMap.get('ro.vendor.build.version.security_patch')||null;
+if(p.prop==='ro.hardware') expected=propMap.get('ro.boot.hardware')||propMap.get('ro.boot.hardware.platform')||null;
+if(p.prop==='ro.product.brand') expected=propMap.get('ro.product.system.brand')||propMap.get('ro.product.vendor.brand')||null;
+if(p.prop==='ro.product.device') expected=propMap.get('ro.product.system.device')||propMap.get('ro.product.vendor.device')||null;
+if(p.prop==='ro.product.manufacturer') expected=propMap.get('ro.product.system.manufacturer')||propMap.get('ro.product.vendor.manufacturer')||null;
+if(p.prop==='ro.product.model') expected=propMap.get('ro.product.system.model')||propMap.get('ro.product.vendor.model')||null;
+if(p.prop==='ro.system.build.fingerprint') expected=propMap.get('ro.product.system.build.fingerprint')||propMap.get('ro.vendor.build.fingerprint')||null;
+if(p.prop==='ro.vendor.build.fingerprint') expected=propMap.get('ro.product.vendor.build.fingerprint')||propMap.get('ro.system.build.fingerprint')||null;
+if(p.prop==='ro.build.display.id') expected=propMap.get('ro.system.build.display.id')||propMap.get('ro.vendor.build.display.id')||null;
+
+if(expected!==null && actual!==expected){
+log(p.label+' mismatch: expected '+expected+', got '+actual,'err');
+allGood=false;
+}else if(expected===null){
+log(p.label+' verified present: '+actual,'ok');
+}else{
+log(p.label+' verified: '+actual,'ok');
+}
+}
+}
+}
+
+/* Hook Props: selected means the dynamic property should be absent. */
+if(!skipHook){
+for(const p of dynamicProps){
+const el=document.getElementById(p.id);
+if(!el||!el.checked)continue;
+
+if(propMap.has(p.prop)){
+log(p.label+' STILL EXISTS: '+p.prop+' = '+propMap.get(p.prop),'err');
+allGood=false;
+}else{
+log(p.label+' verified removed','ok');
+}
+}
+}
+
+if(allGood){
+log('=== ALL PROPS VERIFIED OK ===','ok');
+toast('All selected props verified','ok');
+}else{
+log('=== SOME PROPS MISMATCHED ===','err');
+toast('Some selected props failed verification','err');
+}
+}
+
+async function getFirstPropValue(map,names){
+for(const name of names){
+if(map.has(name)&&map.get(name)!=='')return map.get(name);
+}
+return null;
+}
+
+async function deleteDuckProp(p){
+/*
+ * IMPORTANT: sys.oem_unlock_allowed is the detector-facing property.
+ * The Android global setting named oem_unlock_allowed is NOT the same
+ * thing and must not be deleted as part of this operation. On Android 16,
+ * the expected state is that sys.oem_unlock_allowed does not exist at all.
+ */
+if(p.prop==='sys.oem_unlock_allowed'){
+let lastError=null;
+for(let i=0;i<12;i++){
+try{
+/* -n avoids invoking property-change triggers while removing the stale prop. */
+await sh('su -c '+shellQuote('resetprop -n --delete sys.oem_unlock_allowed'),5000);
+}catch(e){lastError=e;}
+
+await new Promise(r=>setTimeout(r,150));
+if(!(await propExists('sys.oem_unlock_allowed'))){
+return true;
+}
+}
+
+/* One final non-quiet delete gives older resetprop builds another chance. */
+try{
+await sh('su -c '+shellQuote('resetprop --delete sys.oem_unlock_allowed'),5000);
+}catch(e){lastError=e;}
+await new Promise(r=>setTimeout(r,200));
+
+if(!(await propExists('sys.oem_unlock_allowed'))){
+return true;
+}
+if(lastError) log('OEM unlock property could not be removed: '+(lastError.message||lastError),'err');
+return false;
+}
+
+if(p.kind==='setting'){
+/* Related Settings entry: delete only this setting, not sys.oem_unlock_allowed. */
+await sh('settings delete '+p.namespace+' '+p.key,8000);
+return !(await duckItemExists(p));
+}
+
+await sh('su -c '+shellQuote('resetprop -n --delete '+shellQuote(p.prop)),8000);
+for(let i=0;i<6;i++){
+await new Promise(r=>setTimeout(r,150));
+if(!(await propExists(p.prop)))return true;
+await sh('su -c '+shellQuote('resetprop -n --delete '+shellQuote(p.prop)),5000);
+}
+return !(await propExists(p.prop));
+}
+
+async function smartResetDuckProp(p){
+if(p.kind==='setting'){
+try{
+await sh('settings put '+p.namespace+' '+p.key+' 0',8000);
+log('Smart reset '+p.label+' → 0 [Android global setting]','ok');
+return {ok:true,deleted:false,value:'0'};
+}catch(e){return {ok:false,error:e.message||'settings command failed'};}
+}
+
+const map=await readPropMap();
+let value=null;
+let source=null;
+
+/* Values with a well-defined safe state. */
+const fixed={
+'ro.allow.mock.location':'0',
+'ro.crypto.state':'encrypted',
+'service.adb.root':'0',
+'ro.boot.avb_version':'1.0',
+'ro.boot.flash.locked':'1',
+'ro.boot.vbmeta.device_state':'locked',
+'ro.boot.warranty_bit':'0',
+'ro.build.tags':'release-keys',
+'ro.build.type':'user'
+};
+if(p.prop==='sys.oem_unlock_allowed'){
+/* Android 16 removed this property from normal AOSP behaviour; smart reset must remove it. */
+const deleted=await deleteDuckProp(p);
+if(deleted){
+log('Smart reset '+p.label+' → removed [Android 16 expected state]','ok');
+return {ok:true,deleted:true};
+}
+return {ok:false,error:'sys.oem_unlock_allowed was recreated or could not be removed'};
+}else if(Object.prototype.hasOwnProperty.call(fixed,p.prop)){
+value=fixed[p.prop];
+source='safe default';
+}else if(p.prop==='ro.boot.avb_version'){
+value=await getFirstPropValue(map,['ro.boot.vbmeta.avb_version','ro.boot.avb_version']);
+source='canonical VBMeta AVB version';
+}else if(p.prop==='ro.build.fingerprint'){
+/* Build.FINGERPRINT should follow the real system fingerprint, not a spoofed aggregate. */
+value=await getFirstPropValue(map,[
+'ro.system.build.fingerprint',
+'ro.product.system.build.fingerprint',
+'ro.vendor.build.fingerprint',
+'ro.product.vendor.build.fingerprint'
+]);
+source='canonical build fingerprint';
+}else if(p.prop==='ro.build.version.release'){
+value=await getFirstPropValue(map,['ro.system.build.version.release','ro.vendor.build.version.release','ro.product.system.build.version.release']);
+source='system build version';
+}else if(p.prop==='ro.build.version.sdk'){
+value=await getFirstPropValue(map,['ro.system.build.version.sdk','ro.vendor.build.version.sdk','ro.product.system.build.version.sdk']);
+source='system SDK';
+}else if(p.prop==='ro.build.version.security_patch'){
+value=await getFirstPropValue(map,['ro.system.build.version.security_patch','ro.vendor.build.version.security_patch','ro.product.system.build.version.security_patch']);
+source='system security patch';
+}else if(p.prop==='ro.hardware'){
+value=await getFirstPropValue(map,['ro.boot.hardware','ro.boot.hardware.platform']);
+source='boot hardware';
+}else if(p.prop==='ro.product.brand'){
+value=await getFirstPropValue(map,['ro.product.system.brand','ro.product.vendor.brand','ro.product.odm.brand']);
+source='system/vendor product brand';
+}else if(p.prop==='ro.product.device'){
+value=await getFirstPropValue(map,['ro.product.system.device','ro.product.vendor.device','ro.product.odm.device']);
+source='system/vendor product device';
+}else if(p.prop==='ro.product.manufacturer'){
+value=await getFirstPropValue(map,['ro.product.system.manufacturer','ro.product.vendor.manufacturer','ro.product.odm.manufacturer']);
+source='system/vendor manufacturer';
+}else if(p.prop==='ro.product.model'){
+value=await getFirstPropValue(map,['ro.product.system.model','ro.product.vendor.model','ro.product.odm.model']);
+source='system/vendor product model';
+}else if(p.prop==='ro.system.build.fingerprint'){
+value=await getFirstPropValue(map,['ro.product.system.build.fingerprint','ro.vendor.build.fingerprint','ro.product.vendor.build.fingerprint']);
+source='canonical system/vendor fingerprint';
+}else if(p.prop==='ro.vendor.build.fingerprint'){
+value=await getFirstPropValue(map,['ro.product.vendor.build.fingerprint','ro.system.build.fingerprint','ro.product.system.build.fingerprint']);
+source='canonical vendor/system fingerprint';
+}else if(p.prop==='ro.build.display.id'){
+value=await getFirstPropValue(map,['ro.system.build.display.id','ro.vendor.build.display.id']);
+source='system/vendor display ID';
+}
+
+if(value===null||value===''){
+/* Some values have no trustworthy generic replacement. Removing them is safer than inventing one. */
+log(p.label+': no trusted replacement found; falling back to delete','warn');
+try{
+await sh('su -c '+shellQuote('resetprop -n --delete '+shellQuote(p.prop)),8000);
+log('Deleted '+p.prop+' (smart reset fallback)','ok');
+return {ok:true,deleted:true};
+}catch(e){
+return {ok:false,error:e.message||'command failed'};
+}
+}
+
+try{
+await sh('su -c '+shellQuote('resetprop -n '+shellQuote(p.prop)+' '+shellQuote(value)),8000);
+log('Smart reset '+p.label+' → '+value+' ['+source+']','ok');
+return {ok:true,deleted:false,value};
+}catch(e){
+return {ok:false,error:e.message||'command failed'};
+}
+}
+
+function logExecutionSelection(selected, selectedDelete, selectedDuck, selectedDynamic, checkedDuck){
+log('--- CONFIGURATION ---','cmd');
+log('Duck Props: '+(skipDuck?'SKIPPED':'READY'),skipDuck?'warn':'ok');
+log('Hook Props: '+(skipHook?'SKIPPED':'ENABLED'),skipHook?'warn':'ok');
+log('Safe Mode: '+(safeMode?'ACTIVE':'OFF'),safeMode?'warn':'ok');
+log('Compact: MANDATORY at end','info');
+log('Reset Props: selected '+selected.length,'info');
+selected.forEach(p=>{
+const ops=[];
+if(p.ops) p.ops.forEach(([prop,value])=>ops.push(prop+' = '+value));
+if(p.settings) p.settings.forEach(([namespace,key,value])=>ops.push(namespace+'/'+key+' = '+value));
+log('Selected Reset: '+p.label+(ops.length?' ['+ops.join('; ')+']':''),'info');
+});
+log('Delete Props: selected '+selectedDelete.length,'info');
+selectedDelete.forEach(p=>log('Selected Delete: '+p.label+' ['+p.prop+']','info'));
+log('Duck Props: '+selectedDuck.length+' executable selection(s)'+(checkedDuck.length!==selectedDuck.length?' / '+checkedDuck.length+' checked':''),'info');
+checkedDuck.forEach(p=>{
+const action=getDuckAction(p.id);
+if(action) log('Selected Duck: '+p.label+' ['+p.prop+'] → '+action,'info');
+});
+log('Hook/PIF Props: selected '+selectedDynamic.length,'info');
+selectedDynamic.forEach(p=>log('Selected Hook/PIF: '+p.label+' ['+p.prop+']','info'));
+log('--- END CONFIGURATION ---','cmd');
+}
+
+async function execute(){
+if(safeMode){
+log('Safe Mode active - Execution blocked','err');
+toast('Safe Mode: Spoofer locked','err');
+return;
+}
+
+const selected=props.filter(p=>{
+const el=document.getElementById(p.id);
+return el&&el.checked;
+});
+const selectedDelete=deleteProps.filter(p=>{
+const el=document.getElementById(p.id);
+return el&&el.checked;
+});
+const checkedDuck=duckProps.filter(p=>{
+const el=document.getElementById(p.id);
+return el&&el.checked;
+});
+const selectedDuck=checkedDuck.map(p=>({...p,action:getDuckAction(p.id)})).filter(p=>p.action==='delete'||p.action==='reset');
+const selectedDynamic=dynamicProps.filter(p=>{
+const el=document.getElementById(p.id);
+return el&&el.checked;
+});
+
+if(selected.length===0&&selectedDelete.length===0&&selectedDuck.length===0&&selectedDynamic.length===0){
+log('No items selected','err');
+toast('No items selected','err');
+return;
+}
+
+setStatus('Applying...',true);
+document.getElementById('execBtn').style.pointerEvents='none';
+logEl.innerHTML='';
+log('=== EXECUTION STARTED ===','cmd');
+logExecutionSelection(selected,selectedDelete,selectedDuck,selectedDynamic,checkedDuck);
+const startTime=Date.now();
+
+let failures=0;
+
+/*
+ * Reset Props are intentionally allowed to CREATE missing properties.
+ * This is user-controlled: if a prop is selected, resetprop is run
+ * regardless of whether that property already exists.
+ */
+for(const p of selected){
+log(p.label,'cmd');
+
+if(p.ops){
+for(const [prop,value] of p.ops){
+try{
+await sh('su -c '+shellQuote('resetprop -n '+shellQuote(prop)+' '+shellQuote(value)),8000);
+log('Set '+prop+' = '+value,'ok');
+}catch(e){
+failures++;
+log('Failed '+prop+': '+(e.message||'command failed'),'err');
+}
+}
+}
+
+if(p.settings){
+for(const [namespace,key,value] of p.settings){
+try{
+await sh('su -c '+shellQuote('settings put '+shellQuote(namespace)+' '+shellQuote(key)+' '+shellQuote(value)),8000);
+log('Set '+namespace+'/'+key+' = '+value,'ok');
+}catch(e){
+failures++;
+log('Failed '+namespace+'/'+key+': '+(e.message||'command failed'),'err');
+}
+}
+}
+
+if(p.shell){
+try{
+await sh('su -c '+shellQuote(p.shell),15000);
+log('Cleanup command completed','ok');
+}catch(e){
+failures++;
+log('Cleanup command failed: '+(e.message||'command failed'),'err');
+}
+}
+}
+
+/*
+ * Delete Props intentionally do not require existence.
+ * Missing = already in desired state.
+ */
+for(const p of selectedDelete){
+log('Delete '+p.label,'cmd');
+try{
+const exists=await propExists(p.prop);
+if(!exists){
+log(p.label+' already absent','info');
+continue;
+}
+await sh('su -c '+shellQuote('resetprop -n --delete '+shellQuote(p.prop)),8000);
+log('Deleted '+p.prop,'ok');
+}catch(e){
+failures++;
+log('Failed to delete '+p.prop+': '+(e.message||'command failed'),'err');
+}
+}
+
+/*
+ * Duck Props are user-selectable and each selected property has its own action:
+ * DELETE or SMART RESET. Smart Reset uses a safe default or a trusted
+ * canonical property; it never invents a value when no trustworthy source exists.
+ */
+if(!skipDuck){
+for(const p of selectedDuck){
+if(p.action==='delete'){
+log('Duck delete '+p.label,'cmd');
+try{
+const exists=await duckItemExists(p);
+if(!exists){log(p.label+' already absent','info');continue;}
+const deleted=await deleteDuckProp(p);
+if(!deleted){
+failures++;
+log('Failed to fully remove '+p.label+'; property/setting is still present','err');
+}else{
+log('Deleted '+(p.kind==='setting'?p.namespace+'/'+p.key:p.prop),'ok');
+}
+}catch(e){
+failures++;
+log('Failed to delete '+(p.prop||p.label)+': '+(e.message||'command failed'),'err');
+}
+}else if(p.action==='reset'){
+log('Duck smart reset '+p.label,'cmd');
+try{
+const result=await smartResetDuckProp(p);
+if(!result.ok){
+failures++;
+log('Failed smart reset '+p.prop+': '+result.error,'err');
+}
+}catch(e){
+failures++;
+log('Failed smart reset '+p.prop+': '+(e.message||'command failed'),'err');
+}
+}
+}
+}
+
+/* Dynamically detected Hook/PIF properties. */
+if(!skipHook){
+for(const p of selectedDynamic){
+log('Delete '+p.label+' ['+p.prop+']','cmd');
+try{
+const exists=await propExists(p.prop);
+if(!exists){
+log(p.label+' already absent','info');
+continue;
+}
+await sh('su -c '+shellQuote('resetprop -n --delete '+shellQuote(p.prop)),8000);
+log('Deleted '+p.prop,'ok');
+}catch(e){
+failures++;
+log('Failed to delete '+p.prop+': '+(e.message||'command failed'),'err');
+}
+}
+}else{
+log('Hook Props skipped by user','warn');
+}
+
+/*
+ * MANDATORY: compact is always attempted after the selected operations.
+ * It is deliberately independent of the number of selected properties
+ * and independent of whether previous operations succeeded.
+ */
+log('Compacting prop database...','cmd');
+try{
+/*
+ * Keep the shell itself successful so KSU/KSUD does not replace the
+ * real resetprop error with a generic "Something wrong happened".
+ * Magisk exposes compact as -c/--compact.
+ */
+const compactOut=await sh(
+"su -c "+shellQuote('resetprop -c 2>&1')+"; printf '\\n__RESET_PROP_COMPACT_RC__%s\\n' \"$?\"",
+15000
+);
+const compactMatch=compactOut.match(/__RESET_PROP_COMPACT_RC__(-?\d+)/);
+const compactRc=compactMatch?Number(compactMatch[1]):null;
+const compactErr=compactOut.replace(/__RESET_PROP_COMPACT_RC__-?\d+/,'').trim();
+if(compactRc===0){
+log('Compacted','ok');
+}else{
+/* Fallback for builds exposing the long option only. */
+const fallbackOut=await sh(
+"su -c "+shellQuote('resetprop --compact 2>&1')+"; printf '\\n__RESET_PROP_COMPACT_RC__%s\\n' \"$?\"",
+15000
+);
+const fallbackMatch=fallbackOut.match(/__RESET_PROP_COMPACT_RC__(-?\d+)/);
+const fallbackRc=fallbackMatch?Number(fallbackMatch[1]):null;
+const fallbackErr=fallbackOut.replace(/__RESET_PROP_COMPACT_RC__-?\d+/,'').trim();
+if(fallbackRc===0){
+log('Compacted','ok');
+}else{
+failures++;
+log('Compact FAILED (rc '+(fallbackRc===null?'unknown':fallbackRc)+')'+(fallbackErr||compactErr?': '+(fallbackErr||compactErr):''),'err');
+}
+}
+}catch(e){
+failures++;
+log('Compact FAILED: '+(e.message||'command failed'),'err');
+}
+
+/*
+ * Android 16 should not expose sys.oem_unlock_allowed at all. If the
+ * framework recreated it while compacting, perform one final removal as
+ * the last property operation before verification.
+ */
+const finalOemDuck=selectedDuck.find(p=>p.prop==='sys.oem_unlock_allowed' && p.action==='delete');
+if(finalOemDuck){
+log('Final Android 16 OEM unlock cleanup...','cmd');
+try{
+if(await deleteDuckProp(finalOemDuck)) log('sys.oem_unlock_allowed is absent','ok');
+else { failures++; log('sys.oem_unlock_allowed was recreated and could not be kept absent','err'); }
+}catch(e){
+failures++;
+log('Final OEM unlock cleanup failed: '+(e.message||'command failed'),'err');
+}
+}
+
+const elapsed=((Date.now()-startTime)/1000).toFixed(1);
+if(failures===0){
+log('=== EXECUTION COMPLETE ('+elapsed+'s) ===','ok');
+}else{
+log('=== EXECUTION COMPLETE WITH '+failures+' FAILURE(S) ('+elapsed+'s) ===','err');
+}
+
+await verifyAppliedProps();
+
+document.getElementById('execBtn').style.pointerEvents='';
+setStatus(failures===0?'Complete':'Complete with errors',false);
+}
+
+
+render();
+
+const hasKsu=(typeof ksu!=='undefined'&&ksu.exec)||(window.parent&&window.parent.ksu&&window.parent.ksu.exec)||(window.parent&&typeof window.parent.runShellFromIframe==='function');
+if(!hasKsu){
+log('KSU API not available','err');
+setStatus('Error',false);
+toast('KSU API unavailable','err');
+}else{
+checkSafeMode().then(()=>{
+if(!safeMode){
+autoScanAndTip();
+scanRomKeywords();
+}
+});
+}
+</script>
+<script src="../TRANSLATIONS/meow.js"></script>
+<script>
+(function(){
+  var lang = localStorage.getItem('ibLang') || 'en';
+  if (lang !== 'en') {
+    var s = document.createElement('script');
+    s.src = '../TRANSLATIONS/' + lang + '.js';
+    s.onload = function(){ if(window.i18nBoot) window.i18nBoot(); };
+    document.head.appendChild(s);
+  }
+})();
+</script>
+</body>
+</html>

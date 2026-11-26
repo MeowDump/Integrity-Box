@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IntegrityBox Assistant</title>
+<style>
+:root{
+  --bg:#1f2233;
+  --surface:#232637;
+  --surface-c:#25293b;
+  --surface-hi:#2d3245;
+  --outline:#353a4d;
+  --outline-soft:#303548;
+  --primary:#1592FF;
+  --on-primary:#ffffff;
+  --primary-c:#176fbd;
+  --on-primary-c:#e3f2ff;
+  --secondary-c:#343b52;
+  --on-secondary-c:#d6e5f7;
+  --text:#e6e6e6;
+  --text-dim:#9aa3b8;
+  --text-mut:#737b91;
+  --glow:rgba(21,146,255,.16);
+  --r-fab:22px;
+  --r-xl:28px;
+  --r-lg:22px;
+  --r-md:16px;
+  --ease:cubic-bezier(.2,0,0,1);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:Roboto,-apple-system,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(900px 420px at 50% -8%,rgba(21,146,255,.12),transparent 60%),
+    var(--bg);
+  color:var(--text);
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+  overflow:hidden;
+}
+body::before{
+  content:"";
+  position:fixed;inset:0;pointer-events:none;
+  background:radial-gradient(600px 300px at 100% 110%,rgba(21,146,255,.07),transparent 60%);
+}
+button{font-family:inherit}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:rgba(21,146,255,.22);border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:rgba(21,146,255,.38)}
+::-webkit-scrollbar-track{background:transparent}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px;border-radius:12px}
+
+.header{padding:26px 20px 6px;text-align:center;flex:none}
+.header h1{
+  margin:0;
+  font-size:1.65rem;
+  font-weight:700;
+  letter-spacing:.2px;
+  background:linear-gradient(120deg,#e6e6e6,#1592FF 55%,#5ac8fa);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.header p{
+  margin:6px 0 0;
+  font-size:.82rem;
+  letter-spacing:.4px;
+  color:var(--text-dim);
+}
+
+.toggle-btn{
+  align-self:center;
+  margin:10px 16px 0;
+  padding:9px 18px;
+  border:none;
+  border-radius:99px;
+  background:var(--surface-hi);
+  color:var(--on-secondary-c);
+  font-size:.82rem;
+  font-weight:600;
+  letter-spacing:.3px;
+  cursor:pointer;
+  transition:background .25s var(--ease),transform .25s var(--ease);
+}
+.toggle-btn:hover{background:#2b3142;transform:translateY(-1px)}
+.toggle-btn:active{transform:scale(.97)}
+
+.faq-panel{
+  flex:none;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin:12px 16px 0;
+  padding:16px;
+  background:rgba(27,30,38,.72);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  border:1px solid var(--outline-soft);
+  border-radius:var(--r-xl);
+  box-shadow:0 18px 44px rgba(0,0,0,.42),0 2px 8px rgba(0,0,0,.3);
+  max-height:46vh;
+  overflow:hidden;
+  transition:max-height .45s var(--ease),opacity .35s var(--ease),margin .45s var(--ease),padding .45s var(--ease);
+}
+.faq-panel.minimized{max-height:0;opacity:0;margin-top:0;padding-top:0;padding-bottom:0;border-width:0}
+
+.tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;flex:none}
+.tab{
+  padding:8px 18px;
+  border-radius:99px;
+  background:transparent;
+  border:1px solid var(--outline);
+  color:var(--text-dim);
+  font-size:.83rem;
+  font-weight:600;
+  letter-spacing:.3px;
+  cursor:pointer;
+  transition:all .25s var(--ease);
+}
+.tab:hover{background:var(--surface-hi);color:var(--text)}
+.tab.active{
+  background:var(--secondary-c);
+  border-color:transparent;
+  color:var(--on-secondary-c);
+  box-shadow:0 4px 14px rgba(61,71,94,.45);
+}
+
+.search-wrap{position:relative;flex:none}
+.search-wrap svg{
+  position:absolute;left:16px;top:50%;transform:translateY(-50%);
+  width:18px;height:18px;stroke:var(--text-mut);pointer-events:none;
+}
+.search-bar{
+  width:100%;
+  padding:13px 18px 13px 44px;
+  border-radius:99px;
+  background:var(--surface);
+  border:1px solid var(--outline-soft);
+  color:var(--text);
+  font-size:.92rem;
+  outline:none;
+  transition:border-color .25s var(--ease),box-shadow .25s var(--ease),background .25s var(--ease);
+}
+.search-bar::placeholder{color:var(--text-mut)}
+.search-bar:focus{
+  border-color:rgba(21,146,255,.45);
+  background:var(--surface-c);
+  box-shadow:0 0 0 4px rgba(21,146,255,.1);
+}
+
+.questions{
+  overflow-y:auto;
+  flex:1;
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding-right:2px;
+}
+.q-btn{
+  text-align:left;
+  padding:14px 18px;
+  border-radius:var(--r-lg);
+  background:var(--surface);
+  border:1px solid var(--outline-soft);
+  color:var(--text);
+  font-size:.88rem;
+  line-height:1.45;
+  cursor:pointer;
+  transition:all .25s var(--ease);
+}
+.q-btn:hover{
+  background:var(--surface-hi);
+  border-color:rgba(21,146,255,.28);
+  transform:translateY(-1px);
+}
+.q-btn:active{transform:scale(.985)}
+.empty-note{color:var(--text-mut);font-size:.84rem;text-align:center;padding:14px 0}
+
+.chat-area{
+  flex:1;
+  min-height:0;
+  margin:14px 16px 0;
+  padding:16px;
+  background:rgba(21,23,29,.6);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--outline-soft);
+  border-radius:var(--r-xl);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03),0 12px 36px rgba(0,0,0,.35);
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  overflow-y:auto;
+  scroll-behavior:smooth;
+}
+.user-msg,.bot-msg{
+  max-width:82%;
+  padding:12px 16px;
+  font-size:.9rem;
+  line-height:1.55;
+  animation:pop .32s var(--ease);
+}
+.user-msg{
+  align-self:flex-end;
+  background:linear-gradient(135deg,#3a63a8,#176fbd);
+  color:#eaf1ff;
+  border-radius:var(--r-lg) var(--r-lg) 8px var(--r-lg);
+  box-shadow:0 8px 22px rgba(21,111,189,.38);
+}
+.bot-msg{
+  align-self:flex-start;
+  background:var(--surface-hi);
+  border:1px solid var(--outline-soft);
+  color:var(--text);
+  border-radius:var(--r-lg) var(--r-lg) var(--r-lg) 8px;
+  box-shadow:0 6px 18px rgba(0,0,0,.28);
+}
+.bot-msg p{margin:0 0 8px}
+.bot-msg p:last-child{margin-bottom:0}
+@keyframes pop{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+.typing{
+  align-self:flex-start;
+  display:flex;gap:5px;align-items:center;
+  padding:14px 16px;
+  background:var(--surface-hi);
+  border:1px solid var(--outline-soft);
+  border-radius:var(--r-lg) var(--r-lg) var(--r-lg) 8px;
+  animation:pop .32s var(--ease);
+}
+.typing-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--primary);
+  opacity:.35;
+  animation:bounce 1.2s infinite var(--ease);
+}
+.typing-dot:nth-child(2){animation-delay:.15s}
+.typing-dot:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.35}30%{transform:translateY(-4px);opacity:1}}
+
+.input-bar{
+  flex:none;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:14px 16px 10px;
+  padding:8px 8px 8px 20px;
+  border-radius:99px;
+  background:var(--surface-c);
+  border:1px solid var(--outline-soft);
+  box-shadow:0 10px 30px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.03);
+  transition:border-color .25s var(--ease),box-shadow .25s var(--ease);
+}
+.input-bar:focus-within{
+  border-color:rgba(165,200,255,.4);
+  box-shadow:0 10px 30px rgba(0,0,0,.35),0 0 0 4px rgba(21,146,255,.09);
+}
+.input-bar input{
+  flex:1;
+  min-width:0;
+  padding:10px 0;
+  border:none;
+  outline:none;
+  background:transparent;
+  color:var(--text);
+  font-size:.94rem;
+}
+.input-bar input::placeholder{color:var(--text-mut)}
+.send-btn{
+  flex:none;
+  width:46px;height:46px;
+  border:none;
+  border-radius:50%;
+  background:var(--primary);
+  cursor:pointer;
+  display:grid;
+  place-items:center;
+  box-shadow:0 6px 18px rgba(21,146,255,.35);
+  transition:transform .25s var(--ease),box-shadow .25s var(--ease),background .25s var(--ease);
+}
+.send-btn svg{width:20px;height:20px;stroke:var(--on-primary)}
+.send-btn:hover{transform:scale(1.06);box-shadow:0 8px 24px rgba(21,146,255,.5)}
+.send-btn:active{transform:scale(.94)}
+
+.contact-footer{
+  flex:none;
+  text-align:center;
+  padding:0 16px calc(14px + env(safe-area-inset-bottom));
+  font-size:.8rem;
+  color:var(--text-mut);
+}
+.contact-footer a{
+  color:var(--primary);
+  font-weight:600;
+  text-decoration:none;
+  padding:4px 8px;
+  border-radius:99px;
+  transition:background .2s var(--ease);
+}
+.contact-footer a:hover{background:rgba(21,146,255,.1)}
+
+@media (max-width:420px){
+  .header h1{font-size:1.4rem}
+  .user-msg,.bot-msg{max-width:90%}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>IntegrityBox Assistant</h1>
+  <p>Select a question or ask manually below</p>
+</div>
+
+<button class="toggle-btn" id="toggleBtn">Minimize FAQ</button>
+
+<div class="faq-panel" id="faqPanel">
+  <div class="tabs" id="tabs"></div>
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+    <input id="search" class="search-bar" placeholder="Search questions..."/>
+  </div>
+  <div class="questions" id="questions"></div>
+</div>
+
+<div class="chat-area" id="chat"></div>
+
+<div class="input-bar">
+  <input id="userInput" type="text" placeholder="Type your question...">
+  <button class="send-btn" onclick="sendMessage()" aria-label="Send">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+  </button>
+</div>
+
+<div class="contact-footer">
+  Didn’t find what you need? <a href="#" onclick="openLink('https://t.me/TempMeow');return false;">Contact Developer</a>
+</div>
+
+<script>
+const faq = {
+  "General": [
+    { q:"What are the requirements?", a:"Well, it depends on your ROM, Zygisk isn't needed if you're using Google pixel stock ROM. Anyways here are the recommended modules which works universally on all devices.<p>1. Tricky Store</p><p>2. Integrity Box</p><p>3. Zygisk Next</p><p>You can download them by opening integrity box's webui</p><p>Module Settings > Integrity downloader. Go back to modules tab & click on integrity box's action button. Modules will be downloaded into /sdcard/Downloads/IntegrityModules folder</p>" },
+    { q:"Why does my device pass Play Integrity but still fail ‘Device certification / license’ within apps?", a:"Passing Play Integrity doesn’t always mean device is certified.<p>Google Play certification/licensing checks may also require valid GMS certification, correct vendor‑partition signatures, valid attestation keys, and genuine vendor keybox.</p><p>If those are tampered with (by custom ROM, modded firmware, or spoof), apps checking “certified device status” might still fail even if integrity test passes.</p>" },
+    { q:"Fix Device not Certified", a:"You need to pass atleast DEVICE INTEGRITY then Open WebUI, Go to FIX DEVICE IS NOT CERTIFIED button, keep in mind that your root & zygisk should be hidden properly, otherwise it won't work." },
+    { q:"I don't know how to use WebUI", a:"I got you bro, If you're using magisk, then you've to Install KSU WebUI app & grant it root permission to use WebUI features of you're installed modules.<p>If you want to know about the usage of a specific setting, check Integrity Box's github repository, everything is well explained there.</p>" },
+    { q:"Fingerprint not working", a:"Open WebUI, Go to MODULE SETTING, and enable KILL SWITCH toggle & reboot your device" },
+    { q:"Magisk Tips?", a:"If you're using magisk, make sure to disable magisk's built-in Zygisk & add your banking apps into denylist. GMS & Play Services process will be added automatically via Integrity Box. Also hide your magisk app by changing it's name from magisk settings.." }
+  ],
+  "Integrity": [
+    { q:"Why is Strong Play Integrity failing?", a:"Make sure you have installed the recommended modules. Keep in mind that not all ROMs can pass Play Integrity, no matter you've disabled ROM's inbuilt GMS spoofing or updated keybox/fingerprint. You can also try downgrading your playstore version to v40.0.13-23.<p>Play Integrity fails when bootloader is unlocked (not spoofed) or hardware keybox isn't valid. Check for conflicting modules as well. Sometimes using too many modules/lsposed apps exposes root environment.</p>" },
+    { q:"Why do some banking apps still not working even if Play Integrity shows Strong?", a:"Because many banking apps implement their own root/environment detection, beyond Play Integrity.<p>They can check system props (like ro.debuggable), existence of root binaries, SELinux status, unusual filesystem traces, custom kernel or recovery markers, debug build‑flags, and flagged apps etc.</p><p>Even if Integrity‑Box fixes majority of stuff mentioned above, you still need root‑hiding tools such as HideMyApplist, Denylist etc clean storage (no TWRP folder, no root files visible), and sometimes a clean ROM (stock or near‑stock) for best results.</p>" },
+    { q:"I passed Play Integrity but some apps like Google Pay / Wallet / UPI still don’t work, why?", a:"That’s because passing Play Integrity is only one side.<p>Many “payment/wallet” apps check extra signals like bootloader lock status, vendor keybox validity, hardware‑backed attestation, or app‑specific additional checks.</p><p>Also, if your ROM has patched or spoofed GMS (Google Mobile Services) and uses custom keybox/keystore, it may conflict with modules trying to spoof, modules like Tricky Store,sometimes conflict with ROM‑level spoofing.</p>" },
+    { q:"My device is running a custom ROM, will IntegrityBox work reliably?", a:"Yes, but keep in mind that Custom ROMs make things harder.<p>Many custom ROMs come with their own modifications to system props, keybox, GMS spoofing or security patch metadata. These changes often interfere with spoofing modules.</p><p>For custom ROMs: first disable or clean any pre‑built spoofing or keybox tricks, restore stock props if possible, then apply Integrity‑Box + trickystore. Only then try passing Device/Strong integrity.</p>" },
+    { q:"Which modules should I combine with Integrity‑Box to maximize banking‑app compatibility?", a:"A commonly recommended setup is:<p>• Integrity‑Box (for props/keybox spoofing)</p><p>• Clean zygote injection layer (e.g. Zygisk Next)</p><p>• DenyList / Hide‑Magisk‑Manager (so root‑manager app isn’t visible) or use spoofed version of KSU manager</p><p>• Clear Play Store + Google Services data after flashing/patching</p><p>• Reboot and test using Play Integrity checker/app</p><p>This combo is often suggested for rooted phones on custom ROMs to pass checks and run banking/UPI apps.</p>" },
+    { q:"My banking app still shows ‘root detected’ after passing all integrity checks, what extra measures can help?", a:"Here are extra measures often recommended:<p>• Remove/rename root‑manager apps (Magisk Manager etc.), or keep them hidden.</p><p>• Remove residual traces: TWRP folder, recovery backups, root‑app leftovers in storage.</p><p>• Use DenyList or Hide‑Magisk + include banking apps.</p><p>• For custom ROMs: avoid prebuilt ROM‑level spoofing that conflicts with your modules.</p><p>• Use MEOW 2.0 HMA config</p>" },
+    { q:"Does updating Google Play Services or Play Store break spoofing modules?", a:"Often yes. Google Play Services updates may re‑validate keys, vendor certificates or integrity metadata, which may invalidate spoofing or keybox tricks.<p>After such updates, you may need to reapply spoofing or re‑flash/ modules to retain spoofed integrity. Many forum users report requiring re‑spoof after major Play Services updates.</p>" },
+    { q:"How to clean old root traces fully before applying IntegrityBox and spoofing?", a:"Suggested cleanup steps:<p>• Uninstall all root‑manager apps and modules.</p><p>• Remove folders like /sdcard/TWRP etc.</p><p>• Clear cache/data for Google Services and banking apps.</p><p>• Reboot.</p><p>• Then apply the recommended modules.</p><p>Many users on XDA confirm this full clean + fresh install often resolves persistent root detection issues.</p>" },
+    { q:"Why does my device show Basic integrity even after spoofing and proper root hiding?", a:"If your android version is A13 or above, use SUPREME profile.. if it's A12 or below, then use LEGACY profile with downgraded version (v40.xx) of playstore" },
+    { q:"What if I still fail Strong Integrity even after installing IntegrityBox?", a:"Passing Strong Integrity can also depend on hardware keybox validity, bootloader status, vendor-partition patches, and conflicting modules.<p>If you’re on a custom ROM or have SELinux/permissive, or if other modules tamper with system props, IntegrityBox alone may not be enough.</p>" },
+    { q:"Will using root-hiding modules along with Integrity-Box improve success for banking apps?", a:"Often yes, many users report that combining IntegrityBox with root-hiding tools helps avoid detection by banking apps.<p>However, root-hiding + spoofing is a game of cat–mouse and may not work universally.</p>" },
+    { q:"Why do banking or wallet apps still detect root even though Play Integrity says 'pass'?", a:"Because Play Integrity is only one part of detection.<p>Many apps also perform root/environment detection at runtime. If root-hiding is incomplete or other modules leave traces (e.g. custom recovery folder, SELinux flags, debug props), apps may still detect tampering.</p>" }
+  ],
+  "Curiosity": [
+    { q:"After an Android update or ROM update, I have to reapply spoofing, why?", a:"Because system updates or ROM changes often overwrite or reset key system files and security metadata.<p>Security‑patch date, vendor partition data, keybox validity and build props may be reset.</p><p>As a result, spoofing done by Integrity‑Box or other fixes becomes invalid, you need to re‑spoof, re‑apply settings, or re‑test after each major update to ensure compatibility.</p>" },
+    { q:"Is there any guarantee that IntegrityBox will make all apps work flawlessly?", a:"No. There is no universal guarantee.<p>Modern detection systems (like updated Play Integrity, custom native checks by apps, bootloader‑unlock detection, hardware attestation) continue evolving.</p><p>IntegrityBox increases the chance of passing integrity checks, but due to variables (device model, ROM, kernel, other modules, app-specific checks), it's always a “best‑effort” solution.</p>" },
+    { q:"How to debug if spoofing failed, where to start?", a:"Start by checking:<p>• Are device props (ro.build.*) spoofed properly?</p><p>• Is keybox/keystore valid?</p><p>• Is SELinux enforcing?</p><p>• Any conflicting root‑hiding or system‑mod modules installed?</p><p>• Has cached data (Play Store, Google Services) been cleared after modules applied & before testing apps?</p><p>• Are you using latest module versions and correct config for your ROM/kernel?</p><p>This systematic check helps isolate what’s breaking integrity or causing detection.</p>" },
+    { q:"Is it better to use kernel‑level root (like KernelSU) instead of user‑space root (Magisk) for banking app stealth?", a:"Many users on XDA report that kernel‑level root solutions (like KernelSU) tend to be stealthier because they avoid certain userspace traces that detection detects (root binaries, Magisk dirs, etc.).<p>Coupled with IntegrityBox, KernelSU may result in fewer detections than traditional Magisk setups. But results vary by device, ROM, and kernel patches.</p>" },
+    { q:"Does every device / ROM support IntegrityBox equally?", a:"No. Results may vary depending on device vendor, Android version, ROM, SELinux mode, kernel, vendor-partition changes, and how 'stock' your firmware is.<p>Custom ROMs or heavy modifications reduce the chance of a clean pass.</p>" },
+    { q:"What modules should I avoid to reduce conflicts with IntegrityBox?", a:"Avoid modules that heavily modify system props, SELinux setting, kernel behavior, root-detection hooks, or GMS/Play services tampering. And those modules which modifies tricky store's target.txt<p>Such modules may conflict with integrity spoofing and cause detection failures or boot issues.</p>" },
+    { q:"Is using IntegrityBox a permanent fix or will I need to reconfigure after updates (ROM / kernel)?", a:"It’s not guaranteed permanent.<p>System updates, kernel or vendor changes, ROM updates frequently break spoofing or keybox validity; you may need to reapply or re-configure play integrity related after updates.</p>" },
+    { q:"Can this break apps?", a:"No." }
+  ],
+};
+
+const filters = {
+  "root": "Root detection info: Integrity-Box cannot fully hide root by itself.",
+  "useless": "😂😂😂",
+  "telegram": "Check our Updates Channel: https://t.me/MeowRedirect",
+  "hi": "Hi bro, please select your query so that I can assist you",
+  "hello": "Hi bro, please select your query so that I can assist you",
+  "thank": "Welcome dude, Happy to help you 😊",
+  "pif": "Starting from v28, PIF is not needed when using integrity box",
+  "bug": "You can report bugs here: https://t.me/TempMeow"
+};
+
+let currentCategory = "General";
+
+const tabContainer = document.getElementById("tabs");
+Object.keys(faq).forEach(cat=>{
+  const t = document.createElement("button");
+  t.className="tab"+(cat===currentCategory?" active":"");
+  t.textContent=cat;
+  t.onclick=()=>{ currentCategory=cat; buildTabs(); buildQuestions(); };
+  tabContainer.appendChild(t);
+});
+function buildTabs(){
+  document.querySelectorAll(".tab").forEach(t=>{
+    t.classList.toggle("active", t.textContent===currentCategory);
+  });
+}
+
+const faqPanel = document.getElementById("faqPanel");
+function buildQuestions(filter=""){
+  const container = document.getElementById("questions");
+  container.innerHTML="";
+  let count=0;
+  faq[currentCategory].forEach(item=>{
+    if(filter && !item.q.toLowerCase().includes(filter.toLowerCase())) return;
+    count++;
+    const el = document.createElement("button");
+    el.className="q-btn";
+    el.textContent=item.q;
+    el.onclick=()=> {
+      ask(item.q,item.a);
+      minimizeFAQ();
+    };
+    container.appendChild(el);
+  });
+  if(!count){
+    const n=document.createElement("div");
+    n.className="empty-note";
+    n.textContent="No matching questions";
+    container.appendChild(n);
+  }
+}
+buildQuestions();
+
+document.getElementById("search").addEventListener("input", e=>{
+  const val = e.target.value.trim();
+  buildQuestions(val);
+});
+
+const chat = document.getElementById("chat");
+
+function ask(q,a){
+  appendBubble(q,"user-msg");
+  scrollChat();
+  showTyping(()=> appendBubble(a,"bot-msg"));
+}
+
+function sendMessage() {
+  const input = document.getElementById("userInput");
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = "";
+  appendBubble(text, "user-msg");
+  scrollChat();
+
+  for (const key in filters) {
+    if (text.toLowerCase().includes(key)) {
+      showTyping(() => appendBubble(filters[key], "bot-msg"));
+      return;
+    }
+  }
+
+  const inputWords = text
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(w => w.length > 3);
+
+  if (!inputWords.length) {
+    showTyping(() =>
+      appendBubble(
+        "Please type a little more detail so I can help 🙂",
+        "bot-msg"
+      )
+    );
+    return;
+  }
+
+  let bestMatch = null;
+  let bestScore = 0;
+
+  for (const cat in faq) {
+    for (const item of faq[cat]) {
+      const qWords = item.q.toLowerCase().split(/\s+/);
+
+      let score = 0;
+      inputWords.forEach(w => {
+        if (qWords.some(qw => qw.includes(w) || w.includes(qw))) {
+          score++;
+        }
+      });
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestMatch = item;
+      }
+    }
+  }
+
+  if (bestMatch && bestScore >= 2) {
+    showTyping(() => appendBubble(bestMatch.a, "bot-msg"));
+    return;
+  }
+
+  let suggestions = [];
+
+  for (const cat in faq) {
+    for (const item of faq[cat]) {
+      const qWords = item.q.toLowerCase().split(/\s+/);
+      if (
+        inputWords.some(w =>
+          qWords.some(qw => qw.includes(w) || w.includes(qw))
+        )
+      ) {
+        suggestions.push(item.q);
+      }
+    }
+  }
+
+  if (suggestions.length) {
+    showTyping(() =>
+      appendBubble(
+        "Did you mean:\n- " +
+          [...new Set(suggestions)].slice(0, 3).join("\n- "),
+        "bot-msg"
+      )
+    );
+  } else {
+    showTyping(() =>
+      appendBubble(
+        "I couldn't find an exact match. Please select a FAQ above or contact the developer.",
+        "bot-msg"
+      )
+    );
+  }
+}
+
+function appendBubble(text, cls) {
+  const el = document.createElement("div");
+  el.className = cls;
+
+  if (Array.isArray(text)) {
+    text.forEach(p => {
+      const pEl = document.createElement("p");
+      pEl.textContent = p;
+      el.appendChild(pEl);
+    });
+  } else {
+    el.innerHTML = text.replace(/\n/g, "<br>");
+  }
+
+  chat.appendChild(el);
+  scrollChat();
+}
+
+function showTyping(callback){
+  const t = document.createElement("div");
+  t.className="typing";
+  t.innerHTML='<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+  chat.appendChild(t);
+  scrollChat();
+  setTimeout(()=>{ t.remove(); callback(); scrollChat(); },900);
+}
+
+function scrollChat(){ chat.scrollTop = chat.scrollHeight; }
+
+const toggleBtn = document.getElementById("toggleBtn");
+toggleBtn.onclick = ()=> {
+  faqPanel.classList.toggle("minimized");
+  toggleBtn.textContent = faqPanel.classList.contains("minimized") ? "Show Frequently Asked Questions" : "Minimize FAQ";
+}
+function minimizeFAQ(){
+  faqPanel.classList.add("minimized");
+  toggleBtn.textContent = "Show Frequently Asked Questions";
+}
+
+function openLink(url){
+  try { ksu.exec(`am start -a android.intent.action.VIEW -d ${url}`); alert("Opening…"); }
+  catch(e){ alert("Unable to open link."); }
+}
+
+document.getElementById("userInput").addEventListener("keydown", e=>{
+  if(e.key==="Enter") sendMessage();
+});
+
+appendBubble("Hi bro, I'm the IntegrityBox Assistant. Pick a question from the FAQ or type your own below.","bot-msg");
+</script>
+<script src="../TRANSLATIONS/meow.js"></script>
+<script>
+(function(){
+  var lang = localStorage.getItem('ibLang') || 'en';
+  if (lang !== 'en') {
+    var s = document.createElement('script');
+    s.src = '../TRANSLATIONS/' + lang + '.js';
+    s.onload = function(){ if(window.i18nBoot) window.i18nBoot(); };
+    document.head.appendChild(s);
+  }
+})();
+</script>
+</body>
+</html>

@@ -33,6 +33,7 @@ else
 fi
 
 log "Current state: $STATE"
+sleep 2
 
 # Find all GMS PIDs
 log "Scanning GMS processes"

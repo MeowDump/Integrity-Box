@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Conflict Reslover</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root{
+ --bg:#0e1020;--fg:#e6e6e6;--accent:#4da3ff;--accent-glow:rgba(77,163,255,.3);
+ --panel-bg:#232637cc;--border-radius:20px;--shadow:rgba(0,0,0,.4);
+ --success:#4dff88;--danger:#ff4d4d;--text2:#9aa3ff;--spring:cubic-bezier(.2,.8,.2,1)
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
+font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui;background:radial-gradient(circle at 30% 20%,#1c2045 0%,#0e1020 100%);
+color:var(--fg);-webkit-font-smoothing:antialiased}
+.card{width:380px;max-width:100%;background:var(--panel-bg);backdrop-filter:blur(20px);border-radius:var(--border-radius);
+padding:28px;box-shadow:0 25px 60px var(--shadow),0 0 0 1px rgba(255,255,255,.06);position:relative;overflow:hidden;animation:entry .6s var(--spring)}
+.card:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,var(--accent),transparent 70%);
+filter:blur(40px);opacity:.15;pointer-events:none;z-index:0;animation:glow 8s ease-in-out infinite}
+@keyframes entry{from{opacity:0;transform:translateY(30px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes glow{0%,100%{opacity:.12}50%{opacity:.25}}
+h1{position:relative;z-index:2;margin:0 0 24px;text-align:center;font-size:22px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px}
+h1 .material-icons{font-size:24px;background:linear-gradient(135deg,var(--accent),#5AC8FA);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.section-label{position:relative;z-index:2;font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;padding-left:4px}
+.row{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px;border-radius:16px;
+background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);margin-bottom:10px;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1)}
+.row:hover{background:rgba(255,255,255,.06);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3);border-color:rgba(77,163,255,.2)}
+.row:active{transform:scale(.98)}
+.row.on{background:rgba(77,163,255,.1);border-color:rgba(77,163,255,.4);box-shadow:0 0 20px rgba(77,163,255,.15)}
+.row.on .icon-wrap{background:var(--accent);box-shadow:0 4px 16px var(--accent-glow)}
+.row.on .icon-wrap .material-icons{color:#fff}
+.row.on .title{color:var(--accent)}
+.row.on .status-dot{background:var(--success);box-shadow:0 0 12px var(--success)}
+.icon-wrap{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;transition:.3s;flex-shrink:0}
+.icon-wrap .material-icons{font-size:24px;color:var(--text2);transition:.3s}
+.content{flex:1;min-width:0}.title{font-size:15px;font-weight:600;color:var(--fg);transition:color .3s}
+.status-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.2);transition:.3s;flex-shrink:0}
+.switch{position:relative;width:54px;height:30px;flex-shrink:0;pointer-events:none}
+.switch input{position:absolute;opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;border-radius:999px;background:rgba(255,255,255,.1);transition:.3s;box-shadow:inset 0 2px 4px rgba(0,0,0,.2)}
+.knob{position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:linear-gradient(145deg,#fff,#e0e0e0);
+transition:transform .25s var(--spring);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.switch input:checked+.slider{background:var(--accent);box-shadow:0 0 20px var(--accent-glow)}
+.switch input:checked+.slider .knob{transform:translateX(24px)}
+.switch input:disabled+.slider{opacity:.28}
+.download{display:none;position:relative;z-index:2;width:100%;margin-top:6px;padding:15px;border-radius:14px;border:1px solid rgba(77,163,255,.2);
+background:rgba(77,163,255,.1);color:var(--accent);font:700 14px inherit;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:.25s}
+.download:hover{background:rgba(77,163,255,.2);box-shadow:0 4px 16px rgba(77,163,255,.15);transform:translateY(-2px)}
+.download:active{transform:scale(.97)}.download:disabled{opacity:.3;cursor:not-allowed;transform:none;box-shadow:none}
+.status{position:relative;z-index:2;text-align:center;color:var(--text2);font-size:12px;margin-top:15px;min-height:18px}
+.footer{position:relative;z-index:2;text-align:center;color:var(--text2);font-size:11px;opacity:.6;margin-top:16px}
+.help-btn{position:absolute;top:18px;right:18px;z-index:10;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.05);
+border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.25s}
+.help-btn:hover{background:rgba(77,163,255,.15);border-color:rgba(77,163,255,.3);transform:scale(1.1)}
+.help-btn .material-icons{font-size:20px;color:var(--text2)}
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(20px);background:rgba(30,33,60,.95);
+backdrop-filter:blur(20px);color:var(--fg);padding:14px 28px;border-radius:100px;box-shadow:0 10px 40px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.1);
+opacity:0;pointer-events:none;transition:.35s;z-index:9999;font-weight:600;font-size:14px;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.toast .material-icons{font-size:20px;color:var(--success)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(12px);z-index:10000;display:flex;align-items:flex-end;justify-content:center;
+opacity:0;pointer-events:none;transition:opacity .35s}
+.modal-overlay.show{opacity:1;pointer-events:auto}.modal-sheet{width:100%;max-width:420px;max-height:85vh;background:var(--panel-bg);backdrop-filter:blur(30px);
+border-radius:24px 24px 0 0;box-shadow:0 -10px 60px rgba(0,0,0,.5);display:flex;flex-direction:column;transform:translateY(100%);transition:transform .4s var(--spring);overflow:hidden}
+.modal-overlay.show .modal-sheet{transform:translateY(0)}.modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 12px;
+border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0}.modal-header h2{font-size:18px;display:flex;align-items:center;gap:10px}.modal-header h2 .material-icons{color:var(--accent)}
+.modal-close{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.modal-close .material-icons{font-size:18px;color:var(--text2)}.modal-body{overflow-y:auto;padding:16px 20px 32px}
+.help-section{margin-bottom:20px}.help-section-title{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;padding-left:4px}
+.help-item{display:flex;gap:14px;padding:14px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);margin-bottom:8px}
+.help-item .icon-wrap{width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.06)}.help-item .icon-wrap .material-icons{font-size:20px;color:var(--accent)}
+.help-content{flex:1}.help-title{font-size:14px;font-weight:600;margin-bottom:4px}.help-desc{font-size:12px;color:var(--text2);line-height:1.5;font-weight:500}
+@media(max-width:420px){.card{width:100%;padding:22px}.row{padding:14px}}
+
+.warning-card{position:relative;z-index:2;display:none;gap:12px;margin-top:14px;padding:15px;border-radius:16px;background:rgba(255,180,0,.08);border:1px solid rgba(255,180,0,.28);animation:warningEntry .35s var(--spring)}
+.warning-card.show{display:flex}
+.warning-icon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(255,180,0,.12)}
+.warning-icon .material-icons{font-size:21px;color:#ffca5c}
+.warning-content{min-width:0}.warning-title{font-size:13px;font-weight:700;color:#ffca5c;margin-bottom:5px}
+.warning-text{font-size:11.5px;line-height:1.5;color:var(--text2);font-weight:500}
+@keyframes warningEntry{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+
+.root-option{
+ position:relative;z-index:2;display:flex;align-items:center;gap:20px;width:100%;
+ padding:24px 22px;border-radius:20px;background:rgba(255,255,255,.035);
+ border:1px solid rgba(255,255,255,.07);margin-bottom:12px;cursor:pointer;
+ transition:all .25s cubic-bezier(.4,0,.2,1);text-align:left;min-height:112px;
+}
+.root-option:hover{background:rgba(255,255,255,.065);transform:translateY(-2px);
+ box-shadow:0 8px 24px rgba(0,0,0,.3);border-color:rgba(77,163,255,.25)}
+.root-option:active{transform:scale(.985)}
+.root-option.active{background:rgba(77,163,255,.11);border-color:rgba(77,163,255,.5);
+ box-shadow:0 0 24px rgba(77,163,255,.14)}
+.root-option.active .root-icon{background:var(--accent);box-shadow:0 5px 20px var(--accent-glow)}
+.root-option.active .root-icon .material-icons{color:#fff}
+.root-option.active .root-title{color:var(--accent)}
+.root-icon{
+ width:56px;height:56px;border-radius:15px;display:flex;align-items:center;justify-content:center;
+ flex-shrink:0;background:rgba(255,255,255,.075);transition:.3s
+}
+.root-icon .material-icons{font-size:40px;color:var(--text2);transition:.3s}
+.root-details{flex:1;min-width:0}
+.root-title{font-size:18px;font-weight:700;color:var(--fg);margin-bottom:4px;transition:color .3s}
+.root-subtitle{font-size:12px;color:var(--text2);line-height:1.4}
+.root-arrow{font-size:22px;color:rgba(255,255,255,.3);transition:.3s}
+.root-option:hover .root-arrow,.root-option.active .root-arrow{color:var(--accent);transform:translateX(2px)}
+
+.consent-card{
+ position:relative;z-index:2;display:none;margin-top:14px;padding:17px;border-radius:18px;
+ background:rgba(255,65,65,.09);border:1px solid rgba(255,77,77,.42);
+ box-shadow:0 8px 28px rgba(255,40,40,.07);animation:warningEntry .35s var(--spring)
+}
+.consent-card.show{display:block}
+.consent-top{display:flex;gap:12px;align-items:flex-start}
+.consent-icon{
+ width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+ flex-shrink:0;background:rgba(255,77,77,.14)
+}
+.consent-icon .material-icons{font-size:23px;color:#ff6262}
+.consent-content{min-width:0}
+.consent-title{font-size:14px;font-weight:700;color:#ff6969;margin-bottom:5px}
+.consent-text{font-size:11.5px;line-height:1.55;color:var(--text2);font-weight:500}
+.consent-text strong{color:var(--fg);font-weight:700}
+.consent-actions{display:flex;gap:9px;margin-top:14px}
+.consent-btn{
+ flex:1;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);
+ font:700 12px inherit;cursor:pointer;transition:.2s
+}
+.consent-deny{background:rgba(255,255,255,.05);color:var(--fg)}
+.consent-deny:hover{background:rgba(255,255,255,.09)}
+.consent-agree{background:#ff4d4d;color:#fff;border-color:#ff4d4d;box-shadow:0 5px 18px rgba(255,77,77,.2)}
+.consent-agree:hover{background:#ff5c5c;transform:translateY(-1px)}
+.consent-btn:active{transform:scale(.97)}
+
+</style>
+</head>
+<body>
+<div class="card">
+ <button class="help-btn" onclick="openHelp()"><span class="material-icons">help_outline</span></button>
+
+ <h1><span class="material-icons">security</span>Conflict Reslover</h1>
+
+ <div class="section-label">Choose Your Primary Root</div>
+ <div id="rootList"></div>
+
+ <div id="consentCard" class="consent-card">
+  <div class="consent-top">
+   <div class="consent-icon"><span class="material-icons">warning</span></div>
+   <div class="consent-content">
+    <div class="consent-title">Root Conflict Warning</div>
+    <div class="consent-text">
+     Your ROM ships with <strong>KernelSU</strong> as its built-in root implementation.
+     If you are choosing <strong><span id="consentRootName">this root solution</span></strong> as your primary root,
+     other root implementations may still be detected by modules and cause conflicts.
+     <br><br>
+     Only continue if this is the root solution you actually want modules to treat as your primary environment.
+    </div>
+   </div>
+  </div>
+  <div class="consent-actions">
+   <button class="consent-btn consent-deny" onclick="denySelection()">Deny</button>
+   <button class="consent-btn consent-agree" onclick="agreeSelection()">Agree & Continue</button>
+  </div>
+ </div>
+
+ <div class="status" id="status">Checking root configuration...</div>
+ <div class="footer">Conflict Reslover © 2026</div>
+</div>
+
+<div id="toast" class="toast">
+ <span class="material-icons">check_circle</span><span id="toastText"></span>
+</div>
+
+<div id="helpModal" class="modal-overlay" onclick="closeHelpOnBackdrop(event)">
+ <div class="modal-sheet" onclick="event.stopPropagation()">
+  <div class="modal-header">
+   <h2><span class="material-icons">help_outline</span>What does this do?</h2>
+   <button class="modal-close" onclick="closeHelp()"><span class="material-icons">close</span></button>
+  </div>
+  <div class="modal-body">
+   <div class="help-section">
+    <div class="help-section-title">Usage</div>
+
+    <div class="help-item">
+     <div class="icon-wrap"><span class="material-icons">priority_high</span></div>
+     <div class="help-content">
+      <div class="help-title">Choose your primary root</div>
+      <div class="help-desc">Select the root solution you actually intend to use on your device. This is useful when your ROM ships with KernelSU by default but you prefer to use Magisk or APatch as your actual root solution.</div>
+     </div>
+    </div>
+
+    <div class="help-item">
+     <div class="icon-wrap"><span class="material-icons">hub</span></div>
+     <div class="help-content">
+      <div class="help-title">Resolve root conflicts</div>
+      <div class="help-desc">Some modules detect more than one root implementation and cannot reliably determine which environment should be treated as primary. This tool lets you explicitly identify whether Magisk or APatch is the root solution you want them to recognize.</div>
+     </div>
+    </div>
+
+    <div class="help-item">
+     <div class="icon-wrap"><span class="material-icons">warning</span></div>
+     <div class="help-content">
+      <div class="help-title">When should you use it?</div>
+      <div class="help-desc">Use it when your ROM ships with KernelSU but you intentionally use Magisk or APatch instead, or when the bundled KernelSU version is too old and you need another root solution.</div>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+</div>
+
+<script>
+var DIR="/data/adb/Box-Brain";
+var ROOT_DIR=DIR+"/ROOT";
+
+var ROOTS=[
+ {id:"apatch",name:"APatch",icon:"security",subtitle:"Use APatch as your primary root solution"},
+ {id:"magisk",name:"Magisk",icon:"android",subtitle:"Use Magisk as your primary root solution"}
+];
+
+var selectedId=null;
+var pendingId=null;
+var execBusy=false;
+
+function rootPath(id){
+ return ROOT_DIR+"/"+id;
+}
+
+function shellQuote(value){
+ return "'"+String(value).replace(/'/g,"'\\''")+"'";
+}
+
+function popup(msg){
+ var toast=document.getElementById("toast");
+ document.getElementById("toastText").textContent=msg;
+ toast.classList.add("show");
+ clearTimeout(popup.timer);
+ popup.timer=setTimeout(function(){
+  toast.classList.remove("show");
+ },2400);
+}
+
+function run(cmd,cb){
+ var k=(window.parent&&window.parent.ksu)||window.ksu;
+
+ if(!k||!k.exec){
+  popup("KSU API unavailable");
+  if(cb)cb("");
+  return;
+ }
+
+ var owner=window.parent||window;
+ var id="c"+Date.now()+Math.floor(Math.random()*1000);
+ var done=false;
+
+ function finish(value){
+  if(done)return;
+  done=true;
+  clearTimeout(timer);
+  try{delete owner[id]}catch(e){}
+  if(cb)cb(String(value||""));
+ }
+
+ var timer=setTimeout(function(){
+  finish("");
+ },5000);
+
+ owner[id]=function(){
+  finish(arguments.length===1?arguments[0]:arguments[1]||"");
+ };
+
+ k.exec("sh -c '"+cmd.replace(/'/g,"'\\''")+"'","{}",id);
+}
+
+function render(){
+ var list=document.getElementById("rootList");
+ list.innerHTML="";
+
+ ROOTS.forEach(function(item){
+  var row=document.createElement("div");
+  row.className="root-option";
+  row.id="row-"+item.id;
+  row.onclick=function(){
+   selectRoot(item.id);
+  };
+
+  row.innerHTML=
+   '<div class="root-icon"><span class="material-icons">'+item.icon+'</span></div>'+
+   '<div class="root-details">'+
+    '<div class="root-title">'+item.name+'</div>'+
+    '<div class="root-subtitle">'+item.subtitle+'</div>'+
+   '</div>'+
+   '<span class="material-icons root-arrow">chevron_right</span>';
+
+  list.appendChild(row);
+ });
+}
+
+function setActive(id,on){
+ var row=document.getElementById("row-"+id);
+ if(row)row.classList.toggle("active",!!on);
+}
+
+function inspectFlags(cb){
+ var checks=ROOTS.map(function(item){
+  return "[ -e "+shellQuote(rootPath(item.id))+" ] && echo 'FOUND:"+item.id+"'";
+ }).join("; ");
+
+ run(checks,function(out){
+  var found=[];
+
+  ROOTS.forEach(function(item){
+   if(out.indexOf("FOUND:"+item.id)!==-1){
+    found.push(item.id);
+   }
+  });
+
+  cb(found);
+ });
+}
+
+function applyState(found){
+ selectedId=found.length?found[0]:null;
+
+ ROOTS.forEach(function(item){
+  setActive(item.id,item.id===selectedId);
+ });
+
+ pendingId=null;
+ hideConsent();
+
+ var status=document.getElementById("status");
+
+ if(selectedId){
+  var item=ROOTS.find(function(root){
+   return root.id===selectedId;
+  });
+  status.textContent="Primary root: "+item.name;
+ }else{
+  status.textContent="No primary root selected";
+ }
+}
+
+function normalizeFlags(found){
+ if(found.length<=1){
+  applyState(found);
+  return;
+ }
+
+ var remove=found.slice(1).map(function(id){
+  return shellQuote(rootPath(id));
+ }).join(" ");
+
+ run("rm -f "+remove,function(){
+  applyState([found[0]]);
+ });
+}
+
+function showConsent(id){
+ pendingId=id;
+
+ var item=ROOTS.find(function(root){
+  return root.id===id;
+ });
+
+ document.getElementById("consentRootName").textContent=item.name;
+ document.getElementById("consentCard").classList.add("show");
+
+ setTimeout(function(){
+  document.getElementById("consentCard").scrollIntoView({
+   behavior:"smooth",
+   block:"nearest"
+  });
+ },30);
+}
+
+function hideConsent(){
+ document.getElementById("consentCard").classList.remove("show");
+}
+
+function selectRoot(id){
+ if(execBusy)return;
+
+ if(selectedId===id){
+  execBusy=true;
+
+  run("rm -f "+shellQuote(rootPath(id)),function(){
+   execBusy=false;
+
+   inspectFlags(function(found){
+    normalizeFlags(found);
+    popup("Primary root selection cleared");
+   });
+  });
+
+  return;
+ }
+
+ if(pendingId===id){
+  return;
+ }
+
+ showConsent(id);
+}
+
+function denySelection(){
+ pendingId=null;
+ hideConsent();
+ popup("Selection denied");
+}
+
+function agreeSelection(){
+ if(!pendingId||execBusy)return;
+
+ var id=pendingId;
+ execBusy=true;
+
+ var remove=ROOTS.filter(function(item){
+  return item.id!==id;
+ }).map(function(item){
+  return shellQuote(rootPath(item.id));
+ }).join(" ");
+
+ run(
+  "mkdir -p "+shellQuote(ROOT_DIR)+
+  " && rm -f "+remove+
+  " && touch "+shellQuote(rootPath(id)),
+  function(){
+   execBusy=false;
+
+   inspectFlags(function(found){
+    normalizeFlags(found);
+
+    if(found.indexOf(id)!==-1){
+     popup("Primary root set to "+ROOTS.find(function(x){return x.id===id}).name);
+    }else{
+     popup("Failed to set primary root");
+    }
+   });
+  }
+ );
+}
+
+function openHelp(){
+ document.getElementById("helpModal").classList.add("show");
+ document.body.style.overflow="hidden";
+}
+
+function closeHelp(){
+ document.getElementById("helpModal").classList.remove("show");
+ document.body.style.overflow="";
+}
+
+function closeHelpOnBackdrop(e){
+ if(e.target===e.currentTarget){
+  closeHelp();
+ }
+}
+
+function init(){
+ render();
+
+ inspectFlags(function(found){
+  normalizeFlags(found);
+ });
+}
+
+document.addEventListener("DOMContentLoaded",init);
+</script>
+
+<script src="../TRANSLATIONS/meow.js"></script>
+<script>
+(function(){
+ var lang=localStorage.getItem('ibLang')||'en';
+
+ if(lang!=='en'){
+  var s=document.createElement('script');
+  s.src='../TRANSLATIONS/'+lang+'.js';
+  s.onload=function(){
+   if(window.i18nBoot)window.i18nBoot();
+  };
+  document.head.appendChild(s);
+ }
+})();
+</script>
+</body>
+</html>

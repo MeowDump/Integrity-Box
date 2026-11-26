@@ -67,7 +67,6 @@ body{
   text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;padding-left:4px;
 }
 
-/* Master Row */
 .row{
   position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;
   gap:14px;padding:20px;border-radius:16px;background:rgba(255,255,255,0.03);
@@ -96,7 +95,6 @@ body{
 .switch input:checked+.slider{background:var(--accent);box-shadow:0 0 20px var(--accent-glow)}
 .switch input:checked+.slider .knob{transform:translateX(26px)}
 
-/* Info Button */
 .info-btn{
   width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.05);
   border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;
@@ -117,7 +115,6 @@ body{
 }
 .info-tooltip strong{color:var(--fg);display:block;margin-bottom:8px;font-size:14px}
 
-/* Warning */
 .warning-banner{
   display:none;align-items:center;gap:12px;padding:14px 18px;border-radius:16px;
   background:linear-gradient(135deg,rgba(255,71,87,0.12),rgba(255,165,2,0.06));
@@ -128,7 +125,6 @@ body{
 .warning-banner .material-icons{font-size:22px;color:var(--danger)}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 
-/* Apps Header */
 .apps-header{
   display:flex;align-items:center;justify-content:center;position:relative;z-index:2;padding:8px 4px 6px;flex-wrap:wrap;gap:12px;
 }
@@ -210,7 +206,6 @@ body{
 .locked-overlay .locked-text{font-size:1.1rem;font-weight:700;color:var(--fg)}
 .locked-overlay .locked-sub{font-size:0.85rem;color:var(--text2);max-width:320px;line-height:1.4}
 
-/* Modal */
 .modal-overlay{
   display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);
   z-index:9998;align-items:center;justify-content:center;padding:20px;
@@ -488,6 +483,32 @@ function fetchApps(system,cb){
       const i=l.indexOf("|");
       return{pkg:i>0?l.slice(0,i):l,label:i>0?l.slice(i+1):l,system:system};
     }).filter(a=>a.pkg);
+
+    try{
+      if(window.ksu && typeof window.ksu.getPackagesInfo==="function" && apps.length){
+        let result;
+        try{
+          result=window.ksu.getPackagesInfo(JSON.stringify(apps.map(a=>a.pkg)));
+        }catch(e){
+          result=window.ksu.getPackagesInfo(apps.map(a=>a.pkg));
+        }
+        const details=typeof result==="string"?JSON.parse(result):result;
+        if(Array.isArray(details)){
+          const labels=new Map();
+          details.forEach(info=>{
+            if(info && info.packageName && info.appLabel && !info.error){
+              labels.set(info.packageName,String(info.appLabel));
+            }
+          });
+          apps.forEach(app=>{
+            app.label=labels.get(app.pkg)||app.label||app.pkg;
+          });
+        }
+      }
+    }catch(e){
+      console.warn("KernelSU package metadata unavailable:",e);
+    }
+
     cb(apps);
   });
 }
@@ -683,7 +704,6 @@ function showInfo(e){
   }
 }
 
-/* Backup / Restore */
 function openBackupModal(){
   const now=new Date();
   const name="apps_"+now.getFullYear()+(now.getMonth()+1).toString().padStart(2,"0")+now.getDate().toString().padStart(2,"0")+"_"+now.getHours().toString().padStart(2,"0")+now.getMinutes().toString().padStart(2,"0")+".txt";

@@ -20,6 +20,7 @@ for _f in \
     "$boot/.box_cleanup.sh" \
     "$backend/teesim.sh" \
     "$backend/susfiles.sh" \
+    "$backend/PID.sh" \
     "$backend/web_bridge.sh" \
     "$backend/autopilot.sh" \
     "$backend/multiroot.sh" \

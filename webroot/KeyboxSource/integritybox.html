@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Keybox Source</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root{
+ --bg:#0e1020;--fg:#e6e6e6;--accent:#4da3ff;--accent-glow:rgba(77,163,255,.3);
+ --panel-bg:#232637cc;--border-radius:20px;--shadow:rgba(0,0,0,.4);
+ --success:#4dff88;--danger:#ff4d4d;--text2:#9aa3ff;--spring:cubic-bezier(.2,.8,.2,1)
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
+font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui;background:radial-gradient(circle at 30% 20%,#1c2045 0%,#0e1020 100%);
+color:var(--fg);-webkit-font-smoothing:antialiased}
+.card{width:380px;max-width:100%;background:var(--panel-bg);backdrop-filter:blur(20px);border-radius:var(--border-radius);
+padding:28px;box-shadow:0 25px 60px var(--shadow),0 0 0 1px rgba(255,255,255,.06);position:relative;overflow:hidden;animation:entry .6s var(--spring)}
+.card:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,var(--accent),transparent 70%);
+filter:blur(40px);opacity:.15;pointer-events:none;z-index:0;animation:glow 8s ease-in-out infinite}
+@keyframes entry{from{opacity:0;transform:translateY(30px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes glow{0%,100%{opacity:.12}50%{opacity:.25}}
+h1{position:relative;z-index:2;margin:0 0 24px;text-align:center;font-size:22px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px}
+h1 .material-icons{font-size:24px;background:linear-gradient(135deg,var(--accent),#5AC8FA);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.section-label{position:relative;z-index:2;font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;padding-left:4px}
+.row{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px;border-radius:16px;
+background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);margin-bottom:10px;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1)}
+.row:hover{background:rgba(255,255,255,.06);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3);border-color:rgba(77,163,255,.2)}
+.row:active{transform:scale(.98)}
+.row.on{background:rgba(77,163,255,.1);border-color:rgba(77,163,255,.4);box-shadow:0 0 20px rgba(77,163,255,.15)}
+.row.on .icon-wrap{background:var(--accent);box-shadow:0 4px 16px var(--accent-glow)}
+.row.on .icon-wrap .material-icons{color:#fff}
+.row.on .title{color:var(--accent)}
+.row.on .status-dot{background:var(--success);box-shadow:0 0 12px var(--success)}
+.icon-wrap{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;transition:.3s;flex-shrink:0}
+.icon-wrap .material-icons{font-size:24px;color:var(--text2);transition:.3s}
+.content{flex:1;min-width:0}.title{font-size:15px;font-weight:600;color:var(--fg);transition:color .3s}
+.status-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.2);transition:.3s;flex-shrink:0}
+.switch{position:relative;width:54px;height:30px;flex-shrink:0;pointer-events:none}
+.switch input{position:absolute;opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;border-radius:999px;background:rgba(255,255,255,.1);transition:.3s;box-shadow:inset 0 2px 4px rgba(0,0,0,.2)}
+.knob{position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:linear-gradient(145deg,#fff,#e0e0e0);
+transition:transform .25s var(--spring);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.switch input:checked+.slider{background:var(--accent);box-shadow:0 0 20px var(--accent-glow)}
+.switch input:checked+.slider .knob{transform:translateX(24px)}
+.switch input:disabled+.slider{opacity:.28}
+.download{display:none;position:relative;z-index:2;width:100%;margin-top:6px;padding:15px;border-radius:14px;border:1px solid rgba(77,163,255,.2);
+background:rgba(77,163,255,.1);color:var(--accent);font:700 14px inherit;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:.25s}
+.download:hover{background:rgba(77,163,255,.2);box-shadow:0 4px 16px rgba(77,163,255,.15);transform:translateY(-2px)}
+.download:active{transform:scale(.97)}.download:disabled{opacity:.3;cursor:not-allowed;transform:none;box-shadow:none}
+.status{position:relative;z-index:2;text-align:center;color:var(--text2);font-size:12px;margin-top:15px;min-height:18px}
+.footer{position:relative;z-index:2;text-align:center;color:var(--text2);font-size:11px;opacity:.6;margin-top:16px}
+.help-btn{position:absolute;top:18px;right:18px;z-index:10;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.05);
+border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.25s}
+.help-btn:hover{background:rgba(77,163,255,.15);border-color:rgba(77,163,255,.3);transform:scale(1.1)}
+.help-btn .material-icons{font-size:20px;color:var(--text2)}
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(20px);background:rgba(30,33,60,.95);
+backdrop-filter:blur(20px);color:var(--fg);padding:14px 28px;border-radius:100px;box-shadow:0 10px 40px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.1);
+opacity:0;pointer-events:none;transition:.35s;z-index:9999;font-weight:600;font-size:14px;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.toast .material-icons{font-size:20px;color:var(--success)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(12px);z-index:10000;display:flex;align-items:flex-end;justify-content:center;
+opacity:0;pointer-events:none;transition:opacity .35s}
+.modal-overlay.show{opacity:1;pointer-events:auto}.modal-sheet{width:100%;max-width:420px;max-height:85vh;background:var(--panel-bg);backdrop-filter:blur(30px);
+border-radius:24px 24px 0 0;box-shadow:0 -10px 60px rgba(0,0,0,.5);display:flex;flex-direction:column;transform:translateY(100%);transition:transform .4s var(--spring);overflow:hidden}
+.modal-overlay.show .modal-sheet{transform:translateY(0)}.modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 12px;
+border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0}.modal-header h2{font-size:18px;display:flex;align-items:center;gap:10px}.modal-header h2 .material-icons{color:var(--accent)}
+.modal-close{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.modal-close .material-icons{font-size:18px;color:var(--text2)}.modal-body{overflow-y:auto;padding:16px 20px 32px}
+.help-section{margin-bottom:20px}.help-section-title{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;padding-left:4px}
+.help-item{display:flex;gap:14px;padding:14px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);margin-bottom:8px}
+.help-item .icon-wrap{width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.06)}.help-item .icon-wrap .material-icons{font-size:20px;color:var(--accent)}
+.help-content{flex:1}.help-title{font-size:14px;font-weight:600;margin-bottom:4px}.help-desc{font-size:12px;color:var(--text2);line-height:1.5;font-weight:500}
+#repoOverlay{position:fixed;inset:0;z-index:20000;background:#000;display:none;flex-direction:column}
+#repoOverlay.show{display:flex}
+#repoBar{position:relative;display:flex;align-items:center;justify-content:flex-end;gap:12px;padding:10px 14px;background:linear-gradient(110deg,#e4edff 0%,#bdebf4 48%,#efdafa 100%);border-bottom:1px solid rgba(255,255,255,.72);box-shadow:0 4px 18px rgba(80,130,160,.12);flex-shrink:0;min-height:58px;box-sizing:border-box}
+#repoBar::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,#c5d9ff,#9de6ee,#e5c7f5);opacity:.9}
+#repoBar strong{display:none}
+#repoClose{appearance:none;-webkit-appearance:none;border:1px solid rgba(255,255,255,.26);border-radius:13px;padding:9px 15px;background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.07));color:#f8fbff;font:600 13px/1.2 inherit;letter-spacing:.01em;box-shadow:0 2px 8px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.12);cursor:pointer;transition:transform .15s ease,background .15s ease,border-color .15s ease;min-width:68px}
+#repoActions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+#repoRefresh,#repoClose{appearance:none;-webkit-appearance:none;display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;min-width:42px;padding:0;border:1px solid rgba(255,255,255,.88);border-radius:15px;background:rgba(255,255,255,.52);color:#344a65;font:600 22px/1 system-ui,-apple-system,sans-serif;box-shadow:0 3px 12px rgba(70,110,145,.12),inset 0 1px 0 rgba(255,255,255,.8);cursor:pointer;transition:transform .15s ease,background .15s ease;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+#repoRefresh{display:flex;align-items:center;gap:0}
+#repoRefresh:active,#repoClose:active{transform:scale(.94);background:rgba(255,255,255,.78)}
+#repoRefresh:disabled{opacity:.55;cursor:wait}
+#repoClose:focus-visible,#repoRefresh:focus-visible{outline:2px solid #a6e9f1;outline-offset:3px}
+#repoMessage{position:absolute;z-index:20;inset:0;display:none;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;text-align:center;background:linear-gradient(135deg,#e5edff,#bdebf3 52%,#f0dcfa);color:#263348}
+#repoMessage.show{display:flex}
+#repoMessage .message-card{width:min(100%,340px);padding:24px 20px;border:1px solid rgba(255,255,255,.75);border-radius:22px;background:rgba(255,255,255,.48);box-shadow:0 12px 40px rgba(60,100,140,.12);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+#repoMessage .message-icon{font-size:34px;line-height:1;margin-bottom:14px}
+#repoMessage h2{font-size:18px;margin:0 0 8px;font-weight:800}
+#repoMessage p{font-size:13px;line-height:1.55;color:#52647b;margin:0 0 18px}
+#repoTryAgain{border:0;border-radius:12px;padding:11px 18px;background:#263b58;color:white;font:700 13px system-ui,sans-serif;cursor:pointer}
+#repoMessage .message-note{font-size:11px;color:#65758b;margin-top:12px}
+#repoMessage:not(.failed) #repoTryAgain{display:none}
+#repoMessage:not(.failed) .message-card{padding-top:28px;padding-bottom:28px}
+#repoMessage.failed #repoTryAgain{display:inline-flex;align-items:center;justify-content:center}
+#repoMessage .connecting-spinner{width:30px;height:30px;margin:0 auto 14px;border:3px solid rgba(65,100,140,.18);border-top-color:#557da7;border-radius:50%;animation:repoSpin .8s linear infinite}
+@keyframes repoSpin{to{transform:rotate(360deg)}}
+@media(max-width:380px){#repoBar{padding:8px 12px;min-height:52px}#repoRefresh,#repoClose{width:38px;height:38px;min-width:38px}}
+#repoClose:focus-visible{outline:2px solid #a6e9f1;outline-offset:3px}
+@media(hover:hover){#repoClose:hover{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.42)}}
+#repoFrame{width:100%;flex:1;min-height:0;border:0;background:#000}
+#repoViewport{position:relative;flex:1;min-height:0;overflow:hidden}
+#repoFrame{height:100%;display:block}
+#repoTopCover{position:absolute;z-index:10;top:0;left:0;right:0;height:23%;display:flex;align-items:center;justify-content:center;
+  padding:20px;text-align:center;box-sizing:border-box;background:linear-gradient(135deg,rgba(222,232,255,.76),rgba(170,231,245,.72),rgba(236,211,250,.72));border-bottom:1px solid rgba(255,255,255,.22);
+  color:#263348;pointer-events:auto;touch-action:none;backdrop-filter:blur(28px) saturate(1.2);-webkit-backdrop-filter:blur(28px) saturate(1.2)}
+#repoTopCover .cover-inner{max-width:320px}
+#repoTopCover .cover-title{font-size:15px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+#repoTopCover .cover-subtitle{font-size:12px;line-height:1.5;color:#52647b}
+#repoBottomCover{position:absolute;z-index:10;left:0;right:0;bottom:0;height:13%;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;text-align:center;background:linear-gradient(135deg,rgba(222,232,255,.78),rgba(170,231,245,.76),rgba(236,211,250,.78));border-top:1px solid rgba(255,255,255,.28);color:#263348;pointer-events:auto;touch-action:none;backdrop-filter:blur(28px) saturate(1.2);-webkit-backdrop-filter:blur(28px) saturate(1.2)}
+#repoBottomCover .cover-subtitle{font-size:12px;line-height:1.5;color:#52647b}
+#busyOverlay{position:fixed;inset:0;z-index:40000;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(5,8,18,.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+#busyOverlay.show{display:flex}
+.busy-card{width:min(100%,320px);padding:26px 22px;border:1px solid rgba(255,255,255,.12);border-radius:22px;background:#202436;box-shadow:0 18px 60px rgba(0,0,0,.45);text-align:center;color:#eee}
+.busy-spinner{width:36px;height:36px;margin:0 auto 16px;border:3px solid rgba(77,163,255,.2);border-top-color:#4da3ff;border-radius:50%;animation:repoSpin .75s linear infinite}
+.busy-title{font-size:15px;font-weight:700;margin-bottom:7px}
+.busy-text{font-size:12px;line-height:1.5;color:#aeb5c7}
+#destinationModal{position:fixed;inset:0;z-index:30000;background:#000b;display:none;align-items:flex-end;justify-content:center;padding:12px}
+#destinationModal.show{display:flex}
+.dest-card{width:100%;max-width:440px;background:#202436;border:1px solid #ffffff20;border-radius:22px;padding:18px;color:#eee}
+.dest-card h2{font-size:18px;margin-bottom:6px}.dest-card p{font-size:12px;color:#aeb5c7;margin-bottom:14px}
+.dest-choice{width:100%;display:block;text-align:left;padding:13px;margin:8px 0;border-radius:13px;border:1px solid #ffffff18;background:#292d40;color:#fff}
+.dest-choice small{display:block;color:#aeb5c7;font-size:11px;margin-top:4px;overflow-wrap:anywhere}
+.dest-cancel{width:100%;padding:12px;border:1px solid #ffffff20;border-radius:12px;background:transparent;color:#ddd;margin-top:5px}
+
+.keybox-check{position:relative;display:flex;align-items:flex-start;gap:13px;padding:16px;margin:12px 0 16px;border:1px solid rgba(255,255,255,.1);border-radius:17px;background:rgba(255,255,255,.035);color:#e9edf7;overflow:hidden;transition:background .25s,border-color .25s}
+.keybox-check:before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--check-color,#8d96aa);opacity:.9}
+.keybox-check-symbol{width:42px;height:42px;flex:0 0 42px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:var(--check-tint,rgba(255,255,255,.07));color:var(--check-color,#aeb5c7)}
+.keybox-check-symbol .material-icons{font-size:25px}
+.keybox-check-copy{min-width:0;flex:1;padding-top:1px}
+.keybox-check-title{font-size:14px;font-weight:800;letter-spacing:.01em;line-height:1.35;margin-bottom:5px;color:var(--check-color,#e9edf7)}
+.keybox-check-message{font-size:12px;line-height:1.55;color:#b9c1d2;overflow-wrap:anywhere}
+.keybox-check-serials{margin-top:9px;padding:8px 10px;border-radius:9px;background:rgba(0,0,0,.2);font:11px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--check-color,#dce2ef);overflow-wrap:anywhere}
+.keybox-check.valid{--check-color:#48e18b;--check-tint:rgba(72,225,139,.12);border-color:rgba(72,225,139,.28);background:linear-gradient(115deg,rgba(42,170,101,.10),rgba(255,255,255,.025))}
+.keybox-check.revoked{--check-color:#ff626f;--check-tint:rgba(255,98,111,.13);border-color:rgba(255,98,111,.32);background:linear-gradient(115deg,rgba(200,48,64,.12),rgba(255,255,255,.025))}
+.keybox-check.expired{--check-color:#d4a017;--check-tint:rgba(212,160,23,.13);border-color:rgba(212,160,23,.32);background:linear-gradient(115deg,rgba(160,120,20,.12),rgba(255,255,255,.025))}
+.keybox-check.checking{--check-color:#8dbdff;--check-tint:rgba(141,189,255,.12);border-color:rgba(141,189,255,.22)}
+.keybox-check.unknown{--check-color:#f3bd66;--check-tint:rgba(243,189,102,.12);border-color:rgba(243,189,102,.25)}
+.keybox-check.checking .check-icon{animation:checkPulse 1.25s ease-in-out infinite}
+@keyframes checkPulse{50%{opacity:.45;transform:scale(.92)}}
+
+@media(max-width:420px){.card{width:100%;padding:22px}.row{padding:14px}}
+</style>
+</head>
+<body>
+<div class="card">
+ <button class="help-btn" onclick="openHelp()"><span class="material-icons">help_outline</span></button>
+ <h1><span class="material-icons">security</span>Keybox Source</h1>
+
+ <div class="section-label">Default Source</div>
+ <div class="row" id="default" onclick="toggleDefault()">
+  <div class="icon-wrap"><span class="material-icons">block</span></div>
+  <div class="content"><div class="title">Skip Integrity Box</div></div>
+  <div class="status-dot"></div>
+  <label class="switch"><input id="defaultInput" type="checkbox"><span class="slider"><span class="knob"></span></span></label>
+ </div>
+
+ <div class="section-label" style="margin-top:20px">Unofficial Keybox Sources</div>
+ <div id="sourceList"></div>
+
+ <button id="download" class="download" onclick="runKey()" disabled>
+  <span class="material-icons">download</span>Download
+ </button>
+
+ <div class="status" id="status">Checking flags...</div>
+ <div class="footer">IntegrityBox © 2026</div>
+</div>
+
+<div id="repoOverlay" aria-hidden="true">
+ <div id="repoBar"><div id="repoActions"><button id="repoRefresh" type="button" aria-label="Refresh repository" title="Refresh"><span class="material-icons" aria-hidden="true">refresh</span></button><button id="repoClose" type="button" aria-label="Close repository" title="Close"><span class="material-icons" aria-hidden="true">close</span></button></div></div>
+ <div id="repoViewport">
+  <iframe id="repoFrame" title="Keybox repository" allow="clipboard-read *; clipboard-write *"></iframe>
+  <div id="repoTopCover" aria-label="Repository information">
+   <div class="cover-inner">
+    <div class="cover-title">DISCLAIMER</div>
+    <div class="cover-subtitle">An ad appears in the end of this page. DO NOT CLICK IT! It is a scam. Ignore it. Don't fall for it!</div>
+   </div>
+  </div>
+  <div id="repoBottomCover" aria-label="Repository footer cover"><div class="cover-subtitle">Powered by Tricky Addon Keybox Repository</div></div>
+  <div id="repoMessage" role="status" aria-live="polite">
+   <div class="message-card">
+    <div class="message-icon" id="repoMessageIcon" aria-hidden="true"><div class="connecting-spinner"></div></div>
+    <h2 id="repoMessageTitle">Connecting to repository</h2>
+    <p id="repoMessageText">Please wait while the keybox repository loads.</p>
+    <button id="repoTryAgain" type="button">Try again</button>
+    <div class="message-note" id="repoMessageNote">Check your internet connection if this takes too long.</div>
+   </div>
+  </div>
+ </div>
+</div>
+
+<div id="destinationModal" aria-hidden="true">
+ <div class="dest-card">
+  <h2>Choose destination</h2><p id="pendingKeyboxName">Downloaded keybox</p>
+  <div id="keyboxCheck" class="keybox-check checking" role="status" aria-live="polite">
+   <div class="keybox-check-symbol"><span class="material-icons check-icon">hourglass_top</span></div>
+   <div class="keybox-check-copy">
+    <div id="keyboxCheckTitle" class="keybox-check-title">Checking keybox</div>
+    <div id="keyboxCheckText" class="keybox-check-message">Comparing certificate serials with the revocation list…</div>
+    <div id="keyboxCheckSerials" class="keybox-check-serials" hidden></div>
+   </div>
+  </div>
+  <div id="destinationOptions" hidden>
+   <button class="dest-choice" data-target="omk">OH MY KEYMINT<small>/data/misc/keystore/omk/keybox.xml</small></button>
+   <button class="dest-choice" data-target="tricky">TRICKY STORE / TEE SIMULATOR RS<small>/data/adb/tricky_store/keybox.xml</small></button>
+   <button class="dest-choice" data-target="teesim">TEE SIM JingMatrix<small>/data/adb/teesim/keybox.xml</small></button>
+   <button id="destCancel" class="dest-cancel">Cancel</button>
+  </div>
+ </div>
+</div>
+<div id="busyOverlay" aria-hidden="true" role="status" aria-live="polite"><div class="busy-card"><div class="busy-spinner"></div><div class="busy-title" id="busyTitle">Please wait</div><div class="busy-text" id="busyText">Working…</div></div></div>
+<div id="toast" class="toast"><span class="material-icons">check_circle</span><span id="toastText"></span></div>
+
+<div id="helpModal" class="modal-overlay" onclick="closeHelpOnBackdrop(event)">
+ <div class="modal-sheet" onclick="event.stopPropagation()">
+  <div class="modal-header">
+   <h2><span class="material-icons">help_outline</span>What does this do?</h2>
+   <button class="modal-close" onclick="closeHelp()"><span class="material-icons">close</span></button>
+  </div>
+  <div class="modal-body">
+   <div class="help-section">
+    <div class="help-section-title">Keybox Source</div>
+    <div class="help-item"><div class="icon-wrap"><span class="material-icons">vpn_key</span></div><div class="help-content">
+     <div class="help-title">Source Selection</div><div class="help-desc">Each download session allows you to choose only one keybox source. Using multiple sources at the same time isn’t supported because the files could conflict with one another</div>
+    </div></div>
+    <div class="help-item"><div class="icon-wrap"><span class="material-icons">block</span></div><div class="help-content">
+     <div class="help-title">Skip Integrity Box toggle</div><div class="help-desc">When you click the ACTION button, the default IntegrityBox keybox source will be disabled, and the unofficial source you selected will be used instead</div>
+    </div></div>
+    <div class="help-item"><div class="icon-wrap"><span class="material-icons">download</span></div><div class="help-content">
+     <div class="help-title">Download Button</div><div class="help-desc">You can download the keybox from any of the unofficial sources mentioned above by clicking the Download button. The downloaded keybox will automatically replace the existing keybox at its current path, so no manual changes or configuration are required</div>
+    </div></div>
+   </div>
+  </div>
+ </div>
+</div>
+
+<script>
+var DIR="/data/adb/Box-Brain";
+var DEFAULT_FLAG=DIR+"/disable-default-source";
+var KEY_SCRIPT="/data/adb/modules/integrity-box/webroot/common_scripts/spectre.sh";
+var SPECTER_KEYBOX="/data/adb/Box-Brain/catalog_test/keybox.xml";
+
+var SOURCES=[
+ {id:"specter",name:"Specter"},
+ {id:"tricky-addon",name:"Tricky Addon"}
+];
+
+var selectedId=null;
+var execBusy=false;
+var REPO_URL="https://keybox.kowx712.cc";
+var KEYBOX_DEST="/data/adb/tricky_store/keybox.xml";
+var repoHandshake=null;
+var pendingKeyboxText=null;
+var KEYBOX_DESTINATIONS={omk:"/data/misc/keystore/omk/keybox.xml",tricky:"/data/adb/tricky_store/keybox.xml",teesim:"/data/adb/teesim/keybox.xml"};
+
+function sourcePath(id){return DIR+"/keybox-source-"+id}
+
+function shellQuote(value){
+ return "'"+String(value).replace(/'/g,"'\\''")+"'";
+}
+
+function popup(msg){
+ var toast=document.getElementById("toast");
+ document.getElementById("toastText").textContent=msg;
+ toast.classList.add("show");
+ clearTimeout(popup.timer);
+ popup.timer=setTimeout(function(){toast.classList.remove("show")},2400);
+}
+
+function run(cmd,cb){
+ var k=(window.parent&&window.parent.ksu)||window.ksu;
+ if(!k||!k.exec){popup("KSU API unavailable");if(cb)cb("");return;}
+ var owner=window.parent||window;
+ var id="c"+Date.now()+Math.floor(Math.random()*1000);
+ var done=false;
+ function finish(value){if(done)return;done=true;clearTimeout(timer);try{delete owner[id]}catch(e){}if(cb)cb(String(value||""));}
+ var timer=setTimeout(function(){finish("")},120000);
+ owner[id]=function(){finish(arguments.length===1?arguments[0]:arguments[1]||"");};
+ k.exec("sh -c '"+cmd.replace(/'/g,"'\\''")+"'","{}",id);
+}
+
+function render(){
+ var list=document.getElementById("sourceList");list.innerHTML="";
+ SOURCES.forEach(function(item){
+  var row=document.createElement("div");row.className="row";row.id="row-"+item.id;
+  row.onclick=function(){selectSource(item.id);};
+  row.innerHTML='<div class="icon-wrap"><span class="material-icons">vpn_key</span></div><div class="content"><div class="title">'+item.name+'</div></div><div class="status-dot"></div><label class="switch"><input id="'+item.id+'Input" type="checkbox"><span class="slider"><span class="knob"></span></span></label>';
+  list.appendChild(row);
+ });
+}
+
+function setOn(id,on){var row=document.getElementById(id);if(!row)return;row.classList.toggle("on",!!on);var input=row.querySelector("input");if(input)input.checked=!!on;}
+
+function showBusy(title,message){
+ document.getElementById("busyTitle").textContent=title||"Please wait";
+ document.getElementById("busyText").textContent=message||"Working…";
+ var overlay=document.getElementById("busyOverlay");overlay.classList.add("show");overlay.setAttribute("aria-hidden","false");
+}
+function hideBusy(){var overlay=document.getElementById("busyOverlay");overlay.classList.remove("show");overlay.setAttribute("aria-hidden","true");}
+
+function applyState(id){
+ selectedId=id||null;
+ SOURCES.forEach(function(item){setOn("row-"+item.id,item.id===selectedId);});
+ var defaultInput=document.getElementById("defaultInput");
+ var canSkip=selectedId==="specter";
+ defaultInput.disabled=!canSkip||execBusy;
+ if(!canSkip){defaultInput.checked=false;setOn("default",false);}
+ var download=document.getElementById("download");
+ download.style.display=selectedId?"flex":"none";download.disabled=!selectedId||execBusy;
+ download.innerHTML=selectedId==="tricky-addon"?'<span class="material-icons">open_in_browser</span>Open Keybox Repo':'<span class="material-icons">download</span>Download';
+ document.getElementById("status").textContent=selectedId?"Active: "+SOURCES.find(function(x){return x.id===selectedId;}).name:"No source selected";
+}
+
+function selectSource(id){
+ if(execBusy)return;
+ if(selectedId===id){if(id==="tricky-addon"){openRepo();return;} }
+ var next=selectedId===id?null:id;
+ if(next!=="specter")run("rm -f "+shellQuote(DEFAULT_FLAG),function(){});
+ applyState(next);
+ popup(next?"Source enabled":"Source disabled");
+}
+
+function toggleDefault(){
+ if(selectedId!=="specter"||execBusy)return;
+ var input=document.getElementById("defaultInput");
+ var on=!input.checked;
+ var command=on?"touch "+shellQuote(DEFAULT_FLAG):"rm -f "+shellQuote(DEFAULT_FLAG);
+ execBusy=true;input.disabled=true;
+ showBusy(on?"Updating preference":"Updating preference",on?"Enabling Skip Integrity Box…":"Disabling Skip Integrity Box…");
+ run(command+" && echo DEFAULT_OK",function(out){
+  execBusy=false;hideBusy();
+  var ok=String(out||"").indexOf("DEFAULT_OK")!==-1;
+  input.disabled=selectedId!=="specter";
+  if(ok){input.checked=on;setOn("default",on);popup(on?"Skip Integrity Box enabled":"Skip Integrity Box disabled");}
+  else{popup("Could not update preference");}
+  document.getElementById("download").disabled=!selectedId;
+ });
+}
+
+var repoLoadTimer=null;
+var repoLoadToken=0;
+var repoLoaded=false;
+var repoOpened=false;
+var repoUrl="";
+
+function setRepoMessage(title,message,icon,note){
+ var box=document.getElementById("repoMessage");
+ document.getElementById("repoMessageTitle").textContent=title;
+ document.getElementById("repoMessageText").textContent=message;
+ var iconEl=document.getElementById("repoMessageIcon");
+ iconEl.innerHTML=(title==="Connecting to repository")?"<div class=\"connecting-spinner\"></div>":(icon||"!");
+ document.getElementById("repoMessageNote").textContent=note||"";
+ box.classList.toggle("failed",title!=="Connecting to repository");
+ box.classList.add("show");
+}
+function hideRepoMessage(){document.getElementById("repoMessage").classList.remove("show");}
+function stopRepoLoadTimer(){if(repoLoadTimer){clearTimeout(repoLoadTimer);repoLoadTimer=null;}}
+function closeRepo(){
+  repoOpened=false;
+  stopRepoLoadTimer();
+  if(repoHandshake){clearInterval(repoHandshake);repoHandshake=null;}
+  var overlay=document.getElementById("repoOverlay");
+  var frame=document.getElementById("repoFrame");
+  frame.onload=null;
+  frame.src="about:blank";
+  overlay.classList.remove("show");
+  overlay.setAttribute("aria-hidden","true");
+  hideRepoMessage();
+}
+function refreshRepo(){
+  if(!repoOpened)return;
+  stopRepoLoadTimer();
+  if(repoHandshake){clearInterval(repoHandshake);repoHandshake=null;}
+  repoLoaded=false;
+  var token=++repoLoadToken;
+  var frame=document.getElementById("repoFrame");
+  var refresh=document.getElementById("repoRefresh");
+  refresh.disabled=true;
+  setRepoMessage(navigator.onLine===false?"You're offline":"Connecting to repository",navigator.onLine===false?"The internet connection appears to be unavailable. Reconnect and try again.":"Loading the latest repository page…","↻","The repository may take a few seconds to respond.");
+  if(navigator.onLine===false){refresh.disabled=false;return;}
+  repoLoadTimer=setTimeout(function(){
+    if(token!==repoLoadToken||repoLoaded||!repoOpened)return;
+    refresh.disabled=false;
+    setRepoMessage("Repository isn't responding","The page took too long to load. Check your connection, then try again.","!","A slow server or network interruption can cause this.");
+  },15000);
+  frame.onload=function(){
+    if(token!==repoLoadToken||!repoOpened)return;
+    if(!frame.src.startsWith(REPO_URL))return;
+    function handshake(){try{frame.contentWindow.postMessage({type:"handshake"},REPO_URL);}catch(e){}}
+    handshake();
+    if(repoHandshake)clearInterval(repoHandshake);
+    repoHandshake=setInterval(handshake,500);
+  };
+  frame.src=repoUrl+(repoUrl.indexOf("?")>=0?"&":"?")+"_refresh="+Date.now();
+}
+function openRepo(){
+  var overlay=document.getElementById("repoOverlay");
+  overlay.classList.add("show");
+  overlay.setAttribute("aria-hidden","false");
+  repoOpened=true;
+  repoUrl=REPO_URL+"/"+((navigator.language||"en").split("-")[0]);
+  refreshRepo();
+}
+window.addEventListener("offline",function(){
+ if(repoOpened&&!repoLoaded){stopRepoLoadTimer();document.getElementById("repoRefresh").disabled=false;setRepoMessage("No internet connection","Your device appears to be offline. Reconnect to the internet and tap Try again.","⌁","Your selected keybox source has not been changed.");}
+});
+window.addEventListener("online",function(){if(repoOpened&&!repoLoaded)refreshRepo();});
+
+document.getElementById("repoClose").addEventListener("click",closeRepo);
+document.getElementById("repoRefresh").addEventListener("click",refreshRepo);
+document.getElementById("repoTryAgain").addEventListener("click",refreshRepo);
+
+window.addEventListener("message",function(event){
+  if(event.origin!==REPO_URL||!event.data||typeof event.data!=="object")return;
+  if(event.data.type==="handshake_ack"){
+    if(repoHandshake){clearInterval(repoHandshake);repoHandshake=null;}
+    repoLoaded=true;stopRepoLoadTimer();
+    document.getElementById("repoRefresh").disabled=false;
+    hideRepoMessage();
+    return;
+  }
+  if(event.data.type==="error"){
+    closeRepo();
+    popup("Keybox download failed");
+    document.getElementById("status").textContent="Repository download failed";
+    return;
+  }
+  if(event.data.type!=="download"||typeof event.data.url!=="string")return;
+
+  if(execBusy)return;
+  execBusy=true;
+  var button=document.getElementById("download");
+  var status=document.getElementById("status");
+  button.disabled=true;
+  status.textContent="Downloading keybox...";
+  fetch(event.data.url).then(function(response){
+    if(!response.ok)throw new Error("HTTP "+response.status);
+    return response.text();
+  }).then(function(content){
+    if(!content||!content.trim())throw new Error("Empty keybox");
+    pendingKeyboxText=content;
+    closeRepo();
+    document.getElementById("pendingKeyboxName").textContent="Keybox received from Tricky Addon";
+    document.getElementById("destinationModal").classList.add("show");
+    document.getElementById("destinationModal").setAttribute("aria-hidden","false");
+    status.textContent="Verifying downloaded keybox…";
+    execBusy=false;
+    button.disabled=!selectedId;
+    verifyKeyboxBeforeDestinations(content,null);
+  }).catch(function(error){
+    execBusy=false;
+    button.disabled=!selectedId;
+    status.textContent="Download failed: "+(error.message||"unknown error");
+    popup("Keybox download failed");
+  });
+});
+
+var KEYBOX_STATUS_FILE=DIR+"/status.json";
+
+function normalizeSerial(value){
+ return String(value||"").replace(/^0x/i,"").replace(/[^a-fA-F0-9]/g,"").replace(/^0+/,"").toLowerCase()||"0";
+}
+function readDerLength(bytes,state){
+ var first=bytes[state.i++];if(first<128)return first;
+ var count=first&127;if(!count||count>4||state.i+count>bytes.length)throw new Error("Invalid DER length");
+ var length=0;for(var i=0;i<count;i++)length=(length<<8)|bytes[state.i++];
+ return length;
+}
+function readDerNode(bytes,state){
+ if(state.i>=bytes.length)throw new Error("Unexpected end of certificate");
+ var tag=bytes[state.i++],length=readDerLength(bytes,state),start=state.i,end=start+length;
+ if(end>bytes.length)throw new Error("Invalid DER node");
+ state.i=end;return {tag:tag,start:start,end:end,length:length};
+}
+function certificateSerialAndExpiry(der){
+ var state={i:0},cert=readDerNode(der,state);
+ if(cert.tag!==0x30)throw new Error("Certificate is not a DER sequence");
+ state.i=cert.start;var tbs=readDerNode(der,state);
+ if(tbs.tag!==0x30)throw new Error("Missing TBSCertificate");
+ var t={i:tbs.start},node=readDerNode(der,t);
+ if(node.tag===0xa0)node=readDerNode(der,t);
+ if(node.tag!==0x02)throw new Error("Certificate serial number missing");
+ var hex="";for(var i=node.start;i<node.end;i++)hex+=der[i].toString(16).padStart(2,"0");
+ readDerNode(der,t);readDerNode(der,t);var validity=readDerNode(der,t);
+ if(validity.tag!==0x30)throw new Error("Certificate validity missing");
+ var v={i:validity.start},notBefore=readDerNode(der,v),notAfter=readDerNode(der,v);
+ function parseTime(n){
+  var text="";for(var j=n.start;j<n.end;j++)text+=String.fromCharCode(der[j]);
+  if(n.tag===0x17){ // UTCTime YYMMDDHHMMSSZ (or seconds omitted)
+   var m=text.match(/^(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})?(Z|[+-]\d{4})$/);
+   if(!m)throw new Error("Invalid UTCTime");
+   var year=Number(m[1]);year=year>=50?1900+year:2000+year;
+   text=String(year)+m[2]+m[3]+m[4]+m[5]+(m[6]||"00")+m[7];
+  }else if(n.tag!==0x18)throw new Error("Unsupported certificate time format");
+  var g=text.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(?:\.\d+)?(Z|[+-]\d{4})$/);
+  if(!g)throw new Error("Invalid certificate time");
+  var iso=g[1]+"-"+g[2]+"-"+g[3]+"T"+g[4]+":"+g[5]+":"+g[6]+(g[7]==="Z"?"Z":g[7].slice(0,3)+":"+g[7].slice(3));
+  var date=new Date(iso);if(isNaN(date.getTime()))throw new Error("Unparseable certificate date");return date;
+ }
+ parseTime(notBefore);
+ return {serial:normalizeSerial(hex),expiry:parseTime(notAfter)};
+}
+function extractKeyboxCertificates(xmlText){
+ var doc=new DOMParser().parseFromString(String(xmlText||""),"application/xml");
+ if(doc.querySelector("parsererror"))throw new Error("Malformed keybox XML");
+ var certs=Array.prototype.slice.call(doc.getElementsByTagName("*")).filter(function(node){
+  return String(node.localName||node.nodeName).split(":").pop().toLowerCase()==="certificate";
+ });
+ if(!certs.length)throw new Error("No Certificate elements found in keybox");
+ var parsed=[],errors=[];
+ certs.forEach(function(cert,index){
+  var encoded=(cert.textContent||"").replace(/-----BEGIN CERTIFICATE-----/gi,"").replace(/-----END CERTIFICATE-----/gi,"").replace(/-----BEGIN X509 CERTIFICATE-----/gi,"").replace(/-----END X509 CERTIFICATE-----/gi,"").replace(/\s+/g,"").replace(/-/g,"+").replace(/_/g,"/");
+  if(!encoded){errors.push("empty certificate "+(index+1));return;}
+  try{while(encoded.length%4)encoded+="=";var raw=atob(encoded),bytes=new Uint8Array(raw.length);for(var i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);parsed.push(certificateSerialAndExpiry(bytes));}
+  catch(e){errors.push("certificate "+(index+1)+": "+(e.message||"decode/DER error"));}
+ });
+ if(!parsed.length)throw new Error("Could not parse certificates"+(errors.length?" ("+errors.slice(0,2).join("; ")+")":""));
+ if(errors.length)throw new Error("Could not parse all certificates ("+errors.slice(0,2).join("; ")+")");
+ return parsed;
+}
+function normalizeStatusEntries(status){
+ if(!status||!status.entries||typeof status.entries!=="object")throw new Error("Status list has no entries object");
+ var found={};
+ Object.keys(status.entries).forEach(function(key){
+  var entry=status.entries[key],serial=normalizeSerial(key);
+  if(serial)found[serial]=entry;
+  if(entry&&typeof entry==="object"){
+   ["serial","serialNumber","certificateSerial"].forEach(function(field){
+    if(entry[field])found[normalizeSerial(entry[field])]=entry;
+   });
+  }
+ });
+ return found;
+}
+function showKeyboxCheck(kind,message,serials){
+ var box=document.getElementById("keyboxCheck");
+ box.className="keybox-check "+kind;
+ var icon=kind==="valid"?"check_circle":kind==="revoked"?"cancel":kind==="expired"?"event_busy":kind==="unknown"?"help_outline":"hourglass_top";
+ document.querySelector("#keyboxCheck .check-icon").textContent=icon;
+ var title=kind==="valid"?"Keybox is valid":kind==="revoked"?"Keybox is revoked":kind==="expired"?"Keybox expired":kind==="unknown"?"Status could not be verified":"Checking keybox";
+ document.getElementById("keyboxCheckTitle").textContent=title;
+ document.getElementById("keyboxCheckText").textContent=message;
+ var serialBox=document.getElementById("keyboxCheckSerials");
+ if(serials&&serials.length){
+  serialBox.textContent="Matched serials: "+serials.slice(0,5).join(", ")+(serials.length>5?" …":"");
+  serialBox.hidden=false;
+ }else{serialBox.textContent="";serialBox.hidden=true;}
+}
+function formatExpiry(date){return date.toLocaleDateString(undefined,{day:"numeric",month:"long",year:"numeric"});}
+function expiryCountdown(date){
+ var remaining=date.getTime()-Date.now();
+ if(remaining<=0)return "This certificate has expired.";
+ if(remaining<24*60*60*1000)return "It may stop working within 24 hours.";
+ var days=Math.ceil(remaining/(24*60*60*1000));
+ return "It may stop working anytime in "+days+" day"+(days===1?"":"s")+".";
+}
+function verifyKeyboxBeforeDestinations(xmlText,sourcePath){
+ var options=document.getElementById("destinationOptions");options.hidden=true;
+ showKeyboxCheck("checking","Comparing certificate serials with the revocation list and checking expiry…");
+ function finishCheck(kind,message,matches){showKeyboxCheck(kind,message,matches||[]);options.hidden=false;}
+ var certificates;
+ try{certificates=extractKeyboxCertificates(xmlText);}
+ catch(e){finishCheck("unknown","Unable to verify this keybox: "+(e.message||"certificate parsing failed")+". Destination selection is available, but status is unknown.");return;}
+ var serials=certificates.map(function(c){return c.serial;});
+ var expiry=certificates.reduce(function(earliest,c){return c.expiry<earliest?c.expiry:earliest;},certificates[0].expiry);
+ run("cat "+shellQuote(KEYBOX_STATUS_FILE),function(output){
+  var status;try{status=JSON.parse(String(output||""));}catch(e){finishCheck("unknown","Revocation status list is missing or invalid. Status is unknown.");return;}
+  var entries;try{entries=normalizeStatusEntries(status);}catch(e){finishCheck("unknown","Revocation status list could not be read. Status is unknown.");return;}
+  var matches=serials.filter(function(serial){return Object.prototype.hasOwnProperty.call(entries,serial);});
+  if(matches.length){
+   var labels=matches.map(function(serial){var entry=entries[serial];return entry&&typeof entry==="object"&&(entry.status||entry.reason)?serial+" ("+(entry.status||entry.reason)+")":serial;});
+   finishCheck("revoked","A certificate serial matches the revocation list. Do not use this keybox.",labels);return;
+  }
+  if(expiry.getTime()<=Date.now()){
+   finishCheck("expired","Expired on "+formatExpiry(expiry)+". This keybox should not be used.",[]);return;
+  }
+  finishCheck("valid","No certificate serial matched the revocation list.\nValid until "+formatExpiry(expiry)+"\n"+expiryCountdown(expiry),[]);
+ });
+}
+
+function installPendingKeybox(targetKey){
+ if(execBusy)return;
+ var target=KEYBOX_DESTINATIONS[targetKey];if(!target)return;
+ var status=document.getElementById("status");
+ if(selectedId==="specter"){
+  execBusy=true;
+  var button=document.getElementById("download");button.disabled=true;
+  status.textContent="Installing keybox...";
+  var source=shellQuote(SPECTER_KEYBOX),path=shellQuote(target),tmp=shellQuote(target+".specter-new"),backup=shellQuote(target+".bak");
+  var dir=shellQuote(target.substring(0,target.lastIndexOf("/")));
+  var cmd="am force-stop com.google.android.gms.unstable && am force-stop com.google.android.gms && am force-stop com.android.vending; [ -s "+source+" ] || { echo KEYBOX_SOURCE_MISSING; exit 1; }; mkdir -p "+dir+" || { echo KEYBOX_DIR_FAILED; exit 1; }; cp "+source+" "+tmp+" || { rm -f "+tmp+"; echo KEYBOX_STAGE_FAILED; exit 1; }; chmod 644 "+tmp+" || { rm -f "+tmp+"; echo KEYBOX_PERMISSIONS_FAILED; exit 1; }; if [ -e "+path+" ]; then cp -p "+path+" "+backup+" || { rm -f "+tmp+"; echo KEYBOX_BACKUP_FAILED; exit 1; }; fi; mv -f "+tmp+" "+path+" || { rm -f "+tmp+"; echo KEYBOX_MOVE_FAILED; exit 1; }; [ -s "+path+" ] && cmp -s "+source+" "+path+" || { echo KEYBOX_VERIFY_FAILED; exit 1; }; echo KEYBOX_INSTALLED";
+  run(cmd,function(out){
+   execBusy=false;button.disabled=!selectedId;
+   var ok=String(out||"").indexOf("KEYBOX_INSTALLED")!==-1;
+   document.getElementById("destinationModal").classList.remove("show");document.getElementById("destinationModal").setAttribute("aria-hidden","true");
+   status.textContent=ok?"Keybox installed at "+target:"Installation failed: "+(String(out||"").match(/KEYBOX_[A-Z_]+/)||["check destination permissions"])[0];
+   popup(ok?"Keybox installed":"Keybox installation failed");
+  });
+  return;
+ }
+ if(!pendingKeyboxText)return;
+ execBusy=true;
+ status.textContent="Installing keybox...";
+ button=document.getElementById("download");button.disabled=true;
+ document.querySelectorAll(".dest-choice").forEach(function(choice){choice.disabled=true;});
+ showBusy("Installing keybox","Copying the downloaded keybox and verifying the destination. Please wait.");
+ var encoded=btoa(unescape(encodeURIComponent(pendingKeyboxText)));
+ var path2=shellQuote(target),backup2=shellQuote(target+".bak"),tmp2=shellQuote(target+".new"),dir2=shellQuote(target.substring(0,target.lastIndexOf("/")));
+ var cmd2="am force-stop com.google.android.gms.unstable && am force-stop com.google.android.gms && am force-stop com.android.vending; mkdir -p "+dir2+" || { echo KEYBOX_DIR_FAILED; exit 1; }; printf '%s' "+shellQuote(encoded)+" | base64 -d > "+tmp2+" || { rm -f "+tmp2+"; echo KEYBOX_DECODE_FAILED; exit 1; }; [ -s "+tmp2+" ] || { rm -f "+tmp2+"; echo KEYBOX_EMPTY; exit 1; }; chmod 644 "+tmp2+" || { rm -f "+tmp2+"; echo KEYBOX_PERMISSIONS_FAILED; exit 1; }; if [ -e "+path2+" ]; then cp -p "+path2+" "+backup2+" || { rm -f "+tmp2+"; echo KEYBOX_BACKUP_FAILED; exit 1; }; fi; mv -f "+tmp2+" "+path2+" || { rm -f "+tmp2+"; echo KEYBOX_MOVE_FAILED; exit 1; }; [ -s "+path2+" ] || { echo KEYBOX_VERIFY_FAILED; exit 1; }; echo KEYBOX_SET:1";
+ run(cmd2,function(out){
+  execBusy=false;hideBusy();button.disabled=!selectedId;pendingKeyboxText=null;
+  document.querySelectorAll(".dest-choice").forEach(function(choice){choice.disabled=false;});
+  document.getElementById("destinationModal").classList.remove("show");
+  document.getElementById("destinationModal").setAttribute("aria-hidden","true");
+  var result=String(out||"");var ok=result.indexOf("KEYBOX_SET:1")!==-1;
+  status.textContent=ok?"Keybox installed at "+target:"Installation failed: "+((result.match(/KEYBOX_[A-Z_]+/)||[])[0]||"check destination permissions");
+  popup(ok?"Keybox installed":"Keybox installation failed");
+ });
+}
+document.querySelectorAll(".dest-choice").forEach(function(button){button.addEventListener("click",function(){installPendingKeybox(button.dataset.target);});});
+document.getElementById("destCancel").addEventListener("click",function(){pendingKeyboxText=null;document.getElementById("destinationOptions").hidden=true;document.getElementById("destinationModal").classList.remove("show");document.getElementById("destinationModal").setAttribute("aria-hidden","true");});
+
+function runKey(){
+ if(!selectedId||execBusy)return;
+ if(selectedId==="tricky-addon"){openRepo();return;}
+ execBusy=true;
+ var button=document.getElementById("download"),status=document.getElementById("status");
+ button.disabled=true;
+ status.textContent="Downloading latest keybox…";
+ showBusy("Downloading keybox","Fetching the latest catalog and decoding a keybox. Please wait.");
+ var script=shellQuote(KEY_SCRIPT),source=shellQuote(SPECTER_KEYBOX);
+ setTimeout(function(){
+  run("[ -f "+script+" ] || { echo SPECTER_SCRIPT_MISSING; exit 1; }; sh "+script+" >/dev/null 2>&1 || { echo SPECTER_DOWNLOAD_FAILED; exit 1; }; [ -s "+source+" ] || { echo SPECTER_OUTPUT_MISSING; exit 1; }; echo SPECTER_DOWNLOAD_OK",function(out){
+   execBusy=false;hideBusy();button.disabled=!selectedId;
+   var result=String(out||"");
+   if(result.indexOf("SPECTER_DOWNLOAD_OK")!==-1){
+    pendingKeyboxText="specter-file";
+    document.getElementById("pendingKeyboxName").textContent="Latest keybox downloaded from Specter";
+    document.getElementById("destinationModal").classList.add("show");
+    document.getElementById("destinationModal").setAttribute("aria-hidden","false");
+    status.textContent="Reading keybox for verification…";
+    run("cat "+shellQuote(SPECTER_KEYBOX),function(xml){
+     if(!xml||!String(xml).trim()){
+      showKeyboxCheck("unknown","Unable to read the downloaded Specter keybox. Status is unknown.");
+      document.getElementById("destinationOptions").hidden=false;
+      return;
+     }
+     verifyKeyboxBeforeDestinations(String(xml),SPECTER_KEYBOX);
+    });
+   }else{
+    status.textContent="Specter download failed";
+    popup("Keybox download failed");
+   }
+  });
+ },50);
+}
+
+function openHelp(){
+ document.getElementById("helpModal").classList.add("show");
+ document.body.style.overflow="hidden";
+}
+
+function closeHelp(){
+ document.getElementById("helpModal").classList.remove("show");
+ document.body.style.overflow="";
+}
+
+function closeHelpOnBackdrop(e){
+ if(e.target===e.currentTarget)closeHelp();
+}
+
+function init(){
+ render();
+
+  run("[ -f "+shellQuote(DEFAULT_FLAG)+" ] && echo DEFAULT_ENABLED || echo DEFAULT_DISABLED",function(out){
+  var enabled=String(out||"").indexOf("DEFAULT_ENABLED")!==-1;
+  applyState(enabled?"specter":null);
+
+  var input=document.getElementById("defaultInput");
+  input.checked=enabled;
+  input.disabled=!enabled && selectedId!=="specter";
+  setOn("default",enabled);
+ });
+}
+
+document.addEventListener("DOMContentLoaded",init);
+</script>
+<script src="../TRANSLATIONS/meow.js"></script>
+<script>
+(function(){
+  var lang = localStorage.getItem('ibLang') || 'en';
+  if (lang !== 'en') {
+    var s = document.createElement('script');
+    s.src = '../TRANSLATIONS/' + lang + '.js';
+    s.onload = function(){ if(window.i18nBoot) window.i18nBoot(); };
+    document.head.appendChild(s);
+  }
+})();
+</script>
+</body>
+</html>
