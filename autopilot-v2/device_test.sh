@@ -4,7 +4,7 @@
 #   sh autopilot-v2/device_test.sh ADDR:PORT [--serial S] [--skip REGEX]
 #
 # Builds the arm64 test binary, stages it and its fixtures in RAM (/dev/.ap, nothing is written to flash), runs the Go
-# suite (month-long simulations are platform independent and skipped by default) and the boot-script test under the
+# suite (month-long simulations are platform independent and skipped by default) and the doctor shell test under the
 # phone's own shell, prints the totals, removes /dev/.ap. Exit 1 on any failure.
 set -eu
 HERE=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
@@ -38,9 +38,7 @@ put "$BIN" /dev/.ap/autopilot-v2/ap.test
 adb -s "$ADDR" shell "su -c 'chmod 700 /dev/.ap/autopilot-v2/ap.test'"
 for f in "$HERE"/testdata/*; do put "$f" "/dev/.ap/autopilot-v2/testdata/$(basename "$f")"; done
 put "$ROOT/webroot/common_scripts/doctor.sh" /dev/.ap/webroot/common_scripts/doctor.sh
-put "$ROOT/customize.sh" /dev/.ap/customize.sh
-put "$ROOT/pif_policy.sh" /dev/.ap/pif_policy.sh
-put "$HERE/test_pif_policy.sh" /dev/.ap/autopilot-v2/test_pif_policy.sh
+put "$HERE/test_doctor.sh" /dev/.ap/autopilot-v2/test_doctor.sh
 dev=$(adb -s "$ADDR" shell "su -c 'sha256sum /dev/.ap/autopilot-v2/ap.test'" | cut -c1-16)
 [ "$host" = "$dev" ] || { echo "ABORT: test binary hash differs (host $host, device $dev)" >&2; exit 1; }
 
@@ -51,8 +49,8 @@ fails=$(printf '%s\n' "$out" | grep -c '^--- FAIL' || true)
 skips=$(printf '%s\n' "$out" | grep -c '^--- SKIP' || true)
 printf '%s\n' "$out" | grep -E '^(--- FAIL|    .*_test.go)' | head -20 || true
 echo "Go: $pass passed, $fails failed, $skips skipped"
-echo "== boot-script / policy test under the phone's shell"
-sh_out=$(adb -s "$ADDR" shell "su -c 'cd /dev/.ap && TMPDIR=/dev/.ap sh autopilot-v2/test_pif_policy.sh 2>&1 | tail -3'" || true)
+echo "== doctor shell test under the phone's shell"
+sh_out=$(adb -s "$ADDR" shell "su -c 'cd /dev/.ap && TMPDIR=/dev/.ap sh autopilot-v2/test_doctor.sh 2>&1 | tail -3'" || true)
 printf '%s\n' "$sh_out"
 adb -s "$ADDR" shell "su -c 'rm -rf /dev/.ap'"
 status=0

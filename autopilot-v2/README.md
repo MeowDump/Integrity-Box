@@ -2,7 +2,15 @@
 
 ARM64 Android engine with POSIX entry points. Build with `./build.sh` from this directory on a clean, committed tree (it runs the full test suite and writes the binary and its provenance into `../webroot/common_scripts/bin`) (Go 1.24+, validated with Go 1.27.2). No third-party Go dependencies. Binary uses Android's native curl for netd/bionic DNS; HTTPS verification remains enabled. Google attestation trust anchors are embedded from https://android.googleapis.com/attestation/root (retrieved 2026-11-07); public-key pinning permits equivalent reissued roots. Root changes require a reviewed rebuild.
 
-`webroot/common_scripts/autopilot.sh` commands:
+## How the module uses it
+
+The engine is optional and additive. `webroot/common_scripts/bin/box-autopilot` is an ARM64 binary; the installer
+removes it on other ABIs. The module's own entry points (`autopilot.sh`, `key.sh`, `spectre.sh`, `download_keybox`,
+the Action button's fingerprint step, `service.sh`, `uninstall.sh`) check for it: when it is present they hand over to
+`webroot/common_scripts/ap2.sh`, the controller of the engine, and when it is absent they behave exactly as they did
+before this engine existed. `doctor.sh` (read-only diagnostics) works with or without it.
+
+`webroot/common_scripts/ap2.sh` commands (also reachable as `autopilot.sh <command>`):
 
 - `status`: JSON with desired enablement, verified daemon lock ownership, current local certificate health, revocation freshness and next deadline. Integrity verdict is explicitly not measured by this engine.
 - `enable`: persist enable flag and detach one supervised daemon. First ordinary check is due after approximately two minutes, subject to screen/charging/battery/temperature gates.
@@ -61,9 +69,7 @@ Subject strings alone.
 
 Worker stderr is bounded in RAM and classified; its raw text is not logged.
 Exit codes and sanitized HTTP/telemetry failures go to logcat. No timing behavior
-is claimed from process presence alone. `observe.py` optionally records bounded,
-read-only hourly status/hash samples on the host; transport gaps are missing
-evidence, and this sampling is not an A/B battery benchmark.
+is claimed from process presence alone.
 
 Final validation hardening rejects ambiguous XML scalar fields/namespaces and
 non-CA signing certificates, and performs full X.509 path validation. The stable
