@@ -19,6 +19,7 @@ cleanup_gapps_logs
 
 download_keybox
 reset_tricky_store
+verify_trickybox
 update_targets
 
 sh "$SCRIPT_DIR/status.sh" || true
