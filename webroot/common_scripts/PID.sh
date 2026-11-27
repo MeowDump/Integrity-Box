@@ -7,11 +7,6 @@ fi
 
 PID=$(cat "$PID_FILE" | tr -d '[:space:]')
 
-#if ! [[ "$PID" =~ ^[0-9]+$ ]]; then
-#    echo "[ERROR] Invalid PID: $PID"
-#    exit 1
-#fi
-
 if ! kill -0 "$PID" 2>/dev/null; then
     echo "[INFO] Process $PID is not running."
 elif kill -9 "$PID" 2>/dev/null; then
