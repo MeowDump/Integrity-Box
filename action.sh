@@ -22,7 +22,9 @@ reset_tricky_store
 verify_trickybox
 update_targets
 
-sh "$SCRIPT_DIR/cleanup.sh" >/dev/null 2>&1; 
+sh "$SCRIPT_DIR/status.sh" || true
+sh "$MODPATH/pixelprop.sh" || true
+sh "$SCRIPT_DIR/cleanup.sh" >/dev/null 2>&1
 
 if [ -d "/data/adb/modules/teesim" ]; then
     sh "$SCRIPT_DIR/teesim.sh" || true
