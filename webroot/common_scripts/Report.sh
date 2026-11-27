@@ -9,7 +9,7 @@ TMP_DIR="/data/local/tmp/ib-report-$$"
 OUT_DIR="$TMP_DIR/report"
 OUT_FILE="/sdcard/MeowLog/IntegrityBox-report-$STAMP.tar.gz"
 BOX_DIR="/data/adb/Box-Brain"
-PIF_FILE="/data/adb/modules/playintegrityfix/custom.pif.prop"
+PIF_FILE="/data/adb/modules/integrity-box/config.meow"
 
 mkdir -p "/sdcard/MeowLog"
 mkdir -p "$OUT_DIR"

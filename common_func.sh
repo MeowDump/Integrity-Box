@@ -17,8 +17,92 @@ say() {    # say <file> <message>
     record "$1" "$2"; echo "$2"
 }
 log() {    # log <message>
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
+    echo "$1"
     /system/bin/log -t PATCH_OVERRIDE "$1"
+}
+
+trickybox_log() {
+    printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$1" >> "/data/adb/Box-Brain/TrickyBox/trickybox.log"
+}
+
+detect_conflict() {
+    local FAIL=0
+    local LOG="/data/adb/Box-Brain/TrickyBox/conflict.log"
+
+    mkdir -p "$(dirname "$LOG")" || return 1
+
+    # Self check
+    if [ -f "/data/adb/modules/integrity-box/disable" ]; then
+        trickybox_log "ERROR: Integrity Box is disabled. ✗"
+        FAIL=1
+    else
+        trickybox_log "Integrity Box is fully functional."
+    fi
+     
+    if [ -f "/data/adb/modules/integrity-box/sepolicy.rule" ]; then
+        trickybox_log "DETECTED: built-in tricky store."
+    else
+        trickybox_log "ERROR: Tricky Box not found."
+        FAIL=1
+    fi
+
+    # Tricky Store / OOS
+    if [ -d "/data/adb/modules/tricky_store" ]; then
+        trickybox_log "Tricky Store module is installed."
+
+        if [ -f "/data/adb/modules/tricky_store/disable" ]; then
+            trickybox_log "Tricky Store module is disabled. ✔"
+        else
+            trickybox_log "ERROR: Tricky Store module is enabled. ✗"
+            FAIL=1
+        fi
+    else
+        trickybox_log "Tricky Store module is not installed. ✔"
+    fi
+
+    # OhMyKeyMint
+    if [ -d "/data/adb/modules/oh_my_keymint" ]; then
+        trickybox_log "OhMyKeyMint is installed."
+
+        if [ -f "/data/adb/modules/oh_my_keymint/disable" ]; then
+            trickybox_log "OhMyKeyMint is disabled. ✔"
+        else
+            trickybox_log "ERROR: OhMyKeyMint is enabled. ✗"
+            FAIL=1
+        fi
+    else
+        trickybox_log "OhMyKeyMint is not installed. ✔"
+    fi
+
+    # TEEsim
+    if [ -d "/data/adb/modules/teesim" ]; then
+        trickybox_log "TEEsim is installed."
+
+        if [ -f "/data/adb/modules/teesim/disable" ]; then
+            trickybox_log "TEEsim is disabled. ✔"
+        else
+            trickybox_log "ERROR: TEEsim is enabled.  ✗"
+            FAIL=1
+        fi
+    else
+        trickybox_log "TEEsim is not installed. ✔"
+    fi
+
+    # Final result
+    if [ "$FAIL" -ne 0 ]; then
+        echo " "
+        trickybox_log "---------------------------------"
+        trickybox_log " ⚠ Conflict detected ⚠"
+        trickybox_log "Built-in Tricky Store backend will be disabled"
+        trickybox_log "Attestation will be handled by"
+        trickybox_log "detected conflicting module"
+        trickybox_log "---------------------------------"
+        return 1
+    fi
+
+    trickybox_log "All checks passed."
+    return 0
 }
 
 check_integrity() {
@@ -147,16 +231,21 @@ EOF
 }
 
 launch_webui() {
+    if [ -d /sdcard/Web ]; then
+        sh "$MODPATH/webroot/common_scripts/web_bridge.sh"
+        return 0
+    fi
+
     [ -f /data/adb/magisk/busybox ] || return 0
     [ -f /data/adb/Box-Brain/webui ] || return 0
 
     if pm path io.github.a13e300.ksuwebui >/dev/null 2>&1; then
         am start -n "io.github.a13e300.ksuwebui/.WebUIActivity" \
-            -e id "playintegrityfix" >/dev/null 2>&1
+            -e id "integrity-box" >/dev/null 2>&1
 
-    elif pm path com.dergoogler.mmrl.wx >/dev/null 2>&1; then
-        am start -n "com.dergoogler.mmrl.wx/.ui.activity.webui.WebUIActivity" \
-            -e MOD_ID "playintegrityfix" >/dev/null 2>&1
+    elif pm path com.meowdump.su >/dev/null 2>&1; then
+        am start -n "com.meowdump.su/.WebUIActivity" \
+            -e id "integrity-box" >/dev/null 2>&1
 
     else
         echo " ✦ KSU WEBUI not found"
@@ -164,11 +253,12 @@ launch_webui() {
     fi
 }
 
+
 update_module_description() {
-  MODPATH="/data/adb/modules/playintegrityfix"
+  MODPATH="/data/adb/modules/integrity-box"
   PROP="$MODPATH/module.prop"
-  BAK="$PROP.bak"
-  P="$MODPATH/custom.pif.prop"
+  P="$MODPATH/config.meow"
+  BRAIN="/data/adb/Box-Brain"
 
   # Find BusyBox
   bb=""
@@ -182,28 +272,45 @@ update_module_description() {
   done
   [ -z "$bb" ] && return 0
 
-  # Read device identity
-  MODEL=""
-  DEVICE=""
-  INIT_SDK=""
+  if [ ! -d "$MODPATH/zygisk" ]; then
+    DEVICE=$(getprop ro.product.device)
+    PATCH=$(getprop ro.build.version.security_patch)
 
-  if [ -f "$P" ]; then
-    MODEL=$("$bb" sed -n 's/^MODEL=//p' "$P" | "$bb" head -n1)
-    DEVICE=$("$bb" sed -n 's/^DEVICE=//p' "$P" | "$bb" head -n1)
-    INIT_SDK=$("$bb" sed -n 's/^DEVICE_INITIAL_SDK_INT=//p' "$P" | "$bb" head -n1)
+    [ -z "$DEVICE" ] && DEVICE="Unknown"
+    [ -z "$PATCH" ] && PATCH="Unknown"
+
+    DESC="⏤͟͞𝗣𝗜𝗫𝗘𝗟 𝗠𝗢𝗗𝗘 🍋‍🟩 •• $DEVICE | $PATCH"
+  else
+    # Read spoofed identity
+    MODEL=""
+    INITSDK=""
+
+    if [ -f "$P" ]; then
+      MODEL=$("$bb" sed -n 's/^MODEL=//p' "$P" | "$bb" head -n1)
+      INITSDK=$("$bb" sed -n 's/^DEVICE_INITIAL_SDK_INT=//p' "$P" | "$bb" head -n1)
+    fi
+
+    [ -z "$MODEL" ] && MODEL="Unknown"
+    [ -z "$INITSDK" ] && INITSDK="Unknown"
+
+    # Status indicators
+    STATUS=""
+
+    [ -f "$BRAIN/safemode" ] && STATUS="${STATUS}⏤͟͞𝗦𝗔𝗙𝗘 𝗠𝗢𝗗𝗘 🚨 "
+
+    SELINUX=$("$bb" cat /sys/fs/selinux/enforce 2>/dev/null)
+    [ "$SELINUX" = "0" ] && STATUS="${STATUS}⏤͟͞𝗦𝗘𝗟𝗜𝗡𝗨𝗫 𝗣𝗘𝗥𝗠𝗜𝗦𝗦𝗜𝗩𝗘 ❌ "
+
+    [ -f "$BRAIN/force-reset" ] && STATUS="${STATUS}⏤͟͞𝗔𝗚𝗥𝗘𝗦𝗦𝗜𝗩𝗘 𝗠𝗢𝗗𝗘 🔥 "
+
+    DESC="${STATUS}•• $MODEL | InitSDK $INITSDK"
   fi
 
-  [ -z "$MODEL" ] && MODEL="Unknown"
-  [ -z "$DEVICE" ] && DEVICE="Unknown"
-  [ -z "$INIT_SDK" ] && INIT_SDK="Unknown"
-
-  # Build description
-  DESC="current spoofing indentify: $MODEL ($DEVICE) | InitSDK: $INIT_SDK"
-
-  # Backup original properties
-  [ ! -f "$BAK" ] && "$bb" cp "$PROP" "$BAK"
-
   # Update description
+  if detect_conflict >/dev/null 2>&1; then
+    DESC="[built-in tricky store] •• $MODEL | InitSDK $INITSDK"
+  fi
+
   "$bb" sed -i '/^description=/d' "$PROP"
   echo "description=$DESC" >> "$PROP"
 }
@@ -419,6 +526,7 @@ update_targets() {
     com.google.android.gsf \
     io.github.qwq233.keyattestation \
     io.github.vvb2060.keyattestation \
+    com.eltavine.duckdetector \
     com.google.android.apps.walletnfcrel \
     com.google.android.apps.messaging; do
     echo "$pkg" >> "$TMP"
@@ -501,13 +609,29 @@ handle_security_patch() {
   local PATCH_LOG="$LOGDIR/patch.log"
   local PATCH_FLAG="$BOX/patch"
   local SKIP_FILE="$BOX/skip"
-  local PATCH_DATE="2026-10-05"
+  local PATCH_FILE="$BOX/patch.txt"
+  local PATCH_DATE
   local PROP_MAIN="ro.build.version.security_patch"
   local FILE_PATH="/data/adb/tricky_store/security_patch.txt"
   local BRAND_PROP
   local CURRENT_PROP
 
+  # Automatically generate current month security patch date
+  PATCH_DATE="$(date '+%Y-%m')-05"
+
   BRAND_PROP="$(getprop ro.product.system.brand)"
+
+  # Ensure Box-Brain directory exists
+  if ! mkdir -p "$BOX" 2>/dev/null; then
+    echo " ✖ Failed to create Box-Brain directory."
+    return 1
+  fi
+
+  # Write automatically generated date to patch.txt
+  if ! echo "$PATCH_DATE" > "$PATCH_FILE"; then
+    echo " ✖ Failed to write patch date to $PATCH_FILE"
+    return 1
+  fi
 
   if ! mkdir -p "${FILE_PATH%/*}" 2>/dev/null; then
     echo " ✖ Failed to create Tricky Store directory."
@@ -574,7 +698,7 @@ IS_MAGISK=false
 RESETPROP_RS=""
 
 setup_resetprop() {
-    local dir="/data/adb/modules/playintegrityfix/resetprop-rs"
+    local dir="/data/adb/modules/integrity-box/resetprop-rs"
     local arch fallback
 
     # Detect Magisk
@@ -667,7 +791,7 @@ make_exec() {
 }
 
 randomize_banner() {
-    local prop_file="/data/adb/modules/playintegrityfix/module.prop"
+    local prop_file="/data/adb/modules/integrity-box/module.prop"
     local base_url="https://raw.githubusercontent.com/MeowDump/MeowDump/refs/heads/main/Banner"
     local random_num=$((RANDOM % 14 + 1))
     local new_banner="${base_url}/mona${random_num}.png"
@@ -774,13 +898,6 @@ print_header() {
 
 
 "
-}
-
-log_step() {
-  local status="$1" task="$2" timestamp
-  timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-  printf -- " ✦ %-10s %s\n" "$status" "$task"
-  printf "[%s] %-10s %s\n" "$timestamp" "$status" "$task" >> "$LOG_FILE"
 }
 
 handle_delay() {
@@ -906,11 +1023,18 @@ Z() {
 }
 
 check_and_set_prop() {
+    local FORCE=0
+
+    if [ "$1" = "-f" ]; then
+        FORCE=1
+        shift
+    fi
+
     local PROP="$1"
     local VALUE="$2"
     local CURRENT
 
-    if [ -f /data/adb/Box-Brain/force-reset ]; then
+    if [ "$FORCE" -eq 1 ] || [ -f /data/adb/Box-Brain/force-reset ]; then
         if $RESETPROP "$PROP" "$VALUE" >/dev/null 2>&1; then
             record pixel.log "Forced $PROP > $VALUE"
             return 0
@@ -1043,14 +1167,104 @@ wait_for_boot() {
     say boot.log " "
 }
 
-reset_tricky_store() {
-    if [ -d "/data/adb/tricky_store/key_db" ]; then
-        rm -rf "/data/adb/tricky_store/key_db"
-        mkdir -p "/data/adb/tricky_store/key_db"
+# Fingerprint of the keybox TrickyStore builds its stored keys from.
+keybox_fingerprint() {
+    local KEYBOX="/data/adb/tricky_store/keybox.xml"
+
+    [ -s "$KEYBOX" ] || return 1
+    sha256sum "$KEYBOX" 2>/dev/null | awk '{print $1}'
+}
+
+verify_trickybox() {
+    LOG="/data/adb/Box-Brain/TrickyBox/worker.log"
+    mkdir -p "$(dirname "$LOG")" || return 1
+
+    if detect_conflict; then
+        PID_FILE="/data/adb/Box-Brain/TrickyBox/.service.lock/pid"
+        SCRIPT="/data/adb/service.d/tricky.sh"
+        printf '[%s] No conflict detected.\n' "$(date '+%F %T')" >> "$LOG"
+    else
+        PID_FILE="/data/adb/modules/tricky_store/.service.lock/pid"
+        SCRIPT="/data/adb/modules/tricky_store/service.sh"
+        printf '[%s] Conflict detected.\n' "$(date '+%F %T')" >> "$LOG"
+
+        [ -f "$PID_FILE" ] || {
+            printf '[%s] Tricky Store PID file missing; skipping launch.\n' "$(date '+%F %T')" >> "$LOG"
+            return 0
+        }
     fi
 
-    if [ -d "/data/adb/tricky_store/persistent_keys" ]; then
-        rm -rf "/data/adb/tricky_store/persistent_keys"
-        mkdir -p "/data/adb/tricky_store/persistent_keys"
+    if [ -f "$PID_FILE" ]; then
+        PID=$(tr -d '[:space:]' < "$PID_FILE")
+
+        if [ -n "$PID" ] && kill -0 "$PID" 2>/dev/null; then
+            printf '[%s] Process already running (PID: %s); skipping launch.\n' "$(date '+%F %T')" "$PID" >> "$LOG"
+            return 0
+        fi
+    fi
+
+    [ -f "$SCRIPT" ] || {
+        printf '[%s] Script not found: %s\n' "$(date '+%F %T')" "$SCRIPT" >> "$LOG"
+        return 1
+    }
+
+    printf '[%s] Launching: %s\n' "$(date '+%F %T')" "$SCRIPT" >> "$LOG"
+    nohup sh "$SCRIPT" >> "$LOG" 2>&1 </dev/null &
+}
+
+# TrickyStore derives its stored keys from the keybox, so they only have to be
+# dropped when the keybox itself changed. Purging them on every run makes
+# Google forget the device: accounts get logged out and pairings (ChatGPT remote
+# control, Wallet cards, Wear style devices) have to be redone for nothing.
+# Keys are kept while the installed keybox hash did not move.
+reset_tricky_store() {
+    local BOX="/data/adb/Box-Brain"
+    local STATE="$BOX/keybox-keys-hash"
+    local FORCE="$BOX/force-key-reset"
+    local current previous purge
+
+    purge=1
+
+    current="$(keybox_fingerprint)"
+    previous=""
+    [ -f "$STATE" ] && previous="$(head -n 1 "$STATE" 2>/dev/null | tr -dc 'a-fA-F0-9')"
+
+    if [ -f "$FORCE" ]; then
+        rm -f "$FORCE"
+        log " ✦ Key reset forced by user,"
+        log "   dropping stored TrickyStore keys"
+    elif [ -z "$current" ]; then
+        log " ✦ No keybox installed,"
+        log "   keeping existing keybox"
+        purge=0
+    elif [ -z "$previous" ]; then
+        log " ✦ First run with this keybox,"
+        log "   keeping existing keybox"
+        purge=0
+    elif [ "$current" = "$previous" ]; then
+#        log " ✦ Keybox unchanged"
+#        log "   keeping existing keybox"
+        purge=0
+    else
+        log " ✦ New keybox detected,"
+        log "   dropping stored TrickyStore keys"
+    fi
+
+    if [ "$purge" = 1 ]; then
+        if [ -d "/data/adb/tricky_store/key_db" ]; then
+            rm -rf "/data/adb/tricky_store/key_db"
+            mkdir -p "/data/adb/tricky_store/key_db"
+        fi
+
+        if [ -d "/data/adb/tricky_store/persistent_keys" ]; then
+            rm -rf "/data/adb/tricky_store/persistent_keys"
+            mkdir -p "/data/adb/tricky_store/persistent_keys"
+        fi
+    fi
+
+    if [ -n "$current" ]; then
+        mkdir -p "$BOX" 2>/dev/null
+        printf '%s\n' "$current" > "$STATE" 2>/dev/null ||
+            log " ✦ Failed to record the keybox fingerprint"
     fi
 }

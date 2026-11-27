@@ -99,13 +99,13 @@ h1 .material-icons{
  display:flex;
  align-items:center;
  justify-content:space-between;
- gap:14px;
- padding:16px;
+ gap:10px;
+ padding:11px 14px;
  border-radius:16px;
  background:rgba(255,255,255,0.03);
  border:1px solid rgba(255,255,255,0.06);
- margin-bottom:14px;
- transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
+ margin-bottom:8px;
+ transition:background 0.2s ease,border-color 0.2s ease,box-shadow 0.2s ease,transform 0.2s ease;
  cursor:pointer;
 }
 .row:hover{
@@ -121,11 +121,12 @@ h1 .material-icons{
  box-shadow:0 0 20px rgba(77,163,255,0.15);
 }
 .row.active .icon-wrap{
- background:var(--accent);
- box-shadow:0 4px 16px var(--accent-glow);
+ background:rgba(77,163,255,0.14);
+ border-color:rgba(77,163,255,0.22);
+ box-shadow:none;
 }
-.row.active .icon-wrap .material-icons{color:white}
-.row.active .title{color:var(--accent)}
+.row.active .icon-wrap .material-icons{color:#fff !important}
+.row.active .title{color:#fff !important}
 .row.active .status-dot{
  background:var(--success);
  box-shadow:0 0 12px var(--success);
@@ -146,20 +147,22 @@ h1 .material-icons{
  color:var(--danger);
 }
 .icon-wrap{
- width:44px;height:44px;border-radius:12px;
- background:rgba(255,255,255,0.08);
+ width:40px;height:40px;border-radius:11px;
+ background:rgba(255,255,255,0.055);
+ border:1px solid rgba(255,255,255,0.055);
  display:flex;align-items:center;justify-content:center;
- transition:all 0.3s;flex-shrink:0;
- position:relative;
+ transition:background 0.2s ease,border-color 0.2s ease;
+ flex-shrink:0;position:relative;
 }
 .icon-wrap .material-icons{
- font-size:24px;color:var(--text2);
- transition:all 0.3s;
+ font-size:22px;color:#fff;
+ transition:color 0.2s ease;
 }
+.row.active .icon-wrap .material-icons{color:#fff !important}
 .content{flex:1;min-width:0;overflow:hidden}
 .title{
- font-size:15px;font-weight:600;
- color:var(--fg);
+ font-size:14px;font-weight:600;
+ color:#fff;
  transition:color 0.3s;
  white-space:nowrap;
  overflow:hidden;
@@ -451,15 +454,15 @@ h1 .material-icons{
  margin-top:0;
 }
 
-/* iOS Settings-style grouped tables */
 .row-group{
  background:rgba(255,255,255,0.03);
  border:1px solid rgba(255,255,255,0.06);
  border-radius:16px;
  overflow:hidden;
- margin-bottom:24px;
+ margin-bottom:16px;
 }
 .row-group .row{
+ padding:10px 14px;
  margin-bottom:0;
  border-radius:0;
  background:transparent;
@@ -475,18 +478,22 @@ h1 .material-icons{
 }
 .row-group .row:active{transform:scale(0.995)}
 .row-group .row.active{
- background:rgba(77,163,255,0.08);
+ background:rgba(77,163,255,0.075);
  border-color:transparent;
  box-shadow:none;
 }
+.row-group .row .content{display:flex;flex-direction:column;justify-content:center;gap:3px}
+.row-group .row .badge{margin-top:1px}
+.row-group .row:last-child{border-bottom:none}
 .row-group.action-group{border-left:3px solid rgba(255,170,77,0.35)}
 .row-group.general-group{border-left:3px solid rgba(77,255,136,0.25)}
 .row-group.kernel-group{border-left:3px solid rgba(255,77,77,0.35)}
 
 @media(max-width:420px){
  .card{width:100%;padding:22px}
- .row{padding:14px}
- .icon-wrap{width:40px;height:40px}
+ .row{padding:10px 12px}
+ .row-group .row{padding:8px 12px}
+ .icon-wrap{width:38px;height:38px}
 }
 </style>
 </head>
@@ -510,7 +517,6 @@ h1 .material-icons{
    <div class="content">
      <div class="title">Auto Run</div>
    </div>
-   <div class="status-dot"></div>
    <label class="switch" onclick="event.stopPropagation()">
      <input type="checkbox" id="cb-action_exec">
      <span class="slider"><span class="knob"></span></span>
@@ -531,11 +537,11 @@ h1 .material-icons{
   <div class="section-label">These settings requires reboot</div>
  <div id="flag-rows" class="row-group"></div>
 
- <div class="section-label">This will be done via action button</div>
- <div id="action-rows" class="row-group action-group"></div>
-
  <div class="section-label">General</div>
  <div id="general-rows" class="row-group general-group"></div>
+ 
+ <div class="section-label">This will be done via action button</div>
+ <div id="action-rows" class="row-group action-group"></div>
 
  <div class="section-label">Kernel (Not recommended to enable)</div>
  <div id="kernel-rows" class="row-group kernel-group"></div>
@@ -555,7 +561,7 @@ h1 .material-icons{
 
 <script>
 var DIR="/data/adb/Box-Brain";
-var ACTION_SCRIPT="/data/adb/modules/playintegrityfix/action.sh";
+var ACTION_SCRIPT="/data/adb/modules/integrity-box/action.sh";
 
 var REBOOT_FLAGS=[
  {id:"spoof-los-boot",icon:"android",title:"Hide Lineage",label:"custom ROM",desc:"Spoofs LineageOS-specific properties on boot so apps cannot detect you are running a LineageOS-based custom ROM.",risk:"low"},
@@ -566,11 +572,20 @@ var REBOOT_FLAGS=[
  {id:"build",icon:"build",title:"Debug Build",label:"reboot",desc:"Spoofs build type from userdebug to user to appear as unmodified device."},
  {id:"tag",icon:"sell",title:"Build Tag",label:"reboot",desc:"Spoofs build tags to release-keys instead of test-keys."},
  {id:"encrypt",icon:"lock",title:"Spoof Encryption",label:"reboot",desc:"Fakes device encryption status to appear as encrypted"},
- {id:"spoof-selinux-boot",icon:"security",title:"Spoof SELinux",label:"bootloop risk",desc:"Spoofs SELinux status to report as enforcing. WARNING: May cause bootloops on some devices. Use with caution.",risk:"high"},
- {id:"hidehook",icon:"visibility_off",title:"Hide PIF Detection",label:"not recommended",desc:"Hides PIF-related hooks and detection traces on boot, it may automatically enable inbuilt ROM spoofing.",risk:"high"},
  {id:"nuke-sus-boot",icon:"cleaning_services",title:"Hide SUS Files",label:"root traces",desc:"Cleans suspicious files and directories that may reveal root access or module presence on boot.",risk:"medium"},
  {id:"twrp",icon:"settings_backup_restore",title:"Hide Recovery",label:"reboot",desc:"Hides custom recovery presence by spoofing recovery path."},
+ {id:"spoof-selinux-boot",icon:"security",title:"Spoof SELinux",label:"bootloop risk",desc:"Spoofs SELinux status to report as enforcing. WARNING: May cause bootloops on some devices. Use with caution.",risk:"high"},
+ {id:"hidehook",icon:"visibility_off",title:"Hide PIF Detection",label:"not recommended",desc:"Hides PIF-related hooks and detection traces on boot, it may automatically enable inbuilt ROM spoofing.",risk:"high"},
  {id:"skip",icon:"warning",title:"Skip System Patch",label:"bootloop risk",desc:"Prevents spoofing of the security patch date. Use if banking apps detect patch mismatch. Disabling this can cause play integrity failure on old ROMs/Android versions"}
+];
+
+var GENERAL_FLAGS=[
+ {id:"keyswitch",icon:"wifi",title:"DNS Poisoning",desc:"This fixes keybox download errors in some regions"},
+ {id:"noredirect",icon:"block",title:"No Redirect",desc:"Disables automatic Telegram link redirects from the WebUI."},
+ {id:"force-key-reset",icon:"warning",title:"Enforce keybox reset",desc:"This will skip all safety checks and forcefully update your keybox. This will work only for Tricky Store user."},
+ {id:"wait",icon:"engineering",title:"Wait on Action",desc:"Keeps the action output visible for 10 seconds before closing, useful for root managers that automatically close the terminal and prevent you from reading the output."},
+ {id:"integrity",icon:"shop",title:"Integrity on Action",desc:"This will automatically launch play integrity checker when you click on action button. If there's no play integrity checker app is installed then it'll open playstore settings"},
+ {id:"webui",icon:"brush",title:"WebUI on Action",desc:"Clicking the action button will automatically launch the IntegrityBox WebUI. This feature is intended for Magisk users only. Users of other root solutions do not need it. Make sure the KSU-WebUI app is installed before using this feature."}
 ];
 
 var ACTION_FLAGS=[
@@ -578,15 +593,6 @@ var ACTION_FLAGS=[
  {id:"gapps",icon:"delete_sweep",title:"Clear Gapps Logs",label:"action",desc:"Wipes Google Apps log files to avoid custom ROM detection."},
  {id:"root",icon:"delete_forever",title:"Clear Module Logs",label:"action",desc:"Wipes all module-related log files to clean detection traces."},
  {id:"ota",icon:"update",title:"OTA Fix",label:"action",desc:"Fixes LineageOS OTA update errors caused by spoofed properties."}
-];
-
-var GENERAL_FLAGS=[
- {id:"keymint",icon:"timer",title:"Update OMK build",label:"reboot",desc:"Forces to appear as Pixel Device & use latest security patch if using Oh My Keymint module"},
- {id:"teesim",icon:"key",title:"Skip TEEsim",label:"reboot",desc:"This will skip modifications in config.json"},
- {id:"iframe_gesture_right",icon:"swipe",title:"Right Gestures",desc:"Enables right-hand-side back gesture swipe area in WebUI iframes."},
- {id:"iframe_back_button",icon:"arrow_back",title:"Floating Back",desc:"Adds a floating back button overlay for easier iframe navigation."},
- {id:"keyswitch",icon:"wifi",title:"DNS Poisoning:",desc:"This fixes keybox download errors in some regions"},
- {id:"noredirect",icon:"block",title:"No Redirect",desc:"Disables automatic Telegram link redirects from the WebUI."}
 ];
 
 var KERNEL_FLAGS=[
@@ -603,6 +609,7 @@ var KERNEL_FLAGS=[
 
 var MESSAGES={
  noredirect:{on:"Redirect disabled",off:"Redirect enabled"},
+ "force-key-reset":{on:"Reset enabled",off:"Reset disabled"},
  buildtime:{on:"Reboot your device",off:"Reboot your device"},
  customkernel:{on:"Reboot your device",off:"Reboot your device"},
  emoji:{on:"Reboot your device",off:"Reboot your device"},
@@ -614,10 +621,10 @@ var MESSAGES={
  scanall:{on:"Reboot your device",off:"Reboot your device"},
  iframe_gesture_right:{on:"RHS gestures active",off:"RHS gestures disabled"},
  keyswitch:{on:"Using alternate fallback method",off:"Downloads will use default method"},
- iframe_back_button:{on:"Floating button active",off:"Floating button disabled"},
+ integrity:{on:"Integrity Checker will be launched on Action",off:"Disabled"},
+ webui:{on:"WebUI will be launched on Action",off:"Disabled"},
  twrp:{on:"Custom recovery spoofed",off:"Custom recovery disabled"},
- keymint:{on:"OMK Pixel disabled",off:"OMK Pixel enabled"},
- teesim:{on:"TEEsim modifications will be ignored",off:"TEEsim will be updated by default"},
+ wait:{on:"Action will delay 10s",off:"Action will be closed automatically"},
  "spoof-selinux-boot":{on:"Please reboot your device",off:"Please reboot your device"},
  hidehook:{on:"Please reboot your device",off:"Please reboot your device"},
  encrypt:{on:"Encryption spoofed",off:"Encryption disabled"},
@@ -695,17 +702,11 @@ function createFlagRow(cfg){
  div.id="row-"+cfg.id;
  div.onclick=function(){toggle(cfg.id)};
 
- var badgeClass=getBadgeClass(cfg.risk);
- var badgeIcon=getBadgeIcon(cfg.risk);
- var badgeText=cfg.label;
-
  div.innerHTML=
    '<div class="icon-wrap"><span class="material-icons">'+cfg.icon+'</span></div>'+
    '<div class="content">'+
      '<div class="title">'+cfg.title+'</div>'+
-     '<div class="badge '+badgeClass+'" id="badge-cb-'+cfg.id+'"><span class="material-icons">'+badgeIcon+'</span>'+badgeText+'</div>'+
    '</div>'+
-   '<div class="status-dot"></div>'+
    '<label class="switch" onclick="event.stopPropagation()">'+
      '<input type="checkbox" id="cb-'+cfg.id+'">'+
      '<span class="slider"><span class="knob"></span></span>'+
@@ -724,9 +725,7 @@ function createActionRow(cfg){
    '<div class="icon-wrap"><span class="material-icons">'+cfg.icon+'</span></div>'+
    '<div class="content">'+
      '<div class="title">'+cfg.title+'</div>'+
-     '<div class="badge"><span class="material-icons">play_arrow</span>'+cfg.label+'</div>'+
    '</div>'+
-   '<div class="status-dot"></div>'+
    '<label class="switch" onclick="event.stopPropagation()">'+
      '<input type="checkbox" id="cb-'+cfg.id+'">'+
      '<span class="slider"><span class="knob"></span></span>'+
@@ -751,7 +750,6 @@ function createKernelRow(cfg){
      '<div class="title">'+cfg.title+'</div>'+
      '<div class="badge '+badgeClass+'" id="badge-cb-'+cfg.id+'"><span class="material-icons">'+badgeIcon+'</span>'+badgeText+'</div>'+
    '</div>'+
-   '<div class="status-dot"></div>'+
    '<label class="switch" onclick="event.stopPropagation()">'+
      '<input type="checkbox" id="cb-'+cfg.id+'">'+
      '<span class="slider"><span class="knob"></span></span>'+
@@ -771,7 +769,6 @@ function createGeneralRow(cfg){
    '<div class="content">'+
      '<div class="title">'+cfg.title+'</div>'+
    '</div>'+
-   '<div class="status-dot"></div>'+
    '<label class="switch" onclick="event.stopPropagation()">'+
      '<input type="checkbox" id="cb-'+cfg.id+'">'+
      '<span class="slider"><span class="knob"></span></span>'+
@@ -874,7 +871,7 @@ function openInfoModal(){
      var riskColor=item.risk==="high"?"var(--danger)":item.risk==="medium"?"var(--warning)":"var(--success)";
      var riskText=item.risk==="high"?"High Risk":item.risk==="medium"?"Medium Risk":"Low Risk";
      var riskHtml=item.risk?'<div class="info-item-risk" style="color:'+riskColor+'">'+riskText+'</div>':"";
-     div.innerHTML='<div class="info-item-title"><span class="material-icons">'+item.icon+'</span>'+item.title+'</div><div class="info-item-desc">'+item.desc+'</div><div class="info-item-flag">Flag: '+item.id+'</div>'+riskHtml;
+     div.innerHTML='<div class="info-item-title"><span class="material-icons">'+item.icon+'</span>'+item.title+'</div><div class="info-item-desc">'+item.desc+'</div>'+riskHtml;
      content.appendChild(div);
      if(i<REBOOT_FLAGS.length-1){
        var d=document.createElement("div");
@@ -891,7 +888,7 @@ function openInfoModal(){
    ACTION_FLAGS.forEach(function(item,i){
      var div=document.createElement("div");
      div.className="info-item";
-     div.innerHTML='<div class="info-item-title"><span class="material-icons">'+item.icon+'</span>'+item.title+'</div><div class="info-item-desc">'+item.desc+'</div><div class="info-item-flag">Flag: '+item.id+'</div>';
+     div.innerHTML='<div class="info-item-title"><span class="material-icons">'+item.icon+'</span>'+item.title+'</div><div class="info-item-desc">'+item.desc+'</div>';
      content.appendChild(div);
      if(i<ACTION_FLAGS.length-1){
        var d=document.createElement("div");
@@ -910,7 +907,7 @@ function openInfoModal(){
      div.className="info-item";
      var riskColor=item.risk==="high"?"var(--danger)":item.risk==="medium"?"var(--warning)":"var(--success)";
      var riskText=item.risk==="high"?"High Risk":item.risk==="medium"?"Medium Risk":"Low Risk";
-     div.innerHTML='<div class="info-item-title"><span class="material-icons">'+item.icon+'</span>'+item.title+'</div><div class="info-item-desc">'+item.desc+'</div><div class="info-item-flag">Flag: '+item.id+'</div><div class="info-item-risk" style="color:'+riskColor+'">'+riskText+'</div>';
+     div.innerHTML='<div class="info-item-title"><span class="material-icons">'+item.icon+'</span>'+item.title+'</div><div class="info-item-desc">'+item.desc+'</div><div class="info-item-risk" style="color:'+riskColor+'">'+riskText+'</div>';
      content.appendChild(div);
      if(i<KERNEL_FLAGS.length-1){
        var d=document.createElement("div");
@@ -927,7 +924,7 @@ function openInfoModal(){
    GENERAL_FLAGS.forEach(function(item,i){
      var div=document.createElement("div");
      div.className="info-item";
-     div.innerHTML='<div class="info-item-title"><span class="material-icons">'+item.icon+'</span>'+item.title+'</div><div class="info-item-desc">'+item.desc+'</div><div class="info-item-flag">Flag: '+item.id+'</div>';
+     div.innerHTML='<div class="info-item-title"><span class="material-icons">'+item.icon+'</span>'+item.title+'</div><div class="info-item-desc">'+item.desc+'</div>';
      content.appendChild(div);
      if(i<GENERAL_FLAGS.length-1){
        var d=document.createElement("div");

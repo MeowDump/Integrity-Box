@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>OhMyKeymint Configuration</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#0e1020;--fg:#e9ecff;--accent:#4da3ff;--glow:#4da3ff4d;--panel:#1b1e33d9;--line:#ffffff12;--text2:#9aa3ff;--muted:#9298b5;--ok:#4dff88;--bad:#ff626b;--warn:#ffaa4d;--radius:18px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{margin:0;padding:18px;min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;color:var(--fg);background:var(--bg);-webkit-font-smoothing:antialiased}
+main{max-width:900px;margin:auto;display:flex;flex-direction:column;gap:15px}.header{text-align:center;padding:7px 0}.brand{font-size:1.7rem;font-weight:850;letter-spacing:-.5px;color:var(--accent)}.subtitle{font-size:.82rem;color:var(--text2);margin-top:5px}
+.tabs{display:flex;gap:8px;padding:5px;background:#0005;border:1px solid var(--line);border-radius:15px}.tab{flex:1;border:0;background:transparent;color:var(--muted);padding:12px;border-radius:11px;font:inherit;font-weight:700;cursor:pointer}.tab.active{background:#4da3ff20;color:var(--accent);box-shadow:inset 0 0 0 1px #4da3ff45}
+.card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:0 18px 45px #0003;backdrop-filter:blur(16px)}.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.section-title{font-size:1rem;font-weight:800}.section-note{font-size:.78rem;color:var(--muted);line-height:1.5;margin-top:4px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.field{min-width:0;display:flex;flex-direction:column;gap:7px}.field.full{grid-column:1/-1}.field label{font-size:.82rem;font-weight:700}.hint{font-size:.74rem;color:var(--muted);line-height:1.45}.control,select,textarea{width:100%;border:1px solid #ffffff18;background:#090c19a8;color:var(--fg);border-radius:11px;padding:12px 13px;font:inherit;font-size:.9rem;outline:none}.control:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px #4da3ff18}input[readonly]{opacity:.72}.toggle-row{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:13px 0;border-bottom:1px solid #ffffff0d}.toggle-row:last-child{border-bottom:0}.toggle-title{font-size:.86rem;font-weight:700}.toggle-hint{font-size:.74rem;color:var(--muted);margin-top:4px;line-height:1.4}.switch{appearance:none;width:45px;height:26px;border-radius:20px;background:#ffffff20;position:relative;flex-shrink:0;cursor:pointer;transition:.2s}.switch:before{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#eee;transition:.2s}.switch:checked{background:var(--accent)}.switch:checked:before{transform:translateX(19px)}
+.package-box{display:flex;flex-direction:column;gap:8px}.package-input{display:flex;gap:8px}.package-input input{flex:1;min-width:0}.chips{display:flex;flex-wrap:wrap;gap:7px}.chip{display:flex;align-items:center;gap:8px;background:#4da3ff12;border:1px solid #4da3ff2d;padding:7px 9px;border-radius:10px;font-size:.78rem;overflow-wrap:anywhere}.chip button{background:none;border:0;color:#ff9299;font-size:1rem;cursor:pointer;padding:0 2px}.actions{display:flex;flex-wrap:wrap;gap:8px}.btn{display:inline-flex;justify-content:center;align-items:center;gap:7px;border:1px solid #ffffff17;background:#ffffff08;color:var(--fg);padding:10px 13px;border-radius:11px;font:inherit;font-size:.82rem;font-weight:700;cursor:pointer}.btn.primary{background:var(--accent);border-color:var(--accent);color:#071326}.btn.danger{border-color:#ff626b55;color:#ff9da4}.btn:disabled{opacity:.4;cursor:not-allowed}.banner{padding:12px 14px;border-radius:12px;background:#ffaa4d12;border:1px solid #ffaa4d35;color:#ffd39a;font-size:.8rem;line-height:1.5}.banner.error{background:#ff626b12;border-color:#ff626b40;color:#ffabb0}.banner.ok{background:#4dff8810;border-color:#4dff8835;color:#9effbd}.hidden{display:none!important}.subsection{padding-top:18px;margin-top:18px;border-top:1px solid var(--line)}.subsection:first-child{padding-top:0;margin-top:0;border:0}.subhead{font-weight:800;font-size:.9rem;margin-bottom:12px}.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,15px);opacity:0;pointer-events:none;background:#252a45;color:var(--fg);border:1px solid #ffffff20;border-radius:30px;padding:12px 18px;box-shadow:0 10px 35px #0008;transition:.25s;z-index:20;font-size:.85rem}.toast.show{opacity:1;transform:translate(-50%,0)}.foot{font-size:.75rem;color:var(--muted);text-align:center;line-height:1.5;padding:2px 8px}
+@media(max-width:620px){body{padding:12px}.card{padding:16px}.grid{grid-template-columns:1fr}.field.full{grid-column:auto}.brand{font-size:1.5rem}.actions .btn{flex:1}.section-head{align-items:flex-start}}
+.btn,.control,select,.tab,.chip,.modal,.app-list label{border-radius:14px}.btn{transition:background .15s,border-color .15s,transform .15s}.btn:active{transform:scale(.98)}.card{backdrop-filter:none}.app-list{display:flex;flex-direction:column;gap:5px;max-height:45vh;overflow:auto;overscroll-behavior:contain}.app-picker-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0}.app-list label{min-height:58px}.app-icon{width:38px;height:38px;object-fit:contain;border-radius:10px;flex-shrink:0;background:#ffffff08}.app-label{display:flex;flex-direction:column;gap:3px;min-width:0}.app-name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.app-package{font-size:.72rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.app-list label{overflow:hidden}.status{white-space:nowrap;flex-shrink:0}.app-list label{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#ffffff08;border:1px solid var(--line);font-size:.82rem;overflow-wrap:anywhere}.app-list input{accent-color:var(--accent);width:18px;height:18px;flex-shrink:0}.modal-overlay{display:none;position:fixed;inset:0;z-index:100;background:#000b;padding:14px;align-items:center;justify-content:center}.modal-overlay.show{display:flex}.modal{width:min(620px,100%);max-height:92vh;overflow:hidden;background:#171b2d;border:1px solid var(--line);box-shadow:0 20px 60px #0009}.modal .section-head{margin-bottom:12px}.modal .app-list{flex:1;min-height:0}.modal{display:flex;flex-direction:column}.modal .control{flex-shrink:0}.intercept-section{padding-top:14px}.intercept-section summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;list-style:none;min-width:0}.intercept-section summary::-webkit-details-marker{display:none}.intercept-section summary>span:first-child{min-width:0}.intercept-section summary .subhead{display:block;margin:0;white-space:nowrap}.intercept-section summary .section-note{display:block}.disclosure-icon{flex-shrink:0;color:var(--muted);transition:transform .18s}.intercept-section[open] .disclosure-icon{transform:rotate(180deg)}.intercept-section #interceptFields{margin-top:12px}@media(max-width:620px){.modal-overlay{padding:8px}.modal{padding:14px}.package-input{flex-wrap:wrap}.package-input .control{flex:1 1 100%}.package-input .btn{flex:1}}
+
+select.native-select-state{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;clip-path:inset(50%)!important;overflow:hidden!important}
+.themed-select{position:relative;width:100%;min-width:0}
+.themed-select-trigger{width:100%;min-height:45px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;border:1px solid #ffffff20;background:linear-gradient(180deg,#222943,#151a2d);color:var(--fg);border-radius:14px;padding:11px 13px;font:inherit;font-size:.9rem;cursor:pointer;box-shadow:inset 0 1px #ffffff08;transition:border-color .15s,background .15s}
+.themed-select-trigger:focus-visible,.themed-select.open .themed-select-trigger{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px #4da3ff20}
+.themed-select-trigger .select-value{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.themed-select-trigger .material-icons{font-size:20px;color:var(--text2);flex-shrink:0;transition:transform .15s}
+.themed-select.open .themed-select-trigger .material-icons{transform:rotate(180deg)}
+.themed-select-menu{display:none;position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:80;max-height:min(280px,45vh);overflow:auto;padding:5px;background:#171c30;border:1px solid #4da3ff4d;border-radius:14px;box-shadow:0 16px 38px #0009;overscroll-behavior:contain}
+.themed-select.open .themed-select-menu{display:block}
+.themed-select-option{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:11px 12px;border:0;border-radius:9px;background:transparent;color:var(--fg);font:inherit;font-size:.88rem;text-align:left;cursor:pointer}
+.themed-select-option:active{background:#4da3ff25}
+.themed-select-option.selected{background:#4da3ff20;color:#8fc8ff}
+.themed-select-option .material-icons{font-size:18px;flex-shrink:0}
+.restart-actions .btn{flex:1;min-width:135px}
+@media(max-width:620px){.restart-actions .btn{flex:1 1 100%}.themed-select-menu{max-height:35vh}}
+
+main{max-width:940px;gap:16px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:4px 2px 2px}
+.header{text-align:left;padding:4px 0;min-width:0}
+.brand{font-size:1.65rem;line-height:1.2;letter-spacing:-.45px;background:none;color:var(--accent);-webkit-text-fill-color:var(--accent)}
+.subtitle{margin-top:7px;line-height:1.45}
+.toolbar-actions{flex-shrink:0;justify-content:flex-end}
+.card{padding:22px;border-color:#ffffff16;box-shadow:none;background:var(--panel)}
+.restart-card{padding:17px 20px}
+.restart-card .section-head{margin-bottom:12px}
+.restart-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.restart-actions .btn{min-width:0;white-space:nowrap;padding:11px 10px;font-size:clamp(.68rem,1.6vw,.84rem);gap:8px;border-radius:13px;background:#4da3ff0b;border-color:#4da3ff28;color:#dcecff}.restart-actions .btn .material-icons{font-size:19px;color:var(--accent)}.restart-actions .btn:hover{background:#4da3ff16;border-color:#4da3ff50}.restart-actions .btn.danger{background:#ff626b0b;border-color:#ff626b35;color:#ffb2b7}.restart-actions .btn.danger .material-icons{color:#ff858d}.restart-actions .btn.danger:hover{background:#ff626b18;border-color:#ff626b60}
+#notice{border-radius:12px}
+.tabs{gap:5px;padding:4px;border-radius:14px;background:#11152a;border-color:#ffffff14}
+.tab{min-width:0;padding:11px 14px;border-radius:11px}
+.tab.active{box-shadow:inset 0 0 0 1px #4da3ff35}
+.section-head{margin-bottom:18px}
+.section-title{font-size:1.02rem;letter-spacing:.05px}
+.section-note{max-width:68ch}
+.grid{gap:17px 16px}
+.field{gap:8px}
+.field label{line-height:1.35}
+.hint{line-height:1.5}
+.subsection{padding-top:21px;margin-top:21px;border-color:#ffffff14}
+.subhead{margin-bottom:14px}
+.control,select,textarea{min-height:44px;border-color:#ffffff1c;background:#11152a;border-radius:12px;padding:11px 13px}
+.control:focus,select:focus,textarea:focus{box-shadow:0 0 0 2px #4da3ff20}
+.btn{min-height:40px;border-color:#ffffff1a;background:#ffffff07;border-radius:12px;padding:10px 14px;transition:background-color .15s,border-color .15s}
+.btn:hover{background:#ffffff0d;border-color:#ffffff2b}
+.btn.primary{background:var(--accent);border-color:var(--accent)}
+.btn.primary:hover{background:#69b1ff}
+.btn.danger:hover{background:#ff626b10}
+.toggle-row{padding:15px 2px}
+.toggle-title{line-height:1.4}
+.toggle-hint{max-width:64ch;line-height:1.5}
+.switch,.switch:before,.disclosure-icon,.themed-select-trigger .material-icons{transition:none}
+.switch{transition:background-color .15s}
+.switch:before{transition:transform .15s}
+.package-input{align-items:stretch}
+.package-input .control{min-width:0}
+.chips{gap:8px}
+.chip{border-radius:10px;background:#4da3ff10;border-color:#4da3ff28;padding:7px 10px}
+.app-list{gap:6px}
+.app-list label{border-radius:12px;background:#ffffff05;border-color:#ffffff12;padding:11px 12px}
+.app-list label:hover{background:#4da3ff0b;border-color:#4da3ff30}
+.app-icon{border-radius:10px}
+.themed-select-trigger{background:#11152a;border-color:#ffffff1c;border-radius:12px;box-shadow:none;min-height:44px}
+.themed-select-trigger:hover{border-color:#ffffff30}
+.themed-select-trigger:focus-visible,.themed-select.open .themed-select-trigger{box-shadow:0 0 0 2px #4da3ff20}
+.themed-select-menu{background:#1b1e33;border-color:#4da3ff38;border-radius:13px;box-shadow:0 8px 20px #0005}
+.themed-select-option{border-radius:9px}
+.modal{border-radius:18px;box-shadow:0 12px 32px #0006}
+.toast{box-shadow:0 5px 14px #0005;transition:opacity .15s}
+.foot{padding:5px 8px;overflow-wrap:anywhere}
+@media(max-width:680px){
+ body{padding:12px}
+ main{gap:13px}
+ .topbar{align-items:flex-start;flex-direction:column;gap:10px}
+ .header{width:100%}
+ .brand{font-size:1.5rem}
+ .toolbar-actions{width:100%;justify-content:flex-start}
+ .toolbar-actions .btn{flex:1}
+ .card{padding:17px}
+ .restart-card{padding:16px}
+ .restart-actions{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+ .restart-actions .btn{flex:1 1 0;width:100%;min-width:0;white-space:nowrap;padding:9px 2px;font-size:clamp(.58rem,2.2vw,.72rem);gap:4px}
+ .restart-actions .btn .material-icons{font-size:16px}
+ .section-head{gap:8px}
+ .grid{gap:15px}
+ .subsection{padding-top:18px;margin-top:18px}
+ .actions .btn{flex:1}
+ .package-input{flex-wrap:wrap}
+ .package-input .control{flex:1 1 100%}
+ .package-input .btn{flex:1}
+ .modal-overlay{padding:8px}
+ .modal{padding:14px}
+ .themed-select-menu{max-height:35vh}
+}
+@media(min-width:681px){.restart-card .section-head{margin-bottom:10px}}
+
+.crypto-section{padding-top:18px;margin-top:18px}
+.crypto-section>.subhead{display:flex;align-items:center;justify-content:space-between;gap:12px;list-style:none;cursor:pointer;margin:0}
+.crypto-section>.subhead::-webkit-details-marker{display:none}
+.crypto-chevron{font-size:20px;color:var(--muted);flex-shrink:0}
+.crypto-section[open] .crypto-chevron{transform:rotate(180deg)}
+.crypto-content{padding-top:13px}
+.advanced-toolbar{display:flex;justify-content:flex-end;margin-top:-7px}.advanced-toolbar .btn{background:#4da3ff0b;border-color:#4da3ff28;color:#bcdcff}.advanced-toolbar .btn .material-icons{font-size:18px;color:var(--accent)}.advanced-toolbar .btn:hover{background:#4da3ff16;border-color:#4da3ff48}
+@media(max-width:680px){.advanced-toolbar{margin-top:-5px}.advanced-toolbar .btn{width:100%}}
+[hidden]{display:none!important}
+</style></head>
+<body><main>
+<div class="topbar"><header class="header"><div class="brand">OhMyKeymint Configuration</div></header>
+<div class="actions toolbar-actions"><button class="btn" id="loadDevice"><span class="material-icons">refresh</span>Reload</button><button class="btn" id="resetDevice"><span class="material-icons">restart_alt</span>Reset to defaults</button></div></div>
+<section class="card restart-card"><div class="section-head"><div><div class="section-title">Restart services</div></div></div><div class="actions restart-actions"><button class="btn" id="restartInjector"><span class="material-icons">sync</span>Restart injector</button><button class="btn" id="restartKeymint"><span class="material-icons">memory</span>Restart KeyMint</button><button class="btn danger" id="restartAll"><span class="material-icons">restart_alt</span>Restart both</button></div></section>
+<div id="notice" class="banner">Changes are saved automatically.</div>
+<div class="tabs"><button class="tab active" data-tab="config">config.toml</button><button class="tab" data-tab="injector">injector.toml</button></div>
+<div class="advanced-toolbar"><button class="btn" type="button" id="toggleAdvanced" aria-expanded="false"><span class="material-icons">tune</span><span id="advancedButtonText">Show advanced settings</span></button></div>
+<section class="card" id="configPanel">
+<div class="section-head"><div><div class="section-title">KeyMint service</div></div></div>
+<div class="grid">
+<div class="field" data-advanced hidden><label>Configuration version</label><input class="control" id="configVersion" readonly></div><div class="field" data-advanced hidden><label>Backend</label><input class="control" id="configBackend" readonly></div>
+<div class="field"><label for="log_level">Log level</label><select id="log_level" data-path="main.log_level"><option>off</option><option>error</option><option>warn</option><option>info</option><option>debug</option><option>trace</option></select><div class="hint">Requires KeyMint restart.</div></div>
+<div class="field" data-advanced hidden><label for="bio">Biometric compatibility override</label><select id="bio" data-path="main.force_skip_system_biometric_hat_verification"><option value="false">Disabled (recommended)</option><option value="true">Enabled (insecure)</option></select><div class="hint">Only enable for a confirmed System KeyMint compatibility issue.</div></div>
+</div>
+<div class="subsection"><div class="subhead">Trust and patch levels</div><div class="grid">
+<div class="field"><label for="os_version">Android major version</label><input class="control" id="os_version" data-path="trust.os_version" placeholder="auto or integer 0–99"><div class="hint">Use auto or an integer from 0 to 99. Requires restart.</div></div>
+<div class="field"><label for="security_patch">Security patch</label><input class="control" id="security_patch" data-path="trust.security_patch" placeholder="auto, latest, YYYY-MM-DD"><div class="hint">auto, latest, or an exact date.</div></div>
+<div class="field"><label for="os_patchlevel">OS patch level</label><input class="control" id="os_patchlevel" data-path="trust.os_patchlevel" placeholder="auto, latest, YYYY-MM-DD"><div class="hint">auto follows the effective security patch.</div></div>
+<div class="field"><label for="vendor_patchlevel">Vendor patch level</label><input class="control" id="vendor_patchlevel" data-path="trust.vendor_patchlevel" placeholder="auto, latest, YYYY-MM-DD"><div class="hint">auto uses vendor patch sources, then OS patch level.</div></div>
+<div class="field"><label for="boot_patchlevel">Boot patch level</label><input class="control" id="boot_patchlevel" data-path="trust.boot_patchlevel" placeholder="auto, latest, YYYY-MM-DD or decimal u32"><div class="hint">Accepts auto, latest, a date, or decimal u32 wire value.</div></div>
+<div class="field"><label for="vb_key">Verified boot key digest</label><input class="control" id="vb_key" data-path="trust.vb_key" placeholder="auto, random, or 64 hex characters"><div class="hint">Keep auto unless a fixed attestation profile is required.</div></div>
+<div class="field"><label for="vb_hash">Verified boot hash</label><input class="control" id="vb_hash" data-path="trust.vb_hash" placeholder="auto, random, or 64 hex characters"><div class="hint">Changing it requires restart; random → auto may require a device reboot.</div></div>
+<div class="field"><label>Verified boot state</label><select data-path="trust.verified_boot_state" id="verified_boot_state"><option value="true">Verified</option><option value="false">Unverified</option></select></div>
+<div class="field"><label>Device locked state</label><select data-path="trust.device_locked" id="device_locked"><option value="true">Locked</option><option value="false">Unlocked</option></select><div class="hint">Reports state only; does not lock or unlock the bootloader.</div></div>
+</div></div>
+<div class="subsection"><div class="subhead">Device identity</div><div class="grid" style="margin-top:12px">
+<div class="field"><label>Brand</label><input class="control" data-path="device.brand" autocomplete="off"></div><div class="field"><label>Device codename</label><input class="control" data-path="device.device" autocomplete="off"></div>
+<div class="field"><label>Product</label><input class="control" data-path="device.product" autocomplete="off"></div><div class="field"><label>Manufacturer</label><input class="control" data-path="device.manufacturer" autocomplete="off"></div>
+<div class="field"><label>Model</label><input class="control" data-path="device.model" autocomplete="off"></div><div class="field" data-advanced hidden><label>Serial number</label><input class="control" data-path="device.serial" autocomplete="off"></div>
+<div class="field" data-advanced hidden><label>IMEI</label><input class="control" data-path="device.imei" autocomplete="off"></div><div class="field" data-advanced hidden><label>IMEI 2</label><input class="control" data-path="device.imei2" autocomplete="off"></div>
+<div class="field" data-advanced hidden><label>MEID</label><input class="control" data-path="device.meid" autocomplete="off"></div>
+<div class="field" data-advanced hidden><label>Telephony auto-fill</label><select id="telephony" data-path="device.overrideTelephonyProperties"><option value="false">Fill only empty identifiers (recommended)</option><option value="true">Use configured identifiers exactly</option></select><div class="hint">When enabled, OMK skips telephony discovery.</div></div>
+</div></div>
+<details class="subsection crypto-section" data-advanced hidden><summary class="subhead">Generated crypto values <span class="material-icons crypto-chevron" aria-hidden="true">expand_more</span></summary><div class="crypto-content"><div id="cryptoFields" class="grid" style="margin-top:12px"></div></div></details>
+
+</section>
+<section class="card hidden" id="injectorPanel">
+<div class="section-head"><div><div class="section-title">Injector routing</div><div class="section-note">Configuration version 1 · changes are written immediately.</div></div></div>
+<div class="grid">
+<div class="field" data-advanced hidden><label>Configuration version</label><input class="control" id="injectorVersion" readonly></div>
+<div class="field" data-advanced hidden><label>Request routing</label><select id="injector_enabled" data-path="main.enabled"><option value="true">Enabled</option><option value="false">Disabled</option></select><div class="hint">Keep enabled for normal OMK use.</div></div>
+<div class="field"><label>Injector log level</label><select id="injector_log_level" data-path="main.log_level"><option>off</option><option>error</option><option>warn</option><option>warning</option><option>info</option><option>debug</option><option>trace</option></select></div>
+</div>
+<div class="subsection"><div class="subhead">Allowed packages (scoop)</div><div class="section-note">Choose installed apps from the app list or add an exact package name manually.</div><div class="package-box" style="margin-top:12px"><div class="package-input"><input class="control" id="scoopInput" placeholder="com.example.app"><button class="btn primary" id="addScoop">Add</button><button class="btn" id="pickScoop">Choose apps</button></div><div class="chips" id="scoopList"></div></div></div>
+<div class="subsection"><div class="subhead">Safety filters</div><div class="section-note">Keep the filter enabled, block Android identities, and reject unresolved packages unless a maintainer confirms otherwise.</div>
+<div class="toggle-row"><div><div class="toggle-title">Enforce package filters</div><div class="toggle-hint">Applies allowlist, denylist, Android-package block, and unknown-package policy.</div></div><input class="switch" type="checkbox" data-path="filter.enabled"></div>
+<div class="toggle-row"><div><div class="toggle-title">Block Android/system identity</div><div class="toggle-hint">Rejects core Android identities before checking scoop.</div></div><input class="switch" type="checkbox" data-path="filter.block_android_package"></div>
+<div class="toggle-row"><div><div class="toggle-title">Allow unknown package</div><div class="toggle-hint">Risky: permits unresolved identities to pass the filter.</div></div><input class="switch" type="checkbox" data-path="filter.allow_unknown_package"></div>
+<div class="field" style="margin-top:15px"><label>Denylisted packages</label><div class="section-note">Any denied package in a shared identity rejects that identity, even if another package is allowed.</div><div class="package-input" style="margin-top:8px"><input class="control" id="denyInput" placeholder="com.example.blocked"><button class="btn" id="addDeny">Add</button><button class="btn" id="pickDeny">Choose apps</button></div><div class="chips" id="denyList" style="margin-top:8px"></div></div>
+</div>
+<details class="subsection intercept-section" data-advanced hidden><summary><span><span class="subhead">Intercepted KeyStore operations</span><span class="section-note">Keep all enabled for normal use; mixing System and OMK operations can cause missing-key errors.</span></span><span class="material-icons disclosure-icon">expand_more</span></summary><div id="interceptFields"></div></details>
+
+</section>
+
+
+</main>
+<div class="modal-overlay" id="appModal" aria-hidden="true"><section class="modal card" role="dialog" aria-modal="true" aria-labelledby="appModalTitle"><div class="section-head"><div><div class="section-title" id="appModalTitle">Choose installed apps</div><div class="section-note" id="appModalNote">Select apps to update the list.</div></div><button class="btn" id="closeAppModal" aria-label="Close">Close</button></div><input class="control" id="appSearch" placeholder="Search app names or package names" autocomplete="off"><div class="app-picker-tools"><span class="section-note" id="appCount"></span><button class="btn" id="toggleSystemApps" type="button">Show system apps</button></div><div id="appList" class="app-list"></div></section></div>
+<div class="toast" id="toast"></div>
+<script>
+'use strict';
+const PATHS={config:'/data/misc/keystore/omk/config.toml',injector:'/data/misc/keystore/omk/injector.toml'};
+const INTERCEPT=['get_security_level','get_key_entry','update_subcomponent','list_entries','delete_key','grant','ungrant','get_number_of_entries','list_entries_batched','get_supplementary_attestation_info'];
+const INTERCEPT_HELP={
+get_security_level:'Request a TEE or StrongBox KeyStore security-level handle.',
+get_key_entry:'Retrieve an existing key entry and its metadata.',
+update_subcomponent:'Replace certificate or certificate-chain components.',
+list_entries:'List key aliases in a namespace.',
+delete_key:'Delete a named key from the selected backend.',
+grant:'Grant another app access to a key.',
+ungrant:'Remove a previously granted key permission.',
+get_number_of_entries:'Count key entries in a namespace.',
+list_entries_batched:'List entries in pages or batches.',
+get_supplementary_attestation_info:'Retrieve supplementary attestation information.'
+};
+const $=id=>document.getElementById(id);
+const state={config:null,injector:null,active:'config',scoop:[],deny:[]};
+function toast(s){const t=$('toast');t.textContent=s;t.classList.add('show');clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.remove('show'),2600)}
+function notice(s,type=''){const n=$('notice');n.textContent=s;n.className='banner'+(type?' '+type:'')}
+$('toggleAdvanced').addEventListener('click',()=>{const show=!document.body.classList.contains('advanced-visible');document.body.classList.toggle('advanced-visible',show);document.querySelectorAll('[data-advanced]').forEach(el=>{if(show)el.removeAttribute('hidden');else el.setAttribute('hidden','')});$('toggleAdvanced').setAttribute('aria-expanded',String(show));$('advancedButtonText').textContent=show?'Hide advanced settings':'Show advanced settings';});
+function setPath(o,path,value){const parts=path.split('.');let p=o;for(let i=0;i<parts.length-1;i++){if(!p[parts[i]]||typeof p[parts[i]]!=='object')p[parts[i]]={};p=p[parts[i]]}p[parts.at(-1)]=value}
+function getPath(o,path){return path.split('.').reduce((v,k)=>v?.[k],o)}
+function parseToml(src){
+ const root={};let section=root;
+ const physical=src.replace(/^\uFEFF/,'').split(/\r?\n/), lines=[];
+ let pending='',startLine=1,depth=0;
+ for(let i=0;i<physical.length;i++){
+  const raw=physical[i];if(!pending.trim())startLine=i+1;
+  pending+=(pending?'\n':'')+raw;
+  let inString=false,escaped=false,comment=false;
+  for(let j=0;j<raw.length;j++){
+   const ch=raw[j];
+   if(comment)break;
+   if(inString){if(escaped)escaped=false;else if(ch==='\\')escaped=true;else if(ch==='"')inString=false;continue}
+   if(ch==='"')inString=true;
+   else if(ch==='#'){comment=true;break}
+   else if(ch==='[')depth++;
+   else if(ch===']')depth--;
+  }
+  if(depth<=0&&!inString){lines.push({text:pending,line:startLine});pending='';depth=0}
+ }
+ if(pending.trim())throw Error(`Unterminated TOML value at line ${startLine}`);
+ for(const entry of lines){
+  const lineNo=entry.line;let line=entry.text.trim();if(!line||line.startsWith('#'))continue;
+  if(line.startsWith('[')){const m=line.match(/^\[([A-Za-z0-9_.-]+)\]$/);if(!m)throw Error(`Invalid table header at line ${lineNo}`);const path=m[1].split('.');section=root;for(const k of path){if(section[k]===undefined)section[k]={};if(!section[k]||typeof section[k]!=='object'||Array.isArray(section[k]))throw Error(`Conflicting table at line ${lineNo}`);section=section[k]}continue}
+  const eq=line.indexOf('=');if(eq<1)throw Error(`Expected key=value at line ${lineNo}`);const key=line.slice(0,eq).trim();if(!/^[A-Za-z0-9_-]+$/.test(key))throw Error(`Invalid key at line ${lineNo}`);if(Object.hasOwn(section,key))throw Error(`Duplicate key "${key}" at line ${lineNo}`);
+  let raw=line.slice(eq+1).trim();if(!raw)throw Error(`Missing value at line ${lineNo}`);
+  let quoted=false,escaped=false,arrDepth=0,end=raw.length;
+  for(let i=0;i<raw.length;i++){const ch=raw[i];if(quoted){if(escaped)escaped=false;else if(ch==='\\')escaped=true;else if(ch==='"')quoted=false;continue}if(ch==='"'){quoted=true;continue}if(ch==='[')arrDepth++;else if(ch===']')arrDepth--;else if(ch==='#'&&arrDepth===0){end=i;break}}
+  raw=raw.slice(0,end).trim();section[key]=parseValue(raw,lineNo);
+ }
+ return root;
+}
+function parseValue(s,line){
+ if(s==='true')return true;if(s==='false')return false;
+ if(/^[-+]?\d+$/.test(s))return Number(s);
+ if(s.startsWith('"')){try{const v=JSON.parse(s);if(typeof v!=='string')throw 0;return v}catch{throw Error(`Invalid string at line ${line}`)}}
+ if(s.startsWith("'")&&s.endsWith("'"))return s.slice(1,-1);
+ if(s.startsWith('[')&&s.endsWith(']')){const inner=s.slice(1,-1).trim();if(!inner)return[];const items=[];let cur='',q=false,esc=false;for(const c of inner){if(q){cur+=c;if(esc)esc=false;else if(c==='\\')esc=true;else if(c==='"')q=false}else if(c==='"'){q=true;cur+=c}else if(c===','){if(!cur.trim())throw Error(`Invalid array at line ${line}`);items.push(parseValue(cur.trim(),line));cur=''}else cur+=c}if(cur.trim())items.push(parseValue(cur.trim(),line));else if(inner.endsWith(',')){}else throw Error(`Invalid array at line ${line}`);return items}
+ throw Error(`Unsupported or invalid TOML value at line ${line}`);
+}
+function tomlString(s){return JSON.stringify(String(s))}
+function emitFields(obj,keys){return keys.filter(k=>obj[k]!==undefined).map(k=>`${k} = ${tomlValue(obj[k])}`).join('\n')}
+function tomlValue(v){if(typeof v==='string')return tomlString(v);if(typeof v==='boolean'||typeof v==='number')return String(v);if(Array.isArray(v))return '['+(v.map(tomlValue).join(', '))+']';throw Error('Unsupported TOML value')}
+function emitExtras(obj,known){
+ if(!obj||typeof obj!=='object'||Array.isArray(obj))return '';
+ return Object.keys(obj).filter(k=>!known.includes(k)&&/^[A-Za-z0-9_-]+$/.test(k)&&obj[k]!==null&&(Array.isArray(obj[k])||typeof obj[k]!=='object')).map(k=>`${k} = ${tomlValue(obj[k])}`).join('\n');
+}
+function sectionText(name,obj,known){const fields=emitFields(obj,known),extras=emitExtras(obj,known);return '['+name+']\n'+[fields,extras].filter(Boolean).join('\n')}
+function serializeConfig(c){
+ const out=[];const top=emitFields(c,['version']),topExtras=emitExtras(c,['version']);out.push([top,topExtras].filter(Boolean).join('\n'));
+ out.push(sectionText('main',c.main,['backend','log_level','force_skip_system_biometric_hat_verification']));
+ out.push(sectionText('crypto',c.crypto,['root_kek_seed','kak_seed','shared_secret_seed','shared_secret_nonce','auth_token_hmac_key']));
+ out.push(sectionText('trust',c.trust,['os_version','security_patch','os_patchlevel','vendor_patchlevel','boot_patchlevel','vb_key','vb_hash','verified_boot_state','device_locked']));
+ out.push(sectionText('device',c.device,['brand','device','product','manufacturer','model','serial','overrideTelephonyProperties','meid','imei','imei2']));
+ return out.filter(Boolean).join('\n\n')+'\n';
+}
+function serializeInjector(c){
+ const out=[emitFields(c,['version','scoop']),'[main]\n'+emitFields(c.main,['enabled','log_level']),'[filter]\n'+emitFields(c.filter,['enabled','deny_packages','block_android_package','allow_unknown_package']),'[intercept]\n'+emitFields(c.intercept,INTERCEPT)];
+ return out.filter(Boolean).join('\n\n')+'\n';
+}
+function validateConfig(c){
+ const errors=[];if(c.version!==2)errors.push('config.toml version must be 2.');if(c.main?.backend!=='injector')errors.push('main.backend must be "injector".');
+ for(const k of ['root_kek_seed','kak_seed','shared_secret_seed','shared_secret_nonce'])if(!/^[0-9a-fA-F]{64}$/.test(c.crypto?.[k]||''))errors.push(`crypto.${k} must remain a 64-character hexadecimal value.`);
+ if(c.crypto?.auth_token_hmac_key!==undefined&&!/^[0-9a-fA-F]{64}$/.test(c.crypto.auth_token_hmac_key))errors.push('crypto.auth_token_hmac_key must be 64 hexadecimal characters.');
+ for(const k of ['security_patch','os_patchlevel','vendor_patchlevel'])if(!validPatch(c.trust?.[k]))errors.push(`trust.${k} must be auto, latest, or YYYY-MM-DD.`);
+ const bp=c.trust?.boot_patchlevel;if(!(validPatch(bp)||/^\d{1,10}$/.test(String(bp))))errors.push('trust.boot_patchlevel must be auto, latest, YYYY-MM-DD, or a decimal u32.');
+ if(!['auto','random'].includes(c.trust?.vb_key)&&!/^[0-9a-fA-F]{64}$/.test(c.trust?.vb_key||''))errors.push('trust.vb_key must be auto, random, or 64 hexadecimal characters.');
+ if(!['auto','random'].includes(c.trust?.vb_hash)&&!/^[0-9a-fA-F]{64}$/.test(c.trust?.vb_hash||''))errors.push('trust.vb_hash must be auto, random, or 64 hexadecimal characters.');
+ if(c.trust?.os_version!=='auto'&&!(Number.isInteger(c.trust?.os_version)&&c.trust.os_version>=0&&c.trust.os_version<=99))errors.push('trust.os_version must be auto or an integer from 0 to 99.');
+ if(c.main?.log_level&&!['off','error','warn','info','debug','trace'].includes(c.main.log_level))errors.push('Invalid KeyMint log level.');
+ return errors;
+}
+function validPatch(v){return v==='auto'||v==='latest'||/^\d{4}-\d{2}-\d{2}$/.test(String(v||''))&&isValidDate(v)}
+function isValidDate(s){const d=new Date(s+'T00:00:00Z');return !Number.isNaN(d.getTime())&&d.toISOString().slice(0,10)===s}
+function validateInjector(c){
+ const e=[];if(c.version!==1)e.push('injector.toml version must be 1.');if(!Array.isArray(c.scoop)||!Array.isArray(c.filter?.deny_packages))e.push('scoop and deny_packages must be arrays.');
+ for(const [name,arr] of [['scoop',c.scoop],['deny_packages',c.filter?.deny_packages]])if(Array.isArray(arr))for(const p of arr)if(typeof p!=='string'||!/^[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)+$/.test(p))e.push(`${name} contains invalid package name: ${p}`);
+ if(c.main?.log_level&&!['off','error','warn','warning','info','debug','trace'].includes(String(c.main.log_level).toLowerCase()))e.push('Invalid injector log level.');
+ if(!c.filter?.enabled)e.push('Warning: disabling the safety filter allows every caller to reach enabled interception routes.');
+ if(!c.filter?.block_android_package)e.push('Warning: Android/system identities will not be blocked by this filter.');
+ if(c.filter?.allow_unknown_package)e.push('Warning: unresolved package identities will be allowed.');
+ return e;
+}
+function fillInputs(which,obj){document.querySelectorAll(`#${which==='config'?'configPanel':'injectorPanel'} [data-path]`).forEach(el=>{const v=getPath(obj,el.dataset.path);if(v===undefined)return;if(el.type==='checkbox')el.checked=!!v;else {const value=String(v);if(el.tagName==='SELECT'&&![...el.options].some(o=>o.value===value)){const opt=document.createElement('option');opt.value=value;opt.textContent=value+' (from file)';el.append(opt)}el.value=value;if(el.tagName==='SELECT')syncThemedSelect(el)}})}
+function renderCrypto(){const c=state.config?.crypto||{};const host=$('cryptoFields');host.innerHTML='';['root_kek_seed','kak_seed','shared_secret_seed','shared_secret_nonce','auth_token_hmac_key'].forEach(k=>{if(c[k]===undefined&&k==='auth_token_hmac_key')return;const div=document.createElement('div');div.className='field';const label=document.createElement('label');label.textContent=k+(k==='auth_token_hmac_key'?' (optional)':'');const input=document.createElement('input');input.className='control';input.readOnly=true;input.autocomplete='off';input.type='password';input.value=c[k]||'';input.placeholder='Not present in loaded file';const reveal=document.createElement('button');reveal.className='btn';reveal.type='button';reveal.textContent='Reveal';reveal.onclick=()=>{input.type=input.type==='password'?'text':'password';reveal.textContent=input.type==='password'?'Reveal':'Hide'};div.append(label,input,reveal);host.append(div)})}
+function renderPackages(key){const host=$(key==='scoop'?'scoopList':'denyList');host.innerHTML='';const list=state[key==='scoop'?'scoop':'deny'];list.forEach((pkg,i)=>{const chip=document.createElement('span');chip.className='chip';const t=document.createElement('span');t.textContent=pkg;const b=document.createElement('button');b.type='button';b.textContent='×';b.title='Remove '+pkg;b.onclick=()=>{list.splice(i,1);renderPackages(key);syncStateFromInputs('injector');queueSave('injector')};chip.append(t,b);host.append(chip)})}
+let appPickerTarget='scoop',installedPackages=[],packageInfo=new Map(),appIcons=new Map(),showSystemApps=false,appRenderToken=0;
+function ksuApi(){for(const x of [window.ksu,window.kernelsu,window.parent?.ksu,window.parent?.kernelsu])if(x&&typeof x==='object')return x;return null}
+function parseApiJson(value){if(typeof value==='string'){try{return JSON.parse(value)}catch{return []}}return value}
+async function getPackageNames(){const api=ksuApi();try{if(typeof api?.listAllPackages==='function'){const v=parseApiJson(api.listAllPackages());if(Array.isArray(v))return [...new Set(v.map(String))].sort()}}catch{}
+ try{if(typeof api?.listPackages==='function'){const v=parseApiJson(api.listPackages('all'));if(Array.isArray(v))return [...new Set(v.map(String))].sort()}}catch{}
+ const out=await runShell('pm list packages 2>/dev/null || cmd package list packages 2>/dev/null');return [...new Set(out.split(/\r?\n/).map(x=>x.trim().replace(/^package:/,'')).filter(x=>/^[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)+$/.test(x)))].sort()}
+async function loadSystemFlags(){const api=ksuApi();for(const [method,value] of [['listSystemPackages',true],['listUserPackages',false]]){try{if(typeof api?.[method]==='function'){const names=parseApiJson(api[method]());if(Array.isArray(names))for(const pkg of names)packageInfo.set(String(pkg),{...(packageInfo.get(String(pkg))||{packageName:String(pkg)}),isSystem:value})}}catch{}}}
+async function loadPackageInfo(packages){const api=ksuApi();if(typeof api?.getPackagesInfo!=='function')return;for(let i=0;i<packages.length;i+=100){const batch=packages.slice(i,i+100);try{const result=parseApiJson(api.getPackagesInfo(JSON.stringify(batch)));if(Array.isArray(result))for(const item of result)if(item?.packageName)packageInfo.set(item.packageName,{...(packageInfo.get(item.packageName)||{}),...item})}catch{}}}
+async function loadPackageIcons(packages){const api=ksuApi(),missing=packages.filter(p=>!appIcons.has(p));if(!missing.length)return;if(typeof api?.getPackagesIcons==='function'){for(let i=0;i<missing.length;i+=60){const batch=missing.slice(i,i+60);try{const result=parseApiJson(api.getPackagesIcons(JSON.stringify(batch),48));if(Array.isArray(result))for(const item of result)if(item?.packageName&&item.icon)appIcons.set(item.packageName,item.icon)}catch{}}}}
+async function openAppPicker(target){appPickerTarget=target;showSystemApps=false;const modal=$('appModal');$('appModalTitle').textContent=target==='scoop'?'Allowed apps':'Denied apps';$('appModalNote').textContent=target==='scoop'?'Select apps to add to scoop.':'Select apps to add to deny_packages.';$('appSearch').value='';$('toggleSystemApps').textContent='Show system apps';$('appList').innerHTML='<div class="section-note">Loading apps…</div>';modal.classList.add('show');modal.setAttribute('aria-hidden','false');try{if(!installedPackages.length){installedPackages=await getPackageNames();await loadSystemFlags();await loadPackageInfo(installedPackages)}await renderAppList()}catch(e){$('appList').innerHTML='';const err=document.createElement('div');err.className='banner error';err.textContent='Unable to read installed apps: '+e.message;$('appList').append(err)}}
+async function renderAppList(){const token=++appRenderToken,host=$('appList'),query=$('appSearch').value.trim().toLowerCase(),selected=new Set(appPickerTarget==='scoop'?state.scoop:state.deny);let matches=installedPackages.filter(pkg=>{const info=packageInfo.get(pkg)||{},system=!!info.isSystem,name=String(info.appLabel||pkg);return(showSystemApps||!system)&&(pkg.toLowerCase().includes(query)||name.toLowerCase().includes(query))});$('appCount').textContent=`${matches.length} apps`;const shown=matches.slice(0,100);await loadPackageIcons(shown);if(token!==appRenderToken)return;host.innerHTML='';const frag=document.createDocumentFragment();for(const pkg of shown){const info=packageInfo.get(pkg)||{},label=document.createElement('label'),box=document.createElement('input'),icon=document.createElement('img'),details=document.createElement('span'),name=document.createElement('span'),packageText=document.createElement('span');box.type='checkbox';box.checked=selected.has(pkg);box.value=pkg;box.onchange=()=>{const list=appPickerTarget==='scoop'?state.scoop:state.deny;if(box.checked){if(!list.includes(pkg))list.push(pkg)}else{const i=list.indexOf(pkg);if(i>=0)list.splice(i,1)}renderPackages(appPickerTarget);syncStateFromInputs('injector');queueSave('injector')};icon.className='app-icon';icon.alt='';icon.loading='lazy';icon.src=appIcons.get(pkg)||('ksu://icon/'+encodeURIComponent(pkg));icon.onerror=()=>{icon.style.visibility='hidden'};details.className='app-label';name.className='app-name';name.textContent=info.appLabel||pkg;packageText.className='app-package';packageText.textContent=pkg+(info.isSystem?' · system':'');details.append(name,packageText);label.append(box,icon,details);frag.append(label)}host.append(frag);if(matches.length>shown.length){const more=document.createElement('div');more.className='section-note';more.textContent=`Showing first ${shown.length} of ${matches.length}. Search to narrow the list.`;host.append(more)}}
+function renderIntercept(){const host=$('interceptFields');host.innerHTML='';INTERCEPT.forEach(k=>{const row=document.createElement('div');row.className='toggle-row';const text=document.createElement('div');const title=document.createElement('div');title.className='toggle-title';title.textContent=k;const hint=document.createElement('div');hint.className='toggle-hint';hint.textContent=INTERCEPT_HELP[k];text.append(title,hint);const sw=document.createElement('input');sw.type='checkbox';sw.className='switch';sw.dataset.path='intercept.'+k;sw.checked=!!getPath(state.injector||{},sw.dataset.path);sw.onchange=()=>{setPath(state.injector,sw.dataset.path,sw.checked);queueSave('injector')};row.append(text,sw);host.append(row)})}
+function syncStateFromInputs(which){const obj=state[which];if(!obj)return;document.querySelectorAll(`#${which==='config'?'configPanel':'injectorPanel'} [data-path]`).forEach(el=>{let v;if(el.type==='checkbox')v=el.checked;else if(el.tagName==='SELECT'&&['true','false'].includes(el.value))v=el.value==='true';else v=el.value;const path=el.dataset.path;if(which==='config'&&path==='trust.os_version'&&v!=='auto'&&/^\d+$/.test(v))v=Number(v);setPath(obj,path,v)});if(which==='injector'){obj.scoop=[...new Set(state.scoop)];obj.filter.deny_packages=[...new Set(state.deny)];document.querySelectorAll('#interceptFields [data-path]').forEach(el=>setPath(obj,el.dataset.path,el.checked))}}
+function loadText(which,text){const obj=parseToml(text);if(which==='config'){state.config=obj;$('configVersion').value=String(obj.version??'');$('configBackend').value=String(obj.main?.backend??'Not present');fillInputs(which,obj);renderCrypto()}else{state.injector=obj;$('injectorVersion').value=String(obj.version??'');state.scoop=Array.isArray(obj.scoop)?[...obj.scoop]:[];state.deny=Array.isArray(obj.filter?.deny_packages)?[...obj.filter.deny_packages]:[];fillInputs(which,obj);renderPackages('scoop');renderPackages('deny');renderIntercept()}}
+function getOutput(which){syncStateFromInputs(which);const obj=state[which];if(!obj)throw Error(`Load ${which==='config'?'config.toml':'injector.toml'} first.`);const errs=which==='config'?validateConfig(obj):validateInjector(obj);const hard=errs.filter(x=>!x.startsWith('Warning:'));if(hard.length)throw Error(hard.join(' '));return {text:which==='config'?serializeConfig(obj):serializeInjector(obj),warnings:errs.filter(x=>x.startsWith('Warning:'))}}
+function quoteShell(s){return "'"+String(s).replace(/'/g,"'\\''")+"'"}
+function findShellBridge(){
+ const candidates=[
+  ['parent.runShell',()=>window.parent&&typeof window.parent.runShell==='function',cmd=>window.parent.runShell(cmd)],
+  ['ksu.exec',()=>typeof ksu==='object'&&ksu&&typeof ksu.exec==='function',(cmd)=>execViaKsu(ksu,cmd)],
+  ['window.ksu.exec',()=>window.ksu&&typeof window.ksu.exec==='function',(cmd)=>execViaKsu(window.ksu,cmd)],
+  ['kernelsu.exec',()=>window.kernelsu&&typeof window.kernelsu.exec==='function',(cmd)=>execViaKsu(window.kernelsu,cmd)],
+  ['parent.ksu.exec',()=>window.parent&&window.parent.ksu&&typeof window.parent.ksu.exec==='function',cmd=>execViaKsu(window.parent.ksu,cmd)],
+  ['parent.kernelsu.exec',()=>window.parent&&window.parent.kernelsu&&typeof window.parent.kernelsu.exec==='function',cmd=>execViaKsu(window.parent.kernelsu,cmd)]
+ ];
+ return candidates.find(x=>{try{return x[1]()}catch{return false}})||null;
+}
+function execViaKsu(api,cmd){
+ return new Promise((resolve,reject)=>{
+  try{const direct=api.exec(cmd);if(typeof direct==='string'){resolve(direct);return}if(direct&&typeof direct==='object'&&typeof direct.stdout==='string'){if(direct.errno===0||direct.code===0||direct.errno===undefined&&direct.code===undefined)resolve(direct.stdout);else reject(Error(direct.stderr||direct.stdout||'Shell command failed'));return}}catch(e){if(api.exec.length<2){reject(e);return}}
+  const id='omk_'+Date.now()+'_'+Math.floor(Math.random()*1000000);let settled=false;
+  const finish=(code,out,err)=>{if(settled)return;settled=true;try{delete window[id]}catch{};if(Number(code)===0)resolve(String(out??''));else reject(Error(String(err||out||`Shell command failed (${code})`)))};
+  window[id]=finish;try{api.exec(cmd,'{}',id)}catch(e){try{delete window[id]}catch{};reject(e)}
+ });
+}
+function runShell(cmd){
+ const bridge=findShellBridge();
+ if(!bridge)return Promise.reject(Error('No root shell bridge detected. Open this page inside the OMK/KernelSU WebUI host that provides runShell or ksu.exec.'));
+ try{
+  if(bridge[0]==='parent.runShell'){
+   return Promise.resolve(bridge[2](cmd)).then(result=>{
+    if(typeof result==='string')return result;
+    if(result&&typeof result==='object'){
+     if(typeof result.stdout==='string'&&(!('code'in result)||Number(result.code)===0))return result.stdout;
+     if('code'in result&&Number(result.code)!==0)throw Error(result.stderr||result.stdout||`Shell command failed (${result.code})`);
+    }
+    return String(result??'');
+   });
+  }
+  return bridge[2](cmd);
+ }catch(e){return Promise.reject(e)}
+}
+async function readDeviceFile(path){
+ const q=quoteShell(path);
+ const cmd=`if [ -f ${q} ] && [ -r ${q} ]; then cat ${q} || exit 4; else echo "__OMK_FILE_UNAVAILABLE__:${path}" >&2; exit 3; fi`;
+ const text=await runShell(cmd);
+ if(!text.trim())throw Error(`${path} is empty or returned no content.`);
+ return text;
+}
+async function loadDevice(){
+ const btn=$('loadDevice');btn.disabled=true;btn.textContent='Loading…';
+ try{
+  const bridge=findShellBridge();
+  if(!bridge)throw Error('Root bridge not detected. This page must run inside a host exposing window.parent.runShell or the KernelSU ksu.exec API. Opening the HTML directly in a browser cannot read /data/misc/keystore/omk/.');
+  const [configText,injectorText]=await Promise.all([readDeviceFile(PATHS.config),readDeviceFile(PATHS.injector)]);
+  const parsedConfig=parseToml(configText),parsedInjector=parseToml(injectorText);
+  if(parsedConfig.version!==2)throw Error('config.toml was read, but its version is not 2.');
+  if(parsedInjector.version!==1)throw Error('injector.toml was read, but its version is not 1.');
+  loadText('config',configText);loadText('injector',injectorText);
+  $('notice').className='banner hidden';
+ }catch(e){notice('Unable to load config '+e.message,'error')}
+ finally{btn.disabled=false;btn.innerHTML='<span class="material-icons">refresh</span>Reload'}
+}
+const saveTimers={config:null,injector:null},saveQueues={config:Promise.resolve(),injector:Promise.resolve()};
+function queueSave(which,delay=550){if(!state[which]||!findShellBridge())return;clearTimeout(saveTimers[which]);saveTimers[which]=setTimeout(()=>{saveQueues[which]=saveQueues[which].catch(()=>{}).then(()=>saveFile(which));},delay)}
+async function saveFile(which){const obj=state[which];if(!obj||!findShellBridge())return;try{const out=getOutput(which);if(out.errors?.length){notice(out.errors.join(' '),'error');return}const text=out.text,q=quoteShell,path=q(PATHS[which]),tmp=q(PATHS[which]+'.omk-tmp');const payload=`set -eu
+[ -f ${path} ] || { echo 'Active file does not exist: ${PATHS[which]}' >&2; exit 10; }
+trap 'rm -f ${tmp}' EXIT HUP INT TERM
+printf %s ${q(text)} > ${tmp}
+chmod --reference=${path} ${tmp} 2>/dev/null || chmod 600 ${tmp}
+chown --reference=${path} ${tmp} 2>/dev/null || true
+mv -f ${tmp} ${path}
+trap - EXIT HUP INT TERM`;
+await runShell(payload);}catch(e){notice(`Could not save ${which}.toml: ${e.message}`,'error')}}
+async function resetFromDefaults(){const btn=$('resetDevice');btn.disabled=true;try{const q=quoteShell;const srcC='/data/adb/modules/integrity-box/toolkit/config.toml',srcI='/data/adb/modules/integrity-box/toolkit/injector.toml';const dstC=PATHS.config,dstI=PATHS.injector;const cmd=`set -eu
+[ -r ${q(srcC)} ] || { echo 'Default config.toml not found: ${srcC}' >&2; exit 11; }
+[ -r ${q(srcI)} ] || { echo 'Default injector.toml not found: ${srcI}' >&2; exit 12; }
+mkdir -p ${q('/data/misc/keystore/omk')}
+cp ${q(srcC)} ${q(dstC)}
+cp ${q(srcI)} ${q(dstI)}
+echo 'Reset to module defaults.'`;await runShell(cmd);await loadDevice();notice('Reset completed: both active files were copied from Play Integrity Fix toolkit defaults.','ok');toast('Configuration reset to defaults')}catch(e){notice('Reset failed: '+e.message,'error')}finally{btn.disabled=false}}
+
+function syncThemedSelect(select){
+ const wrap=select._themedWrap;if(!wrap)return;
+ const value=wrap.querySelector('.select-value'),menu=wrap.querySelector('.themed-select-menu');
+ const chosen=select.options[select.selectedIndex];value.textContent=chosen?chosen.textContent:select.value;
+ if(menu.children.length!==select.options.length){menu.innerHTML='';[...select.options].forEach((opt,index)=>{const item=document.createElement('button');item.type='button';item.className='themed-select-option';item.setAttribute('role','option');item.dataset.index=String(index);item.onclick=()=>{select.selectedIndex=index;select.dispatchEvent(new Event('input',{bubbles:true}));select.dispatchEvent(new Event('change',{bubbles:true}));syncThemedSelect(select);wrap.classList.remove('open');wrap.querySelector('.themed-select-trigger').setAttribute('aria-expanded','false')};menu.append(item)})}
+ menu.querySelectorAll('.themed-select-option').forEach((b,i)=>{const opt=select.options[i];const active=!!opt&&opt.value===select.value;b.classList.toggle('selected',active);b.setAttribute('aria-selected',String(active));b.innerHTML='';const label=document.createElement('span');label.textContent=opt?opt.textContent:'';b.append(label);if(active){const check=document.createElement('span');check.className='material-icons';check.textContent='check';b.append(check)}})
+}
+function closeThemedSelects(except){document.querySelectorAll('.themed-select.open').forEach(w=>{if(w!==except){w.classList.remove('open');w.querySelector('.themed-select-trigger')?.setAttribute('aria-expanded','false')}})}
+function enhanceSelects(){
+ document.querySelectorAll('select').forEach(select=>{
+  if(select._themedWrap)return;
+  const wrap=document.createElement('div');wrap.className='themed-select';
+  const trigger=document.createElement('button');trigger.type='button';trigger.className='themed-select-trigger';trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');
+  const value=document.createElement('span');value.className='select-value';const arrow=document.createElement('span');arrow.className='material-icons';arrow.textContent='expand_more';trigger.append(value,arrow);
+  const menu=document.createElement('div');menu.className='themed-select-menu';menu.setAttribute('role','listbox');
+  [...select.options].forEach((opt,index)=>{const item=document.createElement('button');item.type='button';item.className='themed-select-option';item.setAttribute('role','option');item.dataset.index=String(index);item.onclick=()=>{select.selectedIndex=index;select.dispatchEvent(new Event('input',{bubbles:true}));select.dispatchEvent(new Event('change',{bubbles:true}));syncThemedSelect(select);wrap.classList.remove('open');trigger.setAttribute('aria-expanded','false')};menu.append(item)});
+  select.classList.add('native-select-state');select.parentNode.insertBefore(wrap,select);wrap.append(trigger,menu,select);select._themedWrap=wrap;
+  trigger.onclick=()=>{const opening=!wrap.classList.contains('open');closeThemedSelects(wrap);wrap.classList.toggle('open',opening);trigger.setAttribute('aria-expanded',String(opening))};
+  trigger.onkeydown=e=>{if(e.key==='Escape'){wrap.classList.remove('open');trigger.setAttribute('aria-expanded','false')}else if(['ArrowDown','ArrowUp','Enter',' '].includes(e.key)){e.preventDefault();if(!wrap.classList.contains('open')){closeThemedSelects(wrap);wrap.classList.add('open');trigger.setAttribute('aria-expanded','true');(menu.querySelector('.selected')||menu.firstElementChild)?.focus()}else if(e.key==='ArrowDown'){(document.activeElement.nextElementSibling||menu.firstElementChild)?.focus()}else if(e.key==='ArrowUp'){(document.activeElement.previousElementSibling||menu.lastElementChild)?.focus()}else{(menu.querySelector('.selected')||menu.firstElementChild)?.focus()}}};
+  select.addEventListener('change',()=>syncThemedSelect(select));syncThemedSelect(select);
+ });
+}
+document.addEventListener('click',e=>{if(!e.target.closest('.themed-select'))closeThemedSelects(null)});
+async function restartService(kind){
+ const names={injector:'injector',keymint:'KeyMint',all:'both services'};
+ const prompts={injector:'Restart the OMK injector now? Reopen affected apps afterward for a clean routing boundary.',keymint:'Restart KeyMint now? Keystore operations may briefly fail while it restarts.',all:'Restart both OMK services now? Keystore operations may briefly fail; reopen affected apps afterward.'};
+ if(!window.confirm(prompts[kind]))return;
+ const buttons=['restartInjector','restartKeymint','restartAll'].map($);buttons.forEach(b=>b.disabled=true);
+ try{
+  const marker={injector:'/data/adb/omk/restart.injector',keymint:'/data/adb/omk/restart.keymint',all:'/data/adb/omk/restart.all'}[kind];
+  await runShell(`set -eu\nmkdir -p /data/adb/omk\ntouch ${quoteShell(marker)}\ntest -f ${quoteShell(marker)}\nprintf '%s' 'Restart request created'`);
+  toast(`${names[kind]} restart requested`);
+  notice(`Restart request created: ${marker}`,'ok');
+ }catch(e){notice(`Could not request ${names[kind]} restart: ${e.message}`,'error')}
+ finally{buttons.forEach(b=>b.disabled=false)}
+}
+$('restartInjector').onclick=()=>restartService('injector');$('restartKeymint').onclick=()=>restartService('keymint');$('restartAll').onclick=()=>restartService('all');
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{state.active=b.dataset.tab;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));$('configPanel').classList.toggle('hidden',state.active!=='config');$('injectorPanel').classList.toggle('hidden',state.active!=='injector')});
+function bindLive(which){const panel=$(which==='config'?'configPanel':'injectorPanel');panel.querySelectorAll('[data-path]').forEach(el=>{const handler=()=>{syncStateFromInputs(which);queueSave(which)};el.addEventListener('input',handler);el.addEventListener('change',handler)})}
+bindLive('config');bindLive('injector');
+$('loadDevice').onclick=loadDevice;$('resetDevice').onclick=()=>{if(window.confirm('Reset both active configurations to the Play Integrity Fix toolkit defaults? This will overwrite your current settings.'))resetFromDefaults()};$('pickScoop').onclick=()=>openAppPicker('scoop');$('pickDeny').onclick=()=>openAppPicker('deny');$('closeAppModal').onclick=()=>{$('appModal').classList.remove('show');$('appModal').setAttribute('aria-hidden','true')};$('appSearch').addEventListener('input',renderAppList);$('toggleSystemApps').onclick=()=>{showSystemApps=!showSystemApps;$('toggleSystemApps').textContent=showSystemApps?'Hide system apps':'Show system apps';renderAppList()};$('appModal').addEventListener('click',e=>{if(e.target===$('appModal')){$('appModal').classList.remove('show');$('appModal').setAttribute('aria-hidden','true')}});
+function addPackage(which){const input=$(which==='scoop'?'scoopInput':'denyInput');const p=input.value.trim();if(!/^[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)+$/.test(p)){notice('Enter an exact Android package name, such as com.example.app.','error');return}const list=which==='scoop'?state.scoop:state.deny;if(!list.includes(p))list.push(p);input.value='';renderPackages(which);syncStateFromInputs('injector');queueSave('injector')}
+$('addScoop').onclick=()=>addPackage('scoop');$('addDeny').onclick=()=>addPackage('deny');$('scoopInput').onkeydown=$('denyInput').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();addPackage(e.target.id==='scoopInput'?'scoop':'deny')}};
+renderIntercept();renderPackages('scoop');renderPackages('deny');enhanceSelects();
+if(findShellBridge())loadDevice();
+else notice('Open this page inside the KernelSU WebUI to access device configuration files.');
+</script></body></html>

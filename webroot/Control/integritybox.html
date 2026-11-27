@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>IntegrityBox Toolkit</title>
+<title>Developer Mode</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
 :root{
@@ -38,9 +38,6 @@ body{
   -webkit-font-smoothing:antialiased;
   padding:20px;
   transition:background 0.5s ease;
-}
-body.modern-bg{
-  background:radial-gradient(circle at 30% 20%,#2d1b4e 0%,#120820 100%);
 }
 .card{
   width:380px;
@@ -107,7 +104,7 @@ h1 .material-icons{
   align-items:center;
   justify-content:space-between;
   gap:14px;
-  padding:16px;
+  padding:12px;
   border-radius:16px;
   background:rgba(255,255,255,0.03);
   border:1px solid rgba(255,255,255,0.06);
@@ -201,122 +198,6 @@ h1 .material-icons{
 }
 .switch input:checked+.slider .knob{transform:translateX(24px)}
 
-.mode-grid{
-  position:relative;
-  z-index:2;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  margin-bottom:10px;
-}
-.mode-btn{
-  position:relative;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:10px;
-  padding:22px 12px;
-  border-radius:16px;
-  background:rgba(255,255,255,0.03);
-  border:1px solid rgba(255,255,255,0.06);
-  cursor:pointer;
-  transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
-}
-.mode-btn:hover{
-  background:rgba(255,255,255,0.06);
-  transform:translateY(-2px);
-  box-shadow:0 8px 24px rgba(0,0,0,0.3);
-  border-color:rgba(77,163,255,0.2);
-}
-.mode-btn:active{transform:scale(0.96)}
-.mode-btn.on{
-  background:rgba(77,163,255,0.1);
-  border-color:rgba(77,163,255,0.4);
-  box-shadow:0 0 20px rgba(77,163,255,0.15);
-}
-.mode-btn.on .icon-wrap{
-  background:var(--accent);
-  box-shadow:0 4px 16px var(--accent-glow);
-}
-.mode-btn.on .icon-wrap .material-icons{color:white}
-.mode-btn.on .title{color:var(--accent)}
-.mode-btn.on .status-dot{
-  background:var(--success);
-  box-shadow:0 0 12px var(--success);
-}
-.mode-btn .icon-wrap{width:48px;height:48px}
-.mode-btn .icon-wrap .material-icons{font-size:28px}
-.mode-btn .title{font-size:14px}
-.mode-btn.wide{
-  grid-column:1/-1;
-  flex-direction:row;
-  justify-content:center;
-  gap:12px;
-  padding:18px;
-}
-.mode-btn.wide .icon-wrap{width:44px;height:44px}
-.mode-btn.wide .icon-wrap .material-icons{font-size:26px}
-.mode-btn .status-dot{
-  position:absolute;
-  top:12px;
-  right:12px;
-}
-
-.info-btn{
-  position:relative;
-  z-index:2;
-  width:28px;
-  height:28px;
-  border-radius:50%;
-  background:rgba(255,255,255,0.05);
-  border:1px solid rgba(255,255,255,0.1);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  transition:all 0.2s ease;
-  margin-left:auto;
-}
-.info-btn:hover{
-  background:rgba(77,163,255,0.15);
-  border-color:rgba(77,163,255,0.3);
-}
-.info-btn .material-icons{
-  font-size:16px;
-  color:var(--text2);
-}
-.tooltip{
-  position:absolute;
-  bottom:calc(100% + 10px);
-  right:0;
-  background:var(--card-bg);
-  border:1px solid rgba(255,255,255,0.1);
-  border-radius:14px;
-  padding:14px 18px;
-  font-size:12px;
-  color:var(--text2);
-  line-height:1.6;
-  white-space:nowrap;
-  opacity:0;
-  pointer-events:none;
-  transform:translateY(6px);
-  transition:all 0.25s ease;
-  z-index:100;
-  box-shadow:0 10px 40px rgba(0,0,0,0.5);
-}
-.tooltip.show{
-  opacity:1;
-  transform:translateY(0);
-}
-.tooltip::after{
-  content:"";
-  position:absolute;
-  top:100%;
-  right:10px;
-  border:6px solid transparent;
-  border-top-color:var(--card-bg);
-}
-
 .toast{
   position:fixed;
   left:50%;
@@ -345,34 +226,6 @@ h1 .material-icons{
 .toast .material-icons{
   font-size:20px;
   color:var(--success);
-}
-
-.beta-labels{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  font-size:12px;
-  font-weight:600;
-  color:var(--text2);
-  transition:color 0.3s;
-}
-.beta-labels .active-label{
-  color:var(--accent);
-  text-shadow:0 0 10px var(--accent-glow);
-}
-
-.ui-labels{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  font-size:12px;
-  font-weight:600;
-  color:var(--text2);
-  transition:color 0.3s;
-}
-.ui-labels .active-label{
-  color:var(--accent);
-  text-shadow:0 0 10px var(--accent-glow);
 }
 
 .help-btn{
@@ -536,11 +389,27 @@ h1 .material-icons{
   font-weight:500;
 }
 
+
+.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.68);backdrop-filter:blur(10px);z-index:10001;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s ease}
+.confirm-overlay.show{opacity:1;pointer-events:auto}
+.confirm-card{width:100%;max-width:380px;background:var(--panel-bg);border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:24px;box-shadow:0 20px 55px rgba(0,0,0,.45);transform:translateY(12px) scale(.98);transition:transform .28s var(--spring)}
+.confirm-overlay.show .confirm-card{transform:translateY(0) scale(1)}
+.confirm-icon{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:rgba(255,143,0,.14);margin:0 auto 14px;color:#ffb74d}
+.confirm-icon .material-icons{font-size:28px}
+.confirm-card h2{text-align:center;font-size:19px;margin-bottom:12px;color:var(--fg)}
+.confirm-card p{font-size:13px;line-height:1.6;color:var(--text2);margin-bottom:12px}
+.confirm-actions{display:flex;gap:10px;margin-top:20px}
+.confirm-actions button{flex:1;border-radius:13px;padding:12px 10px;font:inherit;font-weight:650;cursor:pointer;border:1px solid rgba(255,255,255,.12);transition:all .2s}
+.confirm-cancel{background:rgba(255,255,255,.05);color:var(--fg)}
+.confirm-proceed{background:#ff9800;color:#171717;border-color:#ff9800}
+.confirm-actions button:active{transform:scale(.97)}
+.autopilot-locked{opacity:.4;filter:saturate(.4);cursor:not-allowed!important}
+.autopilot-locked *{pointer-events:none}
+
 @media(max-width:420px){
   .card{width:100%;padding:22px}
-  .row{padding:14px}
+  .row{padding:10.5px}
   .icon-wrap{width:40px;height:40px}
-  .mode-btn .icon-wrap{width:44px;height:44px}
   .modal-sheet{max-height:90vh}
 }
 </style>
@@ -551,31 +420,70 @@ h1 .material-icons{
     <span class="material-icons">help_outline</span>
   </button>
 
-  <h1><span class="material-icons">security</span>IntegrityBox Toolkit</h1>
+  <h1><span class="material-icons">security</span>Developer Mode</h1>
 
-  <div class="section-label">Update Channel</div>
-  <div class="row" id="beta" onclick="toggleBeta()">
-    <div class="icon-wrap"><span class="material-icons">update</span></div>
-    <div class="content">
-      <div class="title">OTA</div>
+  <div class="section-label" style="margin-top:20px">Quick Actions</div>
+  <div class="quick-actions" style="display:flex;flex-direction:column;gap:8px;align-items:stretch;position:relative;z-index:2">
+    <div class="row" id="injectHma" onclick="injectHma()" style="margin-bottom:0;min-width:0">
+      <div class="icon-wrap"><span class="material-icons">published_with_changes</span></div>
+      <div class="content"><div class="title">Inject HMA-OOS config</div></div>
+      <span class="material-icons" style="color:var(--text2);font-size:22px">chevron_right</span>
     </div>
-    <div class="beta-labels">
-      <span id="labelStable" class="active-label">Stable</span>
-      <label class="switch" onclick="event.stopPropagation()">
-        <input id="betaInput" type="checkbox">
-        <span class="slider"><span class="knob"></span></span>
-      </label>
-      <span id="labelBeta">Beta</span>
+    <div class="row" id="updateTrans" onclick="updateCanary()" style="margin-bottom:0;min-width:0">
+      <div class="icon-wrap"><span class="material-icons">sync</span></div>
+      <div class="content"><div class="title">Sync with Canary</div></div>
+      <span class="material-icons" style="color:var(--text2);font-size:22px">chevron_right</span>
     </div>
+
   </div>
 
-  <div class="section-label">Quick Settings</div>
+  <div class="section-label">Core Settings</div>
+  <div class="row" id="safemode" onclick="toggleSafeMode()">
+    <div class="icon-wrap"><span class="material-icons">health_and_safety</span></div>
+    <div class="content">
+      <div class="title">Safe Mode</div>
+    </div>
+    <label class="switch" onclick="event.stopPropagation()">
+      <input id="safemodeInput" type="checkbox">
+      <span class="slider"><span class="knob"></span></span>
+    </label>
+  </div>
+  <div class="row" id="aggressive" onclick="toggleAggressive()">
+    <div class="icon-wrap"><span class="material-icons">bolt</span></div>
+    <div class="content">
+      <div class="title">Agressive Mode</div>
+    </div>
+    <label class="switch" onclick="event.stopPropagation()">
+      <input id="aggressiveInput" type="checkbox">
+      <span class="slider"><span class="knob"></span></span>
+    </label>
+  </div>
+    <div class="row" id="photosSpoof" onclick="toggleMergedUI('photosSpoof')" style="margin-bottom:0">
+      <div class="icon-wrap"><span class="material-icons">photo_library</span></div>
+      <div class="content"><div class="title">Spoof Google Photos</div></div>
+      <label class="switch" onclick="event.stopPropagation()"><input id="photosSpoofInput" type="checkbox"><span class="slider"><span class="knob"></span></span></label>
+    </div>
+
+  <div class="section-label" style="margin-top:20px">AutoPilot</div>
+  <div class="row" id="autopilotMerged" onclick="toggleMergedUI('autopilotMerged')">
+    <div class="icon-wrap"><span class="material-icons">autorenew</span></div>
+    <div class="content"><div class="title">Auto Update Mode</div></div>
+    <label class="switch" onclick="event.stopPropagation()"><input id="autopilotMergedInput" type="checkbox"><span class="slider"><span class="knob"></span></span></label>
+  </div>
+  <div class="row" id="autopilotModeMerged" style="cursor:default;display:block">
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button type="button" id="mergedXtreme" onclick="setMergedMode('xtreme')" style="flex:1;min-width:120px;padding:9px 10px;border-radius:18px;display:flex;align-items:center;justify-content:center;gap:7px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:var(--fg);font:inherit;font-weight:600"><span class="material-icons" style="font-size:18px">rocket_launch</span><span>PIF + Keybox</span></button>
+      <button type="button" id="mergedKeybox" onclick="setMergedMode('keybox')" style="flex:1;min-width:120px;padding:9px 10px;border-radius:18px;display:flex;align-items:center;justify-content:center;gap:7px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:var(--fg);font:inherit;font-weight:600"><span class="material-icons" style="font-size:18px">vpn_key</span><span>Keybox Only</span></button>
+    </div>
+    <div id="mergedModeNote" style="font-size:12px;color:var(--text2);margin-top:10px;text-align:center">Choose how AutoPilot handles its execution workflow.</div>
+  </div>
+
+  <div class="section-label" style="margin-top:20px">Tools & Utility</div>
   <div class="row" id="zygisk" onclick="toggle('zygisk')">
     <div class="icon-wrap"><span class="material-icons">tune</span></div>
     <div class="content">
       <div class="title">Zygiskless Mode</div>
     </div>
-    <div class="status-dot"></div>
     <label class="switch" onclick="event.stopPropagation()">
       <input id="zygiskInput" type="checkbox">
       <span class="slider"><span class="knob"></span></span>
@@ -584,108 +492,43 @@ h1 .material-icons{
   <div class="row" id="verbose" onclick="toggleProp('verboseLogs')">
     <div class="icon-wrap"><span class="material-icons">developer_mode</span></div>
     <div class="content">
-      <div class="title">Developer Mode</div>
+      <div class="title">Zygote Debugging</div>
     </div>
-    <div class="status-dot"></div>
     <label class="switch" onclick="event.stopPropagation()">
       <input id="verboseInput" type="checkbox">
       <span class="slider"><span class="knob"></span></span>
     </label>
   </div>
-  <div class="row" id="safemode" onclick="toggleSafeMode()">
-    <div class="icon-wrap"><span class="material-icons">health_and_safety</span></div>
-    <div class="content">
-      <div class="title">Safe Mode</div>
-    </div>
-    <div class="status-dot"></div>
-    <label class="switch" onclick="event.stopPropagation()">
-      <input id="safemodeInput" type="checkbox">
-      <span class="slider"><span class="knob"></span></span>
-    </label>
-  </div>
-
-  <div class="section-label" style="margin-top:20px">Miscellaneous</div>
   <div class="row" id="zygisknext" onclick="toggleZygiskNext()">
     <div class="icon-wrap"><span class="material-icons">memory</span></div>
     <div class="content">
       <div class="title">Customize ZN</div>
     </div>
-    <div class="status-dot"></div>
     <label class="switch" onclick="event.stopPropagation()">
       <input id="zygisknextInput" type="checkbox">
       <span class="slider"><span class="knob"></span></span>
     </label>
   </div>
-  <div class="row" id="uiMode" onclick="toggleUiMode()">
-    <div class="icon-wrap"><span class="material-icons">web</span></div>
-    <div class="content">
-      <div class="title">UI Style</div>
-    </div>
-    <div class="ui-labels">
-      <span id="labelClassic" class="active-label">Classic</span>
-      <label class="switch" onclick="event.stopPropagation()">
-        <input id="uiModeInput" type="checkbox">
-        <span class="slider"><span class="knob"></span></span>
-      </label>
-      <span id="labelModern">Modern</span>
-    </div>
-  </div>
-  <div class="row" id="updateTrans" onclick="updateCanary()">
-    <div class="icon-wrap"><span class="material-icons">update</span></div>
-    <div class="content">
-      <div class="title">Sync with Canary</div>
-    </div>
-    <span class="material-icons" style="color:var(--text2);font-size:22px;">chevron_right</span>
-  </div>
   <div class="row" id="extractBoot" onclick="extractBoot()">
     <div class="icon-wrap"><span class="material-icons">developer_board</span></div>
     <div class="content">
-      <div class="title">Extract Boot.img</div>
+      <div class="title">Extract boot.img</div>
     </div>
     <span class="material-icons" style="color:var(--text2);font-size:22px;">chevron_right</span>
   </div>
 
-  <div class="section-label" style="margin-top:20px">Processing</div>
-  <div class="mode-grid">
-    <div class="mode-btn" id="m3" onclick="setMode(3)">
-      <div class="icon-wrap"><span class="material-icons">speed</span></div>
-      <div class="title">Basic</div>
-      <div class="status-dot"></div>
-    </div>
-    <div class="mode-btn" id="m6" onclick="setMode(6)">
-      <div class="icon-wrap"><span class="material-icons">balance</span></div>
-      <div class="title">Normal</div>
-      <div class="status-dot"></div>
-    </div>
-    <div class="mode-btn wide" id="m9" onclick="setMode(9)">
-      <div class="icon-wrap"><span class="material-icons">local_fire_department</span></div>
-      <div class="title">Extreme</div>
-      <div class="status-dot"></div>
-    </div>
-  </div>
-  <div style="display:flex;justify-content:flex-end;margin-top:6px;position:relative;z-index:2">
-    <div class="info-btn" onclick="showModeInfo(event)">
-      <span class="material-icons">info</span>
-      <div class="tooltip" id="modeTip">
-        <div style="color:var(--accent);font-weight:700;margin-bottom:4px">Processing Modes</div>
-        <div><b style="color:var(--fg)">Basic</b> : Fast & safest</div>
-        <div><b style="color:var(--fg)">Normal</b> : Balanced</div>
-        <div><b style="color:var(--fg)">Extreme</b> : Thorough but slow</div>
-      </div>
-    </div>
-  </div>
+</div>
 
-  <div class="section-label" style="margin-top:20px">Save to internal storage</div>
-  <div class="mode-grid">
-    <div class="mode-btn" id="keybox" onclick="toggle('keybox')">
-      <div class="icon-wrap"><span class="material-icons">vpn_key</span></div>
-      <div class="title">Export Keybox.xml</div>
-      <div class="status-dot"></div>
-    </div>
-    <div class="mode-btn" id="json" onclick="toggle('json')">
-      <div class="icon-wrap"><span class="material-icons">code</span></div>
-      <div class="title">Export PIF.json</div>
-      <div class="status-dot"></div>
+
+<div id="safeModeConfirm" class="confirm-overlay" onclick="closeSafeModeConfirm(event)">
+  <div class="confirm-card" onclick="event.stopPropagation()">
+    <div class="confirm-icon"><span class="material-icons">warning</span></div>
+    <h2>Disable Safe Mode?</h2>
+    <p>Disabling Safe Mode may help resolve certain Play Integrity issues, but it can also cause unexpected behavior or break features on your device. Safe Mode is enabled by default to reduce compatibility risks.</p>
+    <p>If you run into any problems after disabling it, simply enable Safe Mode again and reboot your device.</p>
+    <div class="confirm-actions">
+      <button type="button" class="confirm-cancel" onclick="cancelSafeModeDisable()">Cancel</button>
+      <button type="button" class="confirm-proceed" onclick="confirmSafeModeDisable()">Disable Safe Mode</button>
     </div>
   </div>
 </div>
@@ -703,18 +546,7 @@ h1 .material-icons{
     </div>
     <div class="modal-body">
       <div class="help-section">
-        <div class="help-section-title">Update Channel</div>
-        <div class="help-item">
-          <div class="icon-wrap"><span class="material-icons">update</span></div>
-          <div class="help-content">
-            <div class="help-title">OTA : Stable vs Beta</div>
-            <div class="help-desc">Switches the module's OTA update source. Stable receives tested releases. Beta receives early builds with latest fixes but may contain bugs.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="help-section">
-        <div class="help-section-title">Quick Settings</div>
+        <div class="help-section-title">Core Settings</div>
         <div class="help-item">
           <div class="icon-wrap"><span class="material-icons">tune</span></div>
           <div class="help-content">
@@ -725,7 +557,7 @@ h1 .material-icons{
         <div class="help-item">
           <div class="icon-wrap"><span class="material-icons">developer_mode</span></div>
           <div class="help-content">
-            <div class="help-title">Developer Mode</div>
+            <div class="help-title">Zygote Debugging</div>
             <div class="help-desc">Enables verbose logging inside the module. Only use for debugging. Many banking and streaming apps detect verbose logs and may refuse to launch. You should not enabled this toggle unless you're reporting a bug.</div>
           </div>
         </div>
@@ -736,29 +568,53 @@ h1 .material-icons{
             <div class="help-desc">This prevents custom-ROM-specific features from being used on stock firmware, where they may cause compatibility issues or unexpected behavior. YOU SHOULD NOT disable this if you're using STOCK ROM</div>
           </div>
         </div>
+        <div class="help-item">
+          <div class="icon-wrap"><span class="material-icons">bolt</span></div>
+          <div class="help-content">
+            <div class="help-title">Agressive Mode</div>
+            <div class="help-desc">Enabling this forces every prop to be set to its correct value, whether it already exists or not. Disabling it only modifies props that already exist on your device and skips non-existing props by default.</div>
+          </div>
+        </div>
       </div>
 
       <div class="help-section">
-        <div class="help-section-title">Miscellaneous</div>
+        <div class="help-section-title">Quick Actions</div>
         <div class="help-item">
-          <div class="icon-wrap"><span class="material-icons">memory</span></div>
+          <div class="icon-wrap"><span class="material-icons">published_with_changes</span></div>
           <div class="help-content">
-            <div class="help-title">Customize ZN</div>
-            <div class="help-desc">You should enable this if you're using ZygiskNext. It automatically configured the best setup for your apps & modules by tweaking memory type, linker hooks, and denylist enforcement.</div>
+            <div class="help-title">Inject HMA-OOS config</div>
+            <div class="help-desc">Applies the bundled HMA-OOS configuration. Use this action when the Hide My Applist OOS variant is installed and you want to apply the module's provided configuration.</div>
           </div>
         </div>
         <div class="help-item">
-          <div class="icon-wrap"><span class="material-icons">web</span></div>
+          <div class="icon-wrap"><span class="material-icons">sync</span></div>
           <div class="help-content">
-            <div class="help-title">UI Style : Classic vs Modern</div>
-            <div class="help-desc">Switches the WebUI visual theme. Classic uses the old UI layout. Modern uses new UI layout.</div>
+            <div class="help-title">Sync with Canary</div>
+            <div class="help-desc">Runs the Canary sync script to refresh the module's supported Canary-side files or updates, independently of a full module update.</div>
           </div>
         </div>
+        <div class="help-item">
+          <div class="icon-wrap"><span class="material-icons">photo_library</span></div>
+          <div class="help-content">
+            <div class="help-title">Spoof Google Photos</div>
+            <div class="help-desc">Switches the Google Photos spoof setting on or off. The toggle reflects the setting exposed by this UI; actual behavior depends on the module configuration and environment.</div>
+          </div>
+        </div>
+      </div>
+      <div class="help-section">
+        <div class="help-section-title">Tools & Utility</div>
         <div class="help-item">
           <div class="icon-wrap"><span class="material-icons">update</span></div>
           <div class="help-content">
             <div class="help-title">Sync with Canary</div>
             <div class="help-desc">Enables seamless, independent updates for language packs and hotfix patches without requiring a module upgrade or device reboot.</div>
+          </div>
+        </div>
+        <div class="help-item">
+          <div class="icon-wrap"><span class="material-icons">memory</span></div>
+          <div class="help-content">
+            <div class="help-title">Customize ZN</div>
+            <div class="help-desc">You should enable this if you're using ZygiskNext. It automatically configured the best setup for your apps & modules by tweaking memory type, linker hooks, and denylist enforcement.</div>
           </div>
         </div>
         <div class="help-item">
@@ -769,63 +625,24 @@ h1 .material-icons{
           </div>
         </div>
       </div>
-
-      <div class="help-section">
-        <div class="help-section-title">Processing</div>
-        <div class="help-item">
-          <div class="icon-wrap"><span class="material-icons">speed</span></div>
-          <div class="help-content">
-            <div class="help-title">Basic Mode</div>
-            <div class="help-desc">Fastest and safest processing of prop generation</div>
-          </div>
-        </div>
-        <div class="help-item">
-          <div class="icon-wrap"><span class="material-icons">balance</span></div>
-          <div class="help-content">
-            <div class="help-title">Normal Mode</div>
-            <div class="help-desc">Balanced between speed and thoroughness for prop generation.</div>
-          </div>
-        </div>
-        <div class="help-item">
-          <div class="icon-wrap"><span class="material-icons">local_fire_department</span></div>
-          <div class="help-content">
-            <div class="help-title">Extreme Mode</div>
-            <div class="help-desc">Maximum spoofing depth for prop generation.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="help-section">
-        <div class="help-section-title">Save to Internal Storage</div>
-        <div class="help-item">
-          <div class="icon-wrap"><span class="material-icons">vpn_key</span></div>
-          <div class="help-content">
-            <div class="help-title">Export Keybox.xml</div>
-            <div class="help-desc">Generates a valid keybox.xml file in your device's internal storage (/sdcard) whenever you trigger the Integrity Box action. The generated file can then be manually imported into your custom ROM's spoofing settings. Recommended for users running Integrity Box in ZYGISKLESS Mode. (ROM's inbuilt spoofing).</div>
-          </div>
-        </div>
-        <div class="help-item">
-          <div class="icon-wrap"><span class="material-icons">code</span></div>
-          <div class="help-content">
-            <div class="help-title">Export PIF.json</div>
-            <div class="help-desc">Generates a valid meow.json file in your device's internal storage (/sdcard) whenever you trigger the Integrity Box action. The generated file can then be manually imported into your custom ROM's spoofing settings. Recommended for users running Integrity Box in ZYGISKLESS Mode. (ROM's inbuilt spoofing).</div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </div>
 
 <script>
 const DIR="/data/adb/Box-Brain";
-const PROP="/data/adb/modules/playintegrityfix/custom.pif.prop";
-const MOD_PROP="/data/adb/modules/playintegrityfix/module.prop";
-const STABLE_URL="https://raw.githubusercontent.com/MeowDump/Integrity-Box/refs/heads/main/release.json";
-const BETA_URL="https://raw.githubusercontent.com/MeowDump/Integrity-Box/refs/heads/main/beta-release/ota.json";
+const FORCE_RESET=DIR+"/force-reset";
+const PROP="/data/adb/modules/integrity-box/config.meow";
 const ZYGISK_DIR="/data/adb/zygisksu";
-const STYLE_SCRIPT="/data/adb/modules/playintegrityfix/webroot/common_scripts/UI/style.sh";
-const EXTRACT_BOOT_SCRIPT="/data/adb/modules/playintegrityfix/webroot/common_scripts/extract_boot.sh";
-const UPDATE_TRANS_SCRIPT="/data/adb/modules/playintegrityfix/webroot/UpdateTranslation.sh";
+const EXTRACT_BOOT_SCRIPT="/data/adb/modules/integrity-box/webroot/common_scripts/extract_boot.sh";
+const UPDATE_TRANS_SCRIPT="/data/adb/modules/integrity-box/webroot/Canary.sh";
+const HMA_SCRIPT="/data/adb/modules/integrity-box/webroot/common_scripts/hma.sh";
+const AUTOPILOT_SCRIPT="/data/adb/modules/integrity-box/webroot/common_scripts/autopilot.sh";
+const PID_SCRIPT="/data/adb/modules/integrity-box/webroot/common_scripts/PID.sh";
+const BOX_BRAIN=DIR+"/AutoPilot";
+const PIF_KEY=BOX_BRAIN+"/auto-action";
+const KEY_FLAG=BOX_BRAIN+"/auto-key";
+const AUTOPILOT_FLAG=DIR+"/autopilot";
 
 function popup(msg, type) {
   if(!type) type="info";
@@ -858,21 +675,69 @@ function popup(msg, type) {
   setTimeout(function(){ n.style.top="-70px"; n.style.opacity="0"; setTimeout(function(){n.remove()},420); },2500);
 }
 
-function run(cmd,cb){
+function run(cmd,cb,timeoutMs){
   var k=window.parent?window.parent.ksu:null;
   if(!k) k=window.ksu;
   if(!k||!k.exec){popup("KSU not available","error");if(cb)cb("");return}
-  var id="c"+Date.now();
+  var id="c"+Date.now()+"_"+Math.random().toString(36).slice(2,7);
   var d=false;
-  var t=setTimeout(function(){if(d)return;d=true;delete(window.parent||window)[id];if(cb)cb("")},3000);
-  (window.parent||window)[id]=function(){if(d)return;d=true;clearTimeout(t);delete(window.parent||window)[id];var r=arguments.length===1?arguments[0]:arguments[1]||"";if(cb)cb(r)};
+  var t=setTimeout(function(){
+    if(d)return;
+    d=true;
+    delete (window.parent||window)[id];
+    if(cb)cb("");
+  },timeoutMs || 3000);
+  (window.parent||window)[id]=function(){
+    if(d)return;
+    d=true;
+    clearTimeout(t);
+    delete (window.parent||window)[id];
+    var r=arguments.length===1?arguments[0]:(arguments[1]||"");
+    if(cb)cb(r);
+  };
   k.exec("sh -c '"+cmd.replace(/'/g,"'\\''")+"'","{}",id);
 }
 
-function has(path,cb){run("[ -f "+path+" ] && echo 1 || echo 0",cb)}
-function readFile(path,cb){run("cat "+path+" 2>/dev/null || echo ''",cb)}
+function toggleMergedUI(id){
+  var row=document.getElementById(id);
+  if(id==="autopilotMerged" && row.classList.contains("autopilot-locked")){ popup("Select an AutoPilot mode first","warn"); return; }
+  var on=!row.classList.contains("on");
+  if(id==="photosSpoof"){
+    write("spoofPhotos",on?"1":"0",function(){
+      setOn(id,on);
+      popup("Google Photos spoof "+(on?"enabled":"disabled"),"success");
+    });
+    return;
+  }
+  if(id==="autopilotMerged"){
+    if(on){
+      run("if [ -f '"+PIF_KEY+"' ] || [ -f '"+KEY_FLAG+"' ]; then echo 1; else echo 0; fi",function(check){
+        if(!String(check||"").trim()) { setOn(id,false); popup("Select an AutoPilot mode first","warn"); return; }
+        run("mkdir -p "+DIR+" && touch "+AUTOPILOT_FLAG+" && sh '"+AUTOPILOT_SCRIPT+"'",function(){
+          setOn(id,true); popup("AutoPilot enabled","success");
+        },180000);
+      });
+    }else{
+      run("rm -f "+AUTOPILOT_FLAG+" && sh '"+PID_SCRIPT+"'",function(){
+        setOn(id,false);
+        popup("AutoPilot disabled","success");
+      },180000);
+    }
+  }
+}
+function setMergedMode(mode){
+  var xt=document.getElementById("mergedXtreme"), kb=document.getElementById("mergedKeybox");
+  run("mkdir -p '"+BOX_BRAIN+"' && rm -f '"+PIF_KEY+"' '"+KEY_FLAG+"' && "+
+      (mode==="xtreme"?"touch '"+PIF_KEY+"'":"touch '"+KEY_FLAG+"'"),function(){});
+  [xt,kb].forEach(function(b){b.style.borderColor="rgba(255,255,255,.12)";b.style.background="rgba(255,255,255,.04)";b.style.color="var(--fg)";});
+  var selected=mode==="xtreme"?xt:kb;
+  selected.style.borderColor="var(--accent)";
+  selected.style.background="rgba(77,163,255,.14)";
+  selected.style.color="var(--accent)";
+  document.getElementById("mergedModeNote").textContent=(mode==="xtreme"?"PIF + Keybox":"Keybox Mode")+" selected";
+}
+
 function touch(path,on){if(on)run("mkdir -p "+DIR+" && touch "+path,function(){});else run("rm -f "+path,function(){});}
-function read(key,cb){run("grep -m1 '^"+key+"=' "+PROP+" | cut -d'=' -f2- || echo ''",cb)}
 function write(key,val,cb){
   run(
     "mkdir -p $(dirname "+PROP+") && touch "+PROP+" && " +
@@ -885,6 +750,19 @@ function write(key,val,cb){
   );
 }
 
+function lockAutoPilot(locked){
+  var row=document.getElementById("autopilotMerged");
+  row.classList.toggle("autopilot-locked",locked);
+  row.setAttribute("aria-disabled",locked?"true":"false");
+  row.title=locked?"Choose an AutoPilot mode first":"";
+}
+function selectMergedMode(mode){
+  var xt=document.getElementById("mergedXtreme"), kb=document.getElementById("mergedKeybox");
+  [xt,kb].forEach(function(b){b.style.borderColor="rgba(255,255,255,.12)";b.style.background="rgba(255,255,255,.04)";b.style.color="var(--fg)";});
+  var selected=mode==="xtreme"?xt:kb;
+  selected.style.borderColor="var(--accent)"; selected.style.background="rgba(77,163,255,.14)"; selected.style.color="var(--accent)";
+  document.getElementById("mergedModeNote").textContent=(mode==="xtreme"?"PIF + Keybox":"Keybox Mode")+" selected";
+}
 function setOn(id,on){
   var el=document.getElementById(id);
   el.classList.toggle("on",on);
@@ -912,9 +790,22 @@ function toggleProp(key){
 function toggleSafeMode(){
   var el=document.getElementById("safemode");
   var on=!el.classList.contains("on");
-  touch(DIR+"/safemode",on);
-  setOn("safemode",on);
-  popup(on?"Safe Mode enabled":"Safe Mode disabled","success");
+  if(!on){ document.getElementById("safeModeConfirm").classList.add("show"); return; }
+  touch(DIR+"/safemode",true); setOn("safemode",true); popup("Safe Mode enabled","success");
+}
+function cancelSafeModeDisable(){ document.getElementById("safeModeConfirm").classList.remove("show"); }
+function closeSafeModeConfirm(e){ if(e.target===e.currentTarget) cancelSafeModeDisable(); }
+function confirmSafeModeDisable(){
+  document.getElementById("safeModeConfirm").classList.remove("show");
+  touch(DIR+"/safemode",false); setOn("safemode",false); popup("Safe Mode disabled","warn");
+}
+
+function toggleAggressive(){
+  var el=document.getElementById("aggressive");
+  var on=!el.classList.contains("on");
+  touch(FORCE_RESET,on);
+  setOn("aggressive",on);
+  popup(on?"Agressive Mode enabled":"Agressive Mode disabled","success");
 }
 
 function toggleZygiskNext(){
@@ -947,109 +838,43 @@ function toggleZygiskNext(){
   }
 }
 
-function runScriptChecked(path, successMsg, failMsg){
-  run("if [ -f '"+path+"' ]; then sh '"+path+"'; echo '___EXIT___:'$?; else echo '___EXIT___:404'; fi", function(r){
+function runScriptChecked(path, successMsg, failMsg, timeoutMs){
+  var command =
+    "if [ -f '" + path + "' ]; then " +
+    "sh '" + path + "'; code=$?; " +
+    "echo '___EXIT___:'$code; " +
+    "else echo '___EXIT___:404'; fi";
+
+  run(command, function(r){
+    r = String(r || "");
     var m = r.match(/___EXIT___:(\d+)\s*$/);
-    var code = m ? parseInt(m[1]) : -1;
+    var code = m ? parseInt(m[1], 10) : -1;
+
     if(code === 404){
       popup("Script not found","error");
     }else if(code !== 0){
-      popup((failMsg || "Script failed") + " (exit "+code+")","error");
+      popup((failMsg || "Script failed") + " (exit " + code + ")","error");
     }else{
       popup(successMsg,"success");
     }
-  });
+  }, timeoutMs || 3000);
 }
 
 function updateCanary(){
-  runScriptChecked(UPDATE_TRANS_SCRIPT, "Canary updated", "No update available at the moment");
+  runScriptChecked(
+    UPDATE_TRANS_SCRIPT,
+    "Canary sync completed",
+    "Canary sync failed",
+    180000
+  );
 }
 
 function extractBoot(){
   runScriptChecked(EXTRACT_BOOT_SCRIPT, "Boot.img extracted", "Boot extraction failed");
 }
 
-function setMode(v){
-  [3,6,9].forEach(function(x){touch(DIR+"/top_"+x,false);touch(DIR+"/depth_"+x,false)});
-  touch(DIR+"/top_"+v,true);
-  touch(DIR+"/depth_"+v,true);
-  [3,6,9].forEach(function(x){setOn("m"+x,x===v)});
-  popup(v===3?"Basic mode":v===6?"Normal mode":"Extreme mode","success");
-}
-
-function showModeInfo(e){
-  e.stopPropagation();
-  var tip=document.getElementById("modeTip");
-  tip.classList.toggle("show");
-  if(tip.classList.contains("show")){
-    setTimeout(function(){tip.classList.remove("show")},4000);
-  }
-}
-
-function getUpdateUrl(cb){
-  run("grep -m1 '^updateJson=' "+MOD_PROP+" | cut -d'=' -f2- || echo ''",cb);
-}
-
-function setUpdateUrl(url,cb){
-  run(
-    "if grep -q '^updateJson=' "+MOD_PROP+"; then " +
-    "sed -i 's|^updateJson=.*|updateJson="+url+"|' "+MOD_PROP+"; " +
-    "else " +
-    "printf '\\nupdateJson="+url+"\\n' >> "+MOD_PROP+"; " +
-    "fi",
-    cb
-  );
-}
-
-function updateBetaUI(isBeta){
-  var el=document.getElementById("beta");
-  el.classList.toggle("on",isBeta);
-  document.getElementById("betaInput").checked=isBeta;
-  document.getElementById("labelStable").classList.toggle("active-label",!isBeta);
-  document.getElementById("labelBeta").classList.toggle("active-label",isBeta);
-}
-
-function toggleBeta(){
-  var el=document.getElementById("beta");
-  var isBeta=!el.classList.contains("on");
-  var url=isBeta?BETA_URL:STABLE_URL;
-  setUpdateUrl(url,function(){
-    updateBetaUI(isBeta);
-    popup(isBeta?"Switched to Beta channel":"Switched to Stable channel","success");
-  });
-}
-
-function applyBg(isModern){
-  if(isModern){
-    document.body.classList.add("modern-bg");
-  }else{
-    document.body.classList.remove("modern-bg");
-  }
-}
-
-function updateUiModeUI(isModern){
-  var el=document.getElementById("uiMode");
-  el.classList.toggle("on",isModern);
-  document.getElementById("uiModeInput").checked=isModern;
-  document.getElementById("labelClassic").classList.toggle("active-label",!isModern);
-  document.getElementById("labelModern").classList.toggle("active-label",isModern);
-  applyBg(isModern);
-}
-
-function toggleUiMode(){
-  var el=document.getElementById("uiMode");
-  var isModern=!el.classList.contains("on");
-  var cmd="mkdir -p "+DIR+" && ";
-  if(isModern){
-    cmd+="rm -f "+DIR+"/classic && touch "+DIR+"/modern";
-  }else{
-    cmd+="rm -f "+DIR+"/modern && touch "+DIR+"/classic";
-  }
-  cmd+=" && sh "+STYLE_SCRIPT;
-  run(cmd,function(){
-    updateUiModeUI(isModern);
-    popup(isModern?"Switched to Modern UI":"Switched to Classic UI","success");
-  });
+function injectHma(){
+  runScriptChecked(HMA_SCRIPT, "HMA-OOS config injected", "HMA injection failed");
 }
 
 function openHelp(){
@@ -1070,43 +895,34 @@ function init(){
   var cmd =
     "DIR='"+DIR+"'; " +
     "PROP='"+PROP+"'; " +
-    "MOD_PROP='"+MOD_PROP+"'; " +
     "ZYGISK_DIR='"+ZYGISK_DIR+"'; " +
     "check(){ [ -f \"$1\" ] && echo 1 || echo 0; }; " +
-    "printf '{\"zygisk\":\"%s\",\"keybox\":\"%s\",\"json\":\"%s\",\"verbose\":\"%s\",\"safemode\":\"%s\",\"updateUrl\":\"%s\",\"modern\":\"%s\",\"top3\":\"%s\",\"top6\":\"%s\",\"top9\":\"%s\",\"zn_mem\":\"%s\",\"zn_link\":\"%s\",\"zn_klog\":\"%s\",\"zn_deny\":\"%s\"}\\n' " +
+    "printf '{\"zygisk\":\"%s\",\"verbose\":\"%s\",\"safemode\":\"%s\",\"aggressive\":\"%s\",\"zn_mem\":\"%s\",\"zn_link\":\"%s\",\"zn_klog\":\"%s\",\"zn_deny\":\"%s\",\"photos\":\"%s\",\"autopilot\":\"%s\",\"action\":\"%s\",\"key\":\"%s\"}\\n' " +
     "\"$(check $DIR/zygisk)\" " +
-    "\"$(check $DIR/keybox)\" " +
-    "\"$(check $DIR/json)\" " +
     "\"$(grep -m1 '^verboseLogs=' $PROP | cut -d= -f2- | tr -d '\\n' || echo '')\" " +
     "\"$(check $DIR/safemode)\" " +
-    "\"$(grep -m1 '^updateJson=' $MOD_PROP | cut -d= -f2- | tr -d '\\n' || echo '')\" " +
-    "\"$(check $DIR/modern)\" " +
-    "\"$(check $DIR/top_3)\" " +
-    "\"$(check $DIR/top_6)\" " +
-    "\"$(check $DIR/top_9)\" " +
+    "\"$(check $DIR/force-reset)\" " +
     "\"$(cat $ZYGISK_DIR/memory_type 2>/dev/null | tr -d '\\n' || echo '')\" " +
     "\"$(cat $ZYGISK_DIR/linker 2>/dev/null | tr -d '\\n' || echo '')\" " +
     "\"$(cat $ZYGISK_DIR/klog 2>/dev/null | tr -d '\\n' || echo '')\" " +
-    "\"$(cat $ZYGISK_DIR/denylist_enforce 2>/dev/null | tr -d '\\n' || echo '')\"";
+    "\"$(cat $ZYGISK_DIR/denylist_enforce 2>/dev/null | tr -d '\\n' || echo '')\" " +
+    "\"$(grep -m1 '^spoofPhotos=' $PROP | cut -d= -f2- | tr -d '\\n' || echo '')\" " +
+    "\"$(check $DIR/autopilot)\" " +
+    "\"$(check '"+PIF_KEY+"')\" " +
+    "\"$(check '"+KEY_FLAG+"')\"";
 
   run(cmd, function(r){
     var d;
     try { d = JSON.parse(r.trim()); } catch(e) { return; }
 
     setOn("zygisk", d.zygisk === "1");
-    setOn("keybox", d.keybox === "1");
-    setOn("json", d.json === "1");
     setOn("verbose", d.verbose === "1");
     setOn("safemode", d.safemode === "1");
-
-    updateBetaUI(d.updateUrl === BETA_URL);
-    updateUiModeUI(d.modern === "1");
-
-    var a = 3;
-    if(d.top9 === "1") a = 9;
-    else if(d.top6 === "1") a = 6;
-    else if(d.top3 === "1") a = 3;
-    setMode(a);
+    setOn("aggressive", d.aggressive === "1");
+    setOn("photosSpoof", d.photos === "1");
+    setOn("autopilotMerged", d.autopilot === "1");
+    lockAutoPilot(!(d.action === "1" || d.key === "1"));
+    if(d.action === "1") selectMergedMode("xtreme"); else if(d.key === "1") selectMergedMode("keybox");
 
     var znOn = d.zn_mem === "1" && d.zn_link === "1" && d.zn_klog === "0" && d.zn_deny === "2";
     setOn("zygisknext", znOn);

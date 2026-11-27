@@ -17,8 +17,9 @@ cleanup_ota
 cleanup_lsposed
 cleanup_gapps_logs
 
-reset_tricky_store
 download_keybox
+reset_tricky_store
+verify_trickybox
 update_targets
 
 sh "$SCRIPT_DIR/cleanup.sh" >/dev/null 2>&1; 

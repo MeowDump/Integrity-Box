@@ -1,6 +1,6 @@
 #!/system/bin/sh
 
-FLAG="/data/adb/modules/playintegrityfix/stop"
+FLAG="/data/adb/modules/integrity-box/stop"
 LOG="/data/adb/Box-Brain/Integrity-Box-Logs/zygisk.log"
 
 log() {
@@ -33,6 +33,7 @@ else
 fi
 
 log "Current state: $STATE"
+sleep 2
 
 # Find all GMS PIDs
 log "Scanning GMS processes"

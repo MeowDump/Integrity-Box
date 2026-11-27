@@ -1,7 +1,7 @@
 #!/system/bin/sh
 
-MODPATH="/data/adb/modules/playintegrityfix"
-UPDATEPATH="/data/adb/modules_update/playintegrityfix"
+MODPATH="/data/adb/modules/integrity-box"
+UPDATEPATH="/data/adb/modules_update/integrity-box"
 
 # Load common functions
 if [ -f "$MODPATH/common_func.sh" ]; then
@@ -229,7 +229,6 @@ fi
 
 # Decode the downloaded file
 # The file is encoded as: base64 > hex > ROT13
-log " "
 log " ✦ Decoding keybox file..."
 
 TMP_HEX="$(mktemp -p /data/local/tmp)"
@@ -255,27 +254,57 @@ if ! xxd -r -p "$CURRENT" > "$TMP_HEX" 2>/dev/null; then
 fi
 rm -f "$CURRENT"
 
-# ROT13 decode
-if ! tr 'A-Za-z' 'N-ZA-Mn-za-m' < "$TMP_HEX" > "$KEYBOX"; then
+# ROT13 decode into a staging file
+NEW_KEYBOX="$(mktemp -p /data/local/tmp)"
+
+if ! tr 'A-Za-z' 'N-ZA-Mn-za-m' < "$TMP_HEX" > "$NEW_KEYBOX"; then
     log " ✦ ERROR: ROT13 decoding failed"
-    rm -f "$TMP_HEX"
+    rm -f "$TMP_HEX" "$NEW_KEYBOX"
     exit 6
 fi
 rm -f "$TMP_HEX"
 
-# Verify final keybox file
-if [ ! -s "$KEYBOX" ]; then
+# Validate the decoded payload before installing it
+if [ ! -s "$NEW_KEYBOX" ]; then
     log " ✦ ERROR: Keybox is empty after decoding"
-    rm -f "$KEYBOX"
-    if [ -s "$KEYBOX_BACKUP" ]; then
+    rm -f "$NEW_KEYBOX"
+    if [ ! -s "$KEYBOX" ] && [ -s "$KEYBOX_BACKUP" ]; then
         cp -f "$KEYBOX_BACKUP" "$KEYBOX"
         log " ✦ Restored backup keybox from $KEYBOX_BACKUP"
     fi
     exit 7
 fi
 
-log " ✦ Keybox upgrade complete"
-log " "
+if ! grep -q "<Keybox" "$NEW_KEYBOX" 2>/dev/null ||
+   ! grep -Eq "BEGIN CERTIFICATE|<Certificate|<PrivateKey|PRIVATE KEY" "$NEW_KEYBOX" 2>/dev/null; then
+    log " ✦ ERROR: Decoded payload is not a keybox, current keybox kept"
+    rm -f "$NEW_KEYBOX"
+    if [ ! -s "$KEYBOX" ] && [ -s "$KEYBOX_BACKUP" ]; then
+        cp -f "$KEYBOX_BACKUP" "$KEYBOX"
+        log " ✦ Restored backup keybox from $KEYBOX_BACKUP"
+    fi
+    exit 8
+fi
+
+# Only swap when the content really changed
+NEW_HASH="$(sha256sum "$NEW_KEYBOX" 2>/dev/null | awk '{print $1}')"
+OLD_HASH="$(sha256sum "$KEYBOX" 2>/dev/null | awk '{print $1}')"
+
+if [ -n "$NEW_HASH" ] && [ "$NEW_HASH" = "$OLD_HASH" ]; then
+    log " ✦ Keybox already up to date"
+    rm -f "$NEW_KEYBOX"
+elif ! mv -f "$NEW_KEYBOX" "$KEYBOX"; then
+    log " ✦ ERROR: Failed to install the decoded keybox"
+    rm -f "$NEW_KEYBOX"
+    if [ -s "$KEYBOX_BACKUP" ]; then
+        cp -f "$KEYBOX_BACKUP" "$KEYBOX"
+        log " ✦ Restored backup keybox from $KEYBOX_BACKUP"
+    fi
+    exit 9
+else
+    log " ✦ Keybox upgrade complete"
+    log " "
+fi
 
 # Clean temporary files
 if [ -f "$CLEANUP" ]; then

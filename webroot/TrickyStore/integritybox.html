@@ -276,11 +276,18 @@ body {
 .toolbar {
   display: flex;
   justify-content: center;
+  align-items: stretch;
   gap: 12px;
+  width: 100%;
 }
+
+.toolbar + .toolbar { flex-wrap: wrap; }
 
 .toolbar-btn {
   display: inline-flex;
+  justify-content: center;
+  flex: 1 1 0;
+  min-width: 0;
   align-items: center;
   gap: 8px;
   padding: 10px 22px;
@@ -306,6 +313,14 @@ body {
 .toolbar-btn:active { transform: scale(0.96); }
 
 .toolbar-btn .material-icons { font-size: 1rem; }
+
+
+@media (max-width: 480px) {
+  .toolbar { gap: 8px; }
+  .toolbar-btn { padding: 10px 8px; font-size: 0.72rem; gap: 5px; }
+  .settings-toolbar { flex-direction: column; }
+  .settings-toolbar .toolbar-btn { width: 100%; }
+}
 
 .list-wrap {
   position: relative;
@@ -474,7 +489,7 @@ body {
 .black-btn {
   width: 34px;
   height: 34px;
-  border-radius: var(--radius-sm);
+  border-radius: 10px;
   border: 1px solid rgba(255,255,255,0.06);
   background: rgba(255,255,255,0.02);
   display: flex;
@@ -882,6 +897,55 @@ body {
   .btn { padding: 13px 18px; font-size: 0.87rem; max-width: 160px; }
   .stat-num { font-size: 1.3rem; }
 }
+
+.list {
+  gap: 9px;
+  max-height: 58vh;
+  padding: 3px 5px 3px 0;
+}
+.item {
+  gap: 13px;
+  padding: 12px 13px;
+  min-height: 68px;
+  border-radius: 20px;
+  animation: none;
+}
+.item::before { top: 10px; bottom: 10px; width: 2px; }
+.info { gap: 3px; max-width: calc(100% - 104px); }
+.name { font-size: 0.89rem; line-height: 1.25; }
+.pkg { font-size: 0.65rem; }
+.app-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+}
+.actions { gap: 8px; }
+.check-btn, .black-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+}
+.check-btn { border-radius: 50%; }
+.check-btn { border-width: 1.5px; }
+.check-btn .material-icons { font-size: 16px; }
+.black-btn .material-icons { font-size: 17px; }
+.skeleton-list { gap: 9px; }
+.skeleton-item {
+  gap: 13px;
+  padding: 12px 13px;
+  min-height: 68px;
+  border-radius: 20px;
+}
+.skeleton-icon { width: 40px; height: 40px; border-radius: 12px; }
+.skeleton-actions { gap: 8px; }
+.skeleton-btn { width: 32px; height: 32px; }
+@media (max-width: 600px) {
+  .item { padding: 10px 11px; gap: 11px; }
+  .app-icon { width: 38px; height: 38px; }
+  .info { max-width: calc(100% - 94px); }
+  .actions { gap: 7px; }
+}
+
 </style>
 </head>
 <body>
@@ -908,33 +972,21 @@ body {
         </button>
       </div>
 
-      <div class="stats">
-        <div class="stat">
-          <span class="material-icons stat-icon">apps</span>
-          <div class="stat-num" id="appCount">0</div>
-          <div class="stat-label">Apps</div>
-        </div>
-        <div class="stat">
-          <span class="material-icons stat-icon">check_circle</span>
-          <div class="stat-num" id="targetCount">0</div>
-          <div class="stat-label">Spoofed</div>
-        </div>
-        <div class="stat">
-          <span class="material-icons stat-icon">block</span>
-          <div class="stat-num" id="blackCount">0</div>
-          <div class="stat-label">Blocked</div>
-        </div>
-      </div>
-
       <div class="toolbar">
         <button class="toolbar-btn" onclick="confirmBulk('target')">
           <span class="material-icons">check_circle</span>Spoof All
         </button>
         <button class="toolbar-btn" onclick="confirmBulk('blacklist')">
-          <span class="material-icons">block</span>Blacklist All
+          <span class="material-icons">block</span>Block All
+        </button>
+        <button class="toolbar-btn" onclick="resetDefaults()">
+          <span class="material-icons">restart_alt</span>Reset All
         </button>
       </div>
 
+      <div class="toolbar settings-toolbar">
+        <button class="toolbar-btn" id="teeSimToggle" onclick="toggleTeeSim()"><span class="material-icons">sync</span><span id="teeSimLabel">TeeSim: …</span></button>
+      </div>
       <div class="list-wrap">
         <div class="skeleton-list" id="skeleton">
           <div class="skeleton-item"><div class="skeleton-icon"></div><div class="skeleton-text"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div><div class="skeleton-actions"><div class="skeleton-btn"></div><div class="skeleton-btn"></div></div></div>
@@ -986,6 +1038,35 @@ body {
         <p>Blacklisted apps are excluded entirely. They are removed from spoofed and blocked from processing. Removing an app from the blacklist automatically restores it to spoofed.</p>
       </div>
       <div class="modal-divider"></div>
+      <div class="modal-section">
+        <h4><span class="material-icons">done_all</span>Spoof All</h4>
+        <p>Adds all listed apps to the spoofed list, except apps that are blocked.</p>
+      </div>
+      <div class="modal-divider"></div>
+      <div class="modal-section">
+        <h4><span class="material-icons">block</span>Block All</h4>
+        <p>Blocks all listed apps at once. The built-in default packages are protected and are not blocked.</p>
+      </div>
+      <div class="modal-divider"></div>
+      <div class="modal-section">
+        <h4><span class="material-icons">restart_alt</span>Reset All</h4>
+        <p>Clears the current target list and adds only the built-in default packages. You must confirm before this change is applied.</p>
+      </div>
+      <div class="modal-divider"></div>
+      <div class="modal-section">
+        <h4><span class="material-icons">sync</span>TeeSim</h4>
+        <p>Shows whether TeeSim is installed. The toggle lets you allow or skip its script when the app updates the spoofed list.</p>
+      </div>
+      <div class="modal-divider"></div>
+      <div class="modal-section">
+        <h4><span class="material-icons">backup</span>Backup and Restore</h4>
+        <p>Backup saves your current blocked-app list. Restore loads that saved list again.</p>
+      </div>
+      <div class="modal-divider"></div>
+      <div class="modal-section">
+        <h4><span class="material-icons">search</span>Search</h4>
+        <p>Type an app name or package name to find it quickly.</p>
+      </div>
     </div>
   </div>
 </div>
@@ -1012,8 +1093,11 @@ body {
 const TARGET_FILE="/data/adb/tricky_store/target.txt";
 const BLACK_FILE="/data/adb/Box-Brain/blacklist.txt";
 const BACKUP_FILE="/sdcard/Download/blacklist_backup.txt.bak";
+const TEESIM_FLAG="/data/adb/Box-Brain/teesim";
 const TEESIM_CONFIG="/data/adb/teesim/config.json";
-const TEESIM_SCRIPT="/data/adb/modules/playintegrityfix/webroot/common_scripts/teesim.sh";
+const TEESIM_SCRIPT="/data/adb/modules/integrity-box/webroot/common_scripts/teesim.sh";
+const TEESIM_DEX="/data/adb/modules/teesim/classes.dex";
+const HIDDEN_DEFAULTS=new Set(["com.android.vending","com.google.android.gms","com.google.android.gsf","io.github.qwq233.keyattestation","io.github.vvb2060.keyattestation","com.google.android.apps.walletnfcrel","com.google.android.apps.messaging"]);
 
 let cachedApps = [];
 let targetSet = new Set();
@@ -1021,6 +1105,7 @@ let blackSet = new Set();
 let initialSortDone = false;
 let searchDebounce = null;
 let pendingBulkAction = null;
+let teeBroken = false;
 
 function runShell(cmd, cb){
 if(window.parent?.runShell){
@@ -1069,51 +1154,90 @@ runShell(`mkdir -p $(dirname ${esc(path)}) && printf "%s\\n" ${args} > ${esc(pat
 }
 
 function normalizeTargets(lines){ return lines.map(l=> l.endsWith("!") ? l.slice(0,-1) : l); }
-
-function runTeeSimIfExists(cb) {
-  runShell(`if [ -f ${esc(TEESIM_CONFIG)} ]; then ${esc(TEESIM_SCRIPT)}; echo "TEESIM_RAN"; else echo "TEESIM_SKIP"; fi`, (c,o,e) => {
+function targetsForWrite(){ return Array.from(targetSet).map(pkg => teeBroken ? pkg + "!" : pkg); }
+function readTeeStatus(cb){
+  runShell(`if [ -f /data/adb/tricky_store/tee_status ]; then cat /data/adb/tricky_store/tee_status; fi`,(c,o)=>{
+    teeBroken = /(?:^|\s)teeBroken\s*=\s*true(?:\s|$)/i.test(o||"");
     if(cb) cb();
   });
 }
 
-function fetchInstalled(cb){
-const cmd = `pm list packages -3 -f | while read line; do
-  apk=$(echo "$line" | sed 's/package://;s/=.*//')
-  pkg=$(echo "$line" | sed 's/.*=//')
-  label="$pkg"
-  if command -v aapt >/dev/null 2>&1; then
-    lbl=$(aapt d badging "$apk" 2>/dev/null | grep "application-label:" | head -1 | awk -F"'" '{print $2}')
-    [ -n "$lbl" ] && label="$lbl"
-  fi
-  printf "%s\\t%s\\t%s\\n" "$pkg" "$label" "$apk"
-done`;
-
-runShell(cmd, (c,out)=>{
-  if(!out) return cb([]);
-  const apps = out.trim().split("\n").map(l=>{
-    const p = l.split("\t");
-    return p.length >= 2 ? {pkg:p[0], label:p[1]||p[0], apk:p[2]||""} : null;
-  }).filter(Boolean);
-
-  const userPkgs = new Set(apps.map(a => a.pkg));
-
-  runShell(`pm list packages | sed 's/package://'`, (c2, allOut)=>{
-    const allPkgs = new Set((allOut||"").split("\n").map(l=>l.trim()).filter(l=>l));
-    let cleaned = false;
-    for (const pkg of Array.from(targetSet)) {
-      if (!allPkgs.has(pkg)) {
-        targetSet.delete(pkg);
-        cleaned = true;
-      }
-    }
-    if (cleaned) {
-      writeLines(TARGET_FILE, Array.from(targetSet), ()=>{});
-    }
-    cb(apps);
+function runTeeSimIfExists(cb) {
+  runShell(`if [ ! -f ${esc(TEESIM_FLAG)} ] && [ -f ${esc(TEESIM_DEX)} ] && [ -f ${esc(TEESIM_SCRIPT)} ]; then sh ${esc(TEESIM_SCRIPT)}; echo "TEESIM_RAN"; else echo "TEESIM_SKIP"; fi`, (c,o,e) => {
+    if(cb) cb(c===0, o||"", e||"");
   });
-});
 }
 
+function refreshSettings(cb){
+  runShell(`printf '%s\n' "$( [ -f ${esc(TEESIM_FLAG)} ] && echo 1 || echo 0 )" "$( [ -f ${esc(TEESIM_DEX)} ] && echo 1 || echo 0 )"`, (c,o)=>{
+    const v=(o||"").trim().split(/\s+/);
+    const skip=v[0]==="1", installed=v[1]==="1";
+    const t=document.getElementById("teeSimLabel");
+    if(t) t.textContent="TeeSim: "+(installed?(skip?"Installed · Skipped":"Installed · Active"):"Not installed");
+    const tb=document.getElementById("teeSimToggle");
+    if(tb){tb.classList.toggle("active",skip);tb.disabled=!installed;tb.style.opacity=installed?"":".55";}
+    if(cb) cb(skip,installed);
+  });
+}
+
+function toggleTeeSim(){
+  runShell(`if [ -f ${esc(TEESIM_FLAG)} ]; then rm -f ${esc(TEESIM_FLAG)}; echo ALLOW; else mkdir -p /data/adb/Box-Brain && touch ${esc(TEESIM_FLAG)}; echo SKIP; fi`,(c,o)=>{
+    if(c!==0){popup("Could not update TeeSim setting",true);return;}
+    refreshSettings(); popup((o||"").trim()==="SKIP"?"TeeSim execution disabled":"TeeSim execution allowed");
+  });
+}
+
+
+function fetchInstalled(cb){
+  const listCommand = `
+    (
+      pm list packages --user 0 -3 2>/dev/null
+      cmd package list packages --user 0 -3 2>/dev/null
+      pm list packages -3 2>/dev/null
+      cmd package list packages -3 2>/dev/null
+    ) | sed -n 's/^package://p' | sed 's/[[:space:]]//g' | grep -E '^[A-Za-z0-9_]+([.][A-Za-z0-9_]+)+$' | sort -u
+  `;
+
+  runShell(listCommand,(code,out)=>{
+    const byPkg = new Map();
+
+    (out || "").split(/\r?\n/).forEach(line=>{
+      const pkg = line.trim().replace(/^package:/,"");
+      if(pkg && /^[A-Za-z0-9_]+([.][A-Za-z0-9_]+)+$/.test(pkg)){
+        byPkg.set(pkg,{pkg,label:pkg,apk:""});
+      }
+    });
+
+    const apps = Array.from(byPkg.values());
+
+    if(window.ksu && typeof window.ksu.getPackagesInfo === "function"){
+      const batchSize = 40;
+      for(let i=0;i<apps.length;i+=batchSize){
+        const batch = apps.slice(i,i+batchSize);
+        try{
+          const result = window.ksu.getPackagesInfo(JSON.stringify(batch.map(app=>app.pkg)));
+          const details = typeof result === "string" ? JSON.parse(result) : result;
+          if(Array.isArray(details)){
+            const labels = new Map();
+            details.forEach(info=>{
+              if(info && info.packageName && info.appLabel && !info.error){
+                labels.set(info.packageName,String(info.appLabel));
+              }
+            });
+            batch.forEach(app=>{
+              app.label = labels.get(app.pkg) || app.pkg;
+            });
+          }
+        }catch(e){
+          console.warn("Could not resolve app labels for batch:",e);
+        }
+      }
+    }
+
+    apps.sort((a,b)=>a.label.localeCompare(b.label,undefined,{sensitivity:"base"}));
+    cb(apps);
+  });
+}
 function sortAppsOnce(){
   if(initialSortDone) return;
   cachedApps.sort((a,b) => {
@@ -1152,14 +1276,15 @@ function updateCounts(animate){
   const targetEl = document.getElementById("targetCount");
   const blackEl = document.getElementById("blackCount");
 
+  const appCount = cachedApps.filter(a=>!HIDDEN_DEFAULTS.has(a.pkg)).length;
   if(animate){
-    animateValue(appEl, 0, cachedApps.length, 600);
-    animateValue(targetEl, 0, targetSet.size, 600);
-    animateValue(blackEl, 0, blackSet.size, 600);
+    if(appEl) animateValue(appEl, 0, appCount, 600);
+    if(targetEl) animateValue(targetEl, 0, targetSet.size, 600);
+    if(blackEl) animateValue(blackEl, 0, blackSet.size, 600);
   } else {
-    appEl.textContent = cachedApps.length;
-    targetEl.textContent = targetSet.size;
-    blackEl.textContent = blackSet.size;
+    if(appEl) appEl.textContent = appCount;
+    if(targetEl) targetEl.textContent = targetSet.size;
+    if(blackEl) blackEl.textContent = blackSet.size;
   }
 }
 
@@ -1197,6 +1322,7 @@ let visibleCount = 0;
 let visibleIdx = 0;
 
 cachedApps.forEach((a)=>{
+  if(HIDDEN_DEFAULTS.has(a.pkg)) return;
   if(q && !a.pkg.toLowerCase().includes(q) && !a.label.toLowerCase().includes(q)) return;
   visibleCount++;
   const isTarget = targetSet.has(a.pkg);
@@ -1256,7 +1382,7 @@ document.querySelectorAll(".check-btn").forEach(btn=>{
       btn.classList.add("active");
     }
 
-    writeLines(TARGET_FILE, Array.from(targetSet), ok=>{
+    writeLines(TARGET_FILE, targetsForWrite(), ok=>{
       popup(ok ? (isActive ? "Removed from spoofed" : "Added to spoofed") : "Write failed", !ok);
       if(ok) runTeeSimIfExists();
     });
@@ -1285,7 +1411,7 @@ document.querySelectorAll(".black-btn").forEach(btn=>{
 
     writeLines(BLACK_FILE, Array.from(blackSet), ok=>{
       if(!ok){ popup("Write failed", true); return; }
-      writeLines(TARGET_FILE, Array.from(targetSet), ok2=>{
+      writeLines(TARGET_FILE, targetsForWrite(), ok2=>{
         popup(ok2 ? (isActive ? "Unblacklisted & restored to spoofed" : "Blacklisted") : "Blacklist updated, spoofed sync failed", !ok2);
         if(ok2) runTeeSimIfExists();
       });
@@ -1362,7 +1488,7 @@ cachedApps.forEach(a => {
 if(added === 0){ popup("All available apps already spoofed"); return; }
 
 render();
-writeLines(TARGET_FILE, Array.from(targetSet), ok=>{
+writeLines(TARGET_FILE, targetsForWrite(), ok=>{
   popup(ok ? `Spoofed ${added} apps` : "Failed to update spoofed", !ok);
   if(ok) runTeeSimIfExists();
 });
@@ -1371,6 +1497,7 @@ writeLines(TARGET_FILE, Array.from(targetSet), ok=>{
 function doSelectAllBlacklist(){
 let added = 0;
 cachedApps.forEach(a => {
+  if(HIDDEN_DEFAULTS.has(a.pkg)) return;
   if(!blackSet.has(a.pkg)){
     blackSet.add(a.pkg);
     if(targetSet.has(a.pkg)) targetSet.delete(a.pkg);
@@ -1383,7 +1510,7 @@ if(added === 0){ popup("All apps already blacklisted"); return; }
 render();
 writeLines(BLACK_FILE, Array.from(blackSet), ok=>{
   if(!ok){ popup("Failed to update blacklist", true); return; }
-  writeLines(TARGET_FILE, Array.from(targetSet), ok2=>{
+  writeLines(TARGET_FILE, targetsForWrite(), ok2=>{
     popup(ok2 ? `Blacklisted ${added} apps` : "Blacklist updated, spoofed removal failed", !ok2);
     if(ok2) runTeeSimIfExists();
   });
@@ -1415,10 +1542,11 @@ function openInfo(){ document.getElementById("infoModal").classList.add("show");
 function closeInfo(){ document.getElementById("infoModal").classList.remove("show"); }
 
 function init(){
+refreshSettings();
 runShell(`mkdir -p $(dirname ${esc(TARGET_FILE)}) && touch ${esc(TARGET_FILE)} && mkdir -p $(dirname ${esc(BLACK_FILE)}) && touch ${esc(BLACK_FILE)}`, ()=>{
-  readLines(TARGET_FILE, tLines=>{
+  readTeeStatus(()=>readLines(TARGET_FILE, tLines=>{
     readLines(BLACK_FILE, bLines=>{
-      targetSet = new Set(normalizeTargets(tLines));
+      targetSet = new Set([...normalizeTargets(tLines), ...HIDDEN_DEFAULTS]);
       blackSet = new Set(bLines);
       fetchInstalled(apps=>{
         cachedApps = apps;
@@ -1428,8 +1556,28 @@ runShell(`mkdir -p $(dirname ${esc(TARGET_FILE)}) && touch ${esc(TARGET_FILE)} &
         updateCounts(true);
       });
     });
-  });
+  }));
 });
+}
+
+function resetDefaults(){
+  const modal = document.getElementById("confirmModal");
+  document.getElementById("confirmIcon").textContent = "restart_alt";
+  document.getElementById("confirmIcon").style.color = "var(--danger)";
+  document.getElementById("confirmTitle").textContent = "Reset All?";
+  document.getElementById("confirmText").textContent = "This will erase the entire current target.txt list and replace it with only the built-in default packages. This cannot be undone. Continue?";
+  document.getElementById("confirmAction").onclick = ()=>{
+    closeConfirm();
+    targetSet = new Set(HIDDEN_DEFAULTS);
+    render();
+    writeLines(TARGET_FILE, targetsForWrite(), ok=>{
+      if(!ok){ popup("Could not reset target list", true); return; }
+      popup("Target list reset to default packages");
+      runTeeSimIfExists();
+      render();
+    });
+  };
+  modal.classList.add("show");
 }
 
 init();

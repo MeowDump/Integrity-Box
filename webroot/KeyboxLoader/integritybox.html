@@ -1,0 +1,1887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Keybox Loader</title>
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #1f2233;
+  --surface: #232637d9;
+  --surface-2: #232637e6;
+  --surface-hover: #2b3047;
+  --border: #ffffff12;
+  --border-strong: #ffffff1c;
+  --text: #e6e6e6;
+  --text-secondary: #9aa3ff;
+  --text-muted: #737b90;
+  --accent: #4da3ff;
+  --accent-soft: #4da3ff16;
+  --accent-border: #4da3ff42;
+  --success: #45d98a;
+  --danger: #ff5d73;
+  --overlay: #000000aa;
+  --radius: 20px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+  padding: 18px 15px 32px;
+  overflow-x: hidden;
+}
+
+button {
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.container {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 19px;
+  margin-bottom: 18px;
+  border-radius: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 12px 35px #00000020;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  width: 130px;
+  height: 130px;
+  right: -55px;
+  top: -55px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.06;
+  pointer-events: none;
+}
+
+.key-icon {
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
+  border-radius: 18px;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 25px #1592ff35;
+}
+
+.key-icon span {
+  color: #fff;
+  font-size: 29px;
+}
+
+.hero-text {
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.hero h1 {
+  font-size: 1.28rem;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  margin-bottom: 5px;
+}
+
+.hero p {
+  color: var(--text-muted);
+  font-size: 0.79rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.files-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 14px;
+  box-shadow: 0 12px 35px #00000018;
+}
+
+.files-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 3px 13px;
+}
+
+.files-heading {
+  min-width: 0;
+}
+
+.files-title {
+  display: block;
+  color: var(--text);
+  font-size: 0.86rem;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.files-subtitle {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.import-button {
+  position: relative;
+  overflow: hidden;
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 11px;
+  border: 1px solid var(--accent-border);
+  border-radius: 13px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font: 600 .7rem Inter, sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.import-button .material-icons-round { font-size: 18px; }
+.import-button:active { transform: scale(.96); }
+.import-file-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.refresh {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--surface-2);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.refresh:active {
+  transform: scale(0.9);
+}
+
+.refresh:hover {
+  color: var(--accent);
+  border-color: var(--accent-border);
+}
+
+.refresh.spinning span {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.file-item {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 74px;
+  transition: 0.18s ease;
+}
+
+.file-item:active {
+  background: var(--surface-hover);
+  transform: scale(0.99);
+}
+
+.file-icon {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  border-radius: 14px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-icon span {
+  font-size: 23px;
+}
+
+.file-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-name {
+  color: var(--text);
+  font-size: 0.86rem;
+  font-weight: 650;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+
+.file-path {
+  color: var(--text-muted);
+  font-size: 0.67rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+
+.file-meta {
+  color: var(--text-muted);
+  font-size: 0.64rem;
+  font-weight: 500;
+}
+
+.set-button {
+  height: 39px;
+  min-width: 66px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow: 0 5px 15px #1592ff25;
+  transition: 0.18s ease;
+}
+
+.set-button:active {
+  transform: scale(0.92);
+}
+
+.set-button:disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.empty {
+  text-align: center;
+  padding: 58px 20px 55px;
+  color: var(--text-muted);
+}
+
+.empty-icon {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 16px;
+  border-radius: 22px;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-icon span {
+  font-size: 35px;
+  opacity: 0.5;
+}
+
+.empty-title {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  font-weight: 650;
+  margin-bottom: 6px;
+}
+
+.empty-text {
+  font-size: 0.73rem;
+  line-height: 1.55;
+}
+
+.scanning {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 50px 20px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--overlay);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 12px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.22s ease, visibility 0.22s ease;
+}
+
+.overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.confirm-card {
+  width: 100%;
+  max-width: 480px;
+  background: #232637e6;
+  border: 1px solid var(--border-strong);
+  border-radius: 27px;
+  padding: 20px;
+  box-shadow: 0 -5px 50px #00000050;
+  transform: translateY(30px);
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.overlay.show .confirm-card {
+  transform: translateY(0);
+}
+
+.drag-handle {
+  width: 38px;
+  height: 4px;
+  margin: -7px auto 19px;
+  border-radius: 50px;
+  background: #ffffff20;
+}
+
+.confirm-header {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 20px;
+}
+
+.confirm-icon {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  border-radius: 16px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confirm-icon span {
+  font-size: 25px;
+}
+
+.confirm-info {
+  min-width: 0;
+}
+
+.confirm-title {
+  font-size: 1rem;
+  font-weight: 750;
+  margin-bottom: 4px;
+}
+
+.confirm-file {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.destination-title {
+  color: var(--text-secondary);
+  font-size: 0.69rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  margin-bottom: 10px;
+}
+
+.destination-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.destination {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 17px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  text-align: left;
+  color: var(--text);
+  cursor: pointer;
+  transition: 0.18s ease;
+}
+
+.destination:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent-border);
+}
+
+.destination:active {
+  transform: scale(0.985);
+}
+
+.destination:disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.destination-icon {
+  width: 39px;
+  height: 39px;
+  flex: 0 0 39px;
+  border-radius: 12px;
+  background: #ffffff08;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+}
+
+.destination-icon span {
+  font-size: 20px;
+}
+
+.destination-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.destination-name {
+  font-size: 0.77rem;
+  font-weight: 650;
+  margin-bottom: 3px;
+  line-height: 1.25;
+}
+
+.destination-path {
+  color: var(--text-muted);
+  font-size: 0.61rem;
+  line-height: 1.35;
+  word-break: break-all;
+}
+
+.destination-arrow {
+  color: var(--text-muted);
+  font-size: 20px;
+}
+
+.cancel-button {
+  width: 100%;
+  height: 44px;
+  margin-top: 11px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.79rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.cancel-button:active {
+  background: var(--surface-hover);
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 27px;
+  z-index: 300;
+  max-width: calc(100% - 32px);
+  padding: 12px 17px;
+  border-radius: 15px;
+  background: #232637e6;
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  box-shadow: 0 12px 35px #00000055;
+  transform: translate(-50%, 80px);
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.25s ease;
+}
+
+.toast.show {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
+
+.toast.success {
+  border-color: #45d98a45;
+}
+
+.toast.success #toastIcon {
+  color: var(--success);
+}
+
+.toast.error {
+  border-color: #ff5d7345;
+}
+
+.toast.error #toastIcon {
+  color: var(--danger);
+}
+
+body{background:radial-gradient(ellipse at 15% 0%,#4da3ff20,transparent 42%),linear-gradient(145deg,#1c2045,#0e1020)}
+.hero,.files-panel,.confirm-card{background:linear-gradient(145deg,#ffffff0d,#ffffff04),rgba(37,40,58,.78);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-color:#ffffff19;box-shadow:0 16px 42px #0000002b,inset 0 1px #ffffff0b}
+.file-item,.destination,.refresh{background:linear-gradient(135deg,#ffffff0b,#ffffff03),rgba(41,45,64,.68);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.file-item{border-color:#ffffff16}.file-item:hover,.destination:hover{border-color:#4da3ff65;background:#4da3ff12}
+.keybox-details{flex:0 0 100%;width:100%;margin-top:10px;padding:10px 11px;border:1px solid #45d98a25;border-radius:13px;background:#45d98a08;color:#45d98a;font:500 .68rem/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere}
+.keybox-details .detail-row{display:block;margin:2px 0}.keybox-details .detail-label{color:#aeb5c7}.keybox-details .detail-value{color:#45d98a}.keybox-details .details-empty{color:#aeb5c7;font-family:Inter,sans-serif}
+
+.file-actions{display:flex;gap:7px;align-items:center;flex-shrink:0}.preview-button{height:39px;padding:0 11px;border:1px solid #45d98a40;border-radius:12px;background:#45d98a12;color:#45d98a;font-size:.73rem;font-weight:700;cursor:pointer}.preview-button:active{transform:scale(.94)}
+.preview-card{max-height:88vh;overflow:auto}.xml-preview{max-height:55vh;min-height:180px;overflow:auto;white-space:pre;padding:14px;border-radius:15px;background:#111722b8;border:1px solid #45d98a30;color:#45d98a;font: .72rem/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;user-select:text}
+@media(max-width:390px){.file-actions{flex-direction:column;gap:5px}.preview-button,.set-button{width:100%;min-width:58px;padding:0 9px}}
+
+@media (max-width: 360px) {
+  body {
+    padding-left: 11px;
+    padding-right: 11px;
+  }
+
+  .hero {
+    padding: 16px;
+  }
+
+  .key-icon {
+    width: 51px;
+    height: 51px;
+    flex-basis: 51px;
+  }
+
+  .files-panel {
+    padding: 11px;
+  }
+
+  .file-item {
+    padding: 10px;
+  }
+
+  .file-icon {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+  }
+
+  .set-button {
+    min-width: 60px;
+    padding: 0 11px;
+  }
+}
+
+:root {
+  --bg: #1f2233;
+  --surface: #25293b;
+  --surface-2: #292e43;
+  --surface-hover: #303750;
+  --border: #ffffff12;
+  --border-strong: #ffffff20;
+  --text: #eef1fa;
+  --text-secondary: #b5bfd4;
+  --text-muted: #8993ad;
+  --accent: #4da3ff;
+  --accent-soft: #4da3ff18;
+  --accent-border: #4da3ff55;
+}
+body {
+  background: radial-gradient(ellipse at 14% 0%, #4da3ff12, transparent 43%), #1f2233;
+}
+.hero, .files-panel, .confirm-card {
+  background: linear-gradient(145deg, #ffffff08, #ffffff02), #25293b;
+  border-color: #ffffff13;
+  box-shadow: 0 12px 30px #080b1726, inset 0 1px #ffffff08;
+}
+.file-item, .destination, .refresh {
+  background: linear-gradient(135deg, #ffffff07, #ffffff01), #292e43;
+  border-color: #ffffff12;
+}
+.file-item:hover, .destination:hover {
+  background: linear-gradient(135deg, #4da3ff16, #4da3ff08), #292e43;
+  border-color: #4da3ff70;
+}
+.key-icon {
+  background: linear-gradient(145deg, #65b1ff, #2589f5);
+  box-shadow: 0 7px 22px #4da3ff35;
+}
+.set-button {
+  background: linear-gradient(135deg, #65b1ff, #2589f5);
+  box-shadow: 0 5px 16px #4da3ff30;
+}
+.preview-button {
+  border-color: #4da3ff55;
+  background: #4da3ff14;
+  color: #75b8ff;
+}
+.file-icon, .confirm-icon {
+  background: #4da3ff14;
+  border-color: #4da3ff38;
+  color: #75b8ff;
+}
+.destination-icon { color: #75b8ff; }
+.xml-preview {
+  background: #171b2a;
+  border-color: #4da3ff35;
+  color: #a8d2ff;
+}
+.keybox-details {
+  background: #4da3ff08;
+  border-color: #4da3ff28;
+  color: #a8d2ff;
+}
+.keybox-details .detail-value { color: #a8d2ff; }
+
+
+.keybox-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  margin-top: 9px;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #ffffff05;
+  font: 600 .68rem/1.45 Inter, sans-serif;
+}
+.keybox-status svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  margin-top: 1px;
+}
+.keybox-status.valid {
+  color: var(--success);
+  border-color: #45d98a35;
+  background: #45d98a0b;
+}
+.keybox-status.revoked {
+  color: var(--danger);
+  border-color: #ff5d7345;
+  background: #ff5d730d;
+}
+.keybox-status.expired {
+  color: #e4b86b; border-color: #e4b86b45; background: #e4b86b0d;
+}
+.keybox-status.unknown {
+  color: #e4b86b;
+  border-color: #e4b86b35;
+  background: #e4b86b0b;
+}
+.keybox-status small {
+  display: block;
+  margin-top: 3px;
+  color: var(--text-muted);
+  font: 500 .61rem/1.45 Inter, sans-serif;
+  overflow-wrap: anywhere;
+}
+.selected-keybox-details {
+  margin: 14px 0 10px;
+  width: 100%;
+}
+.selected-keybox-status {
+  margin: 0 0 19px;
+}
+.selected-keybox-status .keybox-status {
+  margin: 0;
+  padding: 12px;
+  border-radius: 15px;
+  font-size: .76rem;
+}
+.status-loading {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--text-muted);
+  font-size: .73rem;
+  padding: 10px 2px;
+}
+.status-loading .spinner {
+  width: 16px;
+  height: 16px;
+}
+.destination:disabled {
+  opacity: .45;
+  pointer-events: none;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="hero">
+
+    <div class="key-icon">
+      <span class="material-icons-round">vpn_key</span>
+    </div>
+
+    <div class="hero-text">
+      <h1>Keybox Loader</h1>
+      <p>Scan Download or import an XML keybox</p>
+    </div>
+
+  </div>
+
+  <div class="files-panel">
+
+    <div class="files-header">
+
+      <div class="files-heading">
+        <span class="files-title">Available Keyboxes</span>
+        <span class="files-subtitle" id="fileCount">Scanning...</span>
+      </div>
+
+      <div class="header-actions">
+        <label class="import-button" id="importBtn">
+          <span class="material-icons-round">file_upload</span>
+          <span>Import / Test</span>
+          <input id="keyboxFileInput" class="import-file-input" type="file"
+            accept="*/*" aria-label="Select keybox XML file">
+        </label>
+        <button class="refresh" id="refreshBtn" aria-label="Refresh">
+          <span class="material-icons-round">refresh</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="file-list" id="fileList">
+
+      <div class="scanning">
+        <div class="spinner"></div>
+        <span>Scanning Download and loading revocation list...</span>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div class="overlay" id="confirmOverlay">
+
+  <div class="confirm-card">
+
+    <div class="drag-handle"></div>
+
+    <div class="confirm-header">
+
+      <div class="confirm-icon">
+        <span class="material-icons-round">vpn_key</span>
+      </div>
+
+      <div class="confirm-info">
+        <div class="confirm-title">Set Keybox</div>
+        <div class="confirm-file" id="selectedFileName"></div>
+      </div>
+
+    </div>
+
+    <div class="keybox-details selected-keybox-details" id="selectedKeyboxDetails"></div>
+
+    <div class="selected-keybox-status" id="selectedKeyboxStatus">
+      <span class="status-loading"><span class="spinner"></span> Checking keybox status…</span>
+    </div>
+
+    <div class="destination-title">
+      Choose destination
+    </div>
+
+    <div class="destination-list">
+
+      <button class="destination" data-destination="omk" type="button">
+
+        <div class="destination-icon">
+          <span class="material-icons-round">key</span>
+        </div>
+
+        <div class="destination-info">
+          <div class="destination-name">OH MY KEYMINT</div>
+          <div class="destination-path">/data/misc/keystore/omk/keybox.xml</div>
+        </div>
+
+        <span class="material-icons-round destination-arrow">chevron_right</span>
+
+      </button>
+
+      <button class="destination" data-destination="tricky" type="button">
+
+        <div class="destination-icon">
+          <span class="material-icons-round">security</span>
+        </div>
+
+        <div class="destination-info">
+          <div class="destination-name">TRICKY STORE / OOS / TEE SIMULATOR RS</div>
+          <div class="destination-path">/data/adb/tricky_store/keybox.xml</div>
+        </div>
+
+        <span class="material-icons-round destination-arrow">chevron_right</span>
+
+      </button>
+
+      <button class="destination" data-destination="teesim" type="button">
+
+        <div class="destination-icon">
+          <span class="material-icons-round">memory</span>
+        </div>
+
+        <div class="destination-info">
+          <div class="destination-name">TEE SIMULATOR</div>
+          <div class="destination-path">/data/adb/teesim/keybox.xml</div>
+        </div>
+
+        <span class="material-icons-round destination-arrow">chevron_right</span>
+
+      </button>
+
+    </div>
+
+    <button class="cancel-button" id="cancelButton" type="button">
+      Cancel
+    </button>
+
+  </div>
+
+</div>
+
+<div class="overlay" id="previewOverlay"><div class="confirm-card preview-card"><div class="drag-handle"></div><div class="confirm-header"><div class="confirm-icon"><span class="material-icons-round">code</span></div><div class="confirm-info"><div class="confirm-title">Keybox Preview</div><div class="confirm-file" id="previewFileName"></div></div></div><pre id="previewContent" class="xml-preview">Loading XML…</pre><button class="cancel-button" id="closePreview" type="button">Close preview</button></div></div>
+
+<div class="toast" id="toast">
+  <span class="material-icons-round" id="toastIcon">check_circle</span>
+  <span id="toastText">Success</span>
+</div>
+
+<script>
+const DOWNLOAD_DIR = "/sdcard/Download";
+const STATUS_PATH = "/data/adb/Box-Brain/status.json";
+const BACKUP_DIR = "/data/adb/Box-Brain/KeyBackup";
+
+const DESTINATIONS = {
+  omk: {
+    name: "OH MY KEYMINT",
+    path: "/data/misc/keystore/omk/keybox.xml"
+  },
+
+  tricky: {
+    name: "TRICKY STORE / OOS / TEE SIMULATOR RS",
+    path: "/data/adb/tricky_store/keybox.xml"
+  },
+
+  teesim: {
+    name: "TEE SIMULATOR",
+    path: "/data/adb/teesim/keybox.xml"
+  }
+};
+
+let allFiles = [];
+let selectedFile = null;
+let selectedStatus = null;
+let statusEntries = null;
+let statusLoadError = "";
+let isCheckingStatus = false;
+let isScanning = false;
+let isSetting = false;
+let toastTimer = null;
+
+function runShell(cmd) {
+  return new Promise((resolve, reject) => {
+
+    if (window.parent && window.parent.runShellFromIframe) {
+      window.parent.runShellFromIframe(cmd)
+        .then(resolve)
+        .catch(reject);
+
+      return;
+    }
+
+    if (window.runShell && window.runShell !== runShell) {
+      try {
+        const result = window.runShell(cmd);
+
+        if (result && typeof result.then === "function") {
+          result.then(resolve).catch(reject);
+        } else {
+          resolve(result);
+        }
+
+        return;
+      } catch (error) {
+        reject(error);
+        return;
+      }
+    }
+
+    reject("Shell unavailable");
+  });
+}
+
+function shellQuote(value) {
+  return "'" + String(value).replace(/'/g, "'\\''") + "'";
+}
+
+function showToast(message, type) {
+  const toast = document.getElementById("toast");
+  const icon = document.getElementById("toastIcon");
+  const text = document.getElementById("toastText");
+
+  clearTimeout(toastTimer);
+
+  icon.textContent =
+    type === "success"
+      ? "check_circle"
+      : "error";
+
+  text.textContent = message;
+
+  toast.className = "toast show " + type;
+
+  toastTimer = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2800);
+}
+
+function formatSize(bytes) {
+  const size = Number(bytes) || 0;
+
+  if (size < 1024) {
+    return size + " B";
+  }
+
+  if (size < 1024 * 1024) {
+    return (size / 1024).toFixed(1) + " KB";
+  }
+
+  return (size / (1024 * 1024)).toFixed(1) + " MB";
+}
+
+function formatDate(timestamp) {
+  const value = Number(timestamp);
+
+  if (!value) {
+    return "Unknown date";
+  }
+
+  return new Date(value * 1000).toLocaleString();
+}
+
+function relativePath(path) {
+  if (path.indexOf(DOWNLOAD_DIR + "/") === 0) {
+    return path.substring((DOWNLOAD_DIR + "/").length);
+  }
+
+  return path;
+}
+
+async function scan() {
+  if (isScanning) return;
+
+  isScanning = true;
+  const refresh = document.getElementById("refreshBtn");
+  const list = document.getElementById("fileList");
+  const count = document.getElementById("fileCount");
+
+  refresh.classList.add("spinning");
+  count.textContent = "Scanning...";
+  list.innerHTML = `
+    <div class="scanning">
+      <div class="spinner"></div>
+      <span>Scanning Download...</span>
+    </div>
+  `;
+
+  try {
+    const directories = [
+      DOWNLOAD_DIR,
+      "/storage/emulated/0/Download",
+      "/storage/self/primary/Download"
+    ];
+    const quotedDirectories = directories.map(shellQuote).join(" ");
+    const command = `
+      scanned_dirs=""
+      for dir in ${quotedDirectories}; do
+        [ -d "$dir" ] || continue
+
+        resolved_dir=$(readlink -f "$dir" 2>/dev/null)
+        [ -n "$resolved_dir" ] || resolved_dir="$dir"
+
+        case " $scanned_dirs " in
+          *" $resolved_dir "*) continue ;;
+        esac
+        scanned_dirs="$scanned_dirs $resolved_dir"
+
+        find "$resolved_dir" -type f 2>/dev/null | while IFS= read -r file; do
+          case "$file" in
+            *.[xX][mM][lL])
+              size=$(wc -c < "$file" 2>/dev/null)
+              size=$(printf '%s' "$size" | tr -d '[:space:]')
+              case "$size" in
+                ''|*[!0-9]*) size=0 ;;
+              esac
+              printf '%s|%s\n' "$size" "$file"
+              ;;
+          esac
+        done
+      done
+    `;
+
+    const output = await runShell(command);
+    await loadStatusList();
+    parseFiles(output);
+  } catch (error) {
+    console.error("Scan failed:", error);
+    allFiles = [];
+    count.textContent = "Scan failed";
+    list.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">
+          <span class="material-icons-round">error_outline</span>
+        </div>
+        <div class="empty-title">Unable to scan Download</div>
+        <div class="empty-text">${escapeHtml(String(error && error.message ? error.message : error))}</div>
+      </div>
+    `;
+  } finally {
+    refresh.classList.remove("spinning");
+    isScanning = false;
+  }
+}
+
+function parseFiles(output) {
+  const seen = new Set();
+  const lines = String(output == null ? "" : output).split(/\r?\n/);
+
+  allFiles = lines.map(line => {
+    line = line.trim();
+    if (!line) return null;
+
+    let timestamp = 0;
+    let size = 0;
+    let path = line;
+    const separator = line.indexOf("|");
+
+    if (separator !== -1) {
+      const parsedSize = Number(line.substring(0, separator).trim());
+      size = Number.isSafeInteger(parsedSize) && parsedSize >= 0 ? parsedSize : 0;
+      path = line.substring(separator + 1);
+    }
+
+    if (!path.startsWith("/") || !/\.[xX][mM][lL]$/i.test(path)) return null;
+    if (seen.has(path)) return null;
+    seen.add(path);
+
+    return {
+      timestamp,
+      size,
+      path,
+      name: path.substring(path.lastIndexOf("/") + 1)
+    };
+  }).filter(Boolean);
+
+  allFiles.sort((a, b) => b.timestamp - a.timestamp);
+
+  document.getElementById("fileCount").textContent =
+    allFiles.length === 1
+      ? "1 XML file found"
+      : allFiles.length + " XML files found";
+
+  render();
+}
+
+function render() {
+  const list = document.getElementById("fileList");
+
+  if (!allFiles.length) {
+    renderEmpty();
+    return;
+  }
+
+  list.innerHTML = allFiles.map((file, index) => {
+
+    return `
+      <div class="file-item" style="flex-wrap:wrap">
+
+        <div class="file-icon">
+          <span class="material-icons-round">description</span>
+        </div>
+
+        <div class="file-info">
+
+          <div class="file-name">
+            ${escapeHtml(file.name)}
+          </div>
+
+          <div class="file-path">
+            ${escapeHtml(relativePath(file.path))}
+          </div>
+
+          <div class="file-meta">
+            ${formatSize(file.size)}
+          </div>
+
+        </div>
+
+        <div class="file-actions">
+          <button class="preview-button" data-preview-index="${index}" type="button">Preview</button>
+          <button class="set-button" data-index="${index}" type="button">Set</button>
+        </div>
+        <div class="keybox-details" id="keybox-details-${index}"><span class="details-empty">Reading keybox details…</span></div>
+
+      </div>
+    `;
+
+  }).join("");
+
+  allFiles.forEach((file, index) => loadKeyboxDetails(file, index));
+
+  list.querySelectorAll(".preview-button").forEach(button => {
+    button.addEventListener("click", event => {
+      event.stopPropagation();
+      const index = Number(button.dataset.previewIndex);
+      if (Number.isInteger(index) && allFiles[index]) previewFile(allFiles[index]);
+    });
+  });
+
+  list.querySelectorAll(".set-button").forEach(button => {
+
+    button.addEventListener("click", event => {
+
+      event.stopPropagation();
+
+      const index = Number(button.dataset.index);
+
+      if (!Number.isInteger(index) || !allFiles[index]) {
+        return;
+      }
+
+      openConfirmation(allFiles[index]);
+    });
+
+  });
+}
+
+function extractKeyboxDetails(xml) {
+  const source = String(xml || "");
+  const results = [];
+  const add = (label, value) => { if (value !== null && String(value).trim()) results.push({label, value: String(value).trim()}); };
+  const deviceRe = /<\s*(?:[\w.-]+:)?Keybox\b([^>]*)>/gi;
+  let m;
+  while ((m = deviceRe.exec(source))) {
+    const attr = m[1].match(/\bDeviceID\s*=\s*(["'])(.*?)\1/i);
+    if (attr) add("DeviceID", attr[2]);
+  }
+  const numberRe = /<\s*(?:[\w.-]+:)?NumberOfCertificates\b[^>]*>\s*([\s\S]*?)\s*<\s*\/\s*(?:[\w.-]+:)?NumberOfCertificates\s*>/gi;
+  while ((m = numberRe.exec(source))) add("NumberOfCertificates", m[1].replace(/<[^>]*>/g, "").trim());
+  const certRe = /<\s*(?:[\w.-]+:)?Certificate\b([^>]*)>/gi;
+  while ((m = certRe.exec(source))) {
+    const attr = m[1].match(/\bformat\s*=\s*(["'])(.*?)\1/i);
+    if (attr) add("Certificate format", attr[2]);
+  }
+  const keyRe = /<\s*(?:[\w.-]+:)?Key\b([^>]*)>/gi;
+  while ((m = keyRe.exec(source))) {
+    const attr = m[1].match(/\balgorithm\s*=\s*(["'])(.*?)\1/i);
+    if (attr) add("Key algorithm", attr[2]);
+  }
+  const seen = new Set();
+  return results.filter(item => {
+    const key = item.label + "\u0000" + item.value;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function normalizeSerial(value) {
+  let serial = String(value || "").trim().toLowerCase();
+  serial = serial.replace(/^0x/, "").replace(/[:\s-]/g, "");
+  serial = serial.replace(/^0+/, "");
+  return serial || "0";
+}
+
+function parseStatusList(raw) {
+  const data = JSON.parse(String(raw || ""));
+  if (!data || !data.entries || typeof data.entries !== "object" || Array.isArray(data.entries)) {
+    throw new Error("Invalid status.json: entries object is missing");
+  }
+
+  const entries = new Map();
+  Object.keys(data.entries).forEach(serial => {
+    const normalized = normalizeSerial(serial);
+    if (normalized) entries.set(normalized, data.entries[serial]);
+  });
+  return entries;
+}
+
+async function loadStatusList() {
+  statusEntries = null;
+  statusLoadError = "";
+  try {
+    const raw = await runShell("cat -- " + shellQuote(STATUS_PATH));
+    statusEntries = parseStatusList(raw);
+  } catch (error) {
+    statusLoadError = String(error && error.message ? error.message : error);
+    console.error("Unable to load Google keybox status list:", error);
+  }
+}
+
+function readAsn1Element(bytes, offset) {
+  if (offset >= bytes.length) throw new Error("Unexpected end of certificate");
+  const tag = bytes[offset++];
+  if (offset >= bytes.length) throw new Error("Invalid ASN.1 length");
+
+  let length = bytes[offset++];
+  if (length & 0x80) {
+    const count = length & 0x7f;
+    if (!count || count > 4 || offset + count > bytes.length) {
+      throw new Error("Invalid ASN.1 length encoding");
+    }
+    length = 0;
+    for (let i = 0; i < count; i++) length = length * 256 + bytes[offset++];
+  }
+
+  const contentStart = offset;
+  const end = contentStart + length;
+  if (end > bytes.length) throw new Error("Truncated certificate data");
+  return {tag, contentStart, length, end};
+}
+
+function parseCertificateTime(bytes, element) {
+  const raw = String.fromCharCode(...bytes.slice(element.contentStart, element.end));
+  let m, year, month, day, hour, minute, second;
+  if (element.tag === 0x17) { m=raw.match(/^(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})?Z$/); if(!m) throw new Error("Invalid certificate UTCTime"); year=Number(m[1]); year+=year>=50?1900:2000; month=Number(m[2])-1; day=Number(m[3]); hour=Number(m[4]); minute=Number(m[5]); second=Number(m[6]||0); }
+  else if (element.tag === 0x18) { m=raw.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})?Z$/); if(!m) throw new Error("Invalid certificate GeneralizedTime"); year=Number(m[1]); month=Number(m[2])-1; day=Number(m[3]); hour=Number(m[4]); minute=Number(m[5]); second=Number(m[6]||0); } else throw new Error("Unsupported certificate time format");
+  return new Date(Date.UTC(year,month,day,hour,minute,second));
+}
+function certificateSerialAndExpiryFromDer(bytes) {
+  const cert=readAsn1Element(bytes,0); if(cert.tag!==0x30) throw new Error("Invalid X.509 certificate");
+  const tbs=readAsn1Element(bytes,cert.contentStart); if(tbs.tag!==0x30) throw new Error("Invalid TBSCertificate");
+  let offset=tbs.contentStart, field=readAsn1Element(bytes,offset); if(field.tag===0xa0){offset=field.end;field=readAsn1Element(bytes,offset);}
+  if(field.tag!==0x02||!field.length) throw new Error("Certificate serial number not found");
+  let serial=""; for(let i=field.contentStart;i<field.end;i++) serial+=bytes[i].toString(16).padStart(2,"0");
+  offset=field.end; offset=readAsn1Element(bytes,offset).end; offset=readAsn1Element(bytes,offset).end;
+  const validity=readAsn1Element(bytes,offset); if(validity.tag!==0x30) throw new Error("Certificate validity not found");
+  const nb=readAsn1Element(bytes,validity.contentStart), na=readAsn1Element(bytes,nb.end);
+  return {serial:normalizeSerial(serial),expiry:parseCertificateTime(bytes,na)};
+}
+function decodeCertificateData(pemText) {
+ const source=String(pemText||""),blocks=[]; const re=/-----BEGIN CERTIFICATE-----([\s\S]*?)-----END CERTIFICATE-----/g; let m;
+ while((m=re.exec(source))) blocks.push(m[1].replace(/[^A-Za-z0-9+/=]/g,""));
+ if(!blocks.length){const raw=source.replace(/<[^>]*>/g,"").replace(/[^A-Za-z0-9+/=]/g,"");if(raw)blocks.push(raw);}
+ return blocks.map(block=>{const bin=atob(block),bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);return certificateSerialAndExpiryFromDer(bytes);});
+}
+function extractCertificateData(xml) {
+ const parser=new DOMParser(),doc=parser.parseFromString(String(xml||""),"application/xml");if(doc.getElementsByTagName("parsererror").length)throw new Error("Keybox XML is malformed");
+ let certificates=Array.from(doc.getElementsByTagNameNS("*","Certificate"));if(!certificates.length)certificates=Array.from(doc.getElementsByTagName("Certificate"));
+ const certData=[],errors=[];certificates.forEach((cert,index)=>{try{const arr=decodeCertificateData(cert.textContent||"");if(!arr.length)throw new Error("Certificate data is empty");arr.forEach(x=>certData.push(x));}catch(e){errors.push("Certificate "+(index+1)+": "+String(e&&e.message?e.message:e));}});
+ return {certificates:certData,serials:Array.from(new Set(certData.map(x=>x.serial))),certificateCount:certificates.length,errors};
+}
+function extractCertificateSerials(xml){const parsed=extractCertificateData(xml);return {serials:parsed.serials,certificateCount:parsed.certificateCount,errors:parsed.errors};}
+function inspectKeyboxXml(xml) {
+  if (!statusEntries) {
+    return {
+      state: "unknown",
+      message: "Status list unavailable",
+      detail: statusLoadError || "Could not read " + STATUS_PATH,
+      serials: [],
+      matches: [],
+      certificateCount: 0
+    };
+  }
+
+  try {
+    const parsed = extractCertificateData(xml);
+    if (!parsed.certificateCount || !parsed.serials.length) {
+      return {
+        state: "unknown",
+        message: "Unable to verify keybox",
+        detail: parsed.errors.join("; ") || "No certificate serials could be extracted",
+        serials: parsed.serials,
+        matches: [],
+        certificateCount: parsed.certificateCount
+      };
+    }
+
+    const matches = [];
+    parsed.serials.forEach(serial => {
+      if (statusEntries.has(serial)) {
+        const entry = statusEntries.get(serial) || {};
+        matches.push({
+          serial,
+          status: String(entry.status || "LISTED").toUpperCase(),
+          reason: String(entry.reason || ""),
+          comment: String(entry.comment || "")
+        });
+      }
+    });
+
+    if (matches.length) {
+      return {
+        state: "revoked",
+        message: "Keybox is revoked",
+        detail: matches.length + " matching serial" + (matches.length === 1 ? "" : "s") +
+          " found in Google's status list",
+        serials: parsed.serials,
+        matches,
+        certificateCount: parsed.certificateCount,
+        errors: parsed.errors
+      };
+    }
+
+    if (parsed.errors.length) {
+      return {
+        state: "unknown",
+        message: "Unable to verify every certificate",
+        detail: parsed.serials.length + " serials checked, but " +
+          parsed.errors.length + " certificate" +
+          (parsed.errors.length === 1 ? " could" : "s could") +
+          " not be parsed",
+        serials: parsed.serials,
+        matches: [],
+        certificateCount: parsed.certificateCount,
+        errors: parsed.errors
+      };
+    }
+
+    const expiries=parsed.certificates.map(c=>c.expiry).filter(d=>d instanceof Date&&!isNaN(d.getTime()));
+    if(!expiries.length)return {state:"unknown",message:"Unable to determine certificate expiry",detail:"Serials checked, but certificate expiry could not be parsed",serials:parsed.serials,matches:[],certificateCount:parsed.certificateCount,errors:parsed.errors};
+    const expiry=new Date(Math.min(...expiries.map(d=>d.getTime()))),remaining=expiry.getTime()-Date.now(),dateText=expiry.toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"});
+    if(remaining<=0)return {state:"expired",message:"Keybox has expired",detail:"Expired on "+dateText+". This keybox should not be used.",serials:parsed.serials,matches:[],certificateCount:parsed.certificateCount,errors:parsed.errors,expiry};
+    const days=Math.ceil(remaining/86400000),countdown=days===1?"It may stop working within 24 hours.":"It may stop working anytime in "+days+" days.";
+    return {state:"valid",message:"Keybox is valid",detail:parsed.serials.length+" certificate serial"+(parsed.serials.length===1?"":"s")+" checked · no matches found\nValid until "+dateText+"\n"+countdown,serials:parsed.serials,matches:[],certificateCount:parsed.certificateCount,errors:parsed.errors,expiry,remainingDays:days};
+  } catch (error) {
+    return {
+      state: "unknown",
+      message: "Unable to verify keybox",
+      detail: String(error && error.message ? error.message : error),
+      serials: [],
+      matches: [],
+      certificateCount: 0
+    };
+  }
+}
+
+function statusIcon(state) {
+  if (state === "valid") {
+    return '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="m7.5 12.2 3 3 6-6.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  }
+  if (state === "expired") {
+    return '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7.5v5m0 3.5h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
+  }
+  if (state === "revoked") {
+    return '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="m9 9 6 6m0-6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
+  }
+  return '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7.5v5m0 3.5h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
+}
+
+function statusMarkup(status) {
+  const state = status && status.state ? status.state : "unknown";
+  const message = status && status.message ? status.message : "Unable to verify keybox";
+  const detail = status && status.detail ? status.detail : "";
+  const matches = status && status.matches ? status.matches : [];
+  const matchDetails = matches.slice(0, 5).map(item =>
+    escapeHtml(item.serial) + " · " + escapeHtml(item.status)
+  ).join("<br>");
+  const extra = matches.length > 5 ? "<br>+" + (matches.length - 5) + " more matching serials" : "";
+  return '<div class="keybox-status ' + state + '">' +
+    statusIcon(state) +
+    '<span>' + escapeHtml(message) +
+    '<small>' + escapeHtml(detail).replace(/\n/g, '<br>') +
+    (matchDetails ? "<br>" + matchDetails + extra : "") +
+    '</small></span></div>';
+}
+
+async function inspectFile(file) {
+  const xml = await runShell("cat -- " + shellQuote(file.path));
+  const status = inspectKeyboxXml(xml);
+  file.keyboxStatus = status;
+  return status;
+}
+
+async function loadKeyboxDetails(file, index) {
+  const target = document.getElementById("keybox-details-" + index);
+  if (!target) return;
+  try {
+    const xml = await runShell("cat -- " + shellQuote(file.path));
+    const details = extractKeyboxDetails(xml);
+    let serialDetails = [];
+    try {
+      const serialData = extractCertificateSerials(xml);
+      serialDetails = serialData.serials.map(serial => ({label: "Certificate serial", value: serial}));
+      if (!serialDetails.length && serialData.errors.length) {
+        serialDetails = [{label: "Certificate serial", value: "Unable to extract"}];
+      }
+    } catch (error) {
+      serialDetails = [{label: "Certificate serial", value: "Unable to extract"}];
+    }
+    const status = inspectKeyboxXml(xml);
+    file.keyboxStatus = status;
+    const allDetails = details.concat(serialDetails);
+    const metadata = allDetails.length
+      ? allDetails.map(item => '<span class="detail-row"><span class="detail-label">' +
+          escapeHtml(item.label) + ': </span><span class="detail-value">' +
+          escapeHtml(item.value) + '</span></span>').join("")
+      : '<span class="details-empty">No matching keybox metadata found</span>';
+    target.innerHTML = metadata + statusMarkup(status);
+  } catch (e) {
+    file.keyboxStatus = {
+      state: "unknown",
+      message: "Unable to verify keybox",
+      detail: String(e && e.message ? e.message : e),
+      matches: []
+    };
+    target.innerHTML = '<span class="details-empty">Unable to read keybox details</span>' +
+      statusMarkup(file.keyboxStatus);
+  }
+}
+
+function readFileAsText(file) {
+  if (file && typeof file.text === "function") {
+    return file.text();
+  }
+
+  return new Promise((resolve, reject) => {
+    if (typeof FileReader === "undefined") {
+      reject(new Error("File reading is not supported by this WebView"));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(reader.error || new Error("Unable to read selected file"));
+    reader.onabort = () => reject(new Error("File reading was cancelled"));
+    reader.readAsText(file);
+  });
+}
+
+async function importKeybox(file) {
+  if (!file) return;
+  if (!/\.xml$/i.test(file.name || "")) {
+    showToast("Please select an XML keybox", "error");
+    return;
+  }
+
+  try {
+    const xml = await readFileAsText(file);
+    if (!xml.trim()) throw new Error("Selected file is empty");
+
+    await loadStatusList();
+    const status = inspectKeyboxXml(xml);
+    const encoded = btoa(unescape(encodeURIComponent(xml)));
+    const path = "/data/local/tmp/keybox-loader-import-" + Date.now() + ".xml";
+    const command = "mkdir -p /data/local/tmp && printf '%s' " +
+      shellQuote(encoded) + " | base64 -d > " + shellQuote(path) +
+      " && chmod 600 " + shellQuote(path);
+    await runShell(command);
+
+    const imported = {
+      name: file.name,
+      path,
+      size: file.size || new Blob([xml]).size,
+      timestamp: Date.now() / 1000,
+      keyboxStatus: status,
+      xmlContent: xml,
+      imported: true
+    };
+
+    openConfirmation(imported);
+  } catch (error) {
+    console.error("Import keybox failed:", error);
+    showToast("Unable to import keybox", "error");
+  }
+}
+
+function renderEmpty() {
+  document.getElementById("fileList").innerHTML = `
+    <div class="empty">
+
+      <div class="empty-icon">
+        <span class="material-icons-round">folder_open</span>
+      </div>
+
+      <div class="empty-title">
+        No XML files found
+      </div>
+
+      <div class="empty-text">
+        No XML files found in ${DOWNLOAD_DIR}.<br>
+        You can also import a keybox from any folder.
+      </div>
+
+    </div>
+  `;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+async function previewFile(file) {
+  const overlay = document.getElementById("previewOverlay");
+  const content = document.getElementById("previewContent");
+  document.getElementById("previewFileName").textContent = file.path;
+  content.textContent = "Loading XML…";
+  overlay.classList.add("show");
+  try {
+    const output = await runShell("cat -- " + shellQuote(file.path));
+    content.textContent = String(output == null ? "" : output) || "(Empty file)";
+  } catch (error) {
+    content.textContent = "Unable to read this file.";
+  }
+}
+
+function closePreview() {
+  document.getElementById("previewOverlay").classList.remove("show");
+}
+
+async function openConfirmation(file) {
+  if (isCheckingStatus || isSetting) return;
+
+  selectedFile = file;
+  selectedStatus = null;
+  isCheckingStatus = true;
+
+  document.getElementById("selectedFileName").textContent = file.name;
+  const selectedDetails = document.getElementById("selectedKeyboxDetails");
+  selectedDetails.innerHTML = '<span class="details-empty">Reading keybox information…</span>';
+  document.getElementById("selectedKeyboxStatus").innerHTML =
+    '<span class="status-loading"><span class="spinner"></span> Checking all certificate serials…</span>';
+  document.getElementById("confirmOverlay").classList.add("show");
+
+  document.querySelectorAll(".destination").forEach(button => {
+    button.disabled = true;
+  });
+
+  try {
+    const xml = file.xmlContent !== undefined
+      ? file.xmlContent
+      : await runShell("cat -- " + shellQuote(file.path));
+    const details = extractKeyboxDetails(xml);
+    const serialData = extractCertificateSerials(xml);
+    serialData.serials.forEach(serial => details.push({label: "Certificate serial", value: serial}));
+    if (!serialData.serials.length && serialData.errors.length) {
+      details.push({label: "Certificate serial", value: "Unable to extract"});
+    }
+    selectedStatus = file.keyboxStatus || inspectKeyboxXml(xml);
+    file.keyboxStatus = selectedStatus;
+    if (selectedFile === file) {
+      document.getElementById("selectedKeyboxDetails").innerHTML = details.length
+        ? details.map(item => '<span class="detail-row"><span class="detail-label">' +
+            escapeHtml(item.label) + ': </span><span class="detail-value">' +
+            escapeHtml(item.value) + '</span></span>').join("")
+        : '<span class="details-empty">No matching keybox metadata found</span>';
+      document.getElementById("selectedKeyboxStatus").innerHTML =
+        statusMarkup(selectedStatus);
+    }
+  } catch (error) {
+    selectedStatus = {
+      state: "unknown",
+      message: "Unable to verify keybox",
+      detail: String(error && error.message ? error.message : error),
+      matches: []
+    };
+    file.keyboxStatus = selectedStatus;
+    if (selectedFile === file) {
+      document.getElementById("selectedKeyboxDetails").innerHTML =
+        '<span class="details-empty">Unable to read keybox details</span>';
+      document.getElementById("selectedKeyboxStatus").innerHTML =
+        statusMarkup(selectedStatus);
+    }
+  } finally {
+    isCheckingStatus = false;
+    document.querySelectorAll(".destination").forEach(button => {
+      button.disabled = false;
+    });
+  }
+}
+
+function closeConfirmation() {
+  if (isSetting) {
+    return;
+  }
+
+  const importedPath = selectedFile && selectedFile.imported ? selectedFile.path : "";
+  document.getElementById("confirmOverlay").classList.remove("show");
+
+  if (importedPath) {
+    runShell("rm -f " + shellQuote(importedPath)).catch(() => {});
+  }
+
+  setTimeout(() => {
+    selectedFile = null;
+    selectedStatus = null;
+  }, 220);
+}
+
+async function setKeybox(destinationKey) {
+  if (!selectedFile || isSetting || isCheckingStatus) {
+    return;
+  }
+
+  const destination = DESTINATIONS[destinationKey];
+
+  if (!destination) {
+    return;
+  }
+
+  isSetting = true;
+
+  const buttons = document.querySelectorAll(".destination");
+
+  buttons.forEach(button => {
+    button.disabled = true;
+  });
+
+  const source = selectedFile.path;
+  const target = destination.path;
+
+  try {
+
+    const sourceQuoted = shellQuote(source);
+    const targetQuoted = shellQuote(target);
+    const backupDirQuoted = shellQuote(BACKUP_DIR);
+
+    const command = `
+      set -e
+
+      src=${sourceQuoted}
+      target=${targetQuoted}
+      backup=${backupDirQuoted}
+
+      [ -f "$src" ]
+
+      mkdir -p "$backup"
+
+      if [ -f "$target" ]; then
+        timestamp=$(date '+%Y%m%d-%H%M%S')
+        backup_file="$backup/key-loader-$timestamp.XML"
+        counter=1
+
+        while [ -e "$backup_file" ]; do
+          backup_file="$backup/key-loader-$timestamp-$counter.XML"
+          counter=$((counter + 1))
+        done
+
+        cp -f "$target" "$backup_file"
+        chmod 644 "$backup_file"
+      fi
+
+      mkdir -p "$(dirname "$target")"
+
+      am force-stop com.google.android.gms.unstable
+      am force-stop com.google.android.gms
+      am force-stop com.android.vending
+
+      cp -f "$src" "$target"
+      chmod 644 "$target"
+    `;
+
+    await runShell(
+      "sh -c " + shellQuote(command)
+    );
+
+    closeConfirmation();
+
+    showToast(
+      "Keybox set to " + destination.name,
+      "success"
+    );
+
+  } catch (error) {
+
+    console.error("Set keybox failed:", error);
+
+    showToast(
+      "Failed to set keybox",
+      "error"
+    );
+
+  } finally {
+
+    isSetting = false;
+
+    buttons.forEach(button => {
+      button.disabled = false;
+    });
+
+  }
+}
+
+document.getElementById("closePreview").addEventListener("click", closePreview);
+document.getElementById("previewOverlay").addEventListener("click", event => {
+  if (event.target.id === "previewOverlay") closePreview();
+});
+
+document.getElementById("refreshBtn").addEventListener(
+  "click",
+  scan
+);
+
+document.getElementById("keyboxFileInput").addEventListener("change", event => {
+  const file = event.target.files && event.target.files[0];
+  event.target.value = "";
+  if (file) importKeybox(file);
+});
+
+document.getElementById("cancelButton").addEventListener(
+  "click",
+  closeConfirmation
+);
+
+document.getElementById("confirmOverlay").addEventListener(
+  "click",
+  event => {
+
+    if (event.target.id === "confirmOverlay") {
+      closeConfirmation();
+    }
+
+  }
+);
+
+document.querySelectorAll(".destination").forEach(button => {
+
+  button.addEventListener("click", () => {
+
+    const destination = button.dataset.destination;
+
+    setKeybox(destination);
+  });
+
+});
+
+document.addEventListener("keydown", event => {
+
+  if (event.key === "Escape") {
+    closeConfirmation();
+    closePreview();
+  }
+
+});
+
+scan();
+</script>
+
+<script src="../TRANSLATIONS/meow.js"></script>
+
+<script>
+(function() {
+
+  var lang = localStorage.getItem("ibLang") || "en";
+
+  if (lang !== "en") {
+
+    var script = document.createElement("script");
+
+    script.src = "../TRANSLATIONS/" + lang + ".js";
+
+    script.onload = function() {
+
+      if (window.i18nBoot) {
+        window.i18nBoot();
+      }
+
+    };
+
+    document.head.appendChild(script);
+  }
+
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Control Centre</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+ :root{
+  --bg:#000000;
+  --fg:#eeeeee;
+  --accent:#d6a84f;
+  --accent-glow:rgba(214,168,79,.28);
+  --panel-bg:#101010;
+  --card-bg:#151515;
+  --border-radius:20px;
+  --shadow:rgba(0,0,0,.55);
+  --transition:.3s;
+  --success:#55c987;
+  --danger:#ff625f;
+  --warning:#e5a84b;
+  --text2:#aaa49a;
+}
+*{box-sizing:border-box}
+body{
+ margin:0;min-height:100vh;
+ display:flex;align-items:center;justify-content:center;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui;
+ background:#000000;
+ color:var(--fg);
+ -webkit-font-smoothing:antialiased;
+ padding:20px;
+}
+.card{
+ width:380px;max-width:100%;
+ background:var(--panel-bg);
+ backdrop-filter:blur(20px);
+ border-radius:var(--border-radius);
+ padding:28px;
+ box-shadow:0 25px 60px var(--shadow),0 0 0 1px rgba(214,168,79,0.10);
+ position:relative;overflow:hidden;
+ animation:cardEntry 0.6s cubic-bezier(0.2,0.8,0.2,1);
+}
+@keyframes cardEntry{
+ from{opacity:0;transform:translateY(30px) scale(0.96)}
+ to{opacity:1;transform:translateY(0) scale(1)}
+}
+.card::before{
+ content:"";
+ position:absolute;inset:0;
+ background:radial-gradient(circle at 50% 0%,var(--accent) 0%,transparent 70%);
+ filter:blur(40px);opacity:0.15;pointer-events:none;z-index:0;
+ animation:glowPulse 8s ease-in-out infinite;
+}
+@keyframes glowPulse{0%,100%{opacity:0.12}50%{opacity:0.25}}
+h1{
+ position:relative;z-index:2;
+ margin:0 0 24px 0;text-align:center;
+ font-size:22px;font-weight:700;
+ color:var(--fg);
+ display:flex;align-items:center;justify-content:center;gap:10px;
+}
+h1 .material-icons{
+ font-size:24px;
+ background:linear-gradient(135deg,var(--accent),#f0cf7b);
+ -webkit-background-clip:text;
+ -webkit-text-fill-color:transparent;
+}
+.divider{
+ position:relative;z-index:2;
+ height:1px;
+ background:linear-gradient(90deg,transparent,rgba(214,168,79,0.10),transparent);
+ margin:20px 0;
+}
+.section-label{
+ position:relative;z-index:2;
+ font-size:11px;
+ font-weight:600;
+ text-transform:uppercase;
+ letter-spacing:1.2px;
+ color:var(--text2);
+ margin-bottom:10px;
+ margin-top:4px;
+ padding-left:4px;
+ display:flex;
+ align-items:center;
+ gap:8px;
+}
+.section-label::before{
+ content:"";
+ width:3px;
+ height:14px;
+ border-radius:2px;
+ background:var(--accent);
+ display:inline-block;
+}
+.row{
+ position:relative;z-index:2;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:14px;
+ padding:16px;
+ border-radius:16px;
+ background:rgba(214,168,79,0.035);
+ border:1px solid rgba(214,168,79,0.10);
+ margin-bottom:14px;
+ transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
+ cursor:pointer;
+}
+.row:hover{
+ background:rgba(214,168,79,0.10);
+ transform:translateY(-2px);
+ box-shadow:0 8px 24px rgba(0,0,0,0.3);
+ border-color:rgba(214,168,79,0.2);
+}
+.row:active{transform:scale(0.98)}
+.row.active{
+ background:rgba(214,168,79,0.1);
+ border-color:rgba(214,168,79,0.4);
+ box-shadow:0 0 20px rgba(214,168,79,0.15);
+}
+.row.active .icon-wrap{
+ background:var(--accent);
+ box-shadow:0 4px 16px var(--accent-glow);
+}
+.row.active .icon-wrap .material-icons{color:white}
+.row.active .title{color:var(--accent)}
+.row.active .status-dot{
+ background:var(--success);
+ box-shadow:0 0 12px var(--success);
+}
+.row.active .badge{
+ background:rgba(77,255,136,0.15);
+ border-color:rgba(77,255,136,0.25);
+ color:var(--success);
+}
+.row.active .badge.warn{
+ background:rgba(255,170,77,0.15);
+ border-color:rgba(255,170,77,0.25);
+ color:var(--warning);
+}
+.row.active .badge.danger{
+ background:rgba(255,77,77,0.15);
+ border-color:rgba(255,77,77,0.25);
+ color:var(--danger);
+}
+.icon-wrap{
+ width:44px;height:44px;border-radius:12px;
+ background:rgba(214,168,79,0.08);
+ display:flex;align-items:center;justify-content:center;
+ transition:all 0.3s;flex-shrink:0;
+ position:relative;
+}
+.icon-wrap .material-icons{
+ font-size:24px;color:var(--text2);
+ transition:all 0.3s;
+}
+.content{flex:1;min-width:0;overflow:hidden}
+.title{
+ font-size:15px;font-weight:600;
+ color:var(--fg);
+ transition:color 0.3s;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+}
+.badge{
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ gap:5px;
+ width:max-content;
+ max-width:100%;
+ margin:8px auto 0;
+ font-size:10px;
+ font-weight:700;
+ padding:4px 10px;
+ border-radius:999px;
+ background:rgba(214,168,79,0.07);
+ border:1px solid rgba(214,168,79,0.13);
+ transition:all 0.3s;
+ white-space:nowrap;
+}
+.badge .material-icons{font-size:10px}
+.badge.warn{color:var(--warning)}
+.badge.danger{color:var(--danger)}
+.status-dot{
+ width:8px;height:8px;border-radius:50%;
+ background:rgba(255,255,255,0.2);
+ transition:all 0.3s;flex-shrink:0;
+}
+.switch{
+ position:relative;width:54px;height:30px;flex-shrink:0;
+ pointer-events:none;
+}
+.switch input{position:absolute;opacity:0;width:0;height:0}
+.slider{
+ position:absolute;inset:0;border-radius:999px;
+ background:rgba(214,168,79,0.10);
+ transition:all var(--transition);
+ box-shadow:inset 0 2px 4px rgba(0,0,0,0.2);
+}
+.knob{
+ position:absolute;left:3px;top:3px;
+ width:24px;height:24px;border-radius:50%;
+ background:linear-gradient(145deg,#fff,#e0e0e0);
+ transition:transform 0.25s cubic-bezier(0.2,0.8,0.2,1);
+ box-shadow:0 2px 8px rgba(0,0,0,0.3);
+}
+.switch input:checked + .slider{
+ background:var(--accent);
+ box-shadow:0 0 20px var(--accent-glow);
+}
+.switch input:checked + .slider .knob{transform:translateX(24px)}
+.switch input:disabled + .slider{
+ background:rgba(255,255,255,0.05);
+ opacity:0.5;
+}
+.row.spinning{pointer-events:none;opacity:0.6}
+.row.spinning .icon-wrap::after{
+ content:"";
+ position:absolute;
+ top:50%;left:50%;
+ width:18px;height:18px;
+ margin:-9px 0 0 -9px;
+ border:2px solid var(--accent);
+ border-top-color:transparent;
+ border-radius:50%;
+ animation:spin 0.7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.action-btn{
+ margin-top:20px;padding:16px;
+ background:rgba(214,168,79,0.1);
+ border:1px solid rgba(214,168,79,0.3);
+ border-radius:16px;
+ display:flex;align-items:center;justify-content:center;
+ gap:10px;cursor:pointer;
+ transition:all 0.25s;
+ position:relative;z-index:2;
+}
+.action-btn:hover{
+ background:rgba(214,168,79,0.2);
+ transform:translateY(-2px);
+ box-shadow:0 8px 24px rgba(214,168,79,0.2);
+}
+.action-btn:active{transform:scale(0.98)}
+.action-btn .material-icons{
+ font-size:20px;color:var(--accent);
+ animation:spin 4s linear infinite;
+ animation-play-state:paused;
+}
+.action-btn:hover .material-icons{animation-play-state:running}
+.reboot-btn{
+ width:100%;margin-top:20px;padding:13px 16px;border:1px solid rgba(214,168,79,.28);
+ border-radius:14px;background:rgba(214,168,79,.08);color:var(--accent);
+ font:700 12px inherit;display:flex;align-items:center;justify-content:center;gap:8px;
+ cursor:pointer;transition:.22s ease;position:relative;z-index:2;
+}
+.reboot-btn:hover{background:rgba(214,168,79,.14);border-color:rgba(214,168,79,.42)}
+.reboot-btn:active{transform:scale(.98)}
+.reboot-btn .material-icons{font-size:18px}
+.footer{
+ margin-top:20px;text-align:center;
+ color:var(--text2);font-size:12px;opacity:0.7;
+ position:relative;z-index:2;
+}
+.webui-popup{
+ position:fixed;
+ top:-70px;
+ left:50%;
+ transform:translateX(-50%);
+ padding:0.8rem 1.2rem;
+ border-radius:10px;
+ color:#fff;
+ font-weight:600;
+ font-size:13px;
+ z-index:99999;
+ box-shadow:0 6px 18px rgba(0,0,0,0.35);
+ transition:top 0.36s,opacity 0.36s;
+ opacity:0;
+ pointer-events:none;
+ white-space:nowrap;
+ backdrop-filter:blur(10px);
+ -webkit-backdrop-filter:blur(10px);
+ border:1px solid rgba(214,168,79,0.10);
+}
+.reboot-hint{
+ position:relative;z-index:2;
+ text-align:center;
+ font-size:11px;
+ color:var(--warning);
+ font-weight:600;
+ margin-top:12px;
+ opacity:0;
+ transform:translateY(-5px);
+ transition:all 0.3s ease;
+}
+.reboot-hint.show{
+ opacity:1;
+ transform:translateY(0);
+}
+.reboot-hint .material-icons{
+ font-size:12px;
+ vertical-align:middle;
+ margin-right:4px;
+}
+.info-btn{
+ position:relative;z-index:2;
+ width:100%;
+ padding:10px;
+ border-radius:12px;
+ background:rgba(214,168,79,0.08);
+ border:1px solid rgba(214,168,79,0.15);
+ color:var(--accent);
+ font-family:inherit;
+ font-size:12px;
+ font-weight:600;
+ cursor:pointer;
+ margin-bottom:14px;
+ transition:all 0.25s ease;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ gap:6px;
+}
+.info-btn:hover{
+ background:rgba(214,168,79,0.15);
+ transform:translateY(-1px);
+ box-shadow:0 4px 16px rgba(214,168,79,0.15);
+}
+.info-btn:active{transform:scale(0.98)}
+.info-btn .material-icons{font-size:16px}
+.safemode-notice{
+ position:relative;z-index:2;
+ background:rgba(255,170,77,0.1);
+ border:1px solid rgba(255,170,77,0.25);
+ border-radius:14px;
+ padding:14px 16px;
+ margin-bottom:14px;
+ font-size:12px;
+ color:var(--warning);
+ line-height:1.5;
+ display:none;
+ align-items:flex-start;
+ gap:10px;
+ animation:cardEntry 0.5s cubic-bezier(0.2,0.8,0.2,1);
+}
+.safemode-notice .material-icons{
+ font-size:20px;
+ color:var(--warning);
+ flex-shrink:0;
+ margin-top:1px;
+}
+.modal-overlay{
+ position:fixed;inset:0;
+ background:rgba(0,0,0,0.7);
+ backdrop-filter:blur(10px);
+ -webkit-backdrop-filter:blur(10px);
+ display:none;
+ align-items:flex-end;
+ justify-content:center;
+ z-index:1000;
+ opacity:0;
+ transition:opacity 0.3s ease;
+}
+.modal-overlay.show{display:flex;
+ display:flex;opacity:1;
+}
+.modal-sheet{
+ width:100%;max-width:420px;
+ background:var(--panel-bg);
+ backdrop-filter:blur(30px);
+ border-radius:24px 24px 0 0;
+ padding:0;
+ max-height:85vh;
+ height:auto;
+ display:flex;
+ flex-direction:column;
+ overflow:hidden;
+ transform:translateY(100%);
+ transition:transform 0.35s cubic-bezier(0.32,0.72,0,1);
+ box-shadow:0 -20px 60px rgba(0,0,0,0.5);
+ border:1px solid rgba(214,168,79,0.10);
+ border-bottom:none;
+}
+.modal-overlay.show .modal-sheet{
+ transform:translateY(0);
+}
+.modal-header{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ margin-bottom:20px;
+}
+.modal-title{
+ font-size:18px;font-weight:700;
+ color:var(--fg);
+ display:flex;align-items:center;gap:8px;
+}
+.modal-title .material-icons{
+ font-size:22px;color:var(--accent);
+}
+.modal-close{
+ width:32px;height:32px;
+ border-radius:50%;
+ background:rgba(214,168,79,0.10);
+ border:1px solid rgba(214,168,79,0.10);
+ color:var(--text2);
+ display:flex;align-items:center;justify-content:center;
+ cursor:pointer;
+ transition:all 0.2s;
+}
+.modal-close:hover{
+ background:rgba(214,168,79,0.10);
+ color:var(--fg);
+}
+.modal-close .material-icons{font-size:18px}
+.modal-body{
+ flex:1 1 auto;
+ min-height:0;
+ overflow-y:auto;
+ overflow-x:hidden;
+ -webkit-overflow-scrolling:touch;
+ overscroll-behavior:contain;
+ padding:0 20px 28px;
+ scrollbar-width:thin;
+ scrollbar-color:rgba(214,168,79,.45) transparent;
+}
+.modal-body::-webkit-scrollbar{width:4px}
+.modal-body::-webkit-scrollbar-thumb{background:rgba(214,168,79,.45);border-radius:8px}
+.modal-body::-webkit-scrollbar-track{background:transparent}
+.modal-header{padding:20px 20px 14px;flex:0 0 auto}
+
+.modal-divider{
+ height:1px;
+ background:linear-gradient(90deg,transparent,rgba(214,168,79,0.10),transparent);
+ margin:12px 0;
+}
+.info-item{
+ padding:12px 0;
+ border-bottom:1px solid rgba(214,168,79,0.07);
+}
+.info-item:last-child{border-bottom:none}
+.info-item-title{
+ font-size:14px;font-weight:600;
+ color:var(--fg);margin-bottom:4px;
+ display:flex;align-items:center;gap:8px;
+}
+.info-item-title .material-icons{
+ font-size:18px;color:var(--accent);
+}
+.info-item-desc{
+ font-size:12px;color:var(--text2);
+ line-height:1.4;
+ padding-left:26px;
+}
+.info-item-flag{
+ font-size:10px;color:var(--text2);
+ opacity:0.6;
+ margin-top:4px;
+ padding-left:26px;
+ font-family:"SF Mono",monospace;
+}
+.info-item-risk{
+ font-size:10px;
+ font-weight:600;
+ margin-top:4px;
+ padding-left:26px;
+}
+.info-section-title{
+ font-size:13px;
+ font-weight:700;
+ color:var(--accent);
+ text-transform:uppercase;
+ letter-spacing:0.08em;
+ margin:16px 0 8px 0;
+ padding-left:4px;
+}
+.info-section-title:first-child{
+ margin-top:0;
+}
+
+.row-group{
+ background:rgba(214,168,79,0.035);
+ border:1px solid rgba(214,168,79,0.10);
+ border-radius:16px;
+ overflow:hidden;
+ margin-bottom:24px;
+}
+.row-group .row{
+ margin-bottom:0;
+ border-radius:0;
+ background:transparent;
+ border:none;
+ border-bottom:1px solid rgba(214,168,79,0.07);
+ box-shadow:none;
+}
+.row-group .row:last-child{border-bottom:none}
+.row-group .row:hover{
+ background:rgba(214,168,79,0.07);
+ transform:none;
+ box-shadow:none;
+}
+.row-group .row:active{transform:scale(0.995)}
+.row-group .row.active{
+ background:rgba(214,168,79,0.08);
+ border-color:transparent;
+ box-shadow:none;
+}
+.row-group.action-group{border-left:3px solid rgba(255,170,77,0.35)}
+.row-group.general-group{border-left:3px solid rgba(77,255,136,0.25)}
+.row-group.kernel-group{border-left:3px solid rgba(255,77,77,0.35)}
+
+@media(max-width:420px){
+ .card{width:100%;padding:22px}
+ .row{padding:14px}
+ .icon-wrap{width:40px;height:40px}
+}
+
+.dashboard{
+  position:relative;
+  z-index:2;
+  margin-bottom:4px;
+}
+.dashboard-title{
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:1.2px;
+  color:var(--text2);
+  margin:4px 0 10px;
+  padding-left:4px;
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+.dashboard-title .material-icons{font-size:16px;color:var(--accent)}
+
+.check-card{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  padding:14px;
+  margin-bottom:10px;
+  border-radius:15px;
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(214,168,79,0.10);
+  transition:all .25s ease;
+}
+.check-card.installed{
+  border-color:rgba(34,160,107,0.22);
+  background:rgba(34,160,107,0.045);
+}
+.check-card.missing{
+  border-color:rgba(214,168,79,0.18);
+}
+.check-card.conflict{
+  border-color:rgba(217,130,43,0.30);
+  background:rgba(217,130,43,0.055);
+}
+.check-icon{
+  width:38px;
+  height:38px;
+  border-radius:11px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(214,168,79,0.08);
+  color:var(--accent);
+  flex-shrink:0;
+}
+.check-card.installed .check-icon{background:rgba(34,160,107,0.10);color:var(--success)}
+.check-card.conflict .check-icon{background:rgba(217,130,43,0.10);color:var(--warning)}
+.check-content{flex:1;min-width:0}
+.check-title{font-size:13px;font-weight:700;color:var(--fg)}
+.check-status{font-size:12px;font-weight:600;margin-top:3px}
+.check-card.installed .check-status{color:var(--success)}
+.check-card.missing .check-status{color:var(--accent)}
+.check-card.conflict .check-status{color:var(--warning)}
+.check-note{font-size:11px;color:var(--text2);line-height:1.4;margin-top:3px}
+.check-indicator{
+  width:9px;height:9px;border-radius:50%;
+  margin-top:5px;flex-shrink:0;
+  background:#d8cbd1;
+}
+.check-indicator.installed{background:var(--success);box-shadow:0 0 9px rgba(34,160,107,.35)}
+.check-indicator.missing{background:var(--accent);box-shadow:0 0 9px var(--accent-glow)}
+.check-indicator.conflict{background:var(--warning);box-shadow:0 0 9px rgba(217,130,43,.30)}
+
+.download-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-top:9px;
+}
+.download-btn{
+  border:1px solid rgba(214,168,79,.20);
+  background:rgba(214,168,79,.08);
+  color:var(--accent);
+  border-radius:9px;
+  padding:7px 9px;
+  font:600 10px inherit;
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  cursor:pointer;
+}
+.download-btn:hover{background:rgba(214,168,79,.14)}
+.download-btn:active{transform:scale(.97)}
+.download-btn .material-icons{font-size:14px}
+
+.action-section{margin:18px 0 18px}
+.action-section .section-label{margin-bottom:9px}
+.spoof-actions{display:grid;grid-template-columns:1fr;gap:10px}
+.spoof-action{
+  width:100%;min-height:78px;display:flex;flex-direction:column;align-items:stretch;gap:8px;padding:14px 15px;
+  border:1px solid rgba(214,168,79,.16);border-radius:17px;
+  background:#0c0c0c;color:var(--fg);cursor:pointer;text-align:left;transition:.22s ease;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025)
+}
+.spoof-action:active{transform:scale(.985)}
+.spoof-action:hover{border-color:rgba(214,168,79,.32);background:#11100e}
+.spoof-action.active{background:linear-gradient(180deg,rgba(214,168,79,.18),rgba(214,168,79,.08));border-color:rgba(214,168,79,.58);box-shadow:0 0 0 1px rgba(214,168,79,.06),0 8px 24px rgba(214,168,79,.08);color:var(--fg)}
+.spoof-action.active .action-icon{background:rgba(214,168,79,.18);color:var(--accent);box-shadow:0 0 16px rgba(214,168,79,.08)}
+.spoof-action.active .action-desc{color:#c9c0b2}
+.spoof-action.active .action-state{color:var(--accent)}
+.spoof-action .action-top{width:100%;display:flex;align-items:center;gap:11px}
+.spoof-action .action-icon{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(214,168,79,.07);color:#b9b09f;flex-shrink:0}
+.spoof-action .action-icon .material-icons{font-size:20px}
+.spoof-action .action-content{flex:1;min-width:0}
+.spoof-action .action-title{font-size:13px;font-weight:750;line-height:1.25}
+.spoof-action .action-desc{font-size:10.5px;color:var(--text2);line-height:1.45;margin-top:7px;padding-left:0}
+.spoof-action .action-state{font-size:9px;font-weight:800;color:#827965;white-space:nowrap;text-transform:uppercase;letter-spacing:.07em;padding:5px 9px;border:1px solid rgba(214,168,79,.14);border-radius:999px;background:rgba(214,168,79,.045)}
+.spoof-action.active .action-state{background:rgba(214,168,79,.10);border-color:rgba(214,168,79,.28)}
+
+.category-label{
+  margin:20px 3px 9px;color:var(--accent);font-size:10px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.11em;display:flex;align-items:center;gap:8px
+}
+.category-label::before{content:"";width:16px;height:1px;background:var(--accent);opacity:.55}
+.category-note{margin:-4px 3px 9px;color:var(--warning);font-size:10px;line-height:1.45;font-weight:600}
+.row{
+  display:block;padding:14px 15px 13px;
+}
+.row-main{display:flex;align-items:center;gap:12px;min-width:0}
+.row-main .content{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.row-description{
+  margin:10px 0 0;color:var(--text2);font-size:11px;line-height:1.55;font-weight:500;
+  max-width:100%;
+}
+.download-actions{justify-content:center}
+.download-btn{justify-content:center;text-align:center;min-width:150px}
+
+@media(max-width:420px){
+  .download-btn{font-size:10px;min-width:140px}
+  .row-description{margin-left:0;max-width:none;padding-left:0}
+}
+
+
+.consent-card{
+  position:relative;z-index:2;display:none;margin:14px 0;padding:17px;border-radius:18px;
+  background:rgba(255,65,65,.09);border:1px solid rgba(255,77,77,.42);
+  box-shadow:0 8px 28px rgba(255,40,40,.07);animation:warningEntry .35s cubic-bezier(.2,.8,.2,1)
+}
+.consent-card.show{display:block}
+.consent-top{display:flex;gap:12px;align-items:flex-start}
+.consent-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(255,77,77,.14)}
+.consent-icon .material-icons{font-size:23px;color:#ff6262}
+.consent-content{min-width:0}
+.consent-title{font-size:14px;font-weight:700;color:#ff6969;margin-bottom:5px}
+.consent-text{font-size:11.5px;line-height:1.55;color:var(--text2);font-weight:500}
+.consent-text strong{color:var(--fg);font-weight:700}
+.consent-actions{display:flex;gap:9px;margin-top:14px}
+.consent-btn{flex:1;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);font:700 12px inherit;cursor:pointer;transition:.2s}
+.consent-deny{background:rgba(255,255,255,.05);color:var(--fg)}
+.consent-deny:hover{background:rgba(255,255,255,.09)}
+.consent-agree{background:#ff4d4d;color:#fff;border-color:#ff4d4d;box-shadow:0 5px 18px rgba(255,77,77,.2)}
+.consent-agree:hover{background:#ff5c5c;transform:translateY(-1px)}
+.consent-btn:active{transform:scale(.97)}
+@keyframes warningEntry{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+
+.brand-head{position:relative;z-index:2;text-align:center;margin:2px 0 20px}
+.brand-title{display:flex;align-items:center;justify-content:center;gap:9px;font-size:22px;font-weight:800;letter-spacing:-.025em;color:var(--fg)}
+.brand-title .material-icons{font-size:25px;color:var(--accent)}
+.brand-subtitle{margin-top:4px;color:var(--text2);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.fresh-card{position:relative;z-index:2;display:flex;align-items:flex-start;gap:12px;margin:0 0 16px;padding:14px 14px 17px 15px;border:1px solid rgba(214,168,79,.16);border-radius:17px;background:linear-gradient(135deg,rgba(214,168,79,.10),rgba(255,255,255,.025));box-shadow:0 8px 25px rgba(0,0,0,.18);overflow:hidden}
+.fresh-card::before{content:"";position:absolute;inset:0;border-radius:inherit;border:1px solid rgba(214,168,79,.06);pointer-events:none}
+.fresh-wave{position:absolute;left:0;bottom:0;width:100%;height:11px;pointer-events:none;overflow:hidden}.fresh-wave path{fill:none;stroke:var(--accent);stroke-width:2.35;stroke-linecap:round;stroke-linejoin:round;opacity:.72;filter:drop-shadow(0 0 2px rgba(214,168,79,.12))}.fresh-wave animate{animation:freshWaveOpacity 1.8s ease-in-out infinite}@keyframes freshWaveOpacity{0%,100%{opacity:.72}50%{opacity:.9}}@media (prefers-reduced-motion:reduce){.fresh-wave animate{animation:none}}
+.fresh-icon{width:40px;height:40px;flex:0 0 40px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(214,168,79,.14);color:var(--accent)}
+.fresh-icon .material-icons{font-size:21px}
+.fresh-content{flex:1;min-width:0}.fresh-title{font-size:13px;font-weight:800;color:var(--fg);line-height:1.3}.fresh-text{margin-top:4px;color:var(--text2);font-size:10.5px;line-height:1.45}
+.fresh-close{width:30px;height:30px;flex:0 0 30px;border:0;border-radius:9px;background:rgba(255,255,255,.045);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer}.fresh-close .material-icons{font-size:17px}.fresh-close:active{transform:scale(.94)}
+.dashboard{padding:14px;border:1px solid rgba(214,168,79,.12);border-radius:20px;background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.012));box-shadow:inset 0 1px 0 rgba(255,255,255,.025);margin-bottom:18px}
+.dashboard-title{margin:0 0 13px;padding:0;color:var(--fg);font-size:12px;letter-spacing:.09em}.dashboard-title .material-icons{font-size:17px}
+.check-card{margin-bottom:8px;padding:12px;background:rgba(0,0,0,.22);border-color:rgba(255,255,255,.055)}
+.check-card:last-child{margin-bottom:0}.check-title{font-size:12px}.check-status{font-size:11px;font-weight:700}.check-note{font-size:10px}
+.pre-caption{margin:-8px 2px 12px;color:var(--text2);font-size:10.5px;line-height:1.45}
+.rom-note{margin:-4px 2px 12px;color:var(--warning);font-size:10px;line-height:1.45}
+
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="brand-head"><div class="brand-title"><span class="material-icons">shield</span>Integrity Box</div><div class="brand-subtitle">Boot Configuration</div></div>
+
+  <div class="fresh-card" id="freshInstallCard">
+    <svg class="fresh-wave" viewBox="0 0 480 12" preserveAspectRatio="none" aria-hidden="true"><path d="M 0.00 6.00 L 15.00 8.97 L 30.00 10.20 L 45.00 8.97 L 60.00 6.00 L 75.00 3.03 L 90.00 1.80 L 105.00 3.03 L 120.00 6.00 L 135.00 8.97 L 150.00 10.20 L 165.00 8.97 L 180.00 6.00 L 195.00 3.03 L 210.00 1.80 L 225.00 3.03 L 240.00 6.00 L 255.00 8.97 L 270.00 10.20 L 285.00 8.97 L 300.00 6.00 L 315.00 3.03 L 330.00 1.80 L 345.00 3.03 L 360.00 6.00 L 375.00 8.97 L 390.00 10.20 L 405.00 8.97 L 420.00 6.00 L 435.00 3.03 L 450.00 1.80 L 465.00 3.03 L 480.00 6.00"><animate attributeName="d" dur="1.8s" repeatCount="indefinite" calcMode="linear" values="M 0.00 6.00 L 15.00 8.97 L 30.00 10.20 L 45.00 8.97 L 60.00 6.00 L 75.00 3.03 L 90.00 1.80 L 105.00 3.03 L 120.00 6.00 L 135.00 8.97 L 150.00 10.20 L 165.00 8.97 L 180.00 6.00 L 195.00 3.03 L 210.00 1.80 L 225.00 3.03 L 240.00 6.00 L 255.00 8.97 L 270.00 10.20 L 285.00 8.97 L 300.00 6.00 L 315.00 3.03 L 330.00 1.80 L 345.00 3.03 L 360.00 6.00 L 375.00 8.97 L 390.00 10.20 L 405.00 8.97 L 420.00 6.00 L 435.00 3.03 L 450.00 1.80 L 465.00 3.03 L 480.00 6.00;M 0.00 10.20 L 15.00 8.97 L 30.00 6.00 L 45.00 3.03 L 60.00 1.80 L 75.00 3.03 L 90.00 6.00 L 105.00 8.97 L 120.00 10.20 L 135.00 8.97 L 150.00 6.00 L 165.00 3.03 L 180.00 1.80 L 195.00 3.03 L 210.00 6.00 L 225.00 8.97 L 240.00 10.20 L 255.00 8.97 L 270.00 6.00 L 285.00 3.03 L 300.00 1.80 L 315.00 3.03 L 330.00 6.00 L 345.00 8.97 L 360.00 10.20 L 375.00 8.97 L 390.00 6.00 L 405.00 3.03 L 420.00 1.80 L 435.00 3.03 L 450.00 6.00 L 465.00 8.97 L 480.00 10.20;M 0.00 6.00 L 15.00 3.03 L 30.00 1.80 L 45.00 3.03 L 60.00 6.00 L 75.00 8.97 L 90.00 10.20 L 105.00 8.97 L 120.00 6.00 L 135.00 3.03 L 150.00 1.80 L 165.00 3.03 L 180.00 6.00 L 195.00 8.97 L 210.00 10.20 L 225.00 8.97 L 240.00 6.00 L 255.00 3.03 L 270.00 1.80 L 285.00 3.03 L 300.00 6.00 L 315.00 8.97 L 330.00 10.20 L 345.00 8.97 L 360.00 6.00 L 375.00 3.03 L 390.00 1.80 L 405.00 3.03 L 420.00 6.00 L 435.00 8.97 L 450.00 10.20 L 465.00 8.97 L 480.00 6.00;M 0.00 1.80 L 15.00 3.03 L 30.00 6.00 L 45.00 8.97 L 60.00 10.20 L 75.00 8.97 L 90.00 6.00 L 105.00 3.03 L 120.00 1.80 L 135.00 3.03 L 150.00 6.00 L 165.00 8.97 L 180.00 10.20 L 195.00 8.97 L 210.00 6.00 L 225.00 3.03 L 240.00 1.80 L 255.00 3.03 L 270.00 6.00 L 285.00 8.97 L 300.00 10.20 L 315.00 8.97 L 330.00 6.00 L 345.00 3.03 L 360.00 1.80 L 375.00 3.03 L 390.00 6.00 L 405.00 8.97 L 420.00 10.20 L 435.00 8.97 L 450.00 6.00 L 465.00 3.03 L 480.00 1.80;M 0.00 6.00 L 15.00 8.97 L 30.00 10.20 L 45.00 8.97 L 60.00 6.00 L 75.00 3.03 L 90.00 1.80 L 105.00 3.03 L 120.00 6.00 L 135.00 8.97 L 150.00 10.20 L 165.00 8.97 L 180.00 6.00 L 195.00 3.03 L 210.00 1.80 L 225.00 3.03 L 240.00 6.00 L 255.00 8.97 L 270.00 10.20 L 285.00 8.97 L 300.00 6.00 L 315.00 3.03 L 330.00 1.80 L 345.00 3.03 L 360.00 6.00 L 375.00 8.97 L 390.00 10.20 L 405.00 8.97 L 420.00 6.00 L 435.00 3.03 L 450.00 1.80 L 465.00 3.03 L 480.00 6.00" /></path></svg>
+    <div class="fresh-icon"><span class="material-icons">new_releases</span></div>
+    <div class="fresh-content">
+      <div class="fresh-title">Fresh installation detected</div>
+      <div class="fresh-text">Thanks for using Integrity Box</div>
+    </div>
+    <button class="fresh-close" type="button" onclick="dismissFreshCard()" aria-label="Dismiss"><span class="material-icons">close</span></button>
+  </div>
+
+  <div class="dashboard" id="dashboard">
+    <div class="dashboard-title">
+      <span class="material-icons">dashboard</span>
+      Pre Requirements
+    </div>
+    <div class="pre-caption">Make sure these modules are already installed</div>
+
+    <div class="check-card" id="trickyCheck">
+      <div class="check-icon"><span class="material-icons">vpn_key</span></div>
+      <div class="check-content">
+        <div class="check-title">Tricky Store OSS / TeeSim</div>
+        <div class="check-status" id="trickyStatus">Checking...</div>
+        <div class="check-note" id="trickyNote"></div>
+      </div>
+      <div class="check-indicator" id="trickyIndicator"></div>
+    </div>
+
+    <div class="check-card" id="zygiskCheck">
+      <div class="check-icon"><span class="material-icons">memory</span></div>
+      <div class="check-content">
+        <div class="check-title">Zygisk</div>
+        <div class="check-status" id="zygiskStatus">Checking...</div>
+        <div class="check-note" id="zygiskNote"></div>
+      </div>
+      <div class="check-indicator" id="zygiskIndicator"></div>
+    </div>
+
+    <div class="check-card" id="hmaCheck">
+      <div class="check-icon"><span class="material-icons">shield</span></div>
+      <div class="check-content">
+        <div class="check-title">HMA OSS Zygisk</div>
+        <div class="check-status" id="hmaStatus">Checking...</div>
+        <div class="check-note" id="hmaNote"></div>
+      </div>
+      <div class="check-indicator" id="hmaIndicator"></div>
+    </div>
+  </div>
+
+  <div class="action-section">
+    <div class="section-label">Spoofing Controls</div>
+    <div id="spoof-actions" class="spoof-actions"></div>
+  </div>
+
+  <div class="divider"></div>
+  <div id="consentCard" class="consent-card">
+    <div class="consent-top">
+      <div class="consent-icon"><span class="material-icons">warning</span></div>
+      <div class="consent-content">
+        <div class="consent-title">Root Conflict Warning</div>
+        <div class="consent-text">
+          Your ROM may ship with built-in system modifications that can conflict with custom boot configuration.
+          If you are enabling <strong><span id="consentFlagName">this boot option</span></strong>, other system modifications
+          may still be detected by modules and cause conflicts.
+          <br><br>
+          Only continue if this is the configuration you actually want modules to apply at boot.
+        </div>
+      </div>
+    </div>
+    <div class="consent-actions">
+      <button class="consent-btn consent-deny" onclick="denySelection()">Deny</button>
+      <button class="consent-btn consent-agree" onclick="agreeSelection()">Agree &amp; Continue</button>
+    </div>
+  </div>
+
+
+
+
+  <div class="section-label">Core Settings</div>
+  <div id="core-rows" class="row-group"></div>
+
+  <div class="section-label">Settings that hides detection</div>
+  <div id="flag-rows" class="row-group"></div>
+
+  <div class="reboot-hint" id="rebootHint">
+    <span class="material-icons">restart_alt</span>
+    Reboot required to apply changes
+  </div>
+
+
+  <button class="reboot-btn" type="button" onclick="rebootDevice()">
+    <span class="material-icons">restart_alt</span>
+    Reboot Device
+  </button>
+
+  <div class="footer">IntegrityBox &bull; 2026</div>
+</div>
+
+
+<script>
+var DIR="/data/adb/Box-Brain";
+
+var REBOOT_FLAGS=[{"id":"spoof-los-boot","icon":"android","title":"Hide Lineage","desc":"Hides LineageOS-specific properties during boot so apps are less likely to identify a LineageOS-based ROM.","risk":"low","category":"ROM Hiding"},{"id":"nuke-los-boot","icon":"delete_forever","title":"Nuke Lineage","desc":"Aggressively removes LineageOS traces such as properties, services and build fingerprints during boot.","category":"ROM Hiding"},{"id":"spoof-custom-rom-boot","icon":"phone_android","title":"Hide Custom ROM","desc":"Applies generic ROM hiding by spoofing build properties so the system appears closer to a stock Android build.","risk":"low","category":"ROM Hiding"},{"id":"NoLineageProp","icon":"check_circle","title":"Spoof Lineage Props","desc":"Spoofs LineageOS build properties. Disable it if it causes camera or other hardware compatibility problems.","category":"ROM Hiding"},{"id":"nodebug","icon":"fingerprint","title":"Debug Fingerprint","desc":"Hides debug/custom-ROM fingerprint traces that can expose a userdebug-style build.","category":"Build Identity"},{"id":"build","icon":"build","title":"Debug Build","desc":"Changes the reported build type from userdebug to user so the system appears like a production build.","category":"Build Identity"},{"id":"tag","icon":"sell","title":"Build Tag","desc":"Changes reported build tags to release-keys instead of test-keys.","category":"Build Identity"},{"id":"encrypt","icon":"lock","title":"Spoof Encryption","desc":"Makes the reported encryption state appear encrypted to software checking the device configuration.","category":"Build Identity"},{"id":"spoof-selinux-boot","icon":"security","title":"Spoof SELinux","desc":"Reports SELinux as enforcing. This can cause boot problems on some devices, so enable it only when you understand the risk.","risk":"high","category":"System"},{"id":"nuke-sus-boot","icon":"cleaning_services","title":"Hide SUS Files","desc":"Cleans suspicious files and directories that may reveal root access or module presence during boot.","category":"Root Hiding"},{"id":"twrp","icon":"settings_backup_restore","title":"Hide Recovery","desc":"Hides the presence of a custom recovery by spoofing the recovery path.","category":"Root Hiding"},{"id":"skip","icon":"warning","title":"Skip Patch Spoofing","desc":"Blocks system and vendor security patch spoofing. Keeping this enabled helps prevent compatibility issues on certain STOCK ROMs","risk":"medium","category":"System"}];
+
+var MESSAGES={
+  "spoof-los-boot":{on:"Lineage hiding enabled",off:"Lineage hiding disabled"},
+  "nuke-los-boot":{on:"Lineage traces will be removed",off:"Lineage cleanup disabled"},
+  "spoof-custom-rom-boot":{on:"Custom ROM hiding enabled",off:"Custom ROM hiding disabled"},
+  "NoLineageProp":{on:"Lineage props spoofed",off:"Lineage props unchanged"},
+  nodebug:{on:"Debug fingerprint spoofed",off:"Debug fingerprint disabled"},
+  build:{on:"Debug build spoofed",off:"Debug build disabled"},
+  tag:{on:"Build tag spoofed",off:"Build tag disabled"},
+  encrypt:{on:"Encryption spoofed",off:"Encryption disabled"},
+  "spoof-selinux-boot":{on:"Please reboot your device",off:"Please reboot your device"},
+  hidehook:{on:"Please reboot your device",off:"Please reboot your device"},
+  "nuke-sus-boot":{on:"SUS files will be cleaned",off:"SUS file cleanup disabled"},
+  twrp:{on:"Custom recovery spoofed",off:"Custom recovery disabled"},
+  skip:{on:"Reboot your device to apply changes",off:"Reboot your device to apply changes"},
+  disablegms:{on:"GMS spoofing disabled",off:"GMS spoofing enabled"},
+  disablevending:{on:"Play Store spoofing disabled",off:"Play Store spoofing enabled"}
+};
+
+var SAFEMODE_IDS=[
+  "spoof-los-boot","nuke-los-boot","spoof-custom-rom-boot","spoof-selinux-boot",
+  "NoLineageProp","nodebug","build","tag","encrypt","hidehook"
+];
+
+var DOWNLOADS={
+  tricky:"https://github.com/beakthoven/TrickyStoreOSS/releases/download/v3.1.0/Tricky-Store-OSS-v3.1.0-172-41383f5-Release.zip",
+  meowzygisk:"https://github.com/MeowDump/MeowZygisk/releases/download/v3/v3-MeowZygisk-22-09-2026.zip",
+  zygisknext:"https://github.com/LSPosed/ZygiskNext/releases/download/1.5.0/Zygisk-Next-1.5.0-843-5217106-release.zip",
+  hma:"https://github.com/frknkrc44/HMA-OSS/releases/download/oss-173/HMA-OSS-ZYGISK-oss-173-release.zip"
+};
+
+var safeModeActive=false;
+var bootFlagChanged=false;
+
+function popup(msg,type){
+  type=type||"info";
+  try{
+    if(typeof window.toast==="function"){window.toast(String(msg));return}
+    if(window.kernelsu&&typeof window.kernelsu.toast==="function"){window.kernelsu.toast(String(msg));return}
+    if(typeof ksu==="object"&&typeof ksu.toast==="function"){ksu.toast(String(msg));return}
+  }catch(e){}
+
+  var n=document.createElement("div");
+  n.className="webui-popup";
+  n.textContent=msg;
+  var colors={error:"#e5484d",success:"#22a06b",info:"#d6a84f",warn:"#d9822b"};
+  var bg=colors[type]||"#d6a84f";
+  Object.assign(n.style,{
+    position:"fixed",top:"-70px",left:"50%",transform:"translateX(-50%)",
+    background:bg,color:"#fff",padding:"0.8rem 1.2rem",borderRadius:"10px",
+    boxShadow:"0 6px 18px rgba(91,45,67,0.2)",fontWeight:"600",zIndex:"99999",
+    transition:"top 0.36s,opacity 0.36s",opacity:"0",
+    backdropFilter:"blur(10px)",WebkitBackdropFilter:"blur(10px)",
+    border:"1px solid rgba(255,255,255,0.25)"
+  });
+  document.body.appendChild(n);
+  requestAnimationFrame(function(){n.style.top="20px";n.style.opacity="1"});
+  setTimeout(function(){
+    n.style.top="-70px";n.style.opacity="0";
+    setTimeout(function(){n.remove()},420)
+  },2500);
+}
+
+async function runShell(cmd){
+  return new Promise(function(resolve,reject){
+    var api=null;
+
+    try{
+      if(typeof ksu!="undefined" && ksu && typeof ksu.exec==="function"){
+        api=ksu;
+      }
+    }catch(e){}
+
+    if(!api){
+      try{
+        if(window.kernelsu && typeof window.kernelsu.exec==="function"){
+          api=window.kernelsu;
+        }
+      }catch(e){}
+    }
+
+    if(!api){
+      try{
+        if(window.parent && window.parent!==window && typeof window.parent.runShellFromIframe==="function"){
+          Promise.resolve(window.parent.runShellFromIframe(cmd)).then(function(r){
+            resolve(r==null?"":String(r));
+          }).catch(reject);
+          return;
+        }
+      }catch(e){}
+    }
+
+    if(!api){
+      reject(new Error("KSU shell interface unavailable"));
+      return;
+    }
+
+    var cbName="ibShell_"+Date.now()+"_"+Math.random().toString(36).slice(2);
+    var finished=false;
+
+    var timer=setTimeout(function(){
+      if(finished)return;
+      finished=true;
+      try{delete window[cbName]}catch(e){}
+      reject(new Error("Shell command timed out"));
+    },12000);
+
+    window[cbName]=function(code,out,err){
+      if(finished)return;
+      finished=true;
+      clearTimeout(timer);
+      try{delete window[cbName]}catch(e){}
+
+      var stdout=out==null?"":String(out);
+      var stderr=err==null?"":String(err);
+
+      if(Number(code)===0 || code===undefined || code===null){
+        resolve(stdout);
+      }else{
+        reject(new Error(stderr||stdout||("Shell command failed ("+code+")")));
+      }
+    };
+
+    try{
+      var returned=api.exec(cmd,"{}",cbName);
+
+      if(returned && typeof returned.then==="function"){
+        returned.then(function(result){
+          if(finished)return;
+          finished=true;
+          clearTimeout(timer);
+          try{delete window[cbName]}catch(e){}
+          if(result && typeof result==="object" && "stdout" in result){
+            resolve(String(result.stdout||""));
+          }else{
+            resolve(result==null?"":String(result));
+          }
+        }).catch(function(error){
+          if(finished)return;
+          finished=true;
+          clearTimeout(timer);
+          try{delete window[cbName]}catch(e){}
+          reject(error instanceof Error?error:new Error(String(error)));
+        });
+      }
+    }catch(error){
+      if(finished)return;
+      finished=true;
+      clearTimeout(timer);
+      try{delete window[cbName]}catch(e){}
+      reject(error instanceof Error?error:new Error(String(error)));
+    }
+  });
+}
+
+function shellQuote(value){
+  return "'"+String(value).replace(/'/g,"'\\''")+"'";
+}
+
+function fallbackExternal(url){
+  try{
+    var a=document.createElement("a");
+    a.href=url;
+    a.target="_blank";
+    a.rel="noopener";
+    a.style.display="none";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){a.remove()},1000);
+    return;
+  }catch(e){}
+  try{location.href=url}catch(e){}
+}
+
+function openExternal(url){
+  var u=String(url);
+  var cmd='am start -a android.intent.action.VIEW -d '+shellQuote(u);
+  runShell(cmd).then(function(result){
+    if(!String(result||"").trim())fallbackExternal(u);
+  }).catch(function(){fallbackExternal(u)});
+}
+
+function downloadButton(label,url){
+  var id="download-"+Math.random().toString(36).slice(2);
+  return '<button class="download-btn" type="button" id="'+id+'">'+label+'</button>';
+}
+
+document.addEventListener("click",function(event){
+  var btn=event.target.closest&&event.target.closest(".download-btn");
+  if(!btn)return;
+  var label=btn.textContent.trim();
+  var urls={
+    "Download Tricky Store OSS":DOWNLOADS.tricky,
+    "MeowZygisk":DOWNLOADS.meowzygisk,
+    "ZygiskNext":DOWNLOADS.zygisknext,
+    "Download HMA OSS":DOWNLOADS.hma
+  };
+  if(urls[label])openExternal(urls[label]);
+});
+
+function setCheckState(key,state,title,note,action){
+  var status=document.getElementById(key+"Status");
+  var noteEl=document.getElementById(key+"Note");
+  var indicator=document.getElementById(key+"Indicator");
+  var card=document.getElementById(key+"Check");
+  if(!status||!noteEl||!indicator||!card)return;
+
+  status.textContent=title||"Unknown";
+  noteEl.innerHTML=(note||"")+(action||"");
+  indicator.className="check-indicator "+(state||"");
+  card.className="check-card "+(state||"");
+}
+
+var pendingConsentId=null;
+
+function showConsent(id){
+  pendingConsentId=id;
+  var cfg=REBOOT_FLAGS.find(function(x){return x.id===id});
+  var name=document.getElementById("consentFlagName");
+  var card=document.getElementById("consentCard");
+  if(name)name.textContent=cfg?cfg.title:"this boot option";
+  if(card)card.classList.add("show");
+}
+
+function denySelection(){
+  pendingConsentId=null;
+  var card=document.getElementById("consentCard");
+  if(card)card.classList.remove("show");
+}
+
+function agreeSelection(){
+  var id=pendingConsentId;
+  pendingConsentId=null;
+  var card=document.getElementById("consentCard");
+  if(card)card.classList.remove("show");
+  if(id)toggle(id);
+}
+
+function getBadgeClass(risk){
+  if(risk==="high")return"danger";
+  if(risk==="medium")return"warn";
+  return"";
+}
+
+function getBadgeIcon(risk){
+  if(risk==="high")return"warning";
+  if(risk==="medium")return"error_outline";
+  return"restart_alt";
+}
+
+function createFlagRow(cfg){
+  var div=document.createElement("div");
+  div.className="row";
+  div.id="row-"+cfg.id;
+  div.onclick=function(){toggle(cfg.id)};
+
+  var badgeClass=getBadgeClass(cfg.risk);
+  var badgeIcon=getBadgeIcon(cfg.risk);
+  var badgeText=cfg.risk==="high"?"Bootloop risk":cfg.risk==="medium"?"Enable this only if you encountered bootloop":"";
+
+  div.innerHTML=
+    '<div class="row-main">'+
+      '<div class="icon-wrap"><span class="material-icons">'+cfg.icon+'</span></div>'+
+      '<div class="content">'+
+        '<div class="title">'+cfg.title+'</div>'+
+        '<div class="status-dot"></div>'+
+        '<label class="switch" onclick="event.stopPropagation()">'+
+          '<input type="checkbox" id="cb-'+cfg.id+'">'+
+          '<span class="slider"><span class="knob"></span></span>'+
+        '</label>'+
+      '</div>'+
+    '</div>'+
+    '<div class="row-description">'+cfg.desc+'</div>'+
+    (badgeText?'<div class="badge '+badgeClass+'" id="badge-cb-'+cfg.id+'"><span class="material-icons">'+badgeIcon+'</span>'+badgeText+'</div>':'');
+
+  return div;
+}
+
+async function toggle(id){
+  var cfg=REBOOT_FLAGS.find(function(x){return x.id===id});
+  var input=document.getElementById("cb-"+id);
+  if(cfg&&cfg.requiresConsent&&input&&!input.checked){
+    showConsent(id);
+    return;
+  }
+  if(safeModeActive && SAFEMODE_IDS.indexOf(id)!==-1){
+    popup("Safe mode is active. Disable safe mode in advanced settings to use this feature.","warn");
+    return;
+  }
+
+  var row=document.getElementById("row-"+id);
+  var input=document.getElementById("cb-"+id);
+  if(!input||row.classList.contains("spinning"))return;
+
+  var newVal=!input.checked;
+  input.checked=newVal;
+  row.classList.toggle("active",newVal);
+  row.classList.add("spinning");
+
+  try{
+    if(newVal){
+      await runShell('touch "'+DIR+"/"+id+'"');
+    }else{
+      await runShell('rm -f "'+DIR+"/"+id+'"');
+    }
+    showRebootHint();
+  }catch(e){
+    popup("Error: "+e.message,"error");
+    input.checked=!newVal;
+    row.classList.toggle("active",!newVal);
+  }finally{
+    row.classList.remove("spinning");
+  }
+}
+
+function showRebootHint(){
+  bootFlagChanged=true;
+  document.getElementById("rebootHint").classList.add("show");
+}
+
+function buildCheckCmd(arr,type){
+  if(!arr.length)return'echo ""';
+  var ids=arr.map(function(b){return b.id}).join(" ");
+  return'for f in '+ids+';do if [ -f "'+DIR+'/$f" ];then echo "'+type+':$f:1";else echo "'+type+':$f:0";fi;done';
+}
+
+async function checkSafeMode(){
+  var result=await runShell('test -f '+shellQuote(DIR+'/safemode')+' && echo EXISTS || echo MISSING');
+  safeModeActive=String(result).trim()==='EXISTS';
+  if(!safeModeActive)return;
+  for(var i=0;i<SAFEMODE_IDS.length;i++){
+    var id=SAFEMODE_IDS[i];
+    if(REBOOT_FLAGS.some(function(x){return x.id===id})){
+      var exists=String(await runShell('test -f '+shellQuote(DIR+'/'+id)+' && echo 1 || echo 0')).trim()==='1';
+      if(exists){
+        await runShell('rm -f '+shellQuote(DIR+'/'+id));
+      }
+    }
+  }
+}
+
+async function checkDashboard(){
+  var cmd =
+    'if [ -f "/data/adb/modules/tricky_store/module.prop" ];then echo "tricky:1";else echo "tricky:0";fi;'+
+    'if [ -f "/data/adb/modules/teesim/module.prop" ];then echo "teesim:1";else echo "teesim:0";fi;'+
+    'if [ -f "/data/adb/modules/rezygisk/module.prop" ];then echo "rezygisk:1";else echo "rezygisk:0";fi;'+
+    'if [ -f "/data/adb/modules/zygisksu/module.prop" ];then echo "zygisksu:1";else echo "zygisksu:0";fi;'+
+    'if [ -f "/data/adb/modules/hma_oss_zygisk/module.prop" ];then echo "hma:1";else echo "hma:0";fi';
+
+  var result=await runShell(cmd);
+  var states={tricky:false,teesim:false,rezygisk:false,zygisksu:false,hma:false};
+
+  String(result).trim().split("\n").forEach(function(line){
+    var p=line.trim().split(":");
+    if(p.length===2&&states.hasOwnProperty(p[0]))states[p[0]]=p[1]==="1";
+  });
+
+  if(states.tricky&&states.teesim){
+    setCheckState(
+      "tricky","installed","Tricky Store OSS and TeeSim are installed",
+      "Either one satisfies this requirement."
+    );
+  }else if(states.tricky){
+    setCheckState("tricky","installed","Tricky Store OSS is installed","Ready");
+  }else if(states.teesim){
+    setCheckState("tricky","installed","TeeSim is installed","Ready");
+  }else{
+    setCheckState(
+      "tricky","missing","Neither Tricky Store OSS nor TeeSim is installed",
+      "Install either one. Tricky Store OSS is recommended.",
+      downloadButton("Download Tricky Store OSS",DOWNLOADS.tricky)
+    );
+  }
+
+  var zygiskCount=(states.rezygisk?1:0)+(states.zygisksu?1:0);
+  if(zygiskCount>1){
+    setCheckState(
+      "zygisk","conflict","Conflict detected",
+      "Both Zygisk implementations are installed. Only one is required; keep one and remove the other.",
+      ""
+    );
+  }else if(states.rezygisk){
+    setCheckState("zygisk","installed","Meow Zygisk is installed","Ready");
+  }else if(states.zygisksu){
+    setCheckState("zygisk","installed","ZygiskNext is installed","Ready");
+  }else{
+    setCheckState(
+      "zygisk","missing","Zygisk is not installed",
+      "Install either MeowZygisk or ZygiskNext.",
+      downloadButton("MeowZygisk",DOWNLOADS.meowzygisk)+
+      downloadButton("ZygiskNext",DOWNLOADS.zygisknext)
+    );
+  }
+
+  if(states.hma){
+    setCheckState("hma","installed","HMA OSS Zygisk is installed","Ready");
+  }else{
+    setCheckState(
+      "hma","missing","HMA OSS Zygisk is not installed",
+      "This module is optional. it's not a requirement but it's highly recommend",
+      downloadButton("Download HMA OSS",DOWNLOADS.hma)
+    );
+  }
+}
+
+async function rebootDevice(){
+  if(!confirm("Reboot the device now?"))return;
+  try{
+    await runShell("reboot");
+  }catch(e){
+    popup("Unable to reboot device","error");
+  }
+}
+
+async function refreshAll(){
+  var rebootCmd=buildCheckCmd(REBOOT_FLAGS,"reboot");
+  var result=await runShell(rebootCmd);
+
+  if(result){
+    result.trim().split("\n").forEach(function(line){
+      var parts=line.split(":");
+      if(parts.length!==3)return;
+      var type=parts[0].trim();
+      var id=parts[1].trim();
+      var val=parts[2].trim();
+
+      if(type==="reboot"){
+        var cb=document.getElementById("cb-"+id);
+        var row=document.getElementById("row-"+id);
+        if(cb&&row){
+          cb.checked=val==="1";
+          row.classList.toggle("active",val==="1");
+        }
+      }
+    });
+  }
+
+  for(var i=0;i<CORE_FLAGS.length;i++){
+    var cfg=CORE_FLAGS[i];
+    var active=String(await runShell('test -f '+shellQuote(cfg.path)+' && echo 1 || echo 0')).trim()==="1";
+    var cb=document.getElementById("cb-"+cfg.id);
+    var row=document.getElementById("row-"+cfg.id);
+    if(cb&&row){cb.checked=active;row.classList.toggle("active",active)}
+  }
+  await checkSafeMode();
+  await checkDashboard();
+  await refreshSpoofActions();
+  popup("States refreshed","info");
+}
+
+var CORE_FLAGS=[
+  {id:"zygisk",icon:"tune",title:"Zygiskless Mode",desc:"Disables Zygisk-based injection. Use this on stock Pixel or ROMs that already provide their own Play Integrity spoofing. It lets you use Integrity Box with Built-in ROM spoofing without any conflict",path:DIR+"/zygisk"},
+  {id:"force-reset",icon:"bolt",title:"Aggressive Mode",desc:"Forces every configured property to its intended value. Disable it to change only properties that already exist on the device.",path:DIR+"/force-reset"}
+];
+
+function createCoreRow(cfg){
+  var div=document.createElement("div");
+  div.className="row";
+  div.id="row-"+cfg.id;
+  div.onclick=function(){toggleCore(cfg)};
+  div.innerHTML=
+    '<div class="row-main">'+
+      '<div class="icon-wrap"><span class="material-icons">'+cfg.icon+'</span></div>'+
+      '<div class="content">'+
+        '<div class="title">'+cfg.title+'</div>'+
+        '<div class="status-dot"></div>'+
+        '<label class="switch" onclick="event.stopPropagation()"><input type="checkbox" id="cb-'+cfg.id+'"><span class="slider"><span class="knob"></span></span></label>'+
+      '</div>'+
+    '</div>'+
+    '<div class="row-description">'+cfg.desc+'</div>';
+  return div;
+}
+
+async function toggleCore(cfg){
+  var input=document.getElementById("cb-"+cfg.id);
+  if(!input)return;
+  var on=!input.checked;
+  input.checked=on;
+  document.getElementById("row-"+cfg.id).classList.toggle("active",on);
+  await runShell((on?'touch ':'rm -f ')+shellQuote(cfg.path));
+  showRebootHint();
+}
+
+function renderCategorizedFlags(){
+  var root=document.getElementById("flag-rows");
+  root.innerHTML="";
+  var groups={};
+  REBOOT_FLAGS.forEach(function(cfg){
+    if(!groups[cfg.category])groups[cfg.category]=[];
+    groups[cfg.category].push(cfg);
+  });
+  Object.keys(groups).forEach(function(category){
+    var label=document.createElement("div");
+    label.className="category-label";
+    label.textContent=category;
+    root.appendChild(label);
+    if(category==="ROM Hiding"){
+      var note=document.createElement("div");
+      note.className="category-note";
+      note.textContent="Note: ROM hiding options can break OTA updates.";
+      root.appendChild(note);
+    }
+    groups[category].forEach(function(cfg){root.appendChild(createFlagRow(cfg))});
+  });
+}
+
+function createSpoofActions(){
+  var root=document.getElementById("spoof-actions");
+  root.innerHTML="";
+  [
+    {id:"disablegms",icon:"apps_outage",title:"Built-in GMS Spoofing",desc:"Pause the ROM's built-in Google Play Services spoofing.",file:DIR+"/disablegms"},
+    {id:"disablevending",icon:"shopping_bag",title:"Built-in Vending Spoofing",desc:"Pause the ROM's built-in Google Play Store spoofing.",file:DIR+"/disablevending"}
+  ].forEach(function(cfg){
+    var b=document.createElement("button");
+    b.type="button";b.className="spoof-action";b.id="action-"+cfg.id;
+    b.innerHTML='<div class="action-top"><div class="action-icon"><span class="material-icons">'+cfg.icon+'</span></div><div class="action-content"><div class="action-title">'+cfg.title+'</div></div><div class="action-state">Enabled</div></div><div class="action-desc">'+cfg.desc+'</div>';
+    b.onclick=function(){toggleSpoofAction(cfg)};
+    root.appendChild(b);
+  });
+}
+
+async function toggleSpoofAction(cfg){
+  var b=document.getElementById("action-"+cfg.id);
+  var exists=String(await runShell('test -f '+shellQuote(cfg.file)+' && echo 1 || echo 0')).trim()==="1";
+  var next=!exists;
+  await runShell((next?'touch ':'rm -f ')+shellQuote(cfg.file));
+  b.classList.toggle("active",next);
+  b.querySelector(".action-state").textContent=next?"Disabled":"Enabled";
+  showRebootHint();
+}
+
+async function refreshSpoofActions(){
+  ["disablegms","disablevending"].forEach(async function(id){
+    var file=DIR+"/"+id;
+    var exists=String(await runShell('test -f '+shellQuote(file)+' && echo 1 || echo 0')).trim()==="1";
+    var b=document.getElementById("action-"+id);
+    if(b){
+      b.classList.toggle("active",exists);
+      b.querySelector(".action-state").textContent=exists?"Disabled":"Enabled";
+    }
+  });
+}
+
+
+function dismissFreshCard(){
+  var card=document.getElementById("freshInstallCard");
+  if(card){card.remove();try{sessionStorage.setItem("ibFreshDismissed","1")}catch(e){}}
+}
+async function checkFreshInstallation(){
+  var card=document.getElementById("freshInstallCard");
+  if(!card)return;
+  try{
+    var result=await runShell('test -f /data/adb/modules/integrity-box/service.sh && echo EXISTS || echo MISSING');
+    if(String(result).trim()==="EXISTS" || (function(){try{return sessionStorage.getItem("ibFreshDismissed")==="1"}catch(e){return false}})()) card.remove();
+  }catch(e){}
+}
+
+function init(){
+  var core=document.getElementById("core-rows");
+  CORE_FLAGS.forEach(function(cfg){core.appendChild(createCoreRow(cfg))});
+  createSpoofActions();
+  renderCategorizedFlags();
+  checkFreshInstallation();
+  refreshAll().catch(function(error){
+    ["tricky","zygisk","hma"].forEach(function(k){
+      setCheckState(k,"missing","Unable to check",error&&error.message?error.message:"Shell interface unavailable.");
+    });
+  });
+}
+
+document.addEventListener("DOMContentLoaded",init);
+</script>
+<script src="../TRANSLATIONS/meow.js"></script>
+<script>
+(function(){
+  var lang = localStorage.getItem('ibLang') || 'en';
+  if (lang !== 'en') {
+    var s = document.createElement('script');
+    s.src = '../TRANSLATIONS/' + lang + '.js';
+    s.onload = function(){ if(window.i18nBoot) window.i18nBoot(); };
+    document.head.appendChild(s);
+  }
+})();
+</script>
+</body>
+</html>

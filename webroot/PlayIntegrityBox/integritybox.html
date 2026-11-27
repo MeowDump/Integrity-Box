@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Play Integrity Box</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root{
+ --bg:#1f2233;
+ --fg:#e6e6e6;
+ --accent:#4da3ff;
+ --accent-glow:rgba(77,163,255,0.3);
+ --panel-bg:#232637cc;
+ --card-bg:#232637ee;
+ --border-radius:20px;
+ --shadow:rgba(0,0,0,0.4);
+ --transition:0.3s;
+ --success:#4dff88;
+ --danger:#ff4d4d;
+ --warning:#ffaa4d;
+ --text2:#9aa3ff;
+}
+*{box-sizing:border-box}
+body{
+ margin:0;min-height:100vh;
+ display:flex;align-items:center;justify-content:center;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui;
+ background:radial-gradient(circle at 30% 20%,#1c2045 0%,#0e1020 100%);
+ color:var(--fg);
+ -webkit-font-smoothing:antialiased;
+ padding:20px;
+}
+.card{
+ width:380px;max-width:100%;
+ background:var(--panel-bg);
+ backdrop-filter:blur(20px);
+ border-radius:var(--border-radius);
+ padding:28px;
+ box-shadow:0 25px 60px var(--shadow),0 0 0 1px rgba(255,255,255,0.06);
+ position:relative;overflow:hidden;
+ animation:cardEntry 0.6s cubic-bezier(0.2,0.8,0.2,1);
+}
+@keyframes cardEntry{
+ from{opacity:0;transform:translateY(30px) scale(0.96)}
+ to{opacity:1;transform:translateY(0) scale(1)}
+}
+.card::before{
+ content:"";
+ position:absolute;inset:0;
+ background:radial-gradient(circle at 50% 0%,var(--accent) 0%,transparent 70%);
+ filter:blur(40px);opacity:0.15;pointer-events:none;z-index:0;
+ animation:glowPulse 8s ease-in-out infinite;
+}
+@keyframes glowPulse{0%,100%{opacity:0.12}50%{opacity:0.25}}
+h1{
+ position:relative;z-index:2;
+ margin:0 0 8px 0;text-align:center;
+ font-size:20px;font-weight:700;
+ color:var(--fg);
+ display:flex;align-items:center;justify-content:center;gap:10px;
+}
+h1 .material-icons{
+ font-size:20px;
+ background:linear-gradient(135deg,var(--accent),#5AC8FA);
+ -webkit-background-clip:text;
+ -webkit-text-fill-color:transparent;
+}
+.header-actions{
+ position:absolute;
+ top:28px;
+ right:28px;
+ display:flex;
+ gap:8px;
+ z-index:3;
+}
+.icon-btn{
+ width:36px;
+ height:36px;
+ border-radius:12px;
+ background:rgba(255,255,255,0.05);
+ border:1px solid rgba(255,255,255,0.08);
+ color:var(--text2);
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ cursor:pointer;
+ transition:all .2s ease;
+}
+.icon-btn:hover{
+ background:rgba(77,163,255,0.12);
+ border-color:rgba(77,163,255,0.25);
+ color:var(--accent);
+}
+.icon-btn:active{transform:scale(0.92)}
+.icon-btn .material-icons{font-size:18px}
+.section-label{
+ position:relative;z-index:2;
+ font-size:11px;
+ font-weight:600;
+ text-transform:uppercase;
+ letter-spacing:1.2px;
+ color:var(--text2);
+ margin-bottom:10px;
+ margin-top:4px;
+ padding-left:4px;
+ display:flex;
+ align-items:center;
+ gap:8px;
+}
+.section-label::before{
+ content:"";
+ width:3px;
+ height:14px;
+ border-radius:2px;
+ background:var(--accent);
+ display:inline-block;
+}
+.section-label.behaviour::before{background:var(--warning)}
+.section-label.behaviour{color:var(--warning)}
+.section-label.behaviour:not(:first-child){margin-top:26px;}
+.row{
+ position:relative;z-index:2;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:14px;
+ padding:16px;
+ border-radius:16px;
+ background:rgba(255,255,255,0.03);
+ border:1px solid rgba(255,255,255,0.06);
+ margin-bottom:10px;
+ transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
+ cursor:pointer;
+}
+.row:hover{
+ background:rgba(255,255,255,0.06);
+ transform:translateY(-2px);
+ box-shadow:0 8px 24px rgba(0,0,0,0.3);
+ border-color:rgba(77,163,255,0.2);
+}
+.row:active{transform:scale(0.98)}
+.row.active{
+ background:rgba(77,163,255,0.1);
+ border-color:rgba(77,163,255,0.4);
+ box-shadow:0 0 20px rgba(77,163,255,0.15);
+}
+.row.active .icon-wrap{
+ background:rgba(77,163,255,0.12);
+ box-shadow:none;
+}
+.row.active .icon-wrap .material-icons{color:var(--accent)}
+.row.active .title{color:var(--accent)}
+.row.active .status-dot{
+ background:var(--success);
+ box-shadow:0 0 12px var(--success);
+}
+.icon-wrap{
+ width:44px;height:44px;border-radius:12px;
+ background:rgba(255,255,255,0.08);
+ display:flex;align-items:center;justify-content:center;
+ transition:all 0.3s;flex-shrink:0;
+}
+.icon-wrap .material-icons{
+ font-size:32px;color:var(--text2);
+ transition:all 0.3s;
+}
+.content{flex:1;min-width:0}
+.title{
+ font-size:15px;font-weight:600;
+ color:var(--fg);margin-bottom:3px;
+ transition:color 0.3s;
+}
+.subtitle-text{
+ font-size:12px;color:var(--text2);
+ font-weight:500;line-height:1.3;
+}
+.status-dot{
+ width:8px;height:8px;border-radius:50%;
+ background:rgba(255,255,255,0.2);
+ transition:all 0.3s;flex-shrink:0;
+}
+.switch{
+ position:relative;width:54px;height:30px;flex-shrink:0;
+ pointer-events:none;
+}
+.switch input{position:absolute;opacity:0;width:0;height:0}
+.slider{
+ position:absolute;inset:0;border-radius:999px;
+ background:rgba(255,255,255,0.1);
+ transition:all var(--transition);
+ box-shadow:inset 0 2px 4px rgba(0,0,0,0.2);
+}
+.knob{
+ position:absolute;left:3px;top:3px;
+ width:24px;height:24px;border-radius:50%;
+ background:linear-gradient(145deg,#fff,#e0e0e0);
+ transition:transform 0.25s cubic-bezier(0.2,0.8,0.2,1);
+ box-shadow:0 2px 8px rgba(0,0,0,0.3);
+}
+.switch input:checked + .slider{
+ background:var(--accent);
+ box-shadow:0 0 20px var(--accent-glow);
+}
+.switch input:checked + .slider .knob{transform:translateX(24px)}
+.switch input:disabled + .slider{
+ background:rgba(255,255,255,0.05);
+ opacity:0.5;
+}
+.warning-line{
+ margin:0 0 20px 0;padding:14px 16px;border-radius:14px;
+ background:linear-gradient(135deg,rgba(255,77,77,0.12),rgba(255,170,77,0.06));
+ border:1px solid rgba(255,77,77,0.2);
+ color:#ffb3b3;font-weight:600;font-size:13px;
+ display:none;align-items:center;gap:10px;
+ animation:shake 0.5s ease;
+}
+.warning-line.show{display:flex}
+@keyframes shake{
+ 0%,100%{transform:translateX(0)}
+ 25%{transform:translateX(-5px)}
+ 75%{transform:translateX(5px)}
+}
+.warning-line .material-icons{font-size:18px;color:var(--danger)}
+.action-btn{
+ margin-top:20px;padding:16px;
+ background:rgba(77,163,255,0.1);
+ border:1px solid rgba(77,163,255,0.3);
+ border-radius:16px;
+ display:flex;align-items:center;justify-content:center;
+ gap:10px;cursor:pointer;
+ transition:all 0.25s;
+ position:relative;z-index:2;
+}
+.action-btn:hover{
+ background:rgba(77,163,255,0.2);
+ transform:translateY(-2px);
+ box-shadow:0 8px 24px rgba(77,163,255,0.2);
+}
+.action-btn:active{transform:scale(0.98)}
+.action-btn{white-space:nowrap;flex-wrap:nowrap}
+.action-btn span:last-child{white-space:nowrap}
+.action-btn .material-icons{
+ font-size:20px;color:var(--accent);
+ animation:spin 4s linear infinite;
+ animation-play-state:paused;
+}
+.action-btn:hover .material-icons{animation-play-state:running}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.action-btn span:last-child{
+ font-size:15px;font-weight:600;color:var(--accent);
+}
+.footer{
+ margin-top:20px;text-align:center;
+ color:var(--text2);font-size:12px;opacity:0.7;
+ position:relative;z-index:2;
+}
+.toast{
+ width:max-content;max-width:calc(100vw - 32px);
+ white-space:nowrap;flex-wrap:nowrap;
+ position:fixed;left:50%;bottom:30px;
+ transform:translateX(-50%) translateY(20px);
+ background:rgba(30,33,60,0.95);
+ backdrop-filter:blur(20px);
+ color:var(--fg);padding:14px 28px;border-radius:100px;
+ box-shadow:0 10px 40px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.1);
+ opacity:0;pointer-events:none;
+ transition:all 0.35s cubic-bezier(0.4,0,0.2,1);
+ z-index:9999;font-weight:600;font-size:15px;
+ display:flex;align-items:center;gap:10px;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast .material-icons{font-size:20px;color:var(--success);flex-shrink:0}
+.toast span:last-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+
+.row-group{
+ background:rgba(255,255,255,0.03);
+ border:1px solid rgba(255,255,255,0.06);
+ border-radius:16px;
+ overflow:hidden;
+ margin-bottom:24px;
+}
+.row-group .row{
+ margin-bottom:0;
+ border-radius:0;
+ background:transparent;
+ border:none;
+ border-bottom:1px solid rgba(255,255,255,0.04);
+ box-shadow:none;
+}
+.row-group .row:last-child{border-bottom:none}
+.row-group .row:hover{
+ background:rgba(255,255,255,0.04);
+ transform:none;
+ box-shadow:none;
+}
+.row-group .row:active{transform:scale(0.995)}
+.row-group .row.active{
+ background:rgba(77,163,255,0.08);
+ border-color:transparent;
+ box-shadow:none;
+}
+.row-group.pif-group{border-left:0!important}
+.row-group.behaviour-group{border-left:0!important}
+
+.modal-overlay{
+ position:fixed;inset:0;
+ background:rgba(0,0,0,0.7);
+ backdrop-filter:blur(10px);
+ -webkit-backdrop-filter:blur(10px);
+ display:none;
+ align-items:flex-end;
+ justify-content:center;
+ z-index:1000;
+ opacity:0;
+ transition:opacity 0.3s ease;
+}
+.modal-overlay.show{
+ display:flex;opacity:1;
+}
+.modal-sheet{
+ width:100%;max-width:420px;
+ background:var(--panel-bg);
+ backdrop-filter:blur(30px);
+ border-radius:24px 24px 0 0;
+ padding:24px;
+ max-height:80vh;
+ overflow-y:auto;
+ transform:translateY(100%);
+ transition:transform 0.35s cubic-bezier(0.32,0.72,0,1);
+ box-shadow:0 -20px 60px rgba(0,0,0,0.5);
+ border:1px solid rgba(255,255,255,0.06);
+ border-bottom:none;
+}
+.modal-overlay.show .modal-sheet{
+ transform:translateY(0);
+}
+.modal-header{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ margin-bottom:20px;
+}
+.modal-title{
+ font-size:18px;font-weight:700;
+ color:var(--fg);
+ display:flex;align-items:center;gap:8px;
+}
+.modal-title .material-icons{
+ font-size:22px;color:var(--accent);
+}
+.modal-close{
+ width:32px;height:32px;
+ border-radius:50%;
+ background:rgba(255,255,255,0.06);
+ border:1px solid rgba(255,255,255,0.1);
+ color:var(--text2);
+ display:flex;align-items:center;justify-content:center;
+ cursor:pointer;
+ transition:all 0.2s;
+}
+.modal-close:hover{
+ background:rgba(255,255,255,0.1);
+ color:var(--fg);
+}
+.modal-close .material-icons{font-size:18px}
+.modal-divider{
+ height:1px;
+ background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);
+ margin:12px 0;
+}
+.info-item{
+ padding:12px 0;
+ border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.info-item:last-child{border-bottom:none}
+.info-item-title{
+ font-size:14px;font-weight:600;
+ color:var(--fg);margin-bottom:4px;
+ display:flex;align-items:center;gap:8px;
+}
+.info-item-title .material-icons{
+ font-size:18px;color:var(--accent);
+}
+.info-item-desc{
+ font-size:12px;color:var(--text2);
+ line-height:1.4;
+ padding-left:26px;
+}
+.info-item-flag{
+ font-size:10px;color:var(--text2);
+ opacity:0.6;
+ margin-top:4px;
+ padding-left:26px;
+ font-family:"SF Mono",monospace;
+}
+.info-section-title{
+ font-size:13px;
+ font-weight:700;
+ color:var(--accent);
+ text-transform:uppercase;
+ letter-spacing:0.08em;
+ margin:16px 0 8px 0;
+ padding-left:4px;
+}
+.info-section-title:first-child{
+ margin-top:0;
+}
+
+.zygisk-card{
+ position:relative;z-index:2;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:14px;
+ padding:18px 20px;
+ border-radius:16px;
+ background:rgba(255,255,255,0.03);
+ border:1px solid rgba(255,255,255,0.06);
+ margin-bottom:24px;
+ cursor:pointer;
+ transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+.zygisk-card:hover{
+ background:rgba(255,255,255,0.06);
+ transform:translateY(-2px);
+ box-shadow:0 8px 24px rgba(0,0,0,0.3);
+ border-color:rgba(77,163,255,0.2);
+}
+.zygisk-card:active{transform:scale(0.98)}
+.zygisk-card.paused{
+ background:rgba(255,77,77,0.08);
+ border-color:rgba(255,77,77,0.3);
+}
+.zygisk-card.paused:hover{
+ background:rgba(255,77,77,0.12);
+ border-color:rgba(255,77,77,0.4);
+}
+.zygisk-card.paused .icon-wrap{
+ background:var(--danger);
+ box-shadow:0 4px 16px rgba(255,77,77,0.3);
+}
+.zygisk-card.paused .icon-wrap .material-icons{color:white}
+.zygisk-card.paused .title{color:var(--danger)}
+.zygisk-card.paused .status-dot{
+ background:var(--danger);
+ box-shadow:0 0 12px var(--danger);
+}
+.zygisk-card .content{flex:1;min-width:0}
+.zygisk-card .title{
+ font-size:15px;font-weight:600;
+ color:var(--fg);margin-bottom:3px;
+ transition:color 0.3s;
+}
+.zygisk-card .subtitle-text{
+ font-size:12px;color:var(--text2);
+ font-weight:500;line-height:1.3;
+}
+
+.confirm-overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.68);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:1100;}
+.confirm-overlay.show{display:flex;}
+.confirm-card{width:100%;max-width:390px;background:var(--panel-bg);border:1px solid rgba(255,77,77,.22);border-radius:20px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.45);animation:confirmIn .22s ease-out;}
+@keyframes confirmIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.confirm-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:rgba(255,77,77,.12);color:var(--danger);margin-bottom:14px;}
+.confirm-icon .material-icons{font-size:26px;}
+.confirm-title{font-size:17px;font-weight:700;color:var(--fg);margin-bottom:8px;}
+.confirm-message{font-size:13px;line-height:1.55;color:var(--text2);margin-bottom:20px;}
+.confirm-actions{display:flex;gap:10px;justify-content:flex-end;}
+.confirm-btn{border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:11px 16px;font:inherit;font-weight:600;cursor:pointer;background:rgba(255,255,255,.04);color:var(--fg);}
+.confirm-btn:hover{background:rgba(255,255,255,.08);}
+.confirm-btn.danger{background:var(--danger);color:white;border-color:transparent;}
+.confirm-btn.danger:hover{filter:brightness(1.08);}
+@media(max-width:420px){.confirm-card{padding:19px}.confirm-actions{flex-direction:column-reverse}.confirm-btn{width:100%;}}
+@media(max-width:420px){
+ .card{width:100%;padding:22px}
+ .row{padding:14px}
+ .icon-wrap{width:40px;height:40px}
+ .zygisk-card{padding:16px}
+}
+
+.row{
+  gap:12px;
+  padding:12px 14px;
+}
+.row-group{
+  margin-bottom:18px;
+}
+.row-group .row{
+  min-height:58px;
+  padding:9px 14px;
+}
+.icon-wrap{
+  width:40px;
+  height:40px;
+  border:1px solid rgba(255,255,255,0.05);
+  border-radius:11px;
+}
+.icon-wrap .material-icons{
+  font-size:24px;
+}
+.row.active .icon-wrap{
+  background:rgba(77,163,255,0.13);
+  border-color:rgba(77,163,255,0.24);
+  box-shadow:0 2px 10px rgba(77,163,255,0.08);
+}
+.row.active .icon-wrap .material-icons{
+  color:var(--accent);
+}
+.row.active .title{
+  color:var(--accent);
+}
+.row-group .row.active{
+  background:linear-gradient(90deg,rgba(77,163,255,0.11),rgba(77,163,255,0.045));
+  box-shadow:none;
+}
+.switch input:checked + .slider{
+  background:linear-gradient(135deg,#2588ed,var(--accent));
+  box-shadow:0 0 0 3px rgba(77,163,255,0.10),0 2px 10px rgba(77,163,255,0.22);
+}
+.switch input:checked + .slider .knob{
+  box-shadow:0 2px 5px rgba(0,0,0,0.28),0 0 0 1px rgba(255,255,255,0.18);
+}
+.row-group .row,
+.row-group .row .icon-wrap,
+.row-group .row .title{
+  transition:background .22s ease,border-color .22s ease,color .22s ease,box-shadow .22s ease;
+}
+.row-group .row:hover{
+  background:rgba(255,255,255,0.035);
+}
+.row-group .row.active:hover{
+  background:linear-gradient(90deg,rgba(77,163,255,0.14),rgba(77,163,255,0.055));
+}
+
+.row.active .title,
+.row-group .row.active .title{
+  color:#fff;
+}
+.row.active .icon-wrap .material-icons,
+.row-group .row.active .icon-wrap .material-icons{
+  color:#fff;
+}
+#zygiskIcon {
+  color: #fff !important;
+}
+
+
+.sdk-selector{
+  display:none;
+  padding:12px 14px 14px;
+  margin:-6px 0 10px;
+  background:rgba(77,163,255,0.055);
+  border:1px solid rgba(77,163,255,0.16);
+  border-radius:14px;
+  position:relative;z-index:2;
+}
+.sdk-selector.show{display:block}
+.sdk-options{display:flex;flex-wrap:wrap;gap:7px}
+.sdk-option{
+  border:1px solid rgba(255,255,255,0.08);
+  background:rgba(255,255,255,0.045);
+  color:var(--text2);
+  border-radius:999px;
+  padding:8px 11px;
+  font-size:12px;font-weight:600;
+  cursor:pointer;transition:all .2s ease;
+}
+.sdk-option:hover{background:rgba(77,163,255,0.12);border-color:rgba(77,163,255,0.28);color:#fff}
+.sdk-option.selected{
+  background:rgba(77,163,255,0.18);
+  border-color:rgba(77,163,255,0.5);
+  color:#fff;box-shadow:0 0 12px rgba(77,163,255,0.12);
+}
+.sdk-selector.disabled{opacity:.4;pointer-events:none}
+.sdk-caption{font-size:11px;color:var(--text2);margin-bottom:9px}
+.pif-group.pixel-canary-controls{display:flex;flex-direction:column;gap:16px;padding:18px!important;}
+.pif-group.pixel-canary-controls .pixel-selector-label{display:block;margin:0 2px 2px;color:var(--text2);font-size:12px;line-height:1.5;text-align:center}
+#pixelPropsStatus{text-align:center}
+.pixel-hidden-select{display:block!important;width:100%;min-height:48px;box-sizing:border-box;appearance:none;-webkit-appearance:none;background:var(--surface,rgba(255,255,255,.05));color:var(--fg);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:13px 42px 13px 14px;font:inherit;outline:none;transition:border-color .18s,box-shadow .18s,background .18s; background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position:calc(100% - 19px) 50%,calc(100% - 14px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+.pixel-hidden-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow,rgba(80,160,255,.15))}
+.pixel-hidden-select:hover{border-color:rgba(255,255,255,.24)}
+.pixel-hidden-select:disabled{opacity:.65}
+#pixelPropsStatus.status-notice{padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.045);margin-top:2px!important}
+#generatePixelProps.generating{animation:pixelBtnPulse .65s ease-in-out infinite alternate}
+@keyframes pixelBtnPulse{from{transform:scale(1);filter:brightness(1)}to{transform:scale(1.015);filter:brightness(1.15)}}
+   Native option popups are still rendered by Android/WebView on some devices. */
+.pixel-hidden-select option{background:#232637;color:#e6e6e6;padding:12px;font-size:14px}
+.pixel-hidden-select optgroup{background:#1f2233;color:#9aa3ff;font-weight:600}
+.pixel-hidden-select{background-color:rgba(35,38,55,.72);color:var(--fg);font-size:14px;font-weight:500;letter-spacing:.1px;border-color:rgba(255,255,255,.1);box-shadow:inset 0 1px 0 rgba(255,255,255,.035)}
+.pixel-hidden-select:focus{background-color:rgba(35,38,55,.95)}
+.pixel-hidden-select:active{background-color:rgba(77,163,255,.08)}
+.pixel-hidden-select option:checked{background:#4da3ff;color:#fff}
+.pixel-hidden-select option[value=""]{color:#9aa3ff}
+.pixel-hidden-select{display:none!important}
+.pixel-picker-trigger{width:100%;min-height:48px;display:flex;align-items:center;justify-content:center;gap:12px;padding:13px 14px;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:rgba(35,38,55,.72);color:var(--fg);font:inherit;text-align:left;cursor:pointer}
+.pixel-picker-trigger:active{background:var(--surface-3)}
+#pixelPickerLabel{text-align:center;flex:1}
+.pixel-picker-chevron{position:absolute;right:14px}
+.pixel-picker-trigger{position:relative}
+.pixel-recommended-note{font-size:11px;color:var(--text2);text-align:center;margin-top:-8px}
+.pixel-picker-chevron{width:10px;height:10px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translateY(-2px);opacity:.65;flex-shrink:0}
+.pixel-picker-overlay{position:fixed;inset:0;z-index:2147483000;display:none;background:var(--bg,#1f2233);color:var(--fg,#e6e6e6);overflow:hidden;overscroll-behavior:contain;height:100vh;height:100dvh}
+.pixel-picker-overlay.is-open{display:flex}
+.pixel-picker-panel{display:flex;flex-direction:column;width:100%;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;min-height:0;background:var(--bg,#1f2233);color:var(--fg,#e6e6e6);padding:calc(12px + env(safe-area-inset-top,0px)) 16px calc(12px + env(safe-area-inset-bottom,0px));box-sizing:border-box}
+.pixel-picker-header{display:flex;align-items:center;gap:14px;min-height:64px;padding:4px 0 16px;border-bottom:1px solid var(--border-strong,rgba(255,255,255,.12));flex:0 0 auto}
+.pixel-picker-back{width:44px;height:44px;flex:0 0 44px;border:1px solid var(--border-strong,rgba(255,255,255,.12));border-radius:12px;background:var(--surface-2,#2b2e42);color:var(--fg,#e6e6e6);font-size:30px;line-height:1;cursor:pointer}
+.pixel-picker-heading{font-size:1.15rem;font-weight:800;line-height:1.25}
+.pixel-picker-caption{margin-top:4px;font-size:.78rem;color:var(--fg-dim,#b8bbcc)}
+.pixel-picker-options{flex:1 1 0;min-height:0;max-height:calc(100dvh - 96px);overflow-y:auto;overflow-x:hidden;padding:12px 0 18px;display:flex;flex-direction:column;gap:8px;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-width:thin}
+.pixel-picker-option{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:52px;padding:13px 15px;border:1px solid var(--border,rgba(255,255,255,.08));border-radius:12px;background:var(--surface,#232637);color:var(--fg,#e6e6e6);font:inherit;font-size:.94rem;text-align:left;cursor:pointer}
+.pixel-picker-option.is-selected{border-color:var(--accent,#4da3ff);background:var(--accent-soft,rgba(77,163,255,.12));color:var(--accent,#4da3ff);font-weight:750}
+.pixel-picker-option:active{background:var(--surface-3,#34384f)}
+body.pixel-picker-open{overflow:hidden!important}
+
+.pixel-device-grid{display:none!important}
+#generatePixelProps{width:100%;margin:0!important;min-height:48px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:10px;border-radius:14px;transition:transform .2s ease,box-shadow .2s ease,opacity .2s ease;}
+#generatePixelProps:active{transform:scale(.985)}
+#generatePixelProps:disabled{cursor:not-allowed;opacity:.45!important}
+#pixelPropsStatus{min-height:20px;margin:0!important;padding:2px 3px 0;line-height:1.5;transition:opacity .2s;overflow-wrap:anywhere}
+@media(max-width:480px){.pif-group.pixel-canary-controls{gap:14px;padding:16px!important} .pixel-hidden-select{min-height:50px} #generatePixelProps{min-height:50px}}
+.card{width:min(100%,440px)}
+body{align-items:flex-start;padding:clamp(12px,3vw,24px)}
+.pixel-canary-controls{border-left:0!important}
+.pixel-selector-label{line-height:1.45}
+.pixel-hidden-select{min-height:46px}
+.pixel-hidden-select:focus-visible,#generatePixelProps:focus-visible{
+ outline:2px solid var(--accent);outline-offset:2px
+}
+#pixelPropsStatus.status-notice{min-height:38px;white-space:normal}
+#generatePixelProps .material-icons{animation:none}
+#generatePixelProps[aria-busy="true"] .material-icons{animation:spin 1s linear infinite}
+@media(max-width:480px){.card{padding:18px}.header-actions{top:18px;right:18px}}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
+#pixelExecutionOverlay{position:fixed;inset:0;z-index:2147482500;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(10,12,20,.42);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);color:var(--fg,#fff)}
+#pixelExecutionOverlay.is-visible{display:flex}
+.pixel-execution-panel{display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;padding:28px 24px;max-width:320px;width:100%;border:1px solid rgba(255,255,255,.12);border-radius:22px;background:rgba(30,34,50,.82);box-shadow:0 18px 60px rgba(0,0,0,.32)}
+.pixel-execution-spinner{width:54px;height:54px;border:4px solid rgba(255,255,255,.16);border-top-color:var(--accent,#4da3ff);border-radius:50%;animation:pixelExecutionSpin .8s linear infinite}
+.pixel-execution-title{font-size:17px;font-weight:750}
+.pixel-execution-caption{font-size:13px;line-height:1.55;color:var(--text2,#b8bbcc)}
+@keyframes pixelExecutionSpin{to{transform:rotate(360deg)}}
+
+.section-label.collapsible-heading{cursor:pointer;user-select:none;justify-content:space-between;padding:10px 4px;margin-bottom:8px;border-radius:10px;transition:background .2s ease;}
+.section-label.collapsible-heading:hover{background:rgba(255,255,255,.035)}
+.section-label.collapsible-heading .heading-title{display:flex;align-items:center;gap:8px}
+.section-label.collapsible-heading .collapse-chevron{font-size:18px;opacity:.65;transition:transform .2s ease}
+.section-label.collapsible-heading[aria-expanded="true"] .collapse-chevron{transform:rotate(180deg)}
+.collapsible-content{display:none}
+.collapsible-content.expanded{display:block}
+.device-config-indicator{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 13px;margin:12px 0 18px;border-radius:12px;background:rgba(77,163,255,.08);border:1px solid rgba(77,163,255,.18);font-size:12px;color:var(--text2);text-align:center;overflow-wrap:anywhere}
+.device-config-indicator .material-icons{font-size:16px;color:var(--accent);flex-shrink:0}
+.device-config-indicator strong{color:var(--fg);font-weight:700}
+.device-config-indicator.unknown{opacity:.7}
+@media(prefers-reduced-motion:reduce){.collapse-chevron{transition:none}}
+
+</style>
+</head>
+<body>
+<div id="pixelExecutionOverlay" aria-hidden="true"><div class="pixel-execution-panel" role="alert" aria-live="assertive"><div class="pixel-execution-spinner" aria-hidden="true"></div><div class="pixel-execution-title">Generating Pixel Props</div><div class="pixel-execution-caption">Please wait while the task finishes. Do not close or interact with the UI.</div></div></div>
+
+<div class="modal-overlay" id="infoModal" onclick="closeInfoModal(event)">
+ <div class="modal-sheet" onclick="event.stopPropagation()">
+   <div class="modal-header">
+     <div class="modal-title"><span class="material-icons">info</span>What do these do?</div>
+     <div class="modal-close" onclick="closeInfoModal()"><span class="material-icons">close</span></div>
+   </div>
+   <div id="infoContent"></div>
+ </div>
+</div>
+
+<div class="card">
+ <div class="header-actions">
+   <button class="icon-btn" onclick="openInfoModal()"><span class="material-icons">info</span></button>
+ </div>
+ <h1><span class="material-icons">verified_user</span>Play Integrity Box</h1>
+
+ <div id="warningLine" class="warning-line">
+   <span class="material-icons">error_outline</span>
+   <span id="warningText"></span>
+ </div>
+
+
+
+ <div class="section-label">Pixel Canary Props</div>
+ <div class="row-group pif-group pixel-canary-controls"><div class="pixel-selector-label">Choose a device from the list below.</div>
+ <select id="pixelDeviceSelect" class="pixel-hidden-select" aria-hidden="true" tabindex="-1"><option value="">Select a device</option>
+ <option value="bluejay">Pixel 6a (bluejay)</option><option value="panther">Pixel 7 (panther)</option><option value="cheetah">Pixel 7 Pro (cheetah)</option><option value="lynx">Pixel 7a (lynx)</option><option value="felix">Pixel Fold (felix)</option><option value="tangorpro">Pixel Tablet (tangorpro)</option><option value="shiba">Pixel 8 (shiba)</option><option value="husky">Pixel 8 Pro (husky)</option><option value="akita">Pixel 8a (akita)</option><option value="tokay">Pixel 9 (tokay)</option><option value="caiman">Pixel 9 Pro (caiman)</option><option value="komodo">Pixel 9 Pro XL (komodo)</option><option value="comet">Pixel 9 Pro Fold (comet)</option><option value="tegu">Pixel 9a (tegu)</option><option value="frankel">Pixel 10 (frankel)</option><option value="blazer">Pixel 10 Pro (blazer)</option><option value="mustang">Pixel 10 Pro XL (mustang)</option><option value="rango">Pixel 10 Pro Fold (rango)</option><option value="stallion">Pixel 10a (stallion)</option><option value="cubs">Pixel 11 (cubs)</option><option value="grizzly">Pixel 11 Pro (grizzly)</option><option value="kodiak">Pixel 11 Pro XL (kodiak)</option><option value="yogi">Pixel 11 Pro Fold (yogi)</option></select>
+ <button type="button" id="pixelDevicePickerTrigger" class="pixel-picker-trigger" aria-haspopup="dialog" aria-expanded="false"><span id="pixelPickerLabel">Select a device</span><span class="pixel-picker-chevron" aria-hidden="true"></span></button>
+ <div id="pixel-device-picker-overlay" class="pixel-picker-overlay" aria-hidden="true"><section class="pixel-picker-panel" role="dialog" aria-modal="true" aria-label="Select Pixel device"><header class="pixel-picker-header"><button type="button" class="pixel-picker-back" aria-label="Back">‹</button><div><div class="pixel-picker-heading">Select device</div><div class="pixel-picker-caption">Choose a Pixel device</div></div></header><div class="pixel-picker-options"></div></section></div>
+ <div class="pixel-device-grid" id="pixelDeviceGrid"><button type="button" class="pixel-device" data-device="bluejay"><span class="pixel-device-name">Pixel 6a</span><span class="pixel-device-code">bluejay</span></button><button type="button" class="pixel-device" data-device="panther"><span class="pixel-device-name">Pixel 7</span><span class="pixel-device-code">panther</span></button><button type="button" class="pixel-device" data-device="cheetah"><span class="pixel-device-name">Pixel 7 Pro</span><span class="pixel-device-code">cheetah</span></button><button type="button" class="pixel-device" data-device="lynx"><span class="pixel-device-name">Pixel 7a</span><span class="pixel-device-code">lynx</span></button><button type="button" class="pixel-device" data-device="felix"><span class="pixel-device-name">Pixel Fold</span><span class="pixel-device-code">felix</span></button><button type="button" class="pixel-device" data-device="tangorpro"><span class="pixel-device-name">Pixel Tablet</span><span class="pixel-device-code">tangorpro</span></button><button type="button" class="pixel-device" data-device="shiba"><span class="pixel-device-name">Pixel 8</span><span class="pixel-device-code">shiba</span></button><button type="button" class="pixel-device" data-device="husky"><span class="pixel-device-name">Pixel 8 Pro</span><span class="pixel-device-code">husky</span></button><button type="button" class="pixel-device" data-device="akita"><span class="pixel-device-name">Pixel 8a</span><span class="pixel-device-code">akita</span></button><button type="button" class="pixel-device" data-device="tokay"><span class="pixel-device-name">Pixel 9</span><span class="pixel-device-code">tokay</span></button><button type="button" class="pixel-device" data-device="caiman"><span class="pixel-device-name">Pixel 9 Pro</span><span class="pixel-device-code">caiman</span></button><button type="button" class="pixel-device" data-device="komodo"><span class="pixel-device-name">Pixel 9 Pro XL</span><span class="pixel-device-code">komodo</span></button><button type="button" class="pixel-device" data-device="comet"><span class="pixel-device-name">Pixel 9 Pro Fold</span><span class="pixel-device-code">comet</span></button><button type="button" class="pixel-device" data-device="tegu"><span class="pixel-device-name">Pixel 9a</span><span class="pixel-device-code">tegu</span></button><button type="button" class="pixel-device" data-device="frankel"><span class="pixel-device-name">Pixel 10</span><span class="pixel-device-code">frankel</span></button><button type="button" class="pixel-device" data-device="blazer"><span class="pixel-device-name">Pixel 10 Pro</span><span class="pixel-device-code">blazer</span></button><button type="button" class="pixel-device" data-device="mustang"><span class="pixel-device-name">Pixel 10 Pro XL</span><span class="pixel-device-code">mustang</span></button><button type="button" class="pixel-device" data-device="rango"><span class="pixel-device-name">Pixel 10 Pro Fold</span><span class="pixel-device-code">rango</span></button><button type="button" class="pixel-device" data-device="stallion"><span class="pixel-device-name">Pixel 10a</span><span class="pixel-device-code">stallion</span></button><button type="button" class="pixel-device" data-device="cubs"><span class="pixel-device-name">Pixel 11</span><span class="pixel-device-code">cubs</span></button><button type="button" class="pixel-device" data-device="grizzly"><span class="pixel-device-name">Pixel 11 Pro</span><span class="pixel-device-code">grizzly</span></button><button type="button" class="pixel-device" data-device="kodiak"><span class="pixel-device-name">Pixel 11 Pro XL</span><span class="pixel-device-code">kodiak</span></button><button type="button" class="pixel-device" data-device="yogi"><span class="pixel-device-name">Pixel 11 Pro Fold</span><span class="pixel-device-code">yogi</span></button></div>
+ <button id="generatePixelProps" class="action-btn" type="button" disabled onclick="generatePixelProps()"><span class="material-icons">build</span><span>Generate Props</span></button><div class="pixel-recommended-note">Pixel 6a is recommended.</div><div id="pixelPropsStatus" role="status" aria-live="polite" style="display:none"></div></div>
+
+ <div class="section-label">PIF Controls</div>
+ <div id="rows" class="row-group pif-group">
+<div class="row" id="row-spoofPixel" onclick="toggle('spoofPixel')">
+     <div class="icon-wrap"><span class="material-icons">shop</span></div>
+     <div class="content">
+       <div class="title">Pixelify Playstore</div>
+     </div>
+     <label class="switch" onclick="event.stopPropagation()">
+       <input id="spoofPixel" type="checkbox">
+       <span class="slider"><span class="knob"></span></span>
+     </label>
+   </div>
+<div class="row" id="row-spoofVendingFinger" onclick="toggle('spoofVendingFinger')">
+     <div class="icon-wrap"><span class="material-icons">android</span></div>
+     <div class="content">
+       <div class="title">Pixel Fingerprint</div>
+     </div>
+     <label class="switch" onclick="event.stopPropagation()">
+       <input id="spoofVendingFinger" type="checkbox">
+       <span class="slider"><span class="knob"></span></span>
+     </label>
+   </div>
+<div class="row" id="row-spoofBuild" onclick="toggle('spoofBuild')">
+     <div class="icon-wrap"><span class="material-icons">phone_iphone</span></div>
+     <div class="content">
+       <div class="title">Build Spoof</div>
+     </div>
+     <label class="switch" onclick="event.stopPropagation()">
+       <input id="spoofBuild" type="checkbox">
+       <span class="slider"><span class="knob"></span></span>
+     </label>
+   </div>
+<div class="row" id="row-spoofProps" onclick="toggle('spoofProps')">
+     <div class="icon-wrap"><span class="material-icons">android</span></div>
+     <div class="content">
+       <div class="title">GMS Spoof</div>
+     </div>
+     <label class="switch" onclick="event.stopPropagation()">
+       <input id="spoofProps" type="checkbox">
+       <span class="slider"><span class="knob"></span></span>
+     </label>
+   </div>
+<div class="row" id="row-spoofPatch" onclick="toggle('spoofPatch')">
+     <div class="icon-wrap"><span class="material-icons">update</span></div>
+     <div class="content">
+       <div class="title">Security Patch</div>
+     </div>
+     <label class="switch" onclick="event.stopPropagation()">
+       <input id="spoofPatch" type="checkbox">
+       <span class="slider"><span class="knob"></span></span>
+     </label>
+   </div>
+<div class="row" id="row-spoofSignature" onclick="toggle('spoofSignature')">
+     <div class="icon-wrap"><span class="material-icons">verified_user</span></div>
+     <div class="content">
+       <div class="title">ROM Signature</div>
+     </div>
+     <label class="switch" onclick="event.stopPropagation()">
+       <input id="spoofSignature" type="checkbox">
+       <span class="slider"><span class="knob"></span></span>
+     </label>
+   </div>
+<div class="row" id="row-spoofProvider" onclick="toggle('spoofProvider')">
+     <div class="icon-wrap"><span class="material-icons">dynamic_form</span></div>
+     <div class="content">
+       <div class="title">Attestation API</div>
+     </div>
+     <label class="switch" onclick="event.stopPropagation()">
+       <input id="spoofProvider" type="checkbox">
+       <span class="slider"><span class="knob"></span></span>
+     </label>
+   </div>
+<div class="row" id="row-spoofVendingSdk" onclick="toggle('spoofVendingSdk')">
+     <div class="icon-wrap"><span class="material-icons">code</span></div>
+     <div class="content">
+       <div class="title">Downgrade SDK</div>
+     </div>
+     <label class="switch" onclick="event.stopPropagation()">
+       <input id="spoofVendingSdk" type="checkbox">
+       <span class="slider"><span class="knob"></span></span>
+     </label>
+   </div>
+   <div id="sdkSelector" class="sdk-selector">
+     <div class="sdk-caption">Vending SDK version</div>
+     <div class="sdk-options" id="sdkOptions">
+       <button type="button" class="sdk-option" data-sdk="29">Android 10</button>
+       <button type="button" class="sdk-option" data-sdk="30">Android 11</button>
+       <button type="button" class="sdk-option" data-sdk="31">Android 12</button>
+       <button type="button" class="sdk-option" data-sdk="32">Android 12L</button>
+       <button type="button" class="sdk-option" data-sdk="33">Android 13</button>
+       <button type="button" class="sdk-option" data-sdk="34">Android 14</button>
+       <button type="button" class="sdk-option" data-sdk="35">Android 15</button>
+       <button type="button" class="sdk-option" data-sdk="36">Android 16</button>
+       <button type="button" class="sdk-option" data-sdk="37">Android 17</button>
+     </div>
+   </div>
+ </div>
+
+<div class="action-btn" onclick="restartServices()">
+   <span class="material-icons">refresh</span>
+   <span>Restart GMS Services</span>
+ </div>
+
+
+
+  <div class="section-label behaviour">Customize Integrity Behaviour</div>
+ <div id="behaviour-rows" class="row-group behaviour-group">
+   <div class="row" id="row-skip_json" onclick="toggleBehaviour('skip_json')">
+     <div class="icon-wrap"><span class="material-icons">code_off</span></div>
+     <div class="content">
+       <div class="title">Skip JSON</div>
+     </div>
+     <label class="switch" onclick="event.stopPropagation()">
+       <input type="checkbox" id="skip_json">
+       <span class="slider"><span class="knob"></span></span>
+     </label>
+   </div>
+   <div class="row" id="row-skip_key" onclick="toggleBehaviour('skip_key')">
+     <div class="icon-wrap"><span class="material-icons">vpn_key_off</span></div>
+     <div class="content">
+       <div class="title">Skip Key</div>
+     </div>
+     <label class="switch" onclick="event.stopPropagation()">
+       <input type="checkbox" id="skip_key">
+       <span class="slider"><span class="knob"></span></span>
+     </label>
+   </div>
+ </div>
+
+  <div class="section-label">Zygisk Injection</div>
+ <div class="zygisk-card" id="zygiskCard" onclick="toggleZygiskPause()">
+   <div class="icon-wrap" id="zygiskIconWrap"><span class="material-icons" id="zygiskIcon">play_arrow</span></div>
+   <div class="content">
+     <div class="title" id="zygiskTitle">Resume Zygisk</div>
+     <div class="subtitle-text" id="zygiskSub">Tap to pause zygisk injection   <div class="status-dot" id="zygiskDot"></div>
+ </div>
+   </div>
+ </div>
+
+ <div class="footer">&copy; IntegrityBox &bull; 2026</div>
+</div>
+
+<div class="confirm-overlay" id="zygiskConfirmOverlay" onclick="closeZygiskConfirm(event)">
+ <div class="confirm-card" role="dialog" aria-modal="true" aria-labelledby="zygiskConfirmTitle" aria-describedby="zygiskConfirmMessage" onclick="event.stopPropagation()">
+  <div class="confirm-icon"><span class="material-icons">pause_circle</span></div>
+  <div class="confirm-title" id="zygiskConfirmTitle">Pause Zygisk injection?</div>
+  <div class="confirm-message" id="zygiskConfirmMessage">Pausing Zygisk injection may cause Play Integrity checks to fail. Do you want to continue?</div>
+  <div class="confirm-actions"><button type="button" class="confirm-btn" onclick="closeZygiskConfirm()">Cancel</button><button type="button" class="confirm-btn danger" onclick="confirmPauseZygisk()">Pause injection</button></div>
+ </div>
+</div>
+
+<div id="toast" class="toast">
+ <span class="material-icons">check_circle</span>
+ <span id="toastText">Saved</span>
+</div>
+
+<script>
+const PROP_CANDIDATES = [
+ "/data/adb/modules/integrity-box/config.meow",
+ "/data/adb/config.meow"
+];
+
+const KEYS = ["spoofBuild","spoofProps","spoofProvider","spoofSignature","spoofVendingFinger","spoofVendingSdk","spoofPatch","spoofPixel"];
+const ZYGISK_PATH = "/data/adb/modules/integrity-box/zygisk";
+const FLAG_DIR = "/data/adb/Box-Brain/PIF";
+const STOP_FLAG = "/data/adb/modules/integrity-box/stop";
+const ZYGISK_SCRIPT = "/data/adb/modules/integrity-box/webroot/common_scripts/zygisk.sh";
+
+const behaviourFlags = [
+ {id:"skip_json",icon:"code_off",title:"Skip JSON",label:"behaviour",desc:"Generates a valid meow.json file in your device's internal storage (/sdcard) whenever you trigger the Integrity Box action. The generated file can then be manually imported into your custom ROM's spoofing settings. Recommended for users running Integrity Box in ZYGISKLESS Mode. (ROM's inbuilt spoofing)."},
+ {id:"skip_key",icon:"vpn_key_off",title:"Skip Key",label:"behaviour",desc:"Generates a valid keybox.xml file in your device's internal storage (/sdcard) whenever you trigger the Integrity Box action. The generated file can then be manually imported into your custom ROM's spoofing settings. Recommended for users running Integrity Box in ZYGISKLESS Mode. (ROM's inbuilt spoofing)."}
+];
+
+const pifRows = [
+ {id:"spoofPixel",icon:"shop",title:"Pixelify Playstore",sub:"Spoofs latest canary Pixel-exclusive build properties to playstore. Keep this enabled if your android version is 13 or higher"},
+ {id:"spoofVendingFinger",icon:"apps",title:"Pixel Fingerprint",sub:"Latest canary imprint"},
+ {id:"spoofBuild",icon:"api",title:"Build Spoof",sub:"System build Properties"},
+ {id:"spoofProps",icon:"android",title:"GMS Spoof",sub:"GMS properties"},
+ {id:"spoofProvider",icon:"dynamic_form",title:"Attestation API",sub:"Breaks Google Wallet"},
+ {id:"spoofSignature",icon:"verified_user",title:"ROM Signature",sub:"OEM-signed mask"},
+ {id:"spoofPatch",icon:"system_update",title:"Security Patch",sub:"Spoofs Android release and SECURITY_PATCH from the selected build profile"},
+ {id:"spoofVendingSdk",icon:"key_off",title:"A12 Downgrade SDK",sub:"Use if keybox is banned"}
+];
+
+let propFile = null;
+let zygiskExists = false;
+let zygiskPaused = false;
+
+function showToast(msg){
+ document.getElementById('toastText').textContent = msg;
+ document.getElementById('toast').classList.add('show');
+ setTimeout(()=>document.getElementById('toast').classList.remove('show'), 1400);
+}
+
+function showWarning(text){
+ const line = document.getElementById('warningLine');
+ if(!text){
+   line.classList.remove('show');
+   return;
+ }
+ document.getElementById('warningText').textContent = text;
+ line.classList.add('show');
+}
+
+function setDisabled(key, disabled){
+ const input = document.getElementById(key);
+ const row = document.getElementById('row-'+key);
+ if(input) input.disabled = disabled;
+ if(row){
+   row.style.opacity = disabled ? '0.4' : '1';
+   row.style.pointerEvents = disabled ? 'none' : 'auto';
+ }
+}
+
+function updateVisuals(key, isActive){
+ document.getElementById('row-'+key).classList.toggle('active', isActive);
+ document.getElementById(key).checked = isActive;
+}
+
+function updateZygiskCard(){
+ const card = document.getElementById('zygiskCard');
+ const icon = document.getElementById('zygiskIcon');
+ const title = document.getElementById('zygiskTitle');
+ const sub = document.getElementById('zygiskSub');
+ const dot = document.getElementById('zygiskDot');
+ const iconWrap = document.getElementById('zygiskIconWrap');
+
+ if(zygiskPaused){
+   card.classList.add('paused');
+   icon.textContent = 'pause';
+   title.textContent = 'Resume Zygisk';
+   sub.textContent = 'Zygisk injection is paused. Tap to resume.';
+   dot.style.background = 'var(--danger)';
+   dot.style.boxShadow = '0 0 12px var(--danger)';
+   iconWrap.style.background = 'var(--danger)';
+   iconWrap.style.boxShadow = '0 4px 16px rgba(255,77,77,0.3)';
+ }else{
+   card.classList.remove('paused');
+   icon.textContent = 'gavel';
+   title.textContent = 'Pause Zygisk';
+   sub.textContent = 'Tap to pause zygisk injection';
+   dot.style.background = 'var(--success)';
+   dot.style.boxShadow = '0 0 12px var(--success)';
+   iconWrap.style.background = 'var(--accent)';
+   iconWrap.style.boxShadow = '0 4px 16px var(--accent-glow)';
+ }
+}
+
+
+let zygiskConfirmResolve=null;
+function askPauseZygisk(){
+ const overlay=document.getElementById('zygiskConfirmOverlay');overlay.classList.add('show');
+ return new Promise(resolve=>{zygiskConfirmResolve=resolve;});
+}
+function closeZygiskConfirm(e){
+ if(e&&e.target!==e.currentTarget)return;
+ const overlay=document.getElementById('zygiskConfirmOverlay');overlay.classList.remove('show');
+ if(zygiskConfirmResolve){zygiskConfirmResolve(false);zygiskConfirmResolve=null;}
+}
+function confirmPauseZygisk(){
+ const overlay=document.getElementById('zygiskConfirmOverlay');overlay.classList.remove('show');
+ if(zygiskConfirmResolve){zygiskConfirmResolve(true);zygiskConfirmResolve=null;}
+}
+
+async function toggleZygiskPause(){
+ const card = document.getElementById('zygiskCard');
+ if(card.classList.contains('spinning')) return;
+
+ card.classList.add('spinning');
+ try{
+   if(zygiskPaused){
+     await sh(`sh -c 'rm -f "${STOP_FLAG}"'`);
+     zygiskPaused = false;
+     showToast('Zygisk resumed');
+   }else{
+     if(!(await askPauseZygisk())) return;
+     await sh(`sh -c 'mkdir -p "${FLAG_DIR}" && touch "${STOP_FLAG}"'`);
+     zygiskPaused = true;
+     showToast('Zygisk paused');
+   }
+   updateZygiskCard();
+   lockPifControls(zygiskPaused);
+   await sh(`sh -c 'sh "${ZYGISK_SCRIPT}"'`);
+ }catch(e){
+   showToast('Error: ' + (e.message || ''));
+   zygiskPaused = !zygiskPaused;
+   updateZygiskCard();
+   lockPifControls(zygiskPaused);
+ }finally{
+   card.classList.remove('spinning');
+ }
+}
+
+function lockPifControls(locked){
+ KEYS.forEach(k => setDisabled(k, locked));
+ const selector = document.getElementById('sdkSelector');
+ if(selector) selector.classList.toggle('disabled', locked);
+}
+
+async function toggle(key){
+ if(!propFile || !zygiskExists || zygiskPaused){
+   if(zygiskPaused) showWarning("Zygisk injection is paused");
+   else if(!zygiskExists) showWarning("zygiskless mode has been enabled");
+   return;
+ }
+ const input = document.getElementById(key);
+ if(input.disabled) return;
+
+ const newVal = input.checked ? '0' : '1';
+ input.checked = !input.checked;
+
+ if(key === 'spoofVendingSdk' && newVal === '1'){
+   await writeKey(propFile, key, '1');
+   const others = KEYS.filter(k => k !== key && k !== 'spoofBuild' && k !== 'spoofProps');
+   for(const k of others){
+     await writeKey(propFile, k, '0');
+     updateVisuals(k, false);
+   }
+   showSdkSelector(true, '37');
+   showToast('Downgrade SDK enabled · Android 17');
+ } else {
+   await writeKey(propFile, key, newVal);
+   if(key === 'spoofVendingSdk') showSdkSelector(newVal === '1', newVal === '1' ? '37' : '');
+   showToast(newVal === '1' ? 'Enabled' : 'Disabled');
+ }
+
+ await restartGMS();
+ updateVisuals(key, newVal === '1');
+}
+
+function showSdkSelector(enabled, selected){
+ const selector = document.getElementById('sdkSelector');
+ if(!selector) return;
+ selector.classList.toggle('show', !!enabled);
+ if(selected) setSdkSelection(selected);
+}
+function setSdkSelection(value){
+ const normalized = String(value === '1' ? '37' : value);
+ document.querySelectorAll('.sdk-option').forEach(btn => btn.classList.toggle('selected', btn.dataset.sdk === normalized));
+}
+async function selectSdkVersion(value){
+ if(!propFile || !zygiskExists || zygiskPaused) return;
+ const input = document.getElementById('spoofVendingSdk');
+ if(!input || input.disabled || !input.checked) return;
+ if(!/^(29|30|31|32|33|34|35|36|37)$/.test(String(value))) return;
+ await writeKey(propFile, 'spoofVendingSdk', String(value));
+ setSdkSelection(value);
+ await restartGMS();
+ const names = {'29':'10','30':'11','31':'12','32':'12L','33':'13','34':'14','35':'15','36':'16','37':'17'};
+ showToast('Vending SDK set to Android ' + names[String(value)]);
+}
+
+async function toggleBehaviour(id){
+ const row = document.getElementById('row-' + id);
+ const input = document.getElementById(id);
+ if(!row || !input || row.classList.contains('spinning')) return;
+
+ const newVal = !input.checked;
+ row.classList.add('spinning');
+ try{
+   if(newVal){
+     await sh(`mkdir -p "${FLAG_DIR}" && touch "${FLAG_DIR}/${id}" && test -f "${FLAG_DIR}/${id}"`);
+   }else{
+     await sh(`rm -f "${FLAG_DIR}/${id}" && test ! -e "${FLAG_DIR}/${id}"`);
+   }
+   input.checked = newVal;
+   row.classList.toggle('active', newVal);
+   showToast(newVal ? 'Flag enabled' : 'Flag disabled');
+ }catch(e){
+   showToast('Flag operation failed: ' + (e.message || 'Unknown error'));
+   input.checked = !newVal;
+   row.classList.toggle('active', !newVal);
+ }finally{
+   row.classList.remove('spinning');
+ }
+}
+
+
+async function sh(cmd) {
+  if (typeof ksu === "undefined" ||
+      typeof ksu.exec !== "function") {
+    throw new Error("KernelSU execution bridge unavailable");
+  }
+
+  try {
+    const result = await ksu.exec(cmd);
+
+    if (typeof result === "string") {
+      return result.trim();
+    }
+
+    if (result && typeof result === "object") {
+      const code = result.code ?? result.exitCode;
+
+      if (code !== undefined && code !== 0) {
+        throw new Error(
+          result.stderr || result.stdout || `Shell exited with code ${code}`
+        );
+      }
+
+      return String(result.stdout ?? "").trim();
+    }
+
+    throw new Error("Unexpected ksu.exec response");
+  } catch (error) {
+    console.error("[IntegrityBox shell]", error);
+    throw error;
+  }
+}
+
+async function findPropFile(){
+ for(const p of PROP_CANDIDATES){
+   const out = await sh(`sh -c 'if [ -f "${p}" ]; then echo found; else echo missing; fi'`);
+   if(out.trim() === 'found') return p;
+ }
+ return null;
+}
+
+async function checkZygisk(){
+ const out = await sh(`sh -c 'if [ -d "${ZYGISK_PATH}" ]; then echo exists; else echo missing; fi'`);
+ return out.trim() === 'exists';
+}
+
+async function checkStopFlag(){
+ const out = await sh(`sh -c 'if [ -f "${STOP_FLAG}" ]; then echo paused; else echo running; fi'`);
+ return out.trim() === 'paused';
+}
+
+async function hasAdvancedSettings(file){
+ if(!file) return false;
+ const out = await sh(`sh -c 'grep -q "^spoofProvider=" "${file}" && echo 1 || echo 0'`);
+ return out.trim() === '1';
+}
+
+async function readKey(file, key){
+ if(!file) return '';
+ const cmd = `sh -c 'grep -m1 "^${key}=" "${file}" | cut -d"=" -f2- || echo ""'`;
+ const out = await sh(cmd);
+ return (out ?? '').toString().trim();
+}
+
+async function writeKey(file, key, value){
+ if(!file) return false;
+ const cmd = `sh -c 'if grep -q "^${key}=" "${file}"; then sed -i "s/^${key}=.*/${key}=${value}/" "${file}"; else printf "\\n${key}=${value}\\n" >> "${file}"; fi'`;
+ await sh(cmd);
+ return true;
+}
+
+async function restartGMS(){
+  const packages = [
+    'com.google.android.gms.unstable',
+    'com.google.android.gms',
+    'com.android.vending'
+  ];
+
+  for (const pkg of packages) {
+    await sh(`am force-stop '${pkg}'`);
+  }
+}
+
+
+const PIXEL_DEVICE_FLAGS=["bluejay","panther","cheetah","lynx","felix","tangorpro","shiba","husky","akita","tokay","caiman","komodo","comet","tegu","frankel","blazer","mustang","rango","stallion","cubs","grizzly","kodiak","yogi"];
+let selectedPixelFlag="";
+function initPixelDevicePicker(){
+ const select=document.getElementById("pixelDeviceSelect"),trigger=document.getElementById("pixelDevicePickerTrigger"),label=document.getElementById("pixelPickerLabel"),overlay=document.getElementById("pixel-device-picker-overlay"),list=overlay?.querySelector(".pixel-picker-options");
+ if(!select||!trigger||!label||!overlay||!list)return;
+ document.body.appendChild(overlay);
+ const close=()=>{overlay.classList.remove("is-open");overlay.setAttribute("aria-hidden","true");trigger.setAttribute("aria-expanded","false");document.body.classList.remove("pixel-picker-open")};
+ const open=()=>{
+  list.replaceChildren();
+  overlay.scrollTop=0;
+  [...select.options].filter(o=>o.value).forEach(option=>{
+   const button=document.createElement("button");button.type="button";button.className="pixel-picker-option";button.textContent=option.textContent.trim();button.dataset.value=option.value;button.setAttribute("aria-selected",String(option.value===select.value));
+   if(option.value===select.value)button.classList.add("is-selected");
+   button.addEventListener("click",()=>{select.value=option.value;label.textContent=option.textContent.trim();select.dispatchEvent(new Event("change",{bubbles:true}));close()});
+   list.appendChild(button);
+  });
+  overlay.classList.add("is-open");overlay.setAttribute("aria-hidden","false");trigger.setAttribute("aria-expanded","true");document.body.classList.add("pixel-picker-open");
+ };
+ trigger.addEventListener("click",open);overlay.querySelector(".pixel-picker-back")?.addEventListener("click",close);overlay.addEventListener("click",e=>{if(e.target===overlay)close()});
+ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&overlay.classList.contains("is-open"))close()});
+ select.addEventListener("change",()=>{const option=select.options[select.selectedIndex];label.textContent=option?.textContent.trim()||"Select a device"});
+}
+
+
+let pixelFlagSyncPromise = null;
+let pixelFlagSyncDevice = "";
+
+async function autoDetectPixelFlag(){
+ const select=document.getElementById("pixelDeviceSelect");
+ const status=document.getElementById("pixelPropsStatus");
+ const trigger=document.getElementById("pixelDevicePickerTrigger");
+ if(!select||!status)return;
+ try{
+   const detected=await sh(`for f in ${PIXEL_DEVICE_FLAGS.map(x=>`\"${FLAG_DIR}/${x}\"`).join(' ')}; do [ -f "$f" ] && basename "$f"; done`);
+   const device=detected.split(/\s+/).filter(Boolean).find(x=>PIXEL_DEVICE_FLAGS.includes(x))||"bluejay";
+   select.value=device; if(trigger)trigger.disabled=false; await selectPixelDevice();
+ }catch(e){
+   select.value="bluejay";
+   try{await selectPixelDevice();}catch(_){document.getElementById("generatePixelProps").disabled=true;}
+ }
+}
+
+async function selectPixelDevice() {
+  const select = document.getElementById("pixelDeviceSelect");
+  const button = document.getElementById("generatePixelProps");
+  const status = document.getElementById("pixelPropsStatus");
+  const label = document.getElementById("pixelPickerLabel");
+
+  if (!select || !button || !status) return;
+
+  const device = select.value;
+  const valid = PIXEL_DEVICE_FLAGS.includes(device) &&
+    [...select.options].some(option => option.value === device);
+
+  selectedPixelFlag = valid ? device : "";
+  if (!valid) select.value = "";
+
+  if (label) {
+    const option = select.options[select.selectedIndex];
+    label.textContent = option?.textContent.trim() || "Select a device";
+  }
+
+  if (!valid) {
+    button.disabled = true;
+    status.textContent = "";
+    status.classList.remove("status-notice");
+    return;
+  }
+
+  button.disabled = true;
+  status.textContent = "";
+  status.classList.add("status-notice");
+  pixelFlagSyncDevice = device;
+  if (pixelFlagSyncPromise) {
+    try { await pixelFlagSyncPromise; } catch (_) {}
+  }
+  if (select.value !== device || selectedPixelFlag !== device) return;
+
+  const syncPromise = (async () => {
+    const cleanup = PIXEL_DEVICE_FLAGS.map(flag => `rm -f "${FLAG_DIR}/${flag}"`).join(" && ");
+    await sh(`mkdir -p "${FLAG_DIR}" && ${cleanup} && touch "${FLAG_DIR}/${device}" && test -f "${FLAG_DIR}/${device}"`);
+  })();
+  pixelFlagSyncPromise = syncPromise;
+
+  try {
+    await syncPromise;
+    if (select.value !== device || selectedPixelFlag !== device) return;
+    status.textContent = "";
+    button.disabled = button.dataset.busy === "1";
+  } catch (error) {
+    console.error("[Pixel selector flag sync]", error);
+    if (select.value === device) {
+      status.textContent = `Flag creation failed: ${error.message || "Unknown error"}`;
+      button.disabled = true;
+    }
+  } finally {
+    if (pixelFlagSyncPromise === syncPromise) pixelFlagSyncPromise = null;
+  }
+}
+
+async function generatePixelProps() {
+  const select = document.getElementById("pixelDeviceSelect");
+  const button = document.getElementById("generatePixelProps");
+  const status = document.getElementById("pixelPropsStatus");
+
+  if (!select || !button || !status || button.dataset.busy === "1") return;
+
+  const device = select.value;
+  if (!PIXEL_DEVICE_FLAGS.includes(device) || selectedPixelFlag !== device) {
+    status.textContent = "Select a device and wait for its flag to be set.";
+    button.disabled = true;
+    return;
+  }
+
+  if (pixelFlagSyncPromise) {
+    try { await pixelFlagSyncPromise; } catch (_) {
+      status.textContent = "Device flag setup failed; select the device again.";
+      return;
+    }
+  }
+
+  button.dataset.busy = "1";
+  button.disabled = true;
+  button.setAttribute("aria-busy", "true");
+  button.classList.add("generating");
+  status.textContent = "Executing pixelprop script…";
+  const executionOverlay = document.getElementById("pixelExecutionOverlay");
+  if (executionOverlay) {
+    executionOverlay.classList.add("is-visible");
+    executionOverlay.setAttribute("aria-hidden", "false");
+  }
+
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+  try {
+    const scriptPath = "/data/adb/modules/integrity-box/pixelprop.sh";
+    const output = await sh(`test -f "${scriptPath}" && sh "${scriptPath}"`);
+    status.textContent = output ? `Script completed: ${output}` : "pixelprop updated successfully.";
+    showToast("pixelprop updated successfully.");
+  } catch (error) {
+    console.error("[Pixel Canary script]", error);
+    status.textContent = `Script execution failed: ${error.message || "Unknown error"}`;
+    showToast("pixelprop script failed");
+  } finally {
+    if (executionOverlay) {
+      executionOverlay.classList.remove("is-visible");
+      executionOverlay.setAttribute("aria-hidden", "true");
+    }
+    button.dataset.busy = "0";
+    button.removeAttribute("aria-busy");
+    button.classList.remove("generating");
+    button.disabled = !PIXEL_DEVICE_FLAGS.includes(select.value) || selectedPixelFlag !== select.value;
+    await refreshDeviceConfiguration();
+  }
+}
+
+async function restartServices() {
+  const button = document.getElementById("restartServicesButton");
+
+  if (button?.dataset.busy === "1") return;
+
+  if (button) {
+    button.dataset.busy = "1";
+    button.style.pointerEvents = "none";
+    button.style.opacity = "0.65";
+  }
+
+  try {
+    await restartGMS();
+    showToast("Google services processes stopped");
+  } catch (error) {
+    console.error("[Restart services]", error);
+    showToast("Failed to stop Google services");
+  } finally {
+    if (button) {
+      button.dataset.busy = "0";
+      button.style.pointerEvents = "";
+      button.style.opacity = "";
+    }
+  }
+}
+
+async function refreshBehaviourStates(){
+ for(const f of behaviourFlags){
+   try{
+     const out = await sh(`sh -c 'if [ -f "${FLAG_DIR}/${f.id}" ]; then echo 1; else echo 0; fi'`);
+     const val = out.trim() === '1';
+     const cb = document.getElementById(f.id);
+     const row = document.getElementById('row-' + f.id);
+     if(cb && row){
+       cb.checked = val;
+       row.classList.toggle('active', val);
+     }
+   }catch(e){}
+ }
+}
+
+function openInfoModal(){
+ const modal = document.getElementById("infoModal");
+ const content = document.getElementById("infoContent");
+ if(!content.innerHTML){
+   const behaviourTitle = document.createElement("div");
+   behaviourTitle.className = "info-section-title";
+   behaviourTitle.textContent = "Customize Integrity Behaviour";
+   content.appendChild(behaviourTitle);
+
+   behaviourFlags.forEach((item, i) => {
+     const div = document.createElement("div");
+     div.className = "info-item";
+     div.innerHTML = `<div class="info-item-title"><span class="material-icons">${item.icon}</span>${item.title}</div><div class="info-item-desc">${item.desc}</div><div class="info-item-flag"></div>`;
+     content.appendChild(div);
+     if(i < behaviourFlags.length - 1){
+       const d = document.createElement("div");
+       d.className = "modal-divider";
+       content.appendChild(d);
+     }
+   });
+
+   const pixelCanaryInfo = document.createElement("div");
+   pixelCanaryInfo.className = "info-item";
+   pixelCanaryInfo.innerHTML = `<div class="info-item-title"><span class="material-icons">build</span>Pixel Canary Props</div><div class="info-item-desc">Generates Pixel props for the selected devices</div>`;
+   content.appendChild(pixelCanaryInfo);
+   const pixelDivider = document.createElement("div");
+   pixelDivider.className = "modal-divider";
+   content.appendChild(pixelDivider);
+
+   const pifTitle = document.createElement("div");
+   pifTitle.className = "info-section-title";
+   pifTitle.textContent = "PIF Controls";
+   pifTitle.style.marginTop = "20px";
+   content.appendChild(pifTitle);
+
+   pifRows.forEach((item, i) => {
+     const div = document.createElement("div");
+     div.className = "info-item";
+     div.innerHTML = `<div class="info-item-title"><span class="material-icons">${item.icon}</span>${item.title}</div><div class="info-item-desc">${item.sub}</div><div class="info-item-flag"></div>`;
+     content.appendChild(div);
+     if(i < pifRows.length - 1){
+       const d = document.createElement("div");
+       d.className = "modal-divider";
+       content.appendChild(d);
+     }
+   });
+ }
+ modal.style.display = "flex";
+ requestAnimationFrame(() => modal.classList.add("show"));
+}
+
+function closeInfoModal(e){
+ if(e && e.target !== e.currentTarget) return;
+ const modal = document.getElementById("infoModal");
+ modal.classList.remove("show");
+ setTimeout(() => modal.style.display = "none", 350);
+}
+
+function initCollapsibleSections(){
+ const labels=[...document.querySelectorAll('.card > .section-label')];
+ const pif=labels.find(el=>el.textContent.trim()==='PIF Controls');
+ const behaviour=labels.find(el=>el.textContent.trim()==='Customize Integrity Behaviour');
+ const zygisk=labels.find(el=>el.textContent.trim()==='Zygisk Injection');
+ function makeHeading(label, id){
+  label.classList.add('collapsible-heading');label.setAttribute('role','button');label.setAttribute('tabindex','0');label.setAttribute('aria-expanded',id==='pifControlsCollapse'?'true':'false');label.dataset.collapse=id;
+  label.innerHTML='<span class="heading-title">'+label.textContent.trim()+'</span><span class="material-icons collapse-chevron">expand_more</span>';
+ }
+ function wrapUntil(label,nextLabel,id){
+  if(!label||!nextLabel)return;
+  const wrapper=document.createElement('div');wrapper.id=id;wrapper.className='collapsible-content'+(id==='pifControlsCollapse'?' expanded':'');
+  label.parentNode.insertBefore(wrapper,label.nextSibling);
+  let node=wrapper.nextSibling;
+  while(node&&node!==nextLabel){const next=node.nextSibling;wrapper.appendChild(node);node=next;}
+  makeHeading(label,id);
+ }
+ if(pif&&behaviour&&!document.getElementById('pifControlsCollapse'))wrapUntil(pif,behaviour,'pifControlsCollapse');
+ if(behaviour&&zygisk&&!document.getElementById('behaviourCollapse'))wrapUntil(behaviour,zygisk,'behaviourCollapse');
+ if(zygisk&&!zygisk.classList.contains('collapsible-heading')){
+  const card=document.getElementById('zygiskCard');
+  if(card){const wrapper=document.createElement('div');wrapper.id='zygiskCollapse';wrapper.className='collapsible-content';card.parentNode.insertBefore(wrapper,card);wrapper.appendChild(card);makeHeading(zygisk,'zygiskCollapse');}
+ }
+ const main=document.querySelector('.card > h1');
+ if(main&&!document.getElementById('deviceConfigIndicator')){const indicator=document.createElement('div');indicator.id='deviceConfigIndicator';indicator.className='device-config-indicator unknown';indicator.innerHTML='<span class="material-icons">devices</span><span>Current configuration: <strong>Checking…</strong></span>';main.insertAdjacentElement('afterend',indicator);}
+ document.querySelectorAll('.collapsible-heading[data-collapse]').forEach(header=>{
+  const target=document.getElementById(header.dataset.collapse);if(!target)return;
+  const toggle=()=>{const expanded=header.getAttribute('aria-expanded')==='true';header.setAttribute('aria-expanded',String(!expanded));target.classList.toggle('expanded',!expanded);};
+  header.addEventListener('click',toggle);header.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
+ });
+}
+
+async function refreshDeviceConfiguration(){
+ const indicator=document.getElementById('deviceConfigIndicator');if(!indicator)return;
+ try{
+  const file='/data/adb/modules/integrity-box/config.meow';
+  const model=await sh(`sh -c 'if [ -f "${file}" ]; then grep -m1 "^MODEL=" "${file}" | cut -d"=" -f2-; fi'`);
+  const value=(model||'').trim();
+  indicator.classList.toggle('unknown',!value);
+  indicator.innerHTML='<span class="material-icons">devices</span><span>Current configuration: <strong></strong></span>';
+  indicator.querySelector('strong').textContent=value||'Not detected';
+ }catch(e){
+  indicator.classList.add('unknown');indicator.innerHTML='<span class="material-icons">devices</span><span>Current configuration: <strong>Unavailable</strong></span>';
+ }
+}
+
+async function init(){
+ initCollapsibleSections();await refreshDeviceConfiguration();
+ const pixelSelect=document.getElementById("pixelDeviceSelect");if(pixelSelect)pixelSelect.addEventListener("change",selectPixelDevice);initPixelDevicePicker();await autoDetectPixelFlag();
+ propFile = await findPropFile();
+ zygiskExists = await checkZygisk();
+ zygiskPaused = await checkStopFlag();
+
+ updateZygiskCard();
+
+ if(zygiskPaused){
+   showWarning("Zygisk injection is paused");
+   KEYS.forEach(k => setDisabled(k, true));
+   await refreshBehaviourStates();
+   return;
+ }
+
+ if(!zygiskExists){
+   showWarning("zygiskless mode has been enabled");
+   KEYS.forEach(k => setDisabled(k, true));
+   await refreshBehaviourStates();
+   return;
+ }
+
+ if(!propFile){
+   showWarning("Change IntegrityBox profile first");
+   KEYS.forEach(k => setDisabled(k, true));
+   await refreshBehaviourStates();
+   return;
+ }
+
+ const adv = await hasAdvancedSettings(propFile);
+ if(!adv){
+   showWarning("Change your current profile brother");
+   KEYS.forEach(k => setDisabled(k, true));
+   await refreshBehaviourStates();
+   return;
+ }
+
+ showWarning('');
+
+ for(const key of KEYS){
+   const val = await readKey(propFile, key);
+   if(key === 'spoofVendingSdk'){
+     const enabled = val !== '' && val !== '0';
+     updateVisuals(key, enabled);
+     showSdkSelector(enabled, val === '1' ? '37' : val);
+   }else{
+     updateVisuals(key, val === '1');
+   }
+ }
+
+ KEYS.forEach(key => {
+   const input = document.getElementById(key);
+   input.addEventListener('change', () => toggle(key));
+ });
+ document.querySelectorAll('.sdk-option').forEach(btn => {
+   btn.addEventListener('click', () => selectSdkVersion(btn.dataset.sdk));
+ });
+
+ await refreshBehaviourStates();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+ init().catch(() => showWarning("Check KSU availability"));
+});
+</script>
+<script src="../TRANSLATIONS/meow.js"></script>
+<script>
+(function(){
+  var lang = localStorage.getItem('ibLang') || 'en';
+  if (lang !== 'en') {
+    var s = document.createElement('script');
+    s.src = '../TRANSLATIONS/' + lang + '.js';
+    s.onload = function(){ if(window.i18nBoot) window.i18nBoot(); };
+    document.head.appendChild(s);
+  }
+})();
+</script>
+</body>
+</html>

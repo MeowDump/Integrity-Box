@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Meow Downloader</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root{
+--bg:#1f2233;
+--fg:#e6e6e6;
+--accent:#4da3ff;
+--accent-glow:rgba(77,163,255,0.3);
+--danger:#ff4d4d;
+--danger-glow:rgba(255,77,77,0.3);
+--panel-bg:#232637cc;
+--success:#4dff88;
+--pink:#ff6b9d;
+--pink-glow:rgba(255,107,157,0.3);
+--text2:#9aa3ff;
+--transition:0.3s;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+margin:0;min-height:100vh;
+display:flex;align-items:center;justify-content:center;
+font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui;
+background:radial-gradient(circle at 30% 20%,#1c2045 0%,#0e1020 100%);
+color:var(--fg);
+-webkit-font-smoothing:antialiased;
+padding:20px;
+}
+.card{
+width:480px;max-width:100%;
+background:var(--panel-bg);
+backdrop-filter:blur(20px);
+border-radius:20px;
+padding:28px;
+box-shadow:0 25px 60px rgba(0,0,0,0.4),0 0 0 1px rgba(255,255,255,0.06);
+position:relative;overflow:hidden;
+animation:cardEntry 0.6s cubic-bezier(0.2,0.8,0.2,1);
+}
+@keyframes cardEntry{
+from{opacity:0;transform:translateY(30px) scale(0.96)}
+to{opacity:1;transform:translateY(0) scale(1)}
+}
+.card::before{
+content:"";
+position:absolute;inset:0;
+background:radial-gradient(circle at 50% 0%,var(--accent) 0%,transparent 70%);
+filter:blur(40px);opacity:0.15;pointer-events:none;z-index:0;
+animation:glowPulse 8s ease-in-out infinite;
+}
+@keyframes glowPulse{0%,100%{opacity:0.12}50%{opacity:0.25}}
+.header-wrap{
+position:relative;z-index:2;
+text-align:center;
+margin-bottom:20px;
+}
+h1{
+position:relative;z-index:2;
+margin:0 0 8px 0;
+font-size:22px;font-weight:700;
+display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.subtitle{
+text-align:center;color:var(--text2);
+font-size:13px;font-weight:500;margin-bottom:0;
+position:relative;z-index:2;
+}
+.header-actions{
+position:absolute;
+top:0;
+right:0;
+display:flex;
+gap:8px;
+}
+.icon-btn{
+width:36px;
+height:36px;
+border-radius:12px;
+background:rgba(255,255,255,0.05);
+border:1px solid rgba(255,255,255,0.08);
+color:var(--text2);
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+transition:all .2s ease;
+}
+.icon-btn:hover{
+background:rgba(77,163,255,0.12);
+border-color:rgba(77,163,255,0.25);
+color:var(--accent);
+}
+.icon-btn:active{transform:scale(0.92)}
+.icon-btn .material-icons{font-size:18px}
+.controls{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+margin-bottom:12px;
+position:relative;z-index:2;
+}
+.btn{
+padding:14px 18px;
+border-radius:14px;
+border:none;
+background:rgba(255,255,255,0.06);
+color:#fff;
+font-size:13px;
+font-weight:600;
+cursor:pointer;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:8px;
+transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:scale(0.96)}
+.btn .material-icons{font-size:18px}
+.btn-primary{
+background:rgba(77,163,255,0.1);
+color:var(--accent);
+border:1px solid rgba(77,163,255,0.2);
+}
+.btn-primary:hover{
+background:rgba(77,163,255,0.2);
+box-shadow:0 4px 16px rgba(77,163,255,0.15);
+}
+.btn-primary .material-icons{color:var(--accent)}
+.btn-danger{
+background:rgba(255,77,77,0.1);
+color:var(--danger);
+border:1px solid rgba(255,77,77,0.2);
+}
+.btn-danger:hover{
+background:rgba(255,77,77,0.2);
+box-shadow:0 4px 16px rgba(255,77,77,0.15);
+}
+.btn-danger .material-icons{color:var(--danger)}
+.apply-wrap{
+display:flex;
+justify-content:center;
+margin-bottom:20px;
+position:relative;z-index:2;
+}
+.apply-btn{
+padding:14px 48px;
+border-radius:14px;
+border:1px solid rgba(77,163,255,0.2);
+background:rgba(77,163,255,0.1);
+color:var(--accent);
+font-size:15px;
+font-weight:700;
+cursor:pointer;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:8px;
+transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
+text-transform:uppercase;
+letter-spacing:0.5px;
+}
+.apply-btn:hover{
+background:rgba(77,163,255,0.2);
+box-shadow:0 4px 16px rgba(77,163,255,0.15);
+transform:translateY(-2px);
+}
+.apply-btn:active{transform:scale(0.96)}
+.apply-btn .material-icons{font-size:20px;color:var(--accent)}
+.apply-btn:disabled{opacity:0.35;cursor:not-allowed;transform:none;box-shadow:none}
+.section-title{
+position:relative;z-index:2;
+font-size:12px;
+font-weight:600;
+color:var(--text2);
+text-transform:uppercase;
+letter-spacing:0.5px;
+margin:20px 0 12px 0;
+padding-left:12px;
+border-left:3px solid var(--accent);
+}
+.row{
+position:relative;z-index:2;
+display:flex;align-items:center;justify-content:space-between;
+gap:14px;padding:14px 16px;border-radius:14px;
+background:rgba(255,255,255,0.03);
+border:1px solid rgba(255,255,255,0.06);
+margin-bottom:8px;
+transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
+cursor:pointer;
+}
+.row:hover{
+background:rgba(255,255,255,0.06);
+transform:translateY(-2px);
+box-shadow:0 8px 24px rgba(0,0,0,0.3);
+border-color:rgba(77,163,255,0.2);
+}
+.row:active{transform:scale(0.98)}
+.row.active{
+background:rgba(77,163,255,0.1);
+border-color:rgba(77,163,255,0.4);
+box-shadow:0 0 20px rgba(77,163,255,0.15);
+}
+.row.active .icon-wrap{
+background:var(--accent);
+box-shadow:0 4px 16px var(--accent-glow);
+}
+.row.active .icon-wrap .material-icons{color:white}
+.row.active .title{color:var(--accent)}
+.icon-wrap{
+width:40px;height:40px;border-radius:10px;
+background:rgba(255,255,255,0.08);
+display:flex;align-items:center;justify-content:center;
+transition:all 0.3s;flex-shrink:0;
+}
+.icon-wrap .material-icons{
+font-size:20px;color:var(--text2);
+transition:all 0.3s;
+}
+.content{flex:1;min-width:0}
+.title{
+font-size:15px;font-weight:600;
+color:var(--fg);margin-bottom:2px;
+transition:color 0.3s;
+display:flex;
+align-items:center;
+}
+.subtitle-text{
+font-size:11px;color:var(--text2);
+font-weight:500;
+opacity:0.8;
+font-family:'SF Mono',SFMono-Regular,monospace;
+}
+.type-badge{
+font-size:9px;
+font-weight:700;
+padding:2px 6px;
+border-radius:4px;
+text-transform:uppercase;
+margin-left:8px;
+vertical-align:middle;
+flex-shrink:0;
+}
+.type-badge.zip{background:rgba(77,163,255,0.15);color:var(--accent)}
+.type-badge.apk{background:rgba(255,107,157,0.15);color:var(--pink)}
+.type-badge.json{background:rgba(255,170,77,0.15);color:#ffaa4d}
+.type-badge.kpm{background:rgba(200,150,255,0.15);color:#c896ff}
+.switch{
+position:relative;width:50px;height:28px;flex-shrink:0;
+pointer-events:none;
+}
+.switch input{position:absolute;opacity:0;width:0;height:0}
+.slider{
+position:absolute;inset:0;border-radius:999px;
+background:rgba(255,255,255,0.1);
+transition:all var(--transition);
+box-shadow:inset 0 2px 4px rgba(0,0,0,0.2);
+}
+.knob{
+position:absolute;left:2px;top:2px;
+width:24px;height:24px;border-radius:50%;
+background:linear-gradient(145deg,#fff,#e0e0e0);
+transition:transform 0.25s cubic-bezier(0.2,0.8,0.2,1);
+box-shadow:0 2px 8px rgba(0,0,0,0.3);
+}
+.switch input:checked + .slider{
+background:var(--accent);
+box-shadow:0 0 20px var(--accent-glow);
+}
+.switch input:checked + .slider .knob{transform:translateX(22px)}
+.status-area{
+position:relative;z-index:2;
+display:none;
+margin-bottom:16px;
+}
+.status-area.active{display:block}
+.status-item{
+display:flex;
+align-items:center;
+gap:10px;
+padding:10px 14px;
+border-radius:12px;
+background:rgba(255,255,255,0.03);
+border:1px solid rgba(255,255,255,0.06);
+margin-bottom:6px;
+font-size:12px;
+}
+.status-dot{
+width:8px;height:8px;
+border-radius:50%;
+flex-shrink:0;
+}
+.status-dot.pending{background:rgba(255,255,255,0.2)}
+.status-dot.running{background:var(--accent);animation:pulse 1s infinite}
+.status-dot.done{background:var(--success)}
+.status-dot.fail{background:var(--danger)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.status-name{flex:1;color:var(--fg);font-weight:500}
+.status-text{color:var(--text2);font-size:11px}
+.status-bar{
+display:flex;
+align-items:center;
+justify-content:space-between;
+margin-top:16px;
+padding:0 4px;
+position:relative;z-index:2;
+}
+.status-text{
+font-size:12px;
+color:var(--text2);
+font-weight:500;
+display:flex;
+align-items:center;
+gap:8px;
+}
+.spinner{
+width:14px;height:14px;
+border:2px solid rgba(255,255,255,0.1);
+border-top-color:var(--accent);
+border-radius:50%;
+animation:spin 0.8s linear infinite;
+display:none;
+}
+.spinner.active{display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.footer{
+margin-top:16px;text-align:center;
+color:var(--text2);font-size:11px;opacity:0.6;
+position:relative;z-index:2;
+}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:linear-gradient(180deg,rgba(35,38,65,0.95),rgba(22,24,45,0.98));backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:14px 22px;display:flex;align-items:center;gap:12px;font-size:13px;font-weight:600;color:var(--fg);box-shadow:0 16px 48px rgba(0,0,0,0.45);opacity:0;pointer-events:none;transition:all .4s cubic-bezier(0.22,1,0.36,1);z-index:3000;max-width:90vw}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast .material-icons{font-size:20px;flex-shrink:0}
+.toast.ok .material-icons{color:var(--success)}
+.toast.err .material-icons{color:var(--danger)}
+.toast.info .material-icons{color:var(--accent)}
+.toast.warn .material-icons{color:#ffaa4d}
+.info-modal{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+.info-modal.open{display:flex}
+.info-modal-bg{position:absolute;inset:0;background:rgba(5,6,14,0.75);backdrop-filter:blur(12px);opacity:0;transition:opacity .3s ease}
+.info-modal.open .info-modal-bg{opacity:1}
+.info-modal-card{position:relative;width:100%;max-width:380px;background:linear-gradient(180deg,rgba(35,38,65,0.9),rgba(22,24,45,0.95));backdrop-filter:blur(32px);border-radius:22px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 32px 80px rgba(0,0,0,0.55);padding:22px;opacity:0;transform:scale(0.92) translateY(16px);transition:all .35s cubic-bezier(0.22,1,0.36,1);max-height:88vh;overflow-y:auto}
+.info-modal.open .info-modal-card{opacity:1;transform:scale(1) translateY(0)}
+.info-modal-head{display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.05)}
+.info-modal-head .material-icons{font-size:20px;color:var(--accent)}
+.info-modal-title{font-size:18px;font-weight:700;letter-spacing:-0.3px}
+.info-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.info-row:last-child{border-bottom:none}
+.info-text{font-size:13px;color:var(--text2);font-weight:500}
+.info-close-btn{width:100%;margin-top:18px;padding:15px;border-radius:14px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:all .25s cubic-bezier(0.22,1,0.36,1);display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:0.3px}
+.info-close-btn:hover{background:#6bb5ff;transform:translateY(-1px);box-shadow:0 8px 28px rgba(77,163,255,0.2)}
+.info-close-btn:active{transform:scale(0.97)}
+.install-result{font-size:13px;color:var(--text2);line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.install-result.success{color:var(--success)}
+.install-result.failure{color:var(--danger)}
+
+@media(max-width:420px){
+.card{width:100%;padding:20px}
+.row{padding:12px 14px}
+.icon-wrap{width:36px;height:36px}
+}
+</style>
+</head>
+<body>
+<div class="card">
+<div class="header-wrap">
+<h1><span class="material-icons">download</span>Meow Downloader</h1>
+<div class="subtitle">Output: /sdcard/Download/IntegrityModules</div>
+<div class="header-actions">
+<button class="icon-btn" onclick="openInfoModal()"><span class="material-icons">info</span></button>
+</div>
+</div>
+
+<div class="controls">
+<div class="btn btn-primary" onclick="selectAll()">
+<span class="material-icons">check_circle</span>
+Select All
+</div>
+<div class="btn btn-danger" onclick="deselectAll()">
+<span class="material-icons">remove_circle</span>
+Clear All
+</div>
+</div>
+
+<div class="apply-wrap">
+<div class="btn btn-primary apply-btn" onclick="startDownload()" id="dlBtn">
+<span class="material-icons">download</span>
+Download Selected
+</div>
+</div>
+
+<div class="section-title" id="statusTitle" style="display:none">Download Progress</div>
+<div class="status-area" id="statusArea">
+<div id="statusList"></div>
+</div>
+
+<div class="section-title">Modules</div>
+<div id="list"></div>
+
+<div class="status-bar">
+<span class="status-text" id="status">Ready</span>
+<div class="spinner" id="spinner"></div>
+</div>
+
+<div class="footer">2026 IntegrityBox</div>
+</div>
+
+<div class="toast" id="toast"><span class="material-icons" id="tIcon">info</span><span id="tTxt"></span></div>
+
+<div class="info-modal" id="infoModal">
+<div class="info-modal-bg" onclick="closeInfoModal()"></div>
+<div class="info-modal-card">
+<div class="info-modal-head"><span class="material-icons">info</span><div class="info-modal-title">Meow Downloader</div></div>
+<div class="info-row"><div class="info-text">Files are saved to <strong>/sdcard/Download/IntegrityModules</strong></div></div>
+<div class="info-row"><div class="info-text">Toggle items to queue them for download</div></div>
+<button class="info-close-btn" onclick="closeInfoModal()">Got it</button>
+</div>
+</div>
+
+<div class="info-modal" id="installModal">
+  <div class="info-modal-bg"></div>
+  <div class="info-modal-card">
+    <div class="info-modal-head">
+      <span class="material-icons" id="installIcon">android</span>
+      <div class="info-modal-title" id="installTitle">APK Installation</div>
+    </div>
+    <div class="install-result" id="installMessage"></div>
+    <button class="info-close-btn" onclick="closeInstallModal()">Continue</button>
+  </div>
+</div>
+
+<script>
+var DOWNLOADS = [
+  { id: "zn", name: "Zygisk Next", desc: "LSPosed / v1.5.3", type: "zip", url: "https://github.com/LSPosed/ZygiskNext/releases/download/v1.5.3/Zygisk-Next-1.5.3-880-22a1bf5-release.zip", filename: "ZygiskNext.zip" },
+  { id: "mz", name: "Meow Zygisk", desc: "MeowDump / v3", type: "zip", url: "https://github.com/MeowDump/MeowZygisk/releases/download/v3/v3-MeowZygisk-22-09-2026.zip", filename: "MeowZygisk.zip" },
+  { id: "tsm", name: "TEE Simulator", desc: "JingMatrix / canary-76", type: "zip", url: "https://github.com/JingMatrix/TEESimulator/releases/download/canary-76/TEESimulator-v4.0-76-06f9f2e-Release.zip", filename: "TEEsimulator.zip" },
+  { id: "ts", name: "TrickyStore OOS", desc: "5ec1cff / v3.1.0", type: "zip", url: "https://github.com/beakthoven/TrickyStoreOSS/releases/download/v3.1.0/Tricky-Store-OSS-v3.1.0-172-41383f5-Release.zip", filename: "TrickyStoreOOS.zip" },
+  { id: "hma2", name: "HMA-OSS", desc: "frknkrc44 / oss-175", type: "zip", url: "https://github.com/frknkrc44/HMA-OSS/releases/download/oss-175/HMA-OSS-ZYGISK-oss-175-release.zip", filename: "HMA_OOS.zip" },
+  { id: "sh", name: "SeLinuxHook", desc: "Admirepowered / 1.1.6.1", type: "kpm", url: "https://github.com/MeowDump/TG2Git/releases/download/TG2Git/selinux_hook_1.1.6.1.kpm", filename: "SeLinuxHook.kpm" },
+  { id: "hma", name: "HMA OOS Config", desc: "MeowDump / config.json", type: "json", url: "https://github.com/MeowDump/Integrity-Box/releases/download/archive/HMA-OOS.json", filename: "HMA_OOS_Config.json" },
+  { id: "ka", name: "KeyAttestation", desc: "VisionR1 / v2.0.4", type: "apk", url: "https://github.com/VisionR1/KeyAttestation/releases/download/v2.0.4(264)-Fork/KeyAttestation-v2.0.4-Vision.apk", filename: "KeyAttestation.apk" },
+  { id: "ul", name: "UpdateLocker", desc: "ru.mike / v1.4.3", type: "apk", url: "https://github.com/Xposed-Modules-Repo/ru.mike.updatelocker/releases/download/20-1.4.3/updatelocker_v1.4.3_icon.apk", filename: "UpdateLocker.apk" },
+  { id: "rp", name: "Reverse Pixelify", desc: "uragiristereo / v1.0", type: "apk", url: "https://github.com/uragiristereo/Reverse_Pixelify/releases/download/v1.0/Reverse_Pixelify_v1.0.apk", filename: "Disable_ROM_spoofing_lsposed.apk" },
+  { id: "kw", name: "KSU WebUI", desc: "MeowDump / v2", type: "apk", url: "https://github.com/MeowDump/KsuWebUIStandalone/releases/download/v2/v2-Meow-KsuWebUI.apk", filename: "WebUI.apk" },
+  { id: "cp", name: "CorePatch", desc: "LSPosed / N-1.0", type: "apk", url: "https://github.com/LSPosed/CorePatch/releases/download/N-1.0/app-release.apk", filename: "Downgrade_Playstore.apk" },
+  { id: "ma", name: "MeowAssistant", desc: "MeowDump / v1", type: "apk", url: "https://github.com/MeowDump/MeowAssistant/releases/download/v1/v1-MeowTile.apk", filename: "Meow_QS_Tile.apk" },
+  { id: "af", name: "AndroidFaker", desc: "Android1500 / v2.0.0-beta", type: "apk", url: "https://github.com/Android1500/AndroidFaker/releases/download/v2.0.0-beta-9-6/AF-v2.0.0-beta-9-6.apk", filename: "Android_Faker.apk" }
+];
+
+var FLAG_DIR = "/data/adb/Box-Brain/MeowDownloader";
+var LOG_FILE = "/data/adb/Box-Brain/Integrity-Box-Logs/IntegrityDownloader.log";
+var OUT_DIR = "/sdcard/Download/IntegrityModules";
+
+var listEl = document.getElementById("list");
+var statusArea = document.getElementById("statusArea");
+var statusList = document.getElementById("statusList");
+var dlBtn = document.getElementById("dlBtn");
+var statusTitle = document.getElementById("statusTitle");
+
+function log(msg) {
+}
+
+function sh(cmd) {
+  try { return ksu.exec(cmd); } catch (e) { return ""; }
+}
+
+function showToast(msg, type) {
+  var t = document.getElementById("toast");
+  document.getElementById("tTxt").textContent = msg;
+  document.getElementById("tIcon").textContent = type === "ok" ? "check_circle" : type === "err" ? "error" : type === "warn" ? "warning" : "info";
+  t.className = "toast " + (type || "info") + " show";
+  setTimeout(function() { t.classList.remove("show"); }, 3200);
+}
+
+function renderList() {
+  listEl.innerHTML = "";
+  for (var i = 0; i < DOWNLOADS.length; i++) {
+    var item = DOWNLOADS[i];
+    var iconMap = { zip: "folder_zip", apk: "android", json: "description", kpm: "extension" };
+    var div = document.createElement("div");
+    div.className = "row";
+    div.id = "row-" + item.id;
+    div.onclick = (function(id) { return function() { toggle(id); }; })(item.id);
+    div.innerHTML =
+      '<div class="icon-wrap"><span class="material-icons">' + iconMap[item.type] + '</span></div>' +
+      '<div class="content">' +
+        '<div class="title">' + item.name + '<span class="type-badge ' + item.type + '">' + item.type + '</span></div>' +
+        '<div class="subtitle-text">' + item.desc + '</div>' +
+      '</div>' +
+      '<label class="switch" onclick="event.stopPropagation()">' +
+        '<input type="checkbox" id="' + item.id + '">' +
+        '<span class="slider"><span class="knob"></span></span>' +
+      '</label>';
+    listEl.appendChild(div);
+  }
+}
+
+function toggle(id) {
+  var el = document.getElementById(id);
+  if (el) {
+    el.checked = !el.checked;
+    document.getElementById("row-" + id).classList.toggle("active", el.checked);
+  }
+}
+
+function selectAll() {
+  sh('mkdir -p "' + FLAG_DIR + '"');
+  for (var i = 0; i < DOWNLOADS.length; i++) {
+    var id = DOWNLOADS[i].id;
+    var el = document.getElementById(id);
+    if (el && !el.checked) {
+      el.checked = true;
+      document.getElementById("row-" + id).classList.add("active");
+    }
+  }
+  showToast("All items selected", "ok");
+}
+
+function deselectAll() {
+  sh('rm -rf "' + FLAG_DIR + '"');
+  for (var i = 0; i < DOWNLOADS.length; i++) {
+    var el = document.getElementById(DOWNLOADS[i].id);
+    if (el) el.checked = false;
+    document.getElementById("row-" + DOWNLOADS[i].id).classList.remove("active");
+  }
+  statusArea.classList.remove("active");
+  statusTitle.style.display = "none";
+  statusList.innerHTML = "";
+  showToast("All items cleared", "warn");
+}
+
+function updateStatus(id, state, text) {
+  var el = document.getElementById("st-" + id);
+  if (!el) {
+    var item = null;
+    for (var i = 0; i < DOWNLOADS.length; i++) {
+      if (DOWNLOADS[i].id === id) { item = DOWNLOADS[i]; break; }
+    }
+    el = document.createElement("div");
+    el.id = "st-" + id;
+    el.className = "status-item";
+    el.innerHTML = '<div class="status-dot pending" id="dot-' + id + '"></div><div class="status-name">' + (item ? item.name : id) + '</div><div class="status-text" id="txt-' + id + '">Pending</div>';
+    statusList.appendChild(el);
+  }
+  document.getElementById("dot-" + id).className = "status-dot " + state;
+  document.getElementById("txt-" + id).textContent = text;
+}
+
+function getSelectedIds() {
+  var ids = [];
+  for (var i = 0; i < DOWNLOADS.length; i++) {
+    var el = document.getElementById(DOWNLOADS[i].id);
+    if (el && el.checked) ids.push(DOWNLOADS[i].id);
+  }
+  return ids;
+}
+
+function findItem(id) {
+  for (var i = 0; i < DOWNLOADS.length; i++) {
+    if (DOWNLOADS[i].id === id) return DOWNLOADS[i];
+  }
+  return null;
+}
+
+function buildDownloadCmd(item) {
+  return 'OUT="' + OUT_DIR + '"; mkdir -p "$OUT"; DL=""; ' +
+    'command -v curl >/dev/null 2>&1 && DL="curl"; ' +
+    '[ -z "$DL" ] && command -v wget >/dev/null 2>&1 && DL="wget"; ' +
+    '[ -z "$DL" ] && [ -x /data/adb/magisk/busybox ] && DL="bb"; ' +
+    '[ -z "$DL" ] && [ -x /data/adb/ksu/bin/busybox ] && DL="bb"; ' +
+    '[ -z "$DL" ] && toybox wget --help >/dev/null 2>&1 && DL="toybox"; ' +
+    'if [ -z "$DL" ]; then echo "NO_DL"; exit 1; fi; ' +
+    'tmp="$OUT/' + item.filename + '.tmp"; rm -f "$tmp"; ok=0; ' +
+    'for i in 1 2 3; do ' +
+      'if [ "$DL" = "curl" ]; then curl -L --fail --connect-timeout 10 --max-time 120 -o "$tmp" "' + item.url + '" 2>/dev/null; ' +
+      'elif [ "$DL" = "wget" ]; then wget --no-check-certificate -O "$tmp" "' + item.url + '" 2>/dev/null; ' +
+      'elif [ "$DL" = "bb" ]; then /data/adb/magisk/busybox wget --no-check-certificate -O "$tmp" "' + item.url + '" 2>/dev/null || /data/adb/ksu/bin/busybox wget --no-check-certificate -O "$tmp" "' + item.url + '" 2>/dev/null; ' +
+      'elif [ "$DL" = "toybox" ]; then toybox wget -O "$tmp" "' + item.url + '" 2>/dev/null; ' +
+      'fi; ' +
+      'if [ -s "$tmp" ]; then mv "$tmp" "$OUT/' + item.filename + '"; echo "OK"; ok=1; break; fi; ' +
+      'rm -f "$tmp"; sleep 1; ' +
+    'done; ' +
+    'if [ "$ok" = "0" ]; then echo "FAIL"; fi';
+}
+
+function startDownload() {
+  var selectedIds = getSelectedIds();
+  
+  if (selectedIds.length === 0) {
+    showToast("Nothing selected", "err");
+    return;
+  }
+  
+  dlBtn.disabled = true;
+  statusArea.classList.add("active");
+  statusTitle.style.display = "block";
+  statusList.innerHTML = "";
+  
+  for (var i = 0; i < selectedIds.length; i++) {
+    updateStatus(selectedIds[i], "pending", "Queued");
+  }
+  
+  sh('mkdir -p "' + OUT_DIR + '"');
+  sh('rm -f "' + LOG_FILE + '"');
+  sh('echo "START" > "' + LOG_FILE + '"');
+  
+  downloadNext(selectedIds, 0);
+}
+
+var installContinue = null;
+
+function showInstallPopup(title, message, success, onClose) {
+  document.getElementById("installTitle").textContent = title;
+  var messageEl = document.getElementById("installMessage");
+  messageEl.textContent = message;
+  messageEl.className = "install-result " + (success ? "success" : "failure");
+  document.getElementById("installIcon").textContent = success ? "check_circle" : "error";
+  installContinue = onClose || null;
+  document.getElementById("installModal").classList.add("open");
+}
+
+function closeInstallModal() {
+  document.getElementById("installModal").classList.remove("open");
+  var next = installContinue;
+  installContinue = null;
+  if (next) next();
+}
+
+function installDownloadedApk(item, onComplete) {
+  updateStatus(item.id, "running", "Installing...");
+  var apkPath = OUT_DIR + "/" + item.filename;
+  var tempApkPath = "/data/local/tmp/MeowDownloader-" + item.filename;
+  var installCmd = 'APK_FILE="' + apkPath + '"; INSTALL_FILE="' + tempApkPath + '"; ' +
+    'USER_ID="$(am get-current-user 2>/dev/null)"; [ -n "$USER_ID" ] || USER_ID=0; ' +
+    'mkdir -p /data/local/tmp && cp "$APK_FILE" "$INSTALL_FILE" && chmod 644 "$INSTALL_FILE" && ' +
+    '(restorecon "$INSTALL_FILE" 2>/dev/null || true) && ' +
+    'pm install --user "$USER_ID" -r "$INSTALL_FILE" 2>&1; INSTALL_RESULT=$?; ' +
+    'rm -f "$INSTALL_FILE"; exit "$INSTALL_RESULT"';
+  var output = String(sh(installCmd) || "").trim();
+  var installed = /(^|\n)Success\s*$/.test(output) || output === "Success";
+  if (installed) {
+    updateStatus(item.id, "done", "Installed");
+    showInstallPopup("Installation completed", item.name + " was installed successfully.", true, onComplete);
+  } else {
+    updateStatus(item.id, "fail", "Install failed");
+    showInstallPopup("Installation failed", item.name + " was downloaded, but Android could not install it.\n\n" + (output || "No error details returned."), false, onComplete);
+  }
+}
+
+function downloadNext(ids, index) {
+  if (index >= ids.length) {
+    var dots = statusList.querySelectorAll(".status-dot");
+    var done = 0, fail = 0;
+    for (var i = 0; i < dots.length; i++) {
+      var cls = dots[i].className;
+      if (cls.indexOf("done") !== -1) done++;
+      else if (cls.indexOf("fail") !== -1) fail++;
+    }
+    showToast("Finished: " + done + " OK, " + fail + " failed", done > 0 ? "ok" : "err");
+    dlBtn.disabled = false;
+    sh('rm -f "' + FLAG_DIR + '"/*');
+    for (var i = 0; i < DOWNLOADS.length; i++) {
+      var el = document.getElementById(DOWNLOADS[i].id);
+      if (el) {
+        el.checked = false;
+        document.getElementById("row-" + DOWNLOADS[i].id).classList.remove("active");
+      }
+    }
+    return;
+  }
+  
+  var item = findItem(ids[index]);
+  if (!item) {
+    downloadNext(ids, index + 1);
+    return;
+  }
+  
+  updateStatus(item.id, "running", "Downloading...");
+  
+  var cmd = buildDownloadCmd(item);
+  
+  requestAnimationFrame(function() {
+    setTimeout(function() {
+      var result = sh(cmd);
+      var out = String(result || "").trim();
+      
+      sh('echo "' + item.name + ':' + out + '" >> "' + LOG_FILE + '"');
+      
+      if (out === "OK") {
+        if (item.type === "apk") {
+          installDownloadedApk(item, function() {
+            downloadNext(ids, index + 1);
+          });
+          return;
+        }
+        updateStatus(item.id, "done", "Complete");
+        showToast(item.name + " done", "ok");
+      } else if (out === "NO_DL") {
+        updateStatus(item.id, "fail", "No downloader");
+        showToast("No curl/wget found!", "err");
+      } else {
+        updateStatus(item.id, "fail", "Failed");
+        showToast(item.name + " failed", "err");
+      }
+      
+      downloadNext(ids, index + 1);
+    }, 50);
+  });
+}
+
+function openInfoModal() {
+  document.getElementById("infoModal").classList.add("open");
+}
+
+function closeInfoModal() {
+  document.getElementById("infoModal").classList.remove("open");
+}
+
+renderList();
+
+var hasKsu = (typeof ksu !== "undefined" && ksu.exec) || (window.parent && window.parent.ksu && window.parent.ksu.exec) || (window.parent && typeof window.parent.runShellFromIframe === "function");
+if (!hasKsu) {
+  showToast("KSU API unavailable", "err");
+}
+</script>
+<script src="../TRANSLATIONS/meow.js"></script>
+<script>
+(function(){
+  var lang = localStorage.getItem("ibLang") || "en";
+  if (lang !== "en") {
+    var s = document.createElement("script");
+    s.src = "../TRANSLATIONS/" + lang + ".js";
+    s.onload = function(){ if(window.i18nBoot) window.i18nBoot(); };
+    document.head.appendChild(s);
+  }
+})();
+</script>
+</body>
+</html>

@@ -6,19 +6,21 @@ LOG_DIR="$FLAG/Integrity-Box-Logs"
 INSTALL_LOG="$LOG_DIR/Installation.log"
 LOG_FILE="$LOG_DIR/DeviceType.log"
 SCRIPT="$MODPATH/webroot/common_scripts"
-MEOW="/data/adb/modules/playintegrityfix"
-SDK=$(getprop ro.system.build.version.sdk)
+MEOW="/data/adb/modules/integrity-box"
+BRAND=$(getprop ro.product.system.brand)
 TRICKY="/data/adb/tricky_store"
 
 mkdir -p "$FLAG" || true
 mkdir -p "$FLAG/PIF" || true
+mkdir -p "$FLAG/TrickyBox" || true
 mkdir -p "$LOG_DIR" || true
 mkdir -p "$MEOW" || true
 mkdir -p "$TRICKY" || true
-
-touch "$FLAG/PIF/custom-pif"
-touch "$FLAG/PIF/advanced"
 touch "$FLAG/keyswitch"
+
+if [ -z "$(ls -A "$FLAG/PIF" 2>/dev/null)" ] || [ "$BRAND" != "google" ]; then
+    touch "$FLAG/PIF/bluejay"
+fi
 
 debug() {
     echo "$1" | tee -a "$INSTALL_LOG"
@@ -47,7 +49,6 @@ check_integrity() {
 
 setup_environment() {
     debug " ✦ Setting up Environment "
-    debug " "
     chmod +x "$SCRIPT/key.sh"
     sh "$SCRIPT/key.sh"
     debug " "
@@ -106,6 +107,50 @@ magisk_resetprop_rs() {
                 ;;
         esac
     done
+}
+
+manage_safemode() {
+    local timeout_seconds=60 line
+    
+    ui_print "----------------------------------------"
+    ui_print "        Safemode Configuration"
+    ui_print "----------------------------------------"
+    ui_print " "
+    ui_print "  Safemode prevents certain custom ROM-specific"
+    ui_print "  functions from running on stock ROMs. This is"
+    ui_print "  intended to avoid potentially rare issues such as"
+    ui_print "  bootloops or broken cameras on some devices"
+    ui_print " "
+    ui_print "  Safemode is enabled by default. Disabling it"
+    ui_print "  can help improve Play Integrity results"
+    ui_print " "
+    ui_print "  You can always enable or disable it"
+    ui_print "  later, manually through the WebUI"
+    ui_print " "
+    ui_print "  Volume Up   : Enable Safemode"
+    ui_print "  Volume Down : Disable Safemode"
+    ui_print "  No key press within 60 seconds: Enable by default"
+    ui_print " "
+    ui_print "  Press a volume key to make your choice..."
+    ui_print " "
+    ui_print "----------------------------------------"
+    read -r -t "$timeout_seconds" line < <(getevent -ql | awk '/KEY_VOLUME/ {print; exit}')
+
+    if [ $? -eq 142 ]; then
+        debug " ✦ Timeout: enabling safemode by default"
+        touch "$FLAG/safemode" 2>/dev/null
+        return 0
+    fi
+
+    if echo "$line" | grep -q "KEY_VOLUMEUP"; then
+        touch "$FLAG/safemode" 2>/dev/null
+        debug " ✦ Volume Up pressed: safemode enabled"
+    elif echo "$line" | grep -q "KEY_VOLUMEDOWN"; then
+        rm -f "$FLAG/safemode" 2>/dev/null
+        debug " ✦ Volume Down pressed: safemode disabled"
+    else
+        touch "$FLAG/safemode" 2>/dev/null
+    fi
 }
 
 detect_rom() {
@@ -243,21 +288,12 @@ detect_rom() {
         echo "$TS | ACTION | skip flag created (sensitive stock device)" >> "$LOG_FILE" 2>/dev/null
     fi
 
-    touch "$FLAG/safemode" 2>/dev/null
     echo "$TS | ACTION | safemode flag created" >> "$LOG_FILE" 2>/dev/null
     echo "Result: Stock ROM" >> "$LOG_FILE" 2>/dev/null
     echo "Detection Completed - $(date)" >> "$LOG_FILE" 2>/dev/null
     debug " ✦ ROM type: Stock ROM"
+    manage_safemode
     return 0
-}
-
-set_integritybox_profile() {
-    debug " ✦ Setting IntegrityBox Profile"
-        if [ "$SDK" -ge 33 ]; then
-            touch "$FLAG/pixelify"
-        else
-            touch "$FLAG/legacy"
-        fi
 }
 
 boot_configuration() {
@@ -279,7 +315,7 @@ cleanup() {
 
 prepare_directories() {
     debug " ✦ Preparing Required Directories  "
-    [ ! -d "/data/adb/modules/playintegrityfix" ] && mkdir -p "/data/adb/modules/playintegrityfix"
+    [ ! -d "/data/adb/modules/integrity-box" ] && mkdir -p "/data/adb/modules/integrity-box"
     [ ! -f "$MODPATH/module.prop" ] && return 1
 }
 
@@ -303,6 +339,12 @@ setup_blacklist() {
     fi
 }
 
+setup_status() {
+    if [ ! -f "$FLAG/status.json" ]; then
+        cp "$MODPATH/toolkit/status.json" "$FLAG/status.json"
+    fi
+}
+
 release_source() {
     nohup am start -a android.intent.action.VIEW -d "https://t.me/MeowRedirect" > /dev/null 2>&1 &
 }
@@ -315,6 +357,7 @@ enable_recommended_settings() {
     touch "$FLAG/keyswitch"
     touch "$FLAG/wait"
     touch "$FLAG/autopilot"
+    touch "$FLAG/force-reset"
     touch "$FLAG/PIF/skip_json"
     touch "$FLAG/PIF/skip_key"
     touch "$FLAG/PIF/advanced"
@@ -334,15 +377,85 @@ display_footer() {
     debug " "
 }
 
+generate_hosts_block() {
+    HOSTS_SOURCE="/system/etc/hosts"
+    HOSTS_TARGET="$MODPATH/system/etc/hosts"
+    TMP_HOSTS="$MODPATH/hosts.tmp"
+
+    mkdir -p "$MODPATH/system/etc" || return 1
+
+    if [ -f "$HOSTS_SOURCE" ]; then
+        awk '
+        {
+            remove = 0
+            for (i = 2; i <= NF; i++) {
+                if ($i == "protectt.ai" || $i == "t7.protectt.ai") {
+                    remove = 1
+                }
+            }
+            if (!remove) print
+        }
+        ' "$HOSTS_SOURCE" > "$TMP_HOSTS" || return 1
+    else
+        printf "127.0.0.1 localhost\n::1 ip6-localhost\n" > "$TMP_HOSTS" || return 1
+    fi
+
+    printf "\n0.0.0.0 protectt.ai\n0.0.0.0 t7.protectt.ai\n" >> "$TMP_HOSTS" || return 1
+
+    mv "$TMP_HOSTS" "$HOSTS_TARGET" || return 1
+
+    return 0
+}
+
+install_tricky_backend() {
+    if [ -d "/data/adb/modules/oh_my_keymint" ] ||
+       [ -d "/data/adb/modules/tricky_store" ] ||
+       [ -d "/data/adb/modules/teesim" ]; then
+        return 0
+    fi
+
+    BACKEND_ZIP="$MODPATH/toolkit/TrickyBox.zip"
+
+    [ -f "$BACKEND_ZIP" ] || return 0
+    
+    debug " ✦ No external attestation modules detected"
+    debug " ✦ Installing built-in Tricky Store"
+
+    if [ -x "/data/adb/magisk/magisk" ]; then
+        /data/adb/magisk/magisk --install-module "$BACKEND_ZIP" >/dev/null 2>&1
+        STATUS=$?
+        [ "$STATUS" -eq 0 ] && debug " ✦ TrickyBox: Successfully installed via Magisk."
+        cleanup
+        debug " ✦ Please don't install Tricky Store or TEEsim or OMK"
+        debug " "
+    elif [ -x "/data/adb/ksu/bin/ksud" ]; then
+        /data/adb/ksu/bin/ksud module install "$BACKEND_ZIP" >/dev/null 2>&1
+        STATUS=$?
+        [ "$STATUS" -eq 0 ] && debug " ✦ TrickyBox: Successfully installed via KernelSU."
+        cleanup
+        debug " ✦ Please don't install Tricky Store or TEEsim or OMK"
+        debug " "
+    elif [ -x "/data/adb/ap/bin/apd" ]; then
+        /data/adb/ap/bin/apd module install "$BACKEND_ZIP" >/dev/null 2>&1
+        STATUS=$?
+        [ "$STATUS" -eq 0 ] && debug " ✦ TrickyBox: Successfully installed via APatch."
+        cleanup
+        debug " ✦ Please don't install Tricky Store or TEEsim or OMK"
+        debug " "
+    fi
+}
+
 install_module() {
-    check_integrity
+#    check_integrity
     prepare_directories
     handle_module_props
     check_boot_hash
     setup_environment
-    magisk_resetprop_rs "$MODPATH/resetprop-rs"
+#    magisk_resetprop_rs "$MODPATH/resetprop-rs"
     cleanup
     setup_blacklist
+    setup_status
+    install_tricky_backend
 }
 
 chmod +x "$MODPATH/hello.sh"
@@ -359,33 +472,49 @@ echo "
                                                 
                                       
 "
+# Migrate if >v49
+MIGRATE="/data/adb/modules/playintegrityfix"
 
-if [ -f "$MEOW/custom.pif.prop" ]; then
-    cp "$MEOW/custom.pif.prop" "$MODPATH/custom.pif.prop"
-elif [ ! -f "$MEOW/service.sh" ]; then
-    if [ "$SDK" -le 31 ]; then
-        cp "$MODPATH/toolkit/legacy.prop" "$MODPATH/custom.pif.prop"
-    else
-        cp "$MODPATH/toolkit/pixelify.prop" "$MODPATH/custom.pif.prop"
+if [ -d "$MIGRATE/toolkit" ]; then
+    debug " ✦ Migrating files to new MODPATH"
+
+    if [ -f "$MIGRATE/apps.txt" ]; then
+        cp "$MIGRATE/apps.txt" "$MODPATH/apps.txt"
     fi
+
+    if [ -f "$MIGRATE/custom.pif.prop" ]; then
+        cp "$MIGRATE/custom.pif.prop" "$MODPATH/config.meow"
+    fi
+
+    rm -rf "$MIGRATE"
+    debug " ✦ Migration complete!"
+    debug " "
+    debug "       N O T I C E "
+    debug " ✦ Reboot is mandatory"
+    debug " ✦ Play Integrity can fail anytime"
+    debug " "
+fi
+
+if [ -f "$MEOW/config.meow" ]; then
+    cp "$MEOW/config.meow" "$MODPATH/config.meow"
+elif [ ! -f "$MEOW/service.sh" ]; then
+    cp "$MODPATH/toolkit/pixelify.prop" "$MODPATH/config.meow"
 fi
 
 if [ ! -f "$FLAG/integrity_box_ui_settings" ]; then
     cp "$MODPATH/toolkit/integrity_box_ui_settings" "$FLAG/integrity_box_ui_settings"
 fi
 
-if [ ! -f $TRICKY/security_patch.txt ]; then
-cat <<EOF > $TRICKY/security_patch.txt
-all=2026-11-05
-EOF
-fi
+[ -d "$TRICKY/keys" ] && rm -rf "$TRICKY/keys"
+PATCH_DATE="$(cat "$FLAG/patch.txt" 2>/dev/null)"
+[ -z "$PATCH_DATE" ] && PATCH_DATE="$(date '+%Y-%m-05')"
+echo "all=$PATCH_DATE" > "$TRICKY/security_patch.txt"
  
 install_module
 
 # Fresh Installation 
 if [ ! -f "$MEOW/service.sh" ]; then
     enable_recommended_settings
-    set_integritybox_profile
     boot_configuration
     detect_rom
     release_source
@@ -393,6 +522,13 @@ if [ ! -f "$MEOW/service.sh" ]; then
     sed -i 's/^description=.*/description=> ᴄᴏɴꜰɪɢᴜʀᴇ ᴛʜᴇ ᴍᴏᴅᴜʟᴇ ʙᴇʜᴀᴠɪᴏᴜʀ ʙᴇꜰᴏʀᴇ ʀᴇʙᴏᴏᴛɪɴɢ ʙʏ ᴏᴘᴇɴɪɴɢ ᴛʜᴇ ᴡᴇʙᴜɪ/' "$MEOW/module.prop"
 else
     sed -i 's/^description=.*/description=> If nobody was watching, nobody was judging, and nobody was there to applaud you, would your life still have a purpose?/' "$MODPATH/module.prop"
+fi
+
+if [ -x "/data/adb/magisk/magisk" ]; then
+    ADDON_ZIP="$MODPATH/toolkit/Addon.zip"
+    debug " ✦ Installing addon assistant"
+    generate_hosts_block
+    /data/adb/magisk/magisk --install-module "$ADDON_ZIP" >/dev/null 2>&1
 fi
 
 # Create scripts 
@@ -410,7 +546,7 @@ cat <<'EOF' > "$boot/.box_cleanup.sh"
 # This script deletes those leftover files and folders, and then deletes itself. 
 # It only runs if IntegrityBox is not installed
 
-PROP_FILE="/data/adb/modules/playintegrityfix/module.prop"
+PROP_FILE="/data/adb/modules/integrity-box/module.prop"
 REQUIRED_LINE="support=https://t.me/MeowDump"
 LOG_DIR="/data/adb/Box-Brain"
 
@@ -439,12 +575,12 @@ EOF
 cat <<'EOF' > "$boot/lineage.sh"
 #!/system/bin/sh
 
-MODPATH="/data/adb/modules/playintegrityfix"
+MODPATH="/data/adb/modules/integrity-box"
 . $MODPATH/common_func.sh
 
 # Module path and file references
 LOG_DIR="/data/adb/Box-Brain/Integrity-Box-Logs"
-PROP="/data/adb/modules/playintegrityfix/system.prop"
+PROP="/data/adb/modules/integrity-box/system.prop"
 
 note() {
     TS="$(date '+%Y-%m-%d %H:%M:%S')"
@@ -460,13 +596,13 @@ if [ -f "/data/adb/Box-Brain/safemode" ]; then
 fi
 
 # Exit if module is disabled 
-if [ -f "/data/adb/modules/playintegrityfix/disable" ]; then
+if [ -f "/data/adb/modules/integrity-box/disable" ]; then
     note "Integrity Box is disabled, exiting..."
     exit 0
 fi
 
 # Module install path
-export MODPATH="/data/adb/modules/playintegrityfix"
+export MODPATH="/data/adb/modules/integrity-box"
 
 NO_LINEAGE_FLAG="/data/adb/Box-Brain/NoLineageProp"
 NODEBUG_FLAG="/data/adb/Box-Brain/nodebug"
@@ -584,7 +720,7 @@ log() {
 }
 
 # Exit if module is disabled or safe mode is enabled 
-if [ -f "/data/adb/modules/playintegrityfix/disable" ]; then
+if [ -f "/data/adb/modules/integrity-box/disable" ]; then
     log "Integrity Box is disabled, exiting..."
     exit 0
 fi
@@ -668,11 +804,12 @@ cat <<'EOF' > "$boot/prop.sh"
 #!/system/bin/sh
 
 # CONFIG
-PATCH_DATE="2026-11-05"
+PATCH_FILE="/data/adb/Box-Brain/patch.txt"
 FILE_PATH="/data/adb/tricky_store/security_patch.txt"
 SKIP_FILE="/data/adb/Box-Brain/skip"
 LOG_DIR="/data/adb/Box-Brain/Integrity-Box-Logs"
 LOG_FILE="$LOG_DIR/prop_patch.log"
+FALLBACK_DATE="2026-11-05"
 
 writelog() {
     TS="$(date '+%Y-%m-%d %H:%M:%S')"
@@ -684,6 +821,25 @@ abort() {
     writelog "ERROR | $1"
     exit 1
 }
+
+# GET PATCH DATE
+if [ -f "$PATCH_FILE" ]; then
+    PATCH_DATE="$(tr -d ' \t\r\n' < "$PATCH_FILE")"
+    PATCH_SOURCE="patch.txt"
+
+elif [ -f "$FILE_PATH" ]; then
+    PATCH_DATE="$(sed -n 's/^all=//p' "$FILE_PATH" | head -n 1 | tr -d ' \t\r\n')"
+    PATCH_SOURCE="security_patch.txt"
+
+else
+    PATCH_DATE="$FALLBACK_DATE"
+    PATCH_SOURCE="hardcoded fallback"
+fi
+
+# VALIDATE PATCH DATE
+if ! echo "$PATCH_DATE" | grep -Eq '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'; then
+    abort "Invalid patch date from $PATCH_SOURCE"
+fi
 
 # SAFE MODE CHECK
 if [ -f "/data/adb/Box-Brain/safemode" ]; then
@@ -718,9 +874,10 @@ setprop_safe() {
 
 # START LOG
 writelog "•••••• Starting Security Patch Override ••••••"
+writelog "Selected Patch Date: $PATCH_DATE (Source: $PATCH_SOURCE)"
 
-# Exit if module is disabled 
-if [ -f "/data/adb/modules/playintegrityfix/disable" ]; then
+# Exit if module is disabled
+if [ -f "/data/adb/modules/integrity-box/disable" ]; then
     writelog "Integrity Box is disabled, exiting..."
     exit 0
 fi
@@ -759,13 +916,14 @@ EOF
 ##########################################
 
 # Zygiskless installation 
-if [ -e /sdcard/zygisk ] || [ -f /data/adb/Box-Brain/zygisk ]; then
+if [ -d /sdcard/zygisk ] || [ -f /sdcard/zygisk ] || [ -f /data/adb/Box-Brain/zygisk ]; then
     debug " ✦ Proceeding Zygiskless Installation"
     debug " ✦ Disabled: Zygisk Attestation fallback"
     debug " ✦ Enabled:  Pixel Mode"
-    rm -rf "$FLAG/PIF/skip_json"
-    rm -rf "$FLAG/PIF/skip_key"
-    sed -i 's/^description=.*/description=Pixel Mode 🌱 has been enabled, all zygisk related components has been disabled/' "$MODPATH/module.prop"
+#    rm -rf "$FLAG/PIF/skip_json"
+#    rm -rf "$FLAG/PIF/skip_key"
+    sed -i 's/^description=.*/description=⏤͟͞𝗣𝗜𝗫𝗘𝗟 𝗠𝗢𝗗𝗘 🍋‍🟩 has been enabled, all zygisk related components has been removed/' "$MODPATH/module.prop"
+    sed -i 's/^description=.*/description=⏤͟͞𝗣𝗜𝗫𝗘𝗟 𝗠𝗢𝗗𝗘 🍋‍🟩 has been enabled, all zygisk related components has been removed/' "$MEOW/module.prop"
     rm -rf $MODPATH/app_replace_list.txt \
         $MODPATH/autopif2.sh $MODPATH/classes.dex \
         $MODPATH/common_setup.sh $MODPATH/custom.app_replace_list.txt \
@@ -779,10 +937,10 @@ if [ -e /sdcard/zygisk ] || [ -f /data/adb/Box-Brain/zygisk ]; then
 fi
 
 # Copy any disabled app files to updated module
-if [ -d $MEOW/system ]; then
-    debug " ✦ Restoring disabled ROM apps configuration"
-    cp -afL $MEOW/system $MODPATH
-fi
+#if [ -d $MEOW/system ]; then
+#    debug " ✦ Restoring disabled ROM apps configuration"
+#    cp -afL $MEOW/system $MODPATH
+#fi
 
 # Warn if potentially conflicting modules are installed
 if [ -d /data/adb/modules/MagiskHidePropsConf ]; then
@@ -798,7 +956,7 @@ fi
 
 # Clean up any leftover files from previous deprecated methods
 rm -f /data/data/com.google.android.gms/cache/pif.prop /data/data/com.google.android.gms/pif.prop \
-    /data/data/com.google.android.gms/cache/pif.json /data/data/com.google.android.gms/pif.json
+    /data/data/com.google.android.gms/cache/config.meow /data/data/com.google.android.gms/config.meow
 
 # Remove flag from /sdcard to avoid detection 
 [ -f /sdcard/zygisk ] || [ -d /sdcard/zygisk ] && rm -rf /sdcard/zygisk

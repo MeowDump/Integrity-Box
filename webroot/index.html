@@ -1,119 +1,603 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Integrity-Box</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css" />
-<style>
-</style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Integrity Box</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="style.css?v=4" rel="stylesheet"/>
+<script>
+  (function(){
+    try{
+      var scale=parseInt(localStorage.getItem("ibUiScale")||"",10);
+      if(Number.isFinite(scale))document.documentElement.style.setProperty("--ib-ui-scale",String(Math.min(120,Math.max(80,scale))/100));
+      var layout=localStorage.getItem("ibUILayout");
+      if(layout==="modern"||(layout===null&&localStorage.getItem("ibUIStyle")==="1"))document.documentElement.classList.add("ui-alt");
+      if(layout==="studio")document.documentElement.classList.add("ui-studio");
+      var lang=localStorage.getItem("ibLang");
+      if(lang&&/^[a-z]{2}(?:_[A-Z]{2})?$/.test(lang))document.documentElement.dataset.ibLang=lang;
+    }catch{}
+  })();
+  </script>
+<script>try{if(localStorage.getItem("ibSkipIntro")==="1")document.documentElement.classList.add("skip-intro")}catch{}</script>
+<script src="marked.min.js"></script>
 </head>
 <body>
-  <div class="container">
-    <header class="title-bar">
-      <div id="module-name" class="title">𝙋𝙡𝙖𝙮 𝙄𝙣𝙩𝙚𝙜𝙧𝙞𝙩𝙮 𝘽𝙤𝙭</div>
-      <div class="subtitle">Hated By Many, Defeated By None</div>
-      <select id="lang-dropdown" onchange="localStorage.setItem('ibLang',this.value);broadcastLangChange(this.value);location.reload()">
-        <option value="en">English</option>
-        <option value="zh_CN">简体中文</option>
-        <option value="hi">Hinglish</option>
-        <option value="ar">العربية</option>
-        <option value="es">Spanish</option>
-        <option value="id">Bahasa Indonesia</option>
-        <option value="ru">Русский</option>
-        <option value="pl">Polski</option>
-      </select>
+<div id="intro-overlay">
+<div class="intro-mark"><img alt="IB" src="icon.png"/></div>
+</div>
+<div class="app">
+<div class="tab-panel active" id="tab-home">
+<header class="home-topbar">
+<div class="home-brand">
+<span class="brand-dot"></span>
+<span class="brand-title">INTEGRITY BOX</span>
+<span class="brand-version hidden" id="module-version"></span>
+</div>
+<div class="top-actions">
+<button aria-label="Reset" class="icon-button reset-ui-button" id="reset-ui-button" title="Reset" type="button">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v6h6"></path></svg>
+</button>
+<button aria-expanded="false" aria-label="Expand integrity status" class="icon-button integrity-toggle" id="integrity-toggle" title="Expand integrity status" type="button"><svg aria-hidden="true" focusable="false" viewbox="0 0 24 24"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"></path></svg></button>
+</div>
+</header>
+<div class="home-subtabs" role="tablist">
+<button class="home-subtab active" data-subtab="status" id="subtab-status" role="tab">Dashboard</button>
+<button class="home-subtab" data-subtab="overview" id="subtab-overview" role="tab">System Overview</button>
+<button class="home-subtab" data-subtab="announcements" id="subtab-announcements" role="tab">Announcements</button>
+<button class="home-subtab" data-subtab="interface" id="subtab-interface" role="tab">Interface</button>
+<button class="home-subtab" data-subtab="support" id="subtab-support" role="tab">Support</button>
+<button class="home-subtab" data-subtab="logs" id="subtab-logs" role="tab">Logs</button>
+</div>
+<div class="home-view active" id="home-view-status">
+<div class="integrity-status-heading"><span>KEYBOX INTEGRITY STATUS</span></div>
+<section aria-label="Integrity status" class="integrity-card home-integrity-card collapsed" id="home-integrity-card">
+<div class="integrity-main">
+<div class="integrity-copy">
+<strong id="home-status-integrity">Checking</strong>
+</div>
+</div>
+</section>
+<section class="list-section">
+<h2 class="section-title">Quick Actions</h2>
+<div class="list">
+<button class="list-row" data-type="propspoofer">
+<div class="row-icon">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+</div>
+<div class="row-text">
+<span class="row-title">Prop Spoofing</span>
+<span class="row-sub">Global system property spoof</span>
+</div>
+<svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</button>
+<button class="list-row" data-type="piffork">
+<div class="row-icon">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" x2="21" y1="6" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+</div>
+<div class="row-text">
+<span class="row-title">Play Integrity</span>
+<span class="row-sub">PIF fingerprint configuration</span>
+</div>
+<svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</button>
+<button class="list-row" data-type="user">
+<div class="row-icon">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><rect height="14" rx="2" width="20" x="2" y="3"></rect><line x1="8" x2="16" y1="21" y2="21"></line><line x1="12" x2="12" y1="17" y2="21"></line></svg>
+</div>
+<div class="row-text">
+<span class="row-title">Bootloader Spoofers</span>
+<span class="row-sub">Control which app will use keybox</span>
+</div>
+<svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</button>
+</div>
+</section>
+<section class="list-section">
+<h2 class="section-title">Configuration</h2>
+<div class="list">
+<button class="list-row" data-type="flags">
+<div class="row-icon">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+</div>
+<div class="row-text">
+<span class="row-title">Module Settings</span>
+<span class="row-sub">Customize module behaviour</span>
+</div>
+<svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</button>
+<button class="list-row" data-type="ctrl">
+<div class="row-icon">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+</div>
+<div class="row-text">
+<span class="row-title">Developer Mode</span>
+<span class="row-sub">Module core settings</span>
+</div>
+<svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</button>
 
-    </header>
 
-	<!-- Dashboard -->
-    <div class="dashboard">
-      <div class="status-item">Integrity: <span id="status-integrity" class="status-indicator loading">...</span></div>
-      <div class="status-item">Profile: <span id="status-profile" class="status-indicator loading">...</span></div>
-      <div class="status-item">Props: <span id="status-LineageProp" class="status-indicator loading">...</span></div>
-      <div class="status-item">SELinux: <span id="status-selinux" class="status-indicator loading">...</span></div>
-      <div class="status-item">Config: <span id="status-pixel" class="status-indicator loading">...</span></div>
-      <div class="status-item">Expiry: <span id="status-expiry" class="status-indicator loading">...</span></div>
-      <div class="status-item">Patch: <span id="status-patch" class="status-indicator loading">...</span></div>
-      <div class="status-item">Target: <span id="status-target" class="status-indicator loading">...</span></div>
-    </div>
 
-    <!-- Buttons -->
-    <main>
-      <div class="button-group">
-        <h3 class="group-title">Integrity Hub</h3>
-        <div class="button-grid">
-          <button class="btn" data-type="user"><span class="icon material-symbols-outlined">android</span>Bootloader Spoofer<div class="spinner"></div></button>
-          <button class="btn" data-type="repair"><span class="icon material-symbols-outlined">dynamic_form</span>Repair Mode<div class="spinner"></div></button>
-          <button class="btn" data-type="flags"><span class="icon material-symbols-outlined">handyman</span>Module Settings<div class="spinner"></div></button>
-          <button class="btn" data-type="profile"><span class="icon material-symbols-outlined">man</span>Integrity Profile<div class="spinner"></div></button>
-        </div>
-      </div>
+<button class="list-row" data-type="xml">
+<div class="row-icon">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+</div>
+<div class="row-text">
+<span class="row-title">Import Keybox</span>
+<span class="row-sub">Set keybox from internal storage</span>
+</div>
+<svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</button>
+<button class="list-row" data-type="source">
+<div class="row-icon">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 18v3h14v-3"></path></svg>
+</div>
+<div class="row-text">
+<span class="row-title">Keybox Downloader</span>
+<span class="row-sub">Download and modify Keybox source</span>
+</div>
+<svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</button>
+</div>
+</section>
+</div>
+<div class="home-view" id="home-view-announcements">
+<section class="announcements-panel">
+<div class="announcements-header">
+<div>
+<span class="eyebrow"></span>
+<h1>Announcements</h1>
+<p>Latest changes and news from Integrity Box.</p>
+</div>
+<button class="small-action" id="refresh-announcements" type="button">Refresh</button>
+</div>
+<article class="announcement-card">
+<div class="ann-markdown" id="announcement-output"><div class="empty-state">Loading announcements...</div></div>
+</article>
+</section>
+</div>
+<div class="home-view" id="home-view-interface">
+<section class="list-section">
+<h2 class="section-title">Interface</h2>
+<div class="list settings-list">
+<div class="list-row static setting-row scale-setting"><div class="scale-header"><span class="row-title">UI Scale</span><span class="scale-value" id="ui-scale-value">90%</span></div><div class="scale-control"><input class="ui-scale-slider" id="ui-scale-slider" max="120" min="80" step="5" type="range" value="90"/><button class="small-action scale-reset" id="ui-scale-reset" type="button">Reset</button></div><div class="scale-range"><span>80%</span><span>100%</span><span>120%</span></div></div>
+<div class="list-row static setting-row scale-setting tile-scale-setting"><div class="scale-header"><span class="row-title">Tile Size</span><span class="scale-value" id="tile-size-value">200%</span></div><div class="scale-control"><input class="ui-scale-slider tile-size-slider" id="tile-size-slider" max="200" min="80" step="5" type="range" value="200" aria-label="Tile size"/><button class="small-action scale-reset" id="tile-size-reset" type="button">Reset</button></div><p class="tile-size-help">Adjust action tile size in Standard, Modern, and Minimal.</p><div class="scale-range"><span>80%</span><span>140%</span><span>200%</span></div></div>
+<div class="list-row static setting-row">
+<div class="row-icon"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12 3v18M3 12h18"></path></svg></div>
+<div class="row-text"><span class="row-title">Edge swipe to back</span><span class="row-sub">Swipe from the configured screen edge</span></div>
+<label class="switch"><input id="toggle-edge-swipe" type="checkbox"/><span></span></label>
+</div>
+<div class="list-row static setting-row">
+<div class="row-icon"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><rect height="13" rx="2" width="18" x="3" y="4"></rect><path d="M8 21h8M12 17v4"></path></svg></div>
+<div class="row-text"><span class="row-title">Full screen mode</span><span class="row-sub">Use the entire display for Integrity Box</span></div>
+<label class="switch"><input id="toggle-fullscreen" type="checkbox"/><span></span></label>
+</div>
+<div class="list-row static setting-row layout-picker-row">
+<div class="row-icon"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><rect height="18" rx="3" width="18" x="3" y="3"></rect><path d="M3 9h18M9 21V9"></path></svg></div>
+<div class="row-text"><span class="row-title">Choose UI layout</span><span class="row-sub">Only one layout can be active at a time</span></div>
+<div aria-label="UI layout" class="layout-selector" id="ui-layout-selector" role="group">
+<button aria-pressed="true" class="layout-option" data-layout="standard" type="button">Standard</button>
+<button aria-pressed="false" class="layout-option" data-layout="modern" type="button">Modern</button>
+<button aria-pressed="false" class="layout-option" data-layout="studio" type="button">Minimal</button>
+</div>
+</div> <div class="list-row static setting-row" id="custom-font-setting-row">
+<div class="row-icon"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M4 19 10 5l6 14"></path><path d="M6.5 13h7"></path><path d="M16 11h4"></path><path d="M18 9v4"></path><path d="M16 17h4"></path></svg></div>
+<div class="row-text"><span class="row-title">Use Custom Font</span><span class="row-sub">Apply your imported font across the WebUI</span></div>
+<label class="switch"><input id="custom-font-enabled" type="checkbox"/><span></span></label>
+</div>
+<div class="list-row static setting-row">
+<div class="row-icon"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"></path><path d="m9 12 2 2 4-4"></path></svg></div>
+<div class="row-text"><span class="row-title">Module optimization</span><span class="row-sub" id="ksu-next-status">Checking installation status…</span></div>
+<span class="layout-status-pill" id="ksu-next-badge">Checking</span>
+</div>
+<div class="list-row static setting-row">
+<div class="row-icon"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg></div>
+<div class="row-text"><span class="row-title">Background music</span><span class="row-sub">Play music on opening</span></div>
+<label class="switch"><input id="toggle-background-music" type="checkbox"/><span></span></label>
+</div>
+<div class="list-row static setting-row">
+<div class="row-icon"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12 3v4"></path><path d="M12 17v4"></path><path d="M4.22 4.22l2.83 2.83"></path><path d="M16.95 16.95l2.83 2.83"></path><path d="M3 12h4"></path><path d="M17 12h4"></path><path d="M4.22 19.78l2.83-2.83"></path><path d="M16.95 7.05l2.83-2.83"></path><circle cx="12" cy="12" r="3"></circle></svg></div>
+<div class="row-text"><span class="row-title">Skip intro</span><span class="row-sub">Open Integrity Box directly without the intro screen</span></div>
+<label class="switch"><input id="toggle-skip-intro" type="checkbox"/><span></span></label>
+</div>
+<div class="list-row static setting-row">
+<div class="row-icon"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M4 7h16"></path><path d="M4 12h16"></path><path d="M4 17h10"></path><path d="M17 15l3 3-3 3"></path></svg></div>
+<div class="row-text"><span class="row-title">Cache UI assets</span><span class="row-sub">Keep local UI resources available for faster loading</span></div>
+<label class="switch"><input id="toggle-ui-cache" type="checkbox"/><span></span></label>
+</div>
+<div class="list-row static setting-row">
+<div class="row-icon"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M6 8h12M6 12h8M6 16h6"></path><path d="M4 5h16v14H4z"></path></svg></div>
+<div class="row-text"><span class="row-title">Opening toasts</span><span class="row-sub">Show a popup when an iframe tool is opened</span></div>
+<label class="switch"><input id="toggle-opening-toasts" type="checkbox"/><span></span></label>
+</div>
+<div class="list-row static setting-row">
+<div class="row-icon"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M5 12h14"></path><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+<div class="row-text"><span class="row-title">Edge tap to back</span><span class="row-sub">A simple tap on the active edge closes an iframe</span></div>
+<label class="switch"><input id="toggle-edge-tap" type="checkbox"/><span></span></label>
+</div>
+<div class="list-row static setting-row">
+<div class="row-icon"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><rect height="18" rx="2" width="14" x="5" y="3"></rect><polyline points="12 8 8 12 12 16"></polyline><line x1="8" x2="16" y1="12" y2="12"></line></svg></div>
+<div class="row-text"><span class="row-title">Floating back button</span><span class="row-sub">Show a back button inside opened tools</span></div>
+<label class="switch"><input id="toggle-back-button" type="checkbox"/><span></span></label>
+</div>
+<div class="list-row static setting-row">
+<div class="row-icon"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><polyline points="9 18 15 12 3 12"></polyline><polyline points="15 6 21 12 15 18"></polyline></svg></div>
+<div class="row-text"><span class="row-title">Tab swipe navigation</span><span class="row-sub">Swipe left/right to change Home, Tools and More</span></div>
+<label class="switch"><input id="toggle-tab-swipe" type="checkbox"/><span></span></label>
+</div>
+<div class="list-row static setting-row">
+<div class="row-icon"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"></path><circle cx="8" cy="5" r="2"></circle><circle cx="16" cy="12" r="2"></circle><circle cx="10" cy="19" r="2"></circle></svg></div>
+<div class="row-text"><span class="row-title">Edge gesture side</span><span class="row-sub" id="gesture-side-label">Left edge</span></div>
+<div class="side-picker"><button class="side-option" id="gesture-left">L</button><button class="side-option" id="gesture-right">R</button></div>
+</div>
+</div>
+<div class="backup-panel" id="backup-restore-panel">
+<div class="backup-panel-heading"><span class="row-title">Backup &amp; Restore</span><span class="row-sub">Save or restore Interface settings and module configuration</span></div>
+<button class="backup-action" id="create-backup" type="button">Create Backup</button>
+<button class="backup-action secondary" id="choose-backup" type="button">Restore Backup</button>
+<input accept=".json,application/json" hidden="" id="backup-file-input" type="file"/>
+<div class="backup-selected" id="backup-selected">No backup file selected</div>
+</div>
+<div class="backup-panel custom-font-panel" id="custom-font-panel">
+<div class="backup-panel-heading"><span class="row-title">Custom Font</span><span class="row-sub">Import and apply a TTF font across the WebUI</span></div>
+<button class="backup-action" id="import-custom-font" type="button">Import TTF Font</button>
+<input accept=".ttf,font/ttf,application/x-font-ttf" hidden id="custom-font-file-input" type="file"/>
+<div class="backup-selected" id="custom-font-status">No custom font imported</div>
 
-      <div class="button-group">
-        <h3 class="group-title">Spoofing Hub</h3>
-        <div class="button-grid">
-          <button class="btn" data-type="propspoofer"><span class="icon material-symbols-outlined">shield</span>Prop Spoofing<div class="spinner"></div></button>
-          <button class="btn" data-type="pixel"><span class="icon material-symbols-outlined">engineering</span>Per App Spoofing <div class="spinner"></div></button>
-          <button class="btn" data-script="spoofing" data-type="spoofing"><span class="icon material-symbols-outlined">bolt</span>ROM Spoofing<div class="spinner"></div></button>
-          <button class="btn" data-type="piffork"><span class="icon material-symbols-outlined">shop</span>Play Integrity<div class="spinner"></div></button>
-        </div>
-      </div>
+</div>
+</section>
+</div>
+<div class="home-view" id="home-view-support">
+<section class="support-panel">
+<div class="support-frame-wrap">
+<iframe id="support-frame" loading="eager" referrerpolicy="no-referrer" src="about:blank" title="Support"></iframe>
+</div>
+</section>
+</div>
+<div class="home-view" id="home-view-logs">
+<section class="logs-panel">
+<div class="logs-toolbar">
+<div>
+<span class="eyebrow"></span>
+<h1>Integrity Box Logs</h1>
+<p>Choose a file to view the complete logs.</p>
+</div>
+<button class="small-action" id="refresh-logs" type="button">Refresh</button>
+</div>
+<div class="logs-file-section collapsed" id="logs-file-section">
+<button aria-controls="log-files" aria-expanded="false" class="logs-file-toggle" id="logs-file-toggle" type="button">
+<span class="section-title">Available files</span>
+<span aria-hidden="true" class="logs-file-chevron">⌄</span>
+</button>
+<div class="log-files" id="log-files"><div class="empty-state">Scanning available logs...</div></div>
+</div>
+<div class="log-viewer">
+<div class="log-viewer-title"><div class="log-viewer-heading"><span id="log-viewer-title">Select a log file</span><span class="log-meta" id="log-meta">No file selected</span></div><button class="log-copy-button" disabled="" id="log-copy" type="button">Copy</button></div>
+<div class="log-scroll" id="log-output"><div class="empty-state">Select a file above.</div></div>
+</div>
+</section>
+</div>
+<section aria-label="System Overview dashboard" class="home-view overview-home-view" id="home-view-overview">
+<header class="extract-header">
+<div class="extract-heading"><h1>System Overview</h1><span id="overview-last-updated" class="overview-kicker">Preparing diagnostics…</span></div>
+<div class="extract-actions">
+<button aria-label="Refresh dashboard" class="icon-button" id="extract-refresh" title="Refresh dashboard"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg></button>
+<button aria-label="Copy system report" class="icon-button" id="overview-copy" title="Copy report"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path></svg></button>
+</div>
+</header>
+<div class="overview-v2">
+<section class="overview-panel">
+<div class="overview-panel-head"><span class="overview-kicker">Google services</span></div>
+<div class="overview-status-list">
+<button type="button" class="overview-action-button overview-action-danger" id="overview-clear-gms">
+<span class="overview-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1ZM18 7H6v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7ZM10 10h1.5v7H10v-7Zm2.5 0H14v7h-1.5v-7Z"/></svg></span>
+<span class="overview-action-copy"><strong>Clear GMS data</strong><small>Reset Play Store and Play Services data</small></span>
+<span class="overview-action-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+</button>
+<button type="button" class="overview-action-button" id="overview-stop-droidguard">
+<span class="overview-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16Zm-3 5h6v6H9V9Z"/></svg></span>
+<span class="overview-action-copy"><strong>Kill DroidGuard</strong><small>Stop Google services processes</small></span>
+<span class="overview-action-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+</button>
+</div>
+</section>
+<section class="overview-panel overview-device-panel">
+<div class="overview-device-primary"><span class="overview-label">Device</span><strong id="overview-device">...</strong></div>
+<div class="overview-two-col">
+<div class="overview-field"><span>Android</span><strong id="overview-android">...</strong></div>
+<div class="overview-field"><span>Build</span><strong id="overview-build">...</strong></div>
+<div class="overview-field"><span>Architecture</span><strong id="overview-arch">...</strong></div>
+<div class="overview-field"><span>CPU / SoC</span><strong id="overview-cpu">...</strong></div>
+<div class="overview-field"><span>Kernel version</span><strong id="overview-kernel">...</strong></div>
+<div class="overview-field"><span>User apps</span><strong id="overview-user-apps">...</strong></div>
+<div class="overview-field"><span>Root provider</span><strong id="overview-root">...</strong></div>
+<div class="overview-field"><span>SELinux</span><strong id="overview-selinux">...</strong></div>
+<div class="overview-field"><span>System security patch</span><strong id="overview-buildpatch">...</strong></div>
+<div class="overview-field"><span>Vendor security patch</span><strong id="overview-vendorpatch">...</strong></div>
 
-      <div class="button-group">
-        <h3 class="group-title">Meow Hub</h3>
-        <div class="button-grid">
-          <button class="btn" data-type="pilot"><span class="icon material-symbols-outlined">build</span>Auto Pilot <div class="spinner"></div></button>
-          <button class="btn" data-type="ctrl"><span class="icon material-symbols-outlined">settings</span>Advanced Settings <div class="spinner"></div></button>
-          <button class="btn" data-type="hash"><span class="icon material-symbols-outlined">threat_intelligence</span>Boot Hash Fixer<div class="spinner"></div></button>
-          <button class="btn" data-type="hide"><span class="icon material-symbols-outlined">visibility_off</span>Hide Sus Files <div class="spinner"></div></button>
-        </div>
-      </div>
-      
-      <div class="button-group">
-        <h3 class="group-title">Community & Support</h3>
-        <div class="button-grid">
-          <button class="btn" data-script="report" data-type="report"><span class="icon material-symbols-outlined">report</span>Report a Problem<div class="spinner"></div></button>
-          <button class="btn" data-script="assistant" data-type="assistant"><span class="icon material-symbols-outlined">help</span>Ask Assistant<div class="spinner"></div></button>
-          <button class="btn" data-script="support" data-type="support"><span class="icon material-symbols-outlined">volunteer_activism</span>Support the Developer <div class="spinner"></div></button>
-          <button class="btn" data-script="downloader" data-type="downloader"><span class="icon material-symbols-outlined">download</span>Integrity Downloader<div class="spinner"></div></button>
-        </div>
-      </div>
-    </main>
-  </div>
+<div class="overview-field overview-field-wide"><span>Build fingerprint</span><strong id="overview-fingerprint">...</strong></div>
+</div>
+</section>
+<section class="overview-panel">
+<div class="overview-panel-head"><span class="overview-kicker">Google components · Installed versions</span><span class="overview-panel-caption">Version tracking</span></div>
+<div class="overview-app-list">
+<article class="overview-app-card">
+<div class="overview-app-heading"><div><span class="overview-app-name">Google Play Store</span><small class="overview-app-package">com.android.vending</small></div><span class="overview-app-state" id="overview-store-state">Checking</span></div>
+<strong class="overview-app-version" id="overview-store-current">Checking…</strong>
+<div class="overview-app-code">Version code <strong id="overview-store-code">—</strong></div>
+<div class="overview-history-wrap"><span class="overview-history-label">Version history</span><div class="overview-history" id="overview-store-history">Waiting for first version record…</div></div>
+</article>
+<article class="overview-app-card">
+<div class="overview-app-heading"><div><span class="overview-app-name">Google Play Services</span><small class="overview-app-package">com.google.android.gms</small></div><span class="overview-app-state" id="overview-gms-state">Checking</span></div>
+<strong class="overview-app-version" id="overview-gms-current">Checking…</strong>
+<div class="overview-app-code">Version code <strong id="overview-gms-code">—</strong></div>
+<div class="overview-history-wrap"><span class="overview-history-label">Version history</span><div class="overview-history" id="overview-gms-history">Waiting for first version record…</div></div>
+</article>
+<article class="overview-app-card overview-webview-card">
+<div class="overview-app-heading"><div><span class="overview-app-name">Android System WebView</span><small class="overview-app-package" id="overview-webview-package">Active provider</small></div><span class="overview-app-state" id="overview-webview-state">Checking</span></div>
+<strong class="overview-app-version" id="overview-webview-current">—</strong>
+</article>
+</div>
+</section>
+<section class="overview-panel">
+<div class="overview-panel-head"><span class="overview-kicker">Integrity Box Configuration</span></div>
+<div class="overview-status-list">
+<div class="overview-status-row"><span>Custom ROM Props</span><strong id="status-LineageProp">...</strong></div>
+<div class="overview-status-row"><span>SELinux Status</span><strong id="status-selinux">...</strong></div>
+<div class="overview-status-row"><span>Pixel Canary Config</span><strong id="status-pixel">...</strong></div>
+<div class="overview-status-row"><span>System Security Patch</span><strong id="status-patch">...</strong></div>
+<div class="overview-status-row"><span>Pixel prop Config Expiry</span><strong id="status-expiry">...</strong></div>
+<div class="overview-status-row"><span>No. of apps using keybox</span><strong id="status-target">...</strong></div>
+<div class="overview-status-row"><span>Zygote Injection</span><strong id="status-zygote">...</strong></div>
+<div class="overview-status-row"><span>Zygiskless Mode</span><strong id="status-zygiskless">...</strong></div>
+<div class="overview-status-row"><span>Apps prevented from accessing keybox</span><strong id="status-blacklist">...</strong></div>
+<div class="overview-status-row"><span>Advanced Spoofing</span><strong id="status-advanced">...</strong></div>
+<div class="overview-status-row"><span>ROM Spoofing</span><strong id="status-rom-spoofing">...</strong></div>
+<div class="overview-status-row"><span>Boot Hash Config</span><strong id="status-boot-hash">...</strong></div>
+<div class="overview-status-row"><span>Keybox status</span><strong id="status-keybox">...</strong></div>
+</div>
+</section>
+<section class="overview-panel">
+<div class="overview-panel-head"><span class="overview-kicker">Installed modules</span><strong id="overview-module-count">Reading…</strong></div>
+<div class="overview-status-list" id="overview-modules"><div class="overview-status-row"><span>Reading module.prop files…</span><strong>—</strong></div></div>
+</section>
+<section class="overview-panel overview-runtime-panel">
+<div class="overview-runtime-item"><span class="overview-kicker">RUNTIME</span><strong id="overview-runtime-uptime">...</strong></div>
+</section>
+</div>
+</section>
+</div>
+<div class="tab-panel" id="tab-tools">
+<header class="tab-header"><h1>Tools</h1></header>
+<section class="list-section">
+<h2 class="section-title">Resources</h2>
+<div class="list">
+<button class="list-row" data-script="downloader" data-type="downloader">
+<div class="row-icon">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>
+</div>
+<div class="row-text">
+<span class="row-title">Integrity Downloader</span>
+<span class="row-sub">Useful tools and files</span>
+</div>
+<svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</button>
+</div>
+</section>
 
-  <div id="modal-backdrop" class="hidden">
-    <div id="modal-content">
-      <div id="modal-header">
-        <h2 id="modal-title"></h2>
-        <button id="modal-close">×</button>
-      </div>
-      <div id="modal-output"></div>
-    </div>
-  </div>
+<section class="list-section">
+<h2 class="section-title">Spoofing</h2>
+<div class="list">
 
-<script src="script.js"></script>
+<button class="list-row" data-script="spoofing" data-type="spoofing">
+<div class="row-icon">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+</div>
+<div class="row-text">
+<span class="row-title">ROM Spoofing</span>
+<span class="row-sub">Custom ROM property overrides</span>
+</div>
+<svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</button>
+<button class="list-row" data-type="pixel">
+<div class="row-icon">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+</div>
+<div class="row-text">
+<span class="row-title">Per App Spoofing</span>
+<span class="row-sub">App-specific property injection</span>
+</div>
+<svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</button>
+</div>
+</section>
+</div>
+<div class="tab-panel" id="tab-more">
+<header class="tab-header"><h1>More</h1></header>
+<section class="list-section">
+<h2 class="section-title">Preferences</h2>
+<div class="list">
+<div class="list-row static setting-row language-setting-row">
+<div class="row-icon">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="2" x2="22" y1="12" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+</div>
+<div class="row-text">
+<span class="row-title">Language</span>
+<span class="row-sub">Change app language</span>
+</div>
+<select class="lang-dropdown-inline" id="lang-dropdown-community">
+<option value="en">English</option>
+<option value="zh_CN">简体中文</option>
+<option value="ar">العربية</option>
+<option value="es">Spanish</option>
+<option value="id">Bahasa Indonesia</option>
+<option value="ru">Русский</option>
+<option value="de">Deutsch</option>
+<option value="ro">Română</option>
+<option value="tr">Turkish</option>
+<option value="hu">Magyar</option>
+<option value="it">Italiano</option>
+<option value="nl">Nederlands</option>
+<option value="pt_BR">Português (Brasil)</option>
+</select>
+</div>
+</div>
+</section>
+<section class="list-section">
+<h2 class="section-title">Maintenance</h2>
+<div class="list">
+<button class="list-row" data-type="addon">
+<div class="row-icon">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12 3v3m0 12v3M3 12h3m12 0h3"></path><circle cx="12" cy="12" r="7"></circle><path d="m9 12 2 2 4-4"></path></svg>
+</div>
+<div class="row-text">
+<span class="row-title">Customize Scope</span>
+<span class="row-sub">Addon for dependencies</span>
+</div>
+<svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</button>
+
+<button class="list-row" data-type="hash">
+<div class="row-icon">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+</div>
+<div class="row-text">
+<span class="row-title">Fix Boot Hash</span>
+<span class="row-sub">Repair abnormal boot hash</span>
+</div>
+<svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</button>
+<button class="list-row" data-type="hide">
+<div class="row-icon">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" x2="23" y1="1" y2="23"></line></svg>
+</div>
+<div class="row-text">
+<span class="row-title">Hide Sus Files</span>
+<span class="row-sub">Obfuscate basic suspicious paths</span>
+</div>
+<svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</button>
+<button class="list-row" data-type="conflict">
+<div class="row-icon">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><rect height="11" rx="2" ry="2" width="18" x="3" y="11"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+</div>
+<div class="row-text">
+<span class="row-title">Conflict Resolver</span>
+<span class="row-sub">Fix Multiple ROOT implementation</span>
+</div>
+<svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</button>
+</div>
+</section>
+
+<section class="list-section">
+<h2 class="section-title">Support</h2>
+<div class="list">
+<button class="list-row" data-script="report" data-type="report">
+<div class="row-icon">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" x2="12" y1="9" y2="13"></line><line x1="12" x2="12.01" y1="17" y2="17"></line></svg>
+</div>
+<div class="row-text">
+<span class="row-title">Report a Problem</span>
+<span class="row-sub">Send feedback to the developer</span>
+</div>
+<svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</button>
+<button class="list-row" data-script="support" data-type="support">
+<div class="row-icon">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+</div>
+<div class="row-text">
+<span class="row-title">WebUI Translation Team</span>
+<span class="row-sub">Thanks to these people</span>
+</div>
+<svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</button>
+</div>
+</section>
+</div>
+<nav class="bottom-nav">
+<button class="nav-item active" data-tab="home"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path><path d="M9 21v-6h6v6"></path></svg><span>Home</span></button>
+<button class="nav-item" data-tab="tools"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg><span>Tools</span></button>
+<button class="nav-item" data-tab="more"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg><span>More</span></button>
+</nav>
+</div>
+<div class="overview-confirm-backdrop" id="overview-clear-confirm" aria-hidden="true">
+<div class="overview-confirm-card" role="dialog" aria-modal="true" aria-labelledby="overview-clear-title">
+<div class="overview-confirm-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9 2.6 17.2A2 2 0 0 0 4.3 20h15.4a2 2 0 0 0 1.7-2.8L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4m0 3h.01"/></svg></div>
+<strong id="overview-clear-title">Clear Google app data?</strong>
+<p>This will clear data for Google Play Store and Google Play Services.</p>
+<div class="overview-confirm-warning">You may be signed out and will need to sign in to your Google account again. App settings and locally stored Google Services data will also be reset.</div>
+<div class="overview-confirm-actions">
+<button type="button" id="overview-clear-cancel">Cancel</button>
+<button type="button" id="overview-clear-confirm-action">Clear data</button>
+</div>
+</div>
+</div>
+<div aria-labelledby="reset-ui-title" aria-modal="true" class="reset-confirm hidden" id="reset-ui-confirm" role="dialog">
+<div class="reset-confirm-card">
+<div class="reset-confirm-icon">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12 9v4"></path><path d="M12 17h.01"></path><path d="M10.3 3.5 2.9 16.3A2 2 0 0 0 4.6 19h14.8a2 2 0 0 0 1.7-2.7L13.7 3.5a2 2 0 0 0-3.4 0Z"></path></svg>
+</div>
+<div class="reset-confirm-content">
+<h2 id="reset-ui-title">Reset UI settings?</h2>
+<p id="reset-ui-message">All interface settings will be restored to their default values.</p>
+</div>
+<div class="reset-confirm-actions">
+<button class="small-action reset-cancel" id="reset-ui-cancel" type="button">Cancel</button>
+<button class="small-action reset-confirm-button" id="reset-ui-confirm-button" type="button">Confirm</button>
+</div>
+</div>
+</div>
+<div class="backup-confirm-overlay" hidden="" id="backup-confirm-overlay">
+<section aria-labelledby="backup-confirm-title" aria-modal="true" class="backup-confirm-card" role="dialog">
+<div class="backup-confirm-head">
+<div class="backup-confirm-icon"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 17v3h14v-3"></path></svg></div>
+<div class="backup-confirm-heading"><h2 id="backup-confirm-title">Review backup restoration</h2><p id="backup-confirm-filename">Selected backup</p></div>
+<button aria-label="Close" class="backup-confirm-close" id="backup-confirm-close" type="button">×</button>
+</div>
+<p class="backup-confirm-warning">Changes are non-reversible. Please check everything before clicking on restore button.</p>
+<div aria-label="Restore destinations" class="backup-restore-scope">
+<div class="backup-scope-item"><span class="backup-scope-icon">UI</span><div><strong>Interface preferences</strong><small>Restores saved UI settings</small></div></div>
+<div class="backup-scope-item"><span class="backup-scope-icon">BB</span><div><strong>Box-Brain configuration</strong><small>Restores included flags and blacklist</small></div></div>
+<div class="backup-scope-item"><span class="backup-scope-icon">PIF</span><div><strong>PIF configuration</strong><small>Restores included PIF files</small></div></div>
+</div>
+<div class="backup-preview-section"><h3>INCOMING INTERFACE SETTINGS</h3><div class="backup-preview-list" id="backup-preview-settings"></div></div>
+<div class="backup-preview-section"><h3>INCOMING MODULE SETTINGS</h3><div class="backup-preview-list" id="backup-preview-flags"></div></div>
+<div class="backup-preview-section"><h3>BLACKLISTED APP LIST</h3><div class="backup-preview-list" id="backup-preview-blacklist"></div></div>
+<div class="backup-confirm-actions">
+<button class="backup-confirm-button secondary" id="backup-restore-cancel" type="button">Cancel</button>
+<button class="backup-confirm-button primary" id="backup-restore-confirm" type="button">Restore backup</button>
+</div>
+</section>
+</div>
+<div aria-label="Announcement image viewer" aria-modal="true" class="announcement-image-overlay" hidden="" id="announcement-image-overlay" role="dialog">
+<div class="announcement-image-card">
+<div class="announcement-image-toolbar">
+<span id="announcement-image-caption">Announcement image</span>
+<div class="announcement-image-controls">
+<button aria-label="Zoom out" id="announcement-image-zoom-out" type="button">−</button>
+<button aria-label="Reset zoom" id="announcement-image-zoom-reset" type="button">100%</button>
+<button aria-label="Zoom in" id="announcement-image-zoom-in" type="button">+</button>
+<button aria-label="Close image viewer" id="announcement-image-close" type="button">×</button>
+</div>
+</div>
+<div class="announcement-image-stage" id="announcement-image-stage"><img alt="" draggable="false" id="announcement-image-full"/></div>
+</div>
+</div>
+<div class="hidden" id="modal-backdrop">
+<div id="modal-sheet">
+<div id="modal-handle"></div>
+<div id="modal-header"><h2 id="modal-title"></h2><button id="modal-close"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg></button></div>
+<div id="modal-output"></div>
+</div>
+</div>
 <script src="TRANSLATIONS/meow.js"></script>
-<script>(function(){try{var v=localStorage.getItem('ibLang')||'en';var s=document.getElementById('lang-dropdown');if(s)s.value=v;}catch(e){}})();</script>
+<script src="script.js?v=4"></script>
 <script>
-function broadcastLangChange(lang) {
-  var iframe = document.getElementById('active-iframe');
-  if (iframe && iframe.contentWindow) {
-    iframe.contentWindow.postMessage({ type: 'ibLangChange', lang: lang }, '*');
-  }
-}
-
-(function(){
-  var lang = localStorage.getItem('ibLang') || 'en';
-  if (lang !== 'en') {
-    var s = document.createElement('script');
-    s.src = 'TRANSLATIONS/' + lang + '.js';
-    s.onload = function(){ if(window.i18nBoot) window.i18nBoot(); };
-    document.head.appendChild(s);
-  }
-})();
-</script>
+  function broadcastLangChange(lang) { var iframe=document.getElementById('active-iframe'); if(iframe&&iframe.contentWindow) iframe.contentWindow.postMessage({type:'ibLangChange',lang:lang},'*'); }
+  </script>
 </body>
 </html>

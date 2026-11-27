@@ -1,0 +1,1106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>GMS Spoofing Manager</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#1f2233;
+  --surface:#25283a;
+  --surface-2:#2b2f42;
+  --surface-3:#303449;
+  --border:#ffffff10;
+  --border-strong:#ffffff18;
+  --blue:#1592FF;
+  --blue-soft:#1592FF18;
+  --blue-border:#1592FF42;
+  --green:#30d158;
+  --red:#ff453a;
+  --text:#e6e6e6;
+  --secondary:#a9afc0;
+  --muted:#737a8e;
+  --overlay:#000000a8;
+  --radius:18px;
+}
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,
+body{
+  margin:0;
+  width:100%;
+  min-height:100%;
+  min-height:100dvh;
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  overflow-x:hidden;
+}
+
+button{
+  font:inherit;
+}
+
+.app{
+  width:100%;
+  max-width:480px;
+  margin:0 auto;
+  padding:18px 15px 28px;
+}
+
+.header{
+  display:flex;
+  align-items:center;
+  gap:13px;
+  padding:4px 3px 22px;
+}
+
+.header-icon{
+  width:46px;
+  height:46px;
+  flex:0 0 46px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:14px;
+  background:var(--blue);
+  color:#fff;
+}
+
+.header-icon .material-icons-round{
+  font-size:24px;
+}
+
+.header-content{
+  min-width:0;
+}
+
+.header-title{
+  font-size:18px;
+  line-height:1.2;
+  font-weight:750;
+  letter-spacing:-.025em;
+}
+
+.header-subtitle{
+  margin-top:4px;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:500;
+}
+
+.section{
+  margin-bottom:14px;
+}
+
+.section-label{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:0 4px 8px;
+  color:var(--secondary);
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+.section-label .material-icons-round{
+  color:var(--blue);
+  font-size:17px;
+}
+
+.panel{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;
+}
+
+.option{
+  position:relative;
+  width:100%;
+  min-height:76px;
+  padding:14px 15px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:transparent;
+  color:var(--text);
+  border:0;
+  text-align:left;
+  cursor:pointer;
+  transition:background .16s ease;
+}
+
+.option + .option{
+  border-top:1px solid var(--border);
+}
+
+.option:active{
+  background:var(--surface-3);
+}
+
+.option-icon{
+  width:40px;
+  height:40px;
+  flex:0 0 40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:12px;
+  background:var(--surface-2);
+  color:var(--secondary);
+  transition:.18s ease;
+}
+
+.option-icon .material-icons-round{
+  font-size:21px;
+}
+
+.option.active .option-icon{
+  background:var(--blue);
+  color:#fff;
+}
+
+.option-content{
+  flex:1;
+  min-width:0;
+}
+
+.option-title{
+  font-size:14px;
+  font-weight:650;
+  line-height:1.25;
+}
+
+.option-description{
+  margin-top:4px;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.4;
+  font-weight:500;
+}
+
+.option-check{
+  width:24px;
+  height:24px;
+  flex:0 0 24px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--blue);
+  opacity:0;
+  transform:scale(.7);
+  transition:.18s ease;
+}
+
+.option.active .option-check{
+  opacity:1;
+  transform:scale(1);
+}
+
+.option.disabled-option{
+  opacity:.35;
+  pointer-events:none;
+}
+
+.info{
+  display:flex;
+  align-items:flex-start;
+  gap:11px;
+  margin:18px 2px 0;
+  padding:13px 14px;
+  border:1px solid var(--border);
+  border-radius:15px;
+  background:var(--surface);
+}
+
+.info-icon{
+  color:var(--blue);
+  flex:0 0 auto;
+  margin-top:1px;
+}
+
+.info-icon .material-icons-round{
+  font-size:18px;
+}
+
+.info-text{
+  color:var(--secondary);
+  font-size:11px;
+  line-height:1.55;
+  font-weight:500;
+}
+
+.info-text strong{
+  color:var(--text);
+  font-weight:650;
+}
+
+.footer{
+  margin-top:20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.footer-text{
+  color:var(--muted);
+  font-size:10px;
+  font-weight:500;
+}
+
+.reboot-button{
+  height:43px;
+  padding:0 17px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  border:1px solid var(--blue-border);
+  border-radius:13px;
+  background:var(--blue-soft);
+  color:var(--blue);
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+  transition:.18s ease;
+}
+
+.reboot-button .material-icons-round{
+  font-size:19px;
+}
+
+.reboot-button:active{
+  transform:scale(.96);
+  background:#1592ff25;
+}
+
+#loader{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:var(--overlay);
+  opacity:0;
+  transition:opacity .2s ease;
+}
+
+#loader.show{
+  opacity:1;
+}
+
+.loader-box{
+  width:150px;
+  padding:20px 15px;
+  border-radius:18px;
+  background:var(--surface);
+  border:1px solid var(--border-strong);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:13px;
+}
+
+.spinner{
+  width:32px;
+  height:32px;
+  border:3px solid #ffffff12;
+  border-top-color:var(--blue);
+  border-radius:50%;
+  animation:spin .75s linear infinite;
+}
+
+.loader-text{
+  color:var(--secondary);
+  font-size:11px;
+  font-weight:600;
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg)}
+}
+
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  z-index:10000;
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+  padding:12px;
+  background:var(--overlay);
+  opacity:0;
+  transition:opacity .2s ease;
+}
+
+.modal-overlay.show{
+  opacity:1;
+}
+
+.modal{
+  width:100%;
+  max-width:460px;
+  padding:19px;
+  border-radius:22px;
+  background:var(--surface);
+  border:1px solid var(--border-strong);
+  transform:translateY(20px);
+  transition:transform .22s ease;
+}
+
+.modal-overlay.show .modal{
+  transform:translateY(0);
+}
+
+.modal-handle{
+  width:34px;
+  height:4px;
+  margin:-5px auto 18px;
+  border-radius:10px;
+  background:#ffffff18;
+}
+
+.modal-icon{
+  width:46px;
+  height:46px;
+  margin:0 auto 12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:14px;
+  background:var(--blue-soft);
+  color:var(--blue);
+}
+
+.modal-icon .material-icons-round{
+  font-size:24px;
+}
+
+.modal-title{
+  text-align:center;
+  font-size:17px;
+  font-weight:750;
+}
+
+.modal-text{
+  margin:7px auto 19px;
+  max-width:330px;
+  color:var(--secondary);
+  text-align:center;
+  font-size:11px;
+  line-height:1.55;
+}
+
+.modal-buttons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+}
+
+.modal-btn{
+  height:44px;
+  border:1px solid var(--border);
+  border-radius:13px;
+  background:var(--surface-2);
+  color:var(--secondary);
+  font-size:12px;
+  font-weight:650;
+  cursor:pointer;
+}
+
+.modal-btn:active{
+  transform:scale(.97);
+}
+
+.modal-btn.confirm{
+  border-color:var(--blue-border);
+  background:var(--blue);
+  color:#fff;
+}
+
+.webui-popup{
+  pointer-events:none;
+}
+
+@media(max-width:360px){
+  .app{
+    padding-left:11px;
+    padding-right:11px;
+  }
+
+  .header{
+    padding-bottom:18px;
+  }
+
+  .option{
+    min-height:72px;
+    padding:12px;
+  }
+
+  .footer{
+    align-items:stretch;
+    flex-direction:column;
+  }
+
+  .reboot-button{
+    width:100%;
+  }
+
+  .footer-text{
+    text-align:center;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="loader">
+  <div class="loader-box">
+    <div class="spinner"></div>
+    <div class="loader-text">Applying changes...</div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="rebootModal">
+  <div class="modal">
+
+    <div class="modal-handle"></div>
+
+    <div class="modal-icon">
+      <span class="material-icons-round">restart_alt</span>
+    </div>
+
+    <div class="modal-title">Reboot Device?</div>
+
+    <div class="modal-text">
+      A reboot is required for the spoofing configuration changes to take effect.
+    </div>
+
+    <div class="modal-buttons">
+      <button class="modal-btn" onclick="closeRebootModal()">Cancel</button>
+      <button class="modal-btn confirm" onclick="confirmReboot()">Reboot</button>
+    </div>
+
+  </div>
+</div>
+
+<main class="app">
+
+  <header class="header">
+
+    <div class="header-icon">
+      <span class="material-icons-round">verified</span>
+    </div>
+
+    <div class="header-content">
+      <div class="header-title">GMS Spoofing Manager</div>
+      <div class="header-subtitle">Inbuilt spoofing configuration</div>
+    </div>
+
+  </header>
+
+  <section class="section">
+
+    <div class="section-label">
+      <span class="material-icons-round">apps</span>
+      Google Play Services
+    </div>
+
+    <div class="panel" id="gmsProfiles"></div>
+
+  </section>
+
+  <section class="section">
+
+    <div class="section-label">
+      <span class="material-icons-round">shopping_bag</span>
+      Google Play Store
+    </div>
+
+    <div class="panel" id="vendingProfiles"></div>
+
+  </section>
+
+  <div class="info">
+
+    <div class="info-icon">
+      <span class="material-icons-round">info</span>
+    </div>
+
+    <div class="info-text">
+      These options are intended for <strong>custom ROM users</strong>.
+      Choose the desired spoofing state and reboot the device to apply the change.
+    </div>
+
+  </div>
+
+  <footer class="footer">
+
+    <button class="reboot-button" onclick="showRebootModal()">
+      <span class="material-icons-round">restart_alt</span>
+      Reboot Device
+    </button>
+
+  </footer>
+
+</main>
+
+<script>
+const BASE_DIR="/data/adb/Box-Brain";
+
+const FILES={
+  enablegms:`${BASE_DIR}/enablegms`,
+  disablegms:`${BASE_DIR}/disablegms`,
+  enablevending:`${BASE_DIR}/enablevending`,
+  disablevending:`${BASE_DIR}/disablevending`
+};
+
+const COOLDOWN=1000;
+
+let lastSwitch=0;
+
+const options=[
+  {
+    id:"enablegms",
+    name:"Enable Device Spoofing",
+    icon:"apps",
+    desc:"Resume the ROM's inbuilt GMS spoofing",
+    group:"gms"
+  },
+  {
+    id:"disablegms",
+    name:"Disable Device Spoofing",
+    icon:"apps_outage",
+    desc:"Pause the ROM's inbuilt GMS spoofing",
+    group:"gms"
+  },
+  {
+    id:"enablevending",
+    name:"Enable Play Store Spoofing",
+    icon:"shopping_bag",
+    desc:"Resume the ROM's inbuilt Play Store spoofing",
+    group:"vending"
+  },
+  {
+    id:"disablevending",
+    name:"Disable Play Store Spoofing",
+    icon:"shopping_bag",
+    desc:"Pause the ROM's inbuilt Play Store spoofing",
+    group:"vending"
+  }
+];
+
+function popup(msg,type="info"){
+  try{
+    if(typeof window.toast==="function"){
+      window.toast(String(msg));
+      return;
+    }
+
+    if(
+      window.kernelsu &&
+      typeof window.kernelsu.toast==="function"
+    ){
+      window.kernelsu.toast(String(msg));
+      return;
+    }
+
+    if(
+      typeof ksu==="object" &&
+      typeof ksu.toast==="function"
+    ){
+      ksu.toast(String(msg));
+      return;
+    }
+  }catch{}
+
+  const n=document.createElement("div");
+
+  n.className="webui-popup";
+  n.textContent=msg;
+
+  const colors={
+    error:{
+      bg:"#FF453A",
+      shadow:"rgba(255,69,58,.3)"
+    },
+    success:{
+      bg:"#30D158",
+      shadow:"rgba(48,209,88,.3)"
+    },
+    info:{
+      bg:"#1592FF",
+      shadow:"rgba(21,146,255,.3)"
+    }
+  };
+
+  const c=colors[type]||colors.info;
+
+  Object.assign(n.style,{
+    position:"fixed",
+    top:"-100px",
+    left:"50%",
+    transform:"translateX(-50%)",
+    background:c.bg,
+    color:"#fff",
+    padding:"12px 19px",
+    borderRadius:"13px",
+    fontWeight:"650",
+    fontSize:"13px",
+    zIndex:"99999",
+    boxShadow:`0 8px 24px ${c.shadow}`,
+    transition:"all .35s cubic-bezier(.32,.72,0,1)",
+    opacity:"0",
+    border:"1px solid rgba(255,255,255,.1)"
+  });
+
+  document.body.appendChild(n);
+
+  requestAnimationFrame(()=>{
+    n.style.top="45px";
+    n.style.opacity="1";
+  });
+
+  setTimeout(()=>{
+    n.style.top="-100px";
+    n.style.opacity="0";
+
+    setTimeout(()=>{
+      n.remove();
+    },350);
+  },2600);
+}
+
+function showLoader(show,text="Applying changes..."){
+  const loader=document.getElementById("loader");
+  const loaderText=loader.querySelector(".loader-text");
+
+  if(text){
+    loaderText.textContent=text;
+  }
+
+  if(show){
+    loader.style.display="flex";
+
+    requestAnimationFrame(()=>{
+      loader.classList.add("show");
+    });
+  }else{
+    loader.classList.remove("show");
+
+    setTimeout(()=>{
+      loader.style.display="none";
+    },200);
+  }
+}
+
+function sh(cmd){
+  try{
+    return ksu.exec(cmd);
+  }catch{
+    return "";
+  }
+}
+
+async function getActiveFiles(){
+  const active=[];
+
+  for(const key in FILES){
+    const exists=
+      sh(`test -f "${FILES[key]}" && echo yes`).trim()==="yes";
+
+    if(exists){
+      active.push(key);
+    }
+  }
+
+  return active;
+}
+
+async function validateFiles(){
+  const active=await getActiveFiles();
+
+  if(active.length>2){
+    showLoader(true,"Resetting configuration...");
+
+    for(const key in FILES){
+      sh(`rm -f "${FILES[key]}"`);
+    }
+
+    popup(
+      "Too many options selected. All settings cleared.",
+      "error"
+    );
+
+    showLoader(false);
+
+    return [];
+  }
+
+  return active;
+}
+
+function getConflictingOptions(activeFiles,optionId){
+  const conflicts=[];
+
+  const option=options.find(
+    o=>o.id===optionId
+  );
+
+  if(!option){
+    return conflicts;
+  }
+
+  for(const active of activeFiles){
+
+    const activeOption=options.find(
+      o=>o.id===active
+    );
+
+    if(
+      activeOption &&
+      activeOption.group===option.group &&
+      active!==optionId
+    ){
+      conflicts.push(active);
+    }
+  }
+
+  return conflicts;
+}
+
+async function toggleOption(optionId){
+
+  if(Date.now()-lastSwitch<COOLDOWN){
+    popup(
+      "Please wait before switching again",
+      "error"
+    );
+
+    return;
+  }
+
+  lastSwitch=Date.now();
+
+  const activeFiles=await getActiveFiles();
+
+  const isCurrentlyActive=
+    activeFiles.includes(optionId);
+
+  if(!isCurrentlyActive){
+
+    const conflicts=
+      getConflictingOptions(
+        activeFiles,
+        optionId
+      );
+
+    if(conflicts.length>0){
+      popup(
+        "Cannot select the opposite option. Deselect it first.",
+        "error"
+      );
+
+      return;
+    }
+
+    if(activeFiles.length>=2){
+      popup(
+        "Maximum 2 options allowed. Deselect one first.",
+        "error"
+      );
+
+      return;
+    }
+  }
+
+  const selected=options.find(
+    o=>o.id===optionId
+  );
+
+  showLoader(
+    true,
+    isCurrentlyActive
+      ?"Disabling..."
+      :"Enabling..."
+  );
+
+  popup(
+    `${isCurrentlyActive?"👎":"👍"} ${selected.name}...`,
+    "info"
+  );
+
+  requestAnimationFrame(()=>{
+    setTimeout(()=>{
+
+      try{
+
+        if(isCurrentlyActive){
+
+          sh(`rm -f "${FILES[optionId]}"`);
+
+          popup(
+            "Reboot to apply changes",
+            "success"
+          );
+
+        }else{
+
+          sh(
+            `touch "${FILES[optionId]}" && chmod 0644 "${FILES[optionId]}"`
+          );
+
+          popup(
+            "Reboot to apply changes",
+            "success"
+          );
+        }
+
+      }catch(e){
+
+        popup(
+          "Failed to apply changes",
+          "error"
+        );
+      }
+
+      showLoader(false);
+      render();
+
+    },0);
+  });
+}
+
+function createOption(option,isActive,isDisabled){
+
+  const button=document.createElement("button");
+
+  button.type="button";
+
+  button.className=
+    "option"+
+    (isActive?" active":"")+
+    (isDisabled?" disabled-option":"");
+
+  button.innerHTML=`
+    <div class="option-icon">
+      <span class="material-icons-round">
+        ${option.icon}
+      </span>
+    </div>
+
+    <div class="option-content">
+
+      <div class="option-title">
+        ${option.name}
+      </div>
+
+      <div class="option-description">
+        ${option.desc}
+      </div>
+
+    </div>
+
+    <div class="option-check">
+      <span class="material-icons-round">
+        check_circle
+      </span>
+    </div>
+  `;
+
+  if(!isDisabled){
+    button.addEventListener(
+      "click",
+      ()=>toggleOption(option.id)
+    );
+  }
+
+  return button;
+}
+
+async function render(){
+
+  await validateFiles();
+
+  const activeFiles=await getActiveFiles();
+
+  const gmsRoot=
+    document.getElementById("gmsProfiles");
+
+  const vendingRoot=
+    document.getElementById("vendingProfiles");
+
+  gmsRoot.innerHTML="";
+  vendingRoot.innerHTML="";
+
+  options.forEach(option=>{
+
+    const isActive=
+      activeFiles.includes(option.id);
+
+    const conflicts=
+      getConflictingOptions(
+        activeFiles,
+        option.id
+      );
+
+    const isDisabled=
+      !isActive &&
+      conflicts.length>0;
+
+    const element=
+      createOption(
+        option,
+        isActive,
+        isDisabled
+      );
+
+    if(option.group==="gms"){
+      gmsRoot.appendChild(element);
+    }else{
+      vendingRoot.appendChild(element);
+    }
+
+  });
+}
+
+function showRebootModal(){
+  document
+    .getElementById("rebootModal")
+    .style.display="flex";
+
+  requestAnimationFrame(()=>{
+    document
+      .getElementById("rebootModal")
+      .classList.add("show");
+  });
+}
+
+function closeRebootModal(){
+
+  const modal=
+    document.getElementById("rebootModal");
+
+  modal.classList.remove("show");
+
+  setTimeout(()=>{
+    modal.style.display="none";
+  },200);
+}
+
+function confirmReboot(){
+
+  closeRebootModal();
+
+  showLoader(
+    true,
+    "Rebooting..."
+  );
+
+  popup(
+    "Rebooting device...",
+    "info"
+  );
+
+  requestAnimationFrame(()=>{
+
+    setTimeout(()=>{
+
+      try{
+
+        sh("reboot");
+
+      }catch(e){
+
+        popup(
+          "Reboot command failed",
+          "error"
+        );
+
+        showLoader(false);
+      }
+
+    },1000);
+  });
+}
+
+document
+  .getElementById("rebootModal")
+  .addEventListener(
+    "click",
+    event=>{
+
+      if(
+        event.target.id==="rebootModal"
+      ){
+        closeRebootModal();
+      }
+
+    }
+  );
+
+document.addEventListener(
+  "keydown",
+  event=>{
+
+    if(event.key==="Escape"){
+      closeRebootModal();
+    }
+
+  }
+);
+
+document.addEventListener(
+  "DOMContentLoaded",
+  render
+);
+</script>
+
+<script src="../TRANSLATIONS/meow.js"></script>
+
+<script>
+(function(){
+
+  var lang=
+    localStorage.getItem("ibLang")||"en";
+
+  if(lang!=="en"){
+
+    var s=
+      document.createElement("script");
+
+    s.src=
+      "../TRANSLATIONS/"+lang+".js";
+
+    s.onload=function(){
+
+      if(window.i18nBoot){
+        window.i18nBoot();
+      }
+
+    };
+
+    document.head.appendChild(s);
+  }
+
+})();
+</script>
+
+</body>
+</html>

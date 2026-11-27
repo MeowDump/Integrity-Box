@@ -1,11 +1,7 @@
 #!/system/bin/sh
 
-MODPATH="/data/adb/modules/playintegrityfix"
+MODPATH="/data/adb/modules/integrity-box"
 . "$MODPATH/common_func.sh"
-
-resetprop_delete(){
-    $RP -d "$1"
-}
 
 OVERRIDE="$MODPATH/webroot/common_scripts/force_override.sh"
 
@@ -18,7 +14,7 @@ echo " Checking for Lineage Props"
 getprop | grep -i lineage
 echo " "
 
-PROP_FILE="/data/adb/modules/playintegrityfix/system.prop"
+PROP_FILE="/data/adb/modules/integrity-box/system.prop"
 LOG_FILE="/data/adb/Box-Brain/Integrity-Box-Logs/prop_debug.log"
 
 echo "[prop spoof debug log]" > "$LOG_FILE"
@@ -60,7 +56,7 @@ while IFS= read -r line || [ -n "$line" ]; do
             continue
             ;;
         *)
-            set_prop "$key" "$value"
+            check_and_set_prop "$key" "$value"
             actual_value=$(getprop "$key")
             if [ "$actual_value" = "$value" ]; then
                 echo "[OK] Overridden: $key=$value" >> "$LOG_FILE"

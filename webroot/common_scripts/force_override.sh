@@ -1,6 +1,6 @@
 #!/system/bin/sh
 
-MODPATH="/data/adb/modules/playintegrityfix"
+MODPATH="/data/adb/modules/integrity-box"
 . "$MODPATH/common_func.sh"
 
 L="/data/adb/Box-Brain/Integrity-Box-Logs/ForceSpoof.log"

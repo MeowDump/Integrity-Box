@@ -1,6 +1,6 @@
 #!/system/bin/sh
 
-MODPATH="/data/adb/modules/playintegrityfix"
+MODPATH="/data/adb/modules/integrity-box"
 URL="https://github.com/MeowDump/Integrity-Box/releases/download/archive/Canary.zip"
 LOG_DIR="/data/adb/Box-Brain/Integrity-Box-Logs"
 LOG_FILE="$LOG_DIR/canary.log"

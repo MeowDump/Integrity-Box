@@ -1,6 +1,6 @@
 #!/system/bin/sh
 
-SRC_CONFIG="/data/adb/modules/playintegrityfix/toolkit/HMA-OOS.json"
+SRC_CONFIG="/data/adb/modules/integrity-box/toolkit/HMA-OOS.json"
 
 HMA_PKG="org.frknkrc44.hma_oss"
 HMA_ACTIVITY="org.frknkrc44.hma_oss/.ui.activity.MainActivity"
