@@ -22,9 +22,13 @@ log() {    # log <message>
     /system/bin/log -t PATCH_OVERRIDE "$1"
 }
 
+trickybox_log() {
+    printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$1" >> "/data/adb/Box-Brain/TrickyBox/trickybox.log"
+}
+
 detect_conflict() {
     local FAIL=0
-    local LOG="/data/adb/Box-Brain/Integrity-Box-Logs/trickybox.log"
+    local LOG="/data/adb/Box-Brain/TrickyBox/conflict.log"
 
     mkdir -p "$(dirname "$LOG")" || return 1
 
@@ -227,6 +231,11 @@ EOF
 }
 
 launch_webui() {
+    if [ -d /sdcard/Web ]; then
+        sh "$MODPATH/webroot/common_scripts/web_bridge.sh"
+        return 0
+    fi
+
     [ -f /data/adb/magisk/busybox ] || return 0
     [ -f /data/adb/Box-Brain/webui ] || return 0
 
@@ -234,15 +243,16 @@ launch_webui() {
         am start -n "io.github.a13e300.ksuwebui/.WebUIActivity" \
             -e id "integrity-box" >/dev/null 2>&1
 
-    elif pm path com.dergoogler.mmrl.wx >/dev/null 2>&1; then
-        am start -n "com.dergoogler.mmrl.wx/.ui.activity.webui.WebUIActivity" \
-            -e MOD_ID "integrity-box" >/dev/null 2>&1
+    elif pm path com.meowdump.su >/dev/null 2>&1; then
+        am start -n "com.meowdump.su/.WebUIActivity" \
+            -e id "integrity-box" >/dev/null 2>&1
 
     else
         echo " ✦ KSU WEBUI not found"
         echo " "
     fi
 }
+
 
 update_module_description() {
   MODPATH="/data/adb/modules/integrity-box"
@@ -516,6 +526,7 @@ update_targets() {
     com.google.android.gsf \
     io.github.qwq233.keyattestation \
     io.github.vvb2060.keyattestation \
+    com.eltavine.duckdetector \
     com.google.android.apps.walletnfcrel \
     com.google.android.apps.messaging; do
     echo "$pkg" >> "$TMP"
@@ -1143,6 +1154,43 @@ keybox_fingerprint() {
 
     [ -s "$KEYBOX" ] || return 1
     sha256sum "$KEYBOX" 2>/dev/null | awk '{print $1}'
+}
+
+verify_trickybox() {
+    LOG="/data/adb/Box-Brain/TrickyBox/worker.log"
+    mkdir -p "$(dirname "$LOG")" || return 1
+
+    if detect_conflict; then
+        PID_FILE="/data/adb/Box-Brain/TrickyBox/.service.lock/pid"
+        SCRIPT="/data/adb/service.d/tricky.sh"
+        printf '[%s] No conflict detected.\n' "$(date '+%F %T')" >> "$LOG"
+    else
+        PID_FILE="/data/adb/modules/tricky_store/.service.lock/pid"
+        SCRIPT="/data/adb/modules/tricky_store/service.sh"
+        printf '[%s] Conflict detected.\n' "$(date '+%F %T')" >> "$LOG"
+
+        [ -f "$PID_FILE" ] || {
+            printf '[%s] Tricky Store PID file missing; skipping launch.\n' "$(date '+%F %T')" >> "$LOG"
+            return 0
+        }
+    fi
+
+    if [ -f "$PID_FILE" ]; then
+        PID=$(tr -d '[:space:]' < "$PID_FILE")
+
+        if [ -n "$PID" ] && kill -0 "$PID" 2>/dev/null; then
+            printf '[%s] Process already running (PID: %s); skipping launch.\n' "$(date '+%F %T')" "$PID" >> "$LOG"
+            return 0
+        fi
+    fi
+
+    [ -f "$SCRIPT" ] || {
+        printf '[%s] Script not found: %s\n' "$(date '+%F %T')" "$SCRIPT" >> "$LOG"
+        return 1
+    }
+
+    printf '[%s] Launching: %s\n' "$(date '+%F %T')" "$SCRIPT" >> "$LOG"
+    nohup sh "$SCRIPT" >> "$LOG" 2>&1 </dev/null &
 }
 
 # TrickyStore derives its stored keys from the keybox, so they only have to be
