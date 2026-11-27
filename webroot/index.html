@@ -72,13 +72,13 @@
 </div>
 <svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
 </button>
-<button class="list-row" data-type="repair">
+<button class="list-row" data-type="piffork">
 <div class="row-icon">
-<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" x2="21" y1="6" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
 </div>
 <div class="row-text">
-<span class="row-title">Repair Mode</span>
-<span class="row-sub">Fix common issues without reboot</span>
+<span class="row-title">Play Integrity</span>
+<span class="row-sub">PIF fingerprint configuration</span>
 </div>
 <svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
 </button>
@@ -117,24 +117,26 @@
 </div>
 <svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
 </button>
-<button class="list-row" data-type="addon">
+
+
+
+<button class="list-row" data-type="xml">
 <div class="row-icon">
-<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12 3v3m0 12v3M3 12h3m12 0h3"></path><circle cx="12" cy="12" r="7"></circle><path d="m9 12 2 2 4-4"></path></svg>
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
 </div>
 <div class="row-text">
-<span class="row-title">Customize Scope</span>
-<span class="row-sub">Addon for dependencies</span>
+<span class="row-title">Import Keybox</span>
+<span class="row-sub">Set keybox from internal storage</span>
 </div>
 <svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
 </button>
-
-<button class="list-row" data-type="gphotos">
+<button class="list-row" data-type="source">
 <div class="row-icon">
-<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><rect height="8" rx="2" width="8" x="3" y="3"></rect><rect height="8" rx="2" width="8" x="13" y="3"></rect><rect height="8" rx="2" width="8" x="3" y="13"></rect><rect height="8" rx="2" width="8" x="13" y="13"></rect></svg>
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 18v3h14v-3"></path></svg>
 </div>
 <div class="row-text">
-<span class="row-title">GPhotos Spoofing</span>
-<span class="row-sub">Get original quality google photos backup</span>
+<span class="row-title">Keybox Downloader</span>
+<span class="row-sub">Download and modify Keybox source</span>
 </div>
 <svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
 </button>
@@ -342,7 +344,6 @@
 <section class="overview-panel">
 <div class="overview-panel-head"><span class="overview-kicker">Integrity Box Configuration</span></div>
 <div class="overview-status-list">
-<div class="overview-status-row"><span>Profile</span><strong id="status-profile">...</strong></div>
 <div class="overview-status-row"><span>Custom ROM Props</span><strong id="status-LineageProp">...</strong></div>
 <div class="overview-status-row"><span>SELinux Status</span><strong id="status-selinux">...</strong></div>
 <div class="overview-status-row"><span>Pixel Canary Config</span><strong id="status-pixel">...</strong></div>
@@ -385,54 +386,11 @@
 </button>
 </div>
 </section>
-<section class="list-section">
-<h2 class="section-title">Keybox</h2>
-<div class="list">
-<button class="list-row" data-type="pilot">
-<div class="row-icon">
-<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
-</div>
-<div class="row-text">
-<span class="row-title">Auto Pilot</span>
-<span class="row-sub">Auto-update keybox and fingerprint</span>
-</div>
-<svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
-</button>
-<button class="list-row" data-type="xml">
-<div class="row-icon">
-<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
-</div>
-<div class="row-text">
-<span class="row-title">Import Keybox</span>
-<span class="row-sub">Set keybox from internal storage</span>
-</div>
-<svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
-</button>
-<button class="list-row" data-type="source">
-<div class="row-icon">
-<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 18v3h14v-3"></path></svg>
-</div>
-<div class="row-text">
-<span class="row-title">Keybox Downloader</span>
-<span class="row-sub">Download and modify Keybox source</span>
-</div>
-<svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
-</button>
-</div>
-</section>
+
 <section class="list-section">
 <h2 class="section-title">Spoofing</h2>
 <div class="list">
-<button class="list-row" data-type="piffork">
-<div class="row-icon">
-<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" x2="21" y1="6" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-</div>
-<div class="row-text">
-<span class="row-title">Play Integrity</span>
-<span class="row-sub">PIF fingerprint configuration</span>
-</div>
-<svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
-</button>
+
 <button class="list-row" data-script="spoofing" data-type="spoofing">
 <div class="row-icon">
 <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
@@ -450,16 +408,6 @@
 <div class="row-text">
 <span class="row-title">Per App Spoofing</span>
 <span class="row-sub">App-specific property injection</span>
-</div>
-<svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
-</button>
-<button class="list-row" data-script="omk" data-type="omk">
-<div class="row-icon">
-<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6z"></path><path d="m8 12 2.5 2.5L16 9"></path></svg>
-</div>
-<div class="row-text">
-<span class="row-title">Setup OMK</span>
-<span class="row-sub">This feature is for OhMyKeymint module users</span>
 </div>
 <svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
 </button>
@@ -500,6 +448,17 @@
 <section class="list-section">
 <h2 class="section-title">Maintenance</h2>
 <div class="list">
+<button class="list-row" data-type="addon">
+<div class="row-icon">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12 3v3m0 12v3M3 12h3m12 0h3"></path><circle cx="12" cy="12" r="7"></circle><path d="m9 12 2 2 4-4"></path></svg>
+</div>
+<div class="row-text">
+<span class="row-title">Customize Scope</span>
+<span class="row-sub">Addon for dependencies</span>
+</div>
+<svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</button>
+
 <button class="list-row" data-type="hash">
 <div class="row-icon">
 <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
@@ -520,11 +479,6 @@
 </div>
 <svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
 </button>
-</div>
-</section>
-<section class="list-section">
-<h2 class="section-title">Experiment Features</h2>
-<div class="list">
 <button class="list-row" data-type="conflict">
 <div class="row-icon">
 <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><rect height="11" rx="2" ry="2" width="18" x="3" y="11"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
@@ -535,18 +489,9 @@
 </div>
 <svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
 </button>
-<button class="list-row" data-type="blog">
-<div class="row-icon">
-<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M5 3h11l3 3v15H5z"></path><path d="M14 3v5h5M8 12h8M8 16h8"></path></svg>
-</div>
-<div class="row-text">
-<span class="row-title">Blogs and Guides</span>
-<span class="row-sub">This comes in English only</span>
-</div>
-<svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
-</button>
 </div>
 </section>
+
 <section class="list-section">
 <h2 class="section-title">Support</h2>
 <div class="list">
@@ -557,16 +502,6 @@
 <div class="row-text">
 <span class="row-title">Report a Problem</span>
 <span class="row-sub">Send feedback to the developer</span>
-</div>
-<svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
-</button>
-<button class="list-row" data-script="assistant" data-type="assistant">
-<div class="row-icon">
-<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" x2="12.01" y1="17" y2="17"></line></svg>
-</div>
-<div class="row-text">
-<span class="row-title">Ask Assistant</span>
-<span class="row-sub">Get help and guidance</span>
 </div>
 <svg class="row-chevron" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
 </button>
