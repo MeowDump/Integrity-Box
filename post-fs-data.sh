@@ -14,6 +14,12 @@ for _f in \
     "$MODPATH/resetprop-rs/resetprop-x86" \
     "$MODPATH/resetprop-rs/resetprop-armeabi-v7a" \
     "$MODPATH/resetprop-rs/resetprop-arm64-v8a" \
+    "$MODPATH/libTrickyStoreOSS.so" \
+    "$MODPATH/attestation.dex" \
+    "$MODPATH/inject" \
+    "$MODPATH/daemon" \
+    "$MODPATH/sepolicy.rule" \
+    "$boot/tricky.sh" \
     "$boot/prop.sh" \
     "$boot/hash.sh" \
     "$boot/lineage.sh" \
@@ -24,7 +30,6 @@ for _f in \
     "$backend/web_bridge.sh" \
     "$backend/autopilot.sh" \
     "$backend/multiroot.sh" \
-    "$backend/custom_pif.sh" \
     "$backend/spectre.sh" \
     "$backend/resetprop.sh" \
     "$backend/Report.sh" \
