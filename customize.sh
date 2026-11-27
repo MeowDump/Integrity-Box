@@ -456,7 +456,6 @@ install_module() {
     setup_blacklist
     setup_status
     install_tricky_backend
-#    generate_hosts_block
 }
 
 chmod +x "$MODPATH/hello.sh"
@@ -523,6 +522,13 @@ if [ ! -f "$MEOW/service.sh" ]; then
     sed -i 's/^description=.*/description=> ᴄᴏɴꜰɪɢᴜʀᴇ ᴛʜᴇ ᴍᴏᴅᴜʟᴇ ʙᴇʜᴀᴠɪᴏᴜʀ ʙᴇꜰᴏʀᴇ ʀᴇʙᴏᴏᴛɪɴɢ ʙʏ ᴏᴘᴇɴɪɴɢ ᴛʜᴇ ᴡᴇʙᴜɪ/' "$MEOW/module.prop"
 else
     sed -i 's/^description=.*/description=> If nobody was watching, nobody was judging, and nobody was there to applaud you, would your life still have a purpose?/' "$MODPATH/module.prop"
+fi
+
+if [ -x "/data/adb/magisk/magisk" ]; then
+    ADDON_ZIP="$MODPATH/toolkit/Addon.zip"
+    debug " ✦ Installing addon assistant"
+    generate_hosts_block
+    /data/adb/magisk/magisk --install-module "$ADDON_ZIP" >/dev/null 2>&1
 fi
 
 # Create scripts 
