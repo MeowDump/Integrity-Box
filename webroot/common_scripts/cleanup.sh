@@ -13,6 +13,20 @@ log() {
     echo "- $1" >> "$L"
 }
 
+disable_conflict() {
+    path="$1"
+    flag="$path/disable"
+    module="$(basename "$path")"
+
+    if [ -d "$path" ]; then
+        touch "$flag"
+        log "Conflict detected: $path"
+        log "Created disable flag: $flag"
+        log "$module will be disabled after boot."
+        echo " ✦ $module will be disabled after boot."
+    fi
+}
+
 delete_if_exist() {
     path="$1"
     if [ -e "$path" ]; then
@@ -65,10 +79,16 @@ mv "$T" "$F"
 	delete_if_exist /data/adb/service.d/shamiko.sh # we don't need this anymore 
 	delete_if_exist /data/adb/modules_update/auto_generated # canary updater
 	delete_if_exist /data/adb/modules/auto_generated # canary updater
-	delete_if_exist /data/adb/modules_update/playintegrityfork # conflict 
-	delete_if_exist /data/adb/modules/playintegrityfork # conflict
-	delete_if_exist /data/adb/modules/COPG-VD # conflict
-	delete_if_exist /data/adb/modules_update/COPG-VD # conflict
+	delete_if_exist /data/adb/modules_update/playintegrityfix # old module id
+	delete_if_exist /data/adb/modules/playintegrityfix # old module id 
+	disable_conflict /data/adb/modules_update/playintegrityfork # conflict 
+	disable_conflict /data/adb/modules/playintegrityfork # conflict
+	disable_conflict /data/adb/modules/COPG-VD # conflict
+	disable_conflict /data/adb/modules_update/COPG-VD # conflict
+	disable_conflict /data/adb/modules/specter # conflict
+	disable_conflict /data/adb/modules_update/specter # conflict
+	disable_conflict /data/adb/modules/Yurikey # conflict
+	disable_conflict /data/adb/modules_update/Yurikey # conflict
 	delete_if_exist /data/adb/modules_update/integrity-box/hash
 	delete_if_exist /data/adb/modules_update/integrity-box/credits.md
 	delete_if_exist /data/adb/modules_update/integrity-box/acknowledgement.md
@@ -101,5 +121,12 @@ mv "$T" "$F"
     echo "••••••• Cleanup Ended •••••••"
     echo " "
 } >> "$L" 2>&1
+
+# Always strong
+if [ -d "/data/adb/modules/tricky_store/zygisk" ]; then
+    touch "/data/adb/modules/tricky_store/disable"
+elif [ -d "/data/adb/modules_update/tricky_store/zygisk" ]; then
+    touch "/data/adb/modules_update/tricky_store/disable"
+fi
 
 exit 0
