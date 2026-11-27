@@ -3,10 +3,6 @@
 MODPATH="/data/adb/modules/integrity-box"
 . "$MODPATH/common_func.sh"
 
-resetprop_delete(){
-    $RP -d "$1"
-}
-
 OVERRIDE="$MODPATH/webroot/common_scripts/force_override.sh"
 
 if [ -f "/data/adb/Box-Brain/safemode" ]; then
@@ -60,7 +56,7 @@ while IFS= read -r line || [ -n "$line" ]; do
             continue
             ;;
         *)
-            set_prop "$key" "$value"
+            check_and_set_prop "$key" "$value"
             actual_value=$(getprop "$key")
             if [ "$actual_value" = "$value" ]; then
                 echo "[OK] Overridden: $key=$value" >> "$LOG_FILE"
