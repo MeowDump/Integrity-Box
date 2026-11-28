@@ -712,30 +712,33 @@ function toggleMergedUI(id){
   if(id==="autopilotMerged"){
     if(on){
       run("if [ -f '"+PIF_KEY+"' ] || [ -f '"+KEY_FLAG+"' ]; then echo 1; else echo 0; fi",function(check){
-        if(!String(check||"").trim()) { setOn(id,false); popup("Select an AutoPilot mode first","warn"); return; }
-        run("mkdir -p "+DIR+" && touch "+AUTOPILOT_FLAG+" && sh '"+AUTOPILOT_SCRIPT+"'",function(){
+        if(String(check||"").trim() !== "1") { setOn(id,false); lockAutoPilot(true); popup("Select an AutoPilot mode first","warn"); return; }
+        run("mkdir -p '"+DIR+"' && touch '"+AUTOPILOT_FLAG+"' && sh '"+AUTOPILOT_SCRIPT+"'",function(){
           setOn(id,true); popup("AutoPilot enabled","success");
         },180000);
       });
     }else{
-      run("rm -f "+AUTOPILOT_FLAG+" && sh '"+PID_SCRIPT+"'",function(){
+      run("rm -f '"+AUTOPILOT_FLAG+"' && sh '"+PID_SCRIPT+"'",function(){
         setOn(id,false);
         popup("AutoPilot disabled","success");
       },180000);
     }
   }
 }
+
 function setMergedMode(mode){
   var xt=document.getElementById("mergedXtreme"), kb=document.getElementById("mergedKeybox");
-  run("mkdir -p '"+BOX_BRAIN+"' && rm -f '"+PIF_KEY+"' '"+KEY_FLAG+"' && "+
-      (mode==="xtreme"?"touch '"+PIF_KEY+"'":"touch '"+KEY_FLAG+"'"),function(){});
-  [xt,kb].forEach(function(b){b.style.borderColor="rgba(255,255,255,.12)";b.style.background="rgba(255,255,255,.04)";b.style.color="var(--fg)";});
-  var selected=mode==="xtreme"?xt:kb;
-  selected.style.borderColor="var(--accent)";
-  selected.style.background="rgba(77,163,255,.14)";
-  selected.style.color="var(--accent)";
-  document.getElementById("mergedModeNote").textContent=(mode==="xtreme"?"PIF + Keybox":"Keybox Mode")+" selected";
+  var flagCmd="mkdir -p '"+BOX_BRAIN+"' && rm -f '"+PIF_KEY+"' '"+KEY_FLAG+"' && "+
+      (mode==="xtreme"?"touch '"+PIF_KEY+"'":"touch '"+KEY_FLAG+"'")+" && "+
+      "if [ -f '"+PIF_KEY+"' ] || [ -f '"+KEY_FLAG+"' ]; then echo 1; else echo 0; fi";
+  run(flagCmd,function(result){
+    var selectedFlag=String(result||"").trim()==="1";
+    lockAutoPilot(!selectedFlag);
+    if(selectedFlag) selectMergedMode(mode);
+    else popup("Unable to save AutoPilot mode","error");
+  });
 }
+
 
 function touch(path,on){if(on)run("mkdir -p "+DIR+" && touch "+path,function(){});else run("rm -f "+path,function(){});}
 function write(key,val,cb){
